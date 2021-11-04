@@ -2,6 +2,7 @@
 #define __c2xdenm_h
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef _WIN32
 #ifdef shared_EXPORTS

@@ -14,6 +14,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..
 
 if(WIN32) 
 	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
+elseif(UNIX)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 endif()
 
 install(TARGETS ${PROJECT_NAME}
