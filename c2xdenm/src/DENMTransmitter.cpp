@@ -8,12 +8,13 @@
 #include <unistd.h>
 #endif
 
-DENMTransmitter::DENMTransmitter() 
+DENMTransmitter::DENMTransmitter()
+	: msgContainer_(new DENMContainer())
 {
 
 }
 
-void DENMTransmitter::start(int stationId, unsigned short port, unsigned int interval_ms)
+void DENMTransmitter::start(unsigned short port, unsigned int interval_ms)
 {
 	if (thread_running_)
 	{
@@ -22,7 +23,6 @@ void DENMTransmitter::start(int stationId, unsigned short port, unsigned int int
 
 	interval_ms_ = interval_ms;
 	port_ = port;
-	stationId_ = stationId;
 
 	thread_running_ = true;
 	send_thread_ = std::thread(send);
@@ -53,18 +53,18 @@ void DENMTransmitter::send()
 	{
 		try
 		{
-			DENMContainer::getInstance().lockContainer();
+			DENMTransmitter::getInstance().lockMsgContainer();
 			DENM_t* active_msgs[100];
-			int active_msgs_len = DENMContainer::getInstance().getActiveMessages(DENMTransmitter::getInstance().stationId_, active_msgs, 100);
+			int active_msgs_len = DENMTransmitter::getInstance().msgContainer_->getActiveMessages(active_msgs, 100);
 			for (int i = 0; i < active_msgs_len; i++)
 			{
 				int len = encodeDENM(active_msgs[i], buffer, TRANSMIT_BUFFER_LEN);
 				std::cout << "Send DENM message (length: " << len << " bytes) from station " 
-					<< active_msgs[i]->denm.management.actionID.originatingStationID 
+					<< active_msgs[i]->denm.management.actionID.originatingStationID << " - "
 					<< active_msgs[i]->denm.management.actionID.sequenceNumber << std::endl;
 				socket.sendTo(DENMTransmitter::getInstance().port_, buffer, len);
 			}			
-			DENMContainer::getInstance().unlockContainer();
+			DENMTransmitter::getInstance().unlockMsgContainer();
 
 #ifdef WIN32
 			Sleep(DENMTransmitter::getInstance().interval_ms_);
@@ -96,4 +96,14 @@ void DENMTransmitter::setInterval(unsigned int interval)
 unsigned int DENMTransmitter::getInterval()
 {
 	return interval_ms_;
+}
+
+void DENMTransmitter::lockMsgContainer()
+{
+	msgContainerLock_.lock();
+}
+
+void DENMTransmitter::unlockMsgContainer()
+{
+	msgContainerLock_.unlock();
 }

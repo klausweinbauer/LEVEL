@@ -9,19 +9,16 @@ DENMContainer::DENMContainer()
 
 int DENMContainer::addOrUpdate(DENM_t* denm)
 {
-	lockContainer();
-
 	DENM_t* b_denm = get(denm->denm.management.actionID);
 	if (b_denm)
 	{
 		if (b_denm->header.stationID != denm->header.stationID)
 		{
-			unlockContainer();
 			return -1;
 		}
 
 		int index = getIndex(denm->denm.management.actionID);
-		msg_list_[index] = denm;
+		msg_list_[index]->denm_ = denm;
 		freeDENM(b_denm);
 
 		std::cout << "DENM-CONTAINER -> Replace [" << index << "] "
@@ -30,63 +27,49 @@ int DENMContainer::addOrUpdate(DENM_t* denm)
 	}
 	else
 	{
-		msg_list_.insert(msg_list_.begin(), denm);
+		DENMEntry* denmEntry = new DENMEntry();
+		denmEntry->active_ = 0;
+		denmEntry->denm_ = denm;
+		msg_list_.insert(msg_list_.begin(), denmEntry);
 		std::cout << "DENM-CONTAINER -> New "
 			<< denm->denm.management.actionID.originatingStationID << "-"
 			<< denm->denm.management.actionID.sequenceNumber << std::endl;
 	}
-
-	unlockContainer();
 }
 
-int DENMContainer::remove(int stationId, int sequenceNumber)
+int DENMContainer::remove(unsigned long stationId, long sequenceNumber)
 {
-	lockContainer();
-
 	int index = getIndex(stationId, sequenceNumber);
 	if (index >= 0)
 	{
-		DENM_t* denm = msg_list_[index];
+		DENM_t* denm = msg_list_[index]->denm_;
 		msg_list_.erase(msg_list_.begin() + index);
-		//freeDENMPointers(denm);
-		free(denm);
+		freeDENM(denm);
 	}
-
-	unlockContainer();
 
 	return 0;
 }
 
-DENM_t* DENMContainer::get(int stationId, int sequenceNumber)
+DENM_t* DENMContainer::get(unsigned long stationId, long sequenceNumber)
 {
 	for (auto it = msg_list_.begin(); it != msg_list_.end(); it++)
 	{
-		if ((*it)->denm.management.actionID.originatingStationID == stationId
-			&& (*it)->denm.management.actionID.sequenceNumber == sequenceNumber)
+		if ((*it)->denm_->denm.management.actionID.originatingStationID == stationId
+			&& (*it)->denm_->denm.management.actionID.sequenceNumber == sequenceNumber)
 		{
-			return *it;
+			return (*it)->denm_;
 		}
 	}
 
 	return nullptr;
 }
 
-void DENMContainer::lockContainer()
-{
-	container_lock_.lock();
-}
-
-void DENMContainer::unlockContainer()
-{
-	container_lock_.unlock();
-}
-
 int DENMContainer::clear()
 {
 	for (auto it = msg_list_.begin(); it != msg_list_.end(); it++)
 	{
-		//freeDENMPointers(it->second);
-		free(*it);
+		freeDENM((*it)->denm_);
+		delete *it;
 	}
 
 	msg_list_.clear();
@@ -94,12 +77,12 @@ int DENMContainer::clear()
 	return 0;
 }
 
-int DENMContainer::getIndex(int stationId, int sequencNumber)
+int DENMContainer::getIndex(unsigned long stationId, long sequencNumber)
 {
 	for (int i = 0; i < msg_list_.size(); i++)
 	{
-		if (msg_list_[i]->denm.management.actionID.originatingStationID == stationId
-			&& msg_list_[i]->denm.management.actionID.sequenceNumber == sequencNumber)
+		if (msg_list_[i]->denm_->denm.management.actionID.originatingStationID == stationId
+			&& msg_list_[i]->denm_->denm.management.actionID.sequenceNumber == sequencNumber)
 		{
 			return i;
 		}
@@ -112,7 +95,7 @@ DENM_t* DENMContainer::getAtIndex(int index)
 {
 	if (index < msg_list_.size())
 	{
-		return msg_list_[index];
+		return msg_list_[index]->denm_;
 	}
 	else
 	{
@@ -135,7 +118,7 @@ int DENMContainer::getIndex(ActionID_t actionId)
 	return getIndex(actionId.originatingStationID, actionId.sequenceNumber);
 }
 
-int DENMContainer::getActiveMessages(int stationId, DENM_t** buffer, int len)
+int DENMContainer::getActiveMessages(DENM_t** buffer, int len)
 {
 	int outIndex = 0;
 	for (int i = 0; i < msg_list_.size(); i++)
@@ -144,12 +127,25 @@ int DENMContainer::getActiveMessages(int stationId, DENM_t** buffer, int len)
 			return outIndex;
 		}
 
-		if (msg_list_[i]->denm.management.actionID.originatingStationID == stationId)
+		if (!msg_list_[i]->active_)
 		{
-			buffer[outIndex] = msg_list_[i];
-			outIndex++;
+			continue;
 		}
+
+		buffer[outIndex] = msg_list_[i]->denm_;
+		outIndex++;
 	}
 
 	return outIndex;
+}
+
+int DENMContainer::setActiveState(unsigned long stationID, long sequenceNumber, bool state)
+{
+	int index = getIndex(stationID, sequenceNumber);
+	if (index < 0)
+	{
+		return -1;
+	}
+
+	msg_list_[index]->active_ = state;
 }

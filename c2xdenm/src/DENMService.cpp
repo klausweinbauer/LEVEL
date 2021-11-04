@@ -11,7 +11,30 @@ void initDENM(DENM_t *denm)
 
 void freeDENM(DENM_t* denm)
 {
+    delete denm->denm.management.detectionTime.buf;
+    delete denm->denm.management.referenceTime.buf;
+    delete denm->denm.management.termination;
+    delete denm->denm.management.relevanceDistance;
+    delete denm->denm.management.relevanceTrafficDirection;
+    delete denm->denm.management.validityDuration;
+    delete denm->denm.management.transmissionInterval;
 
+    if (denm->denm.situation != nullptr)
+    {
+
+    }
+
+    if (denm->denm.location != nullptr)
+    {
+
+    }
+
+    if (denm->denm.alacarte != nullptr)
+    {
+
+    }
+
+    delete denm;
 }
 
 int writeCallback(const void* src, size_t size, void* application_specific_key)

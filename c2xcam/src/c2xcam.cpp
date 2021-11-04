@@ -164,14 +164,30 @@ int getCAMBasicContainerValues(int id, int* stationType, int* latitude, int* lon
     }
 
     BasicContainer_t* container = &cam->cam.camParameters.basicContainer;
-    *stationType = container->stationType;
-    *latitude = container->referencePosition.latitude;
-    *longitude = container->referencePosition.longitude;
-    *posConfSemiMajorC = container->referencePosition.positionConfidenceEllipse.semiMajorConfidence;
-    *posConfSemiMinorC = container->referencePosition.positionConfidenceEllipse.semiMinorConfidence;
-    *posConfSemiMajorO = container->referencePosition.positionConfidenceEllipse.semiMajorOrientation;
-    *altitudeValue = container->referencePosition.altitude.altitudeValue;
-    *altitudeConf = container->referencePosition.altitude.altitudeConfidence;
+    if (stationType != nullptr) {
+        *stationType = container->stationType;
+    }
+    if (latitude != nullptr) {
+        *latitude = container->referencePosition.latitude;
+    }
+    if (longitude != nullptr) {
+        *longitude = container->referencePosition.longitude;
+    }
+    if (posConfSemiMajorC != nullptr) {
+        *posConfSemiMajorC = container->referencePosition.positionConfidenceEllipse.semiMajorConfidence;
+    }
+    if (posConfSemiMinorC != nullptr) {
+        *posConfSemiMinorC = container->referencePosition.positionConfidenceEllipse.semiMinorConfidence;
+    }
+    if (posConfSemiMajorO != nullptr) {
+        *posConfSemiMajorO = container->referencePosition.positionConfidenceEllipse.semiMajorOrientation;
+    }
+    if (altitudeValue != nullptr) {
+        *altitudeValue = container->referencePosition.altitude.altitudeValue;
+    }
+    if (altitudeConf != nullptr) {
+        *altitudeConf = container->referencePosition.altitude.altitudeConfidence;
+    }
 
     CAMContainer::getInstance().unlockContainer();
 
@@ -189,9 +205,15 @@ int getCAMHeader(int id, int *version, int *msgID, int *stationID)
         return -1;
     }
 
-    *version = cam->header.protocolVersion;
-    *msgID = cam->header.messageID;
-    *stationID = cam->header.stationID;
+    if (version != nullptr) {
+        *version = cam->header.protocolVersion;
+    }
+    if (msgID != nullptr) {
+        *msgID = cam->header.messageID;
+    }
+    if (stationID != nullptr) {
+        *stationID = cam->header.stationID;
+    }
 
     CAMContainer::getInstance().unlockContainer();
 
@@ -297,21 +319,51 @@ int getCAMHFCBasicVehicleValues(
     }
 
     BasicVehicleContainerHighFrequency_t* c = &cam->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency;
-    *headingValue = c->heading.headingValue;
-    *headingConfidence = c->heading.headingConfidence;
-    *speedValue = c->speed.speedValue;
-    *speedConfidence = c->speed.speedConfidence;
-    *driveDirection = c->driveDirection;
-    *vehicleLengthValue = c->vehicleLength.vehicleLengthValue;
-    *vehicleLengthConfidence = c->vehicleLength.vehicleLengthConfidenceIndication;
-    *vehicleWidth = c->vehicleWidth;
-    *longitudinalAccelerationValue = c->longitudinalAcceleration.longitudinalAccelerationValue;
-    *longitudinalAccelerationConfidence = c->longitudinalAcceleration.longitudinalAccelerationConfidence;
-    *curvatureValue = c->curvature.curvatureValue;
-    *curvatureConfidence = c->curvature.curvatureConfidence;
-    *curvatureCalculationMode = c->curvatureCalculationMode;
-    *yawRateValue = c->yawRate.yawRateValue;
-    *yawRateConfidence = c->yawRate.yawRateConfidence;
+    if (headingValue != nullptr) {
+        *headingValue = c->heading.headingValue;
+    }
+    if (headingConfidence != nullptr) {
+        *headingConfidence = c->heading.headingConfidence;
+    }
+    if (speedValue != nullptr) {
+        *speedValue = c->speed.speedValue;
+    }
+    if (speedConfidence != nullptr) {
+        *speedConfidence = c->speed.speedConfidence;
+    }
+    if (driveDirection != nullptr) {
+        *driveDirection = c->driveDirection;
+    }
+    if (vehicleLengthValue != nullptr) {
+        *vehicleLengthValue = c->vehicleLength.vehicleLengthValue;
+    }
+    if (vehicleLengthConfidence != nullptr) {
+        *vehicleLengthConfidence = c->vehicleLength.vehicleLengthConfidenceIndication;
+    }
+    if (vehicleWidth != nullptr) {
+        *vehicleWidth = c->vehicleWidth;
+    }
+    if (longitudinalAccelerationValue != nullptr) {
+        *longitudinalAccelerationValue = c->longitudinalAcceleration.longitudinalAccelerationValue;
+    }
+    if (longitudinalAccelerationConfidence != nullptr) {
+        *longitudinalAccelerationConfidence = c->longitudinalAcceleration.longitudinalAccelerationConfidence;
+    }
+    if (curvatureValue != nullptr) {
+        *curvatureValue = c->curvature.curvatureValue;
+    }
+    if (curvatureConfidence != nullptr) {
+        *curvatureConfidence = c->curvature.curvatureConfidence;
+    }
+    if (curvatureCalculationMode != nullptr) {
+        *curvatureCalculationMode = c->curvatureCalculationMode;
+    }
+    if (yawRateValue != nullptr) {
+        *yawRateValue = c->yawRate.yawRateValue;
+    }
+    if (yawRateConfidence != nullptr) {
+        *yawRateConfidence = c->yawRate.yawRateConfidence;
+    }
 
     CAMContainer::getInstance().unlockContainer();
 
@@ -378,7 +430,9 @@ int getCAMLFCBasicVehicleValues(int stationId, int* vehicleRole, uint8_t* exteri
         return -3;
     }
 
-    *vehicleRole = c->vehicleRole;
+    if (vehicleRole != nullptr) {
+        *vehicleRole = c->vehicleRole;
+    }
 
     if (exteriorLightsSize != nullptr && exteriorLights != nullptr)
     {

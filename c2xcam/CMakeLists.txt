@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.7.2)
 project(c2xcam VERSION 1.0.0)
 
 add_library(${PROJECT_NAME} SHARED src/c2xcam.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/c2xcam.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/../include/c2xcam.h)
 
 include(GenerateExportHeader)
 
 add_subdirectory(src)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../common ${CMAKE_CURRENT_BINARY_DIR}/common)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 if(WIN32) 
 	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
