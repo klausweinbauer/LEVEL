@@ -239,14 +239,14 @@ int getManagementContainer(
 
     if (denm->denm.management.detectionTime.buf != nullptr && detectionTime != nullptr && detectionTimeSize != nullptr)
     {
-        int size = std::min(detectionTimeMaxSize, denm->denm.management.detectionTime.size);
+        int size = (std::min)(detectionTimeMaxSize, denm->denm.management.detectionTime.size);
         memcpy(detectionTime, denm->denm.management.detectionTime.buf, size);
         *detectionTimeSize = denm->denm.management.detectionTime.size;
     }
 
     if (denm->denm.management.referenceTime.buf != nullptr && referenceTime != nullptr && referenceTimeSize != nullptr)
     {
-        int size = std::min(referenceTimeMaxSize, denm->denm.management.referenceTime.size);
+        int size = (std::min)(referenceTimeMaxSize, denm->denm.management.referenceTime.size);
         memcpy(referenceTime, denm->denm.management.referenceTime.buf, size);
         *referenceTimeSize = denm->denm.management.referenceTime.size;
     }
