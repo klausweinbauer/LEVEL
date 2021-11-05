@@ -5,8 +5,10 @@ import re
 libName = 'c2xcam'
 headerFile = './include/c2xcam.h'
 templateFile = 'simulink-component.template'
-simulinkBlockDefine = "SIMULINK_BLOCK"
 outputDirectory = './matlab/c2xlib/'
+
+simulinkBlockDefine = "SIMULINK_BLOCKx"
+simulinkNontunableProperty = "SIMULINK_NONTUNABLE_PROPERTY"
 
 ################################
 
@@ -18,6 +20,7 @@ def getClassName(functionDefinition):
 
 class Parameter:
     isPointer = False
+    isNontunable = False
     name = ""
     dataType = ""
 
@@ -28,10 +31,13 @@ def getParameterList(functionDefinition):
         raw = rP.strip()
         param = Parameter()
         param.isPointer = '*' in raw
-        param.dataType = re.search("^([a-zA-Z0-9_]+)", raw).group()
+        param.dataType = re.search("(int|uint8_t)", raw).group()
+        if len(param.dataType) == 0:
+            print("[ERROR] Unknown data type in function definition: " + rP)
+            exit(0)
         param.name = re.search("([a-zA-Z]+)$", raw).group()
+        param.isNontunable = simulinkNontunableProperty in raw
         parameters.append(param)
-        
     return parameters
 
 def getCFunctionName(functionDefinition):
@@ -43,22 +49,31 @@ def fName(name):
 def getOutputParameterList(paramList):
     out = []
     for param in paramList:
-        if (param.isPointer):
+        if param.isPointer and not param.isNontunable:
             out.append(fName(param.name))
     return ", ".join(out)
 
 def getInputParameterList(paramList):
     out = []
     for param in paramList:
-        if not param.isPointer:
+        if not param.isPointer and not param.isNontunable:
             out.append(fName(param.name))
     return ", ".join(out)
+
+def getNontunableProperties(paramList):
+    out = []
+    for param in paramList:
+        if param.isNontunable:
+            out.append(fName(param.name) + " = 0;")
+    return "\n".join(out)
 
 def getCoderParamList(paramList):
     out = []
     for param in paramList:
         if param.isPointer:
             out.append("coder.wref(" + fName(param.name) + ")")
+        elif param.isNontunable:
+            out.append("obj." + fName(param.name))
         else:
             out.append(fName(param.name))
     return ", ".join(out)
@@ -73,7 +88,8 @@ def resolveTemplateObjects(functionDefinition, paramList):
         '__inputParameterList__': getInputParameterList(paramList),
         '__cFunctionName__': getCFunctionName(functionDefinition),
         '__coderParameterList__': getCoderParamList(paramList),
-        '__libName__': libName
+        '__libName__': libName,
+        '__nontunableProperties__': getNontunableProperties(paramList)
     }
 
 def getFileName(functionDefinition):

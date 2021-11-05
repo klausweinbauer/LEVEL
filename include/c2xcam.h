@@ -9,6 +9,7 @@ extern "C"
 #endif
 
 #define SIMULINK_BLOCK
+#define SIMULINK_NONTUNABLE_PROPERTY
 
 #define HIGH_FREQ_CONTAINER_TYPE_NONE 0
 #define HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE 1
@@ -64,8 +65,8 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequency_recv(i
     int *curvatureCalculationMode, int *yawRateValue, int *yawRateConfidence);
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int id, uint8_t *buffer, 
     int size, int* actualSize);
-int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyAccelerationControl_recv(int id, uint8_t *buffer, int size, 
-    int* actualSize);
+int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyAccelerationControl_recv(int id, 
+    uint8_t *buffer, SIMULINK_NONTUNABLE_PROPERTY int size, int* actualSize);
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequencyLanePosition(int id, int *lanePosition);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyLanePosition_recv(int id, int *lanePosition);
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int id, int *steeringWheelAngleValue, 
@@ -89,12 +90,12 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyCenDsrc
 
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(int id, int *vehicleRole, uint8_t *exteriorLights, 
     int exteriorLightsSize, int *actualExteriorLightsSize);
-int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole, uint8_t *exteriorLights, 
-    int exteriorLightsSize, int *actualExteriorLightsSize);
+int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole, 
+    uint8_t *exteriorLights, SIMULINK_NONTUNABLE_PROPERTY int exteriorLightsSize, int *actualExteriorLightsSize);
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
-int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, int* pathHistory, 
-    int pathHistorySize, int *actualPathHistorySize);
+int SHARED_EXPORT SIMULINK_BLOCKx getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, 
+    int* pathHistory, SIMULINK_NONTUNABLE_PROPERTY int pathHistorySize, int *actualPathHistorySize);
 #pragma endregion
 
 #ifdef __cplusplus
