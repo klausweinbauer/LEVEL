@@ -7,7 +7,7 @@ headerFile = './include/c2xcam.h'
 templateFile = 'simulink-component.template'
 outputDirectory = './matlab/c2xlib/'
 
-simulinkBlockDefine = "SIMULINK_BLOCKx"
+simulinkBlockDefine = "SIMULINK_BLOCK"
 simulinkNontunableProperty = "SIMULINK_NONTUNABLE_PROPERTY"
 
 ################################
@@ -31,10 +31,11 @@ def getParameterList(functionDefinition):
         raw = rP.strip()
         param = Parameter()
         param.isPointer = '*' in raw
-        param.dataType = re.search("(int|uint8_t)", raw).group()
-        if len(param.dataType) == 0:
+        dtMatch = re.search("(int|uint8_t)", raw)
+        if not dtMatch:
             print("[ERROR] Unknown data type in function definition: " + rP)
             exit(0)
+        param.dataType = dtMatch.group()            
         param.name = re.search("([a-zA-Z]+)$", raw).group()
         param.isNontunable = simulinkNontunableProperty in raw
         parameters.append(param)

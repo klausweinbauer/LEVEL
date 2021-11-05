@@ -21,7 +21,7 @@ int SHARED_EXPORT deleteCAM(int id);
 #pragma region Setter
 int SHARED_EXPORT SIMULINK_BLOCK setCAMHeader(int id, int protocolVersion, int messageID, unsigned int stationID);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMGenerationDeltaTime(int id, int generationDeltaTime);
-int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicContainer(int id, int stationType, Position position);
+int SHARED_EXPORT setCAMBasicContainer(int id, int stationType, Position position);
 
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequency(int id, int headingValue, int headingConfidence, 
     int speedValue, int speedConfidence, int driveDirection, int vehicleLengthValue, 
@@ -51,7 +51,7 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMHeader_recv(int stationId, int *protocolV
 int SHARED_EXPORT getCAMGenerationDeltaTime(int id, int *generationDeltaTime);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMGenerationDeltaTime_recv(int stationId, int *generationDeltaTime);
 int SHARED_EXPORT getCAMBasicContainer(int id, int *stationType, Position *position);
-int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicContainer_recv(int stationId, int *stationType, Position *position);
+int SHARED_EXPORT getCAMBasicContainer_recv(int stationId, int *stationType, Position *position);
 
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(int id, int *headingValue, int *headingConfidence, 
     int *speedValue, int *speedConfidence, int *driveDirection, int *vehicleLengthValue, 
@@ -94,7 +94,7 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequency_recv(in
     uint8_t *exteriorLights, SIMULINK_NONTUNABLE_PROPERTY int exteriorLightsSize, int *actualExteriorLightsSize);
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
-int SHARED_EXPORT SIMULINK_BLOCKx getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, 
+int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, 
     int* pathHistory, SIMULINK_NONTUNABLE_PROPERTY int pathHistorySize, int *actualPathHistorySize);
 #pragma endregion
 
