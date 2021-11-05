@@ -23,6 +23,7 @@ extern "C"
 #define ERR_MSG_NOT_FOUND -1
 #define ERR_ALLOC_FAILED -2
 #define ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE -3
+#define ERR_NULL -4
 
 typedef struct Position {
     int latitude = 0;
@@ -47,6 +48,9 @@ void getErrMsg(int err, char* buffer, int size) {
         snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
             "message has to be of type " 
             "HighFrequencyContainerBasicVehicleContainer");
+        break;
+    case ERR_NULL:
+        snprintf(buffer, size, "Null pointer.");
         break;
     default:
         break;
