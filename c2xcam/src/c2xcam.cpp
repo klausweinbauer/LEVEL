@@ -933,7 +933,7 @@ int getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole
     // TODO
 }
 
-int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, DeltaPathPoint* pathHistory, 
+int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize)
 {
     if (!cam->cam.camParameters.lowFrequencyContainer) {
@@ -948,6 +948,22 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, DeltaPathPoin
 
     BasicVehicleContainerLowFrequency *lfc = 
         &cam->cam.camParameters.lowFrequencyContainer->choice.basicVehicleContainerLowFrequency;
+
+    if (pathHistory)
+    {
+        int len = c->pathHistory.list.count;
+        int cpySize = std::min((int)(pathHistorySize / 4), len);
+        for (int i = 0; i < cpySize; i++)
+        {
+            pathHistory[i*4 + 0] = c->pathHistory.list.array[len - 1 - i]->pathPosition.deltaLatitude;
+            pathHistory[i*4 + 1] = c->pathHistory.list.array[len - 1 - i]->pathPosition.deltaLongitude;
+            pathHistory[i*4 + 2] = c->pathHistory.list.array[len - 1 - i]->pathPosition.deltaAltitude;
+            pathHistory[i*4 + 3] = *c->pathHistory.list.array[len - 1 - i]->pathDeltaTime;
+        }
+    }
+    if (actualPathHistorySize) {
+        *actualPathHistorySize = c->pathHistory.list.count * 4;
+    }
 }
 
 int getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, DeltaPathPoint* pathHistory, 
@@ -956,7 +972,8 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, DeltaPathPoint* p
     databaseLock_.lock();
     GET_CAM(id);
 
-    int ret = 0;
+    int ret = getCAMBasicVehicleContainerLowFrequencyPathHistory(cam, pathHistory, pathHistorySize, 
+        actualPathHistorySize);
 
     databaseLock_.unlock();
     return ret;
