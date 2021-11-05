@@ -7,6 +7,38 @@
 #include <CAMTransmitter.hpp>
 #include <CAMContainer.hpp>
 
+#include <map>
+#include <mutex>
+
+static std::map<int, CAM_t*> database_;
+static int databaseId_ = 0;
+static std::mutex databaseLock_;
+
+int createCAM() {
+    CAM_t* cam = new CAM_t();
+    if (cam == nullptr) {
+        return -1;
+    }
+
+    databaseLock_.lock();
+    int id = ++databaseId_;
+    database_.insert(std::pair<int, CAM_t*>(id, cam));
+    databaseLock_.unlock();
+
+    return id;
+}
+
+int deleteCAM(int id) {
+    databaseLock_.lock();
+    auto it = database_.find(id);
+    if (it != database_.end()) {
+        ASN_STRUCT_FREE(asn_DEF_CAM, it->second());
+        database_.erase(id);
+    }
+
+    databaseLock_.unlock();
+}
+
 static unsigned int transmission_interval_ms_ = 500;
 static int port_ = 1997;
 static HighFrequencyContainer_PR cam_HFC_present_ = HighFrequencyContainer_PR::HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;

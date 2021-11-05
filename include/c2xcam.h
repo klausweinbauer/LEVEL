@@ -18,7 +18,11 @@ extern "C"
 {
 #endif
 
-//void SHARED_EXPORT initCAM();
+int SHARED_EXPORT createCAM();
+
+
+// #######################
+
 void SHARED_EXPORT configureCAM(int port, int cam_HFC_present, int cam_LFC_present, int cam_SVC_present);
 void SHARED_EXPORT setCAMTransmissionFrequency(double transmission_frequency);
 void SHARED_EXPORT setCAMLFCBasicVehicleMaxPathPoints(int max_points);
