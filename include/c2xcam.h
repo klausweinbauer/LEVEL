@@ -89,9 +89,9 @@ int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(int id, int *vehicleRo
     int exteriorLightsSize, int *actualExteriorLightsSize);
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole, uint8_t *exteriorLights, 
     int exteriorLightsSize, int *actualExteriorLightsSize);
-int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, DeltaPathPoint* pathHistory, 
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
-int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, DeltaPathPoint* pathHistory, 
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
 #pragma endregion
 
