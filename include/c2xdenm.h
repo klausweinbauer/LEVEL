@@ -14,6 +14,8 @@
 #define SHARED_EXPORT
 #endif
 
+#define _COMMON_DENM
+
 #ifdef __cplusplus
 extern "C"
 {

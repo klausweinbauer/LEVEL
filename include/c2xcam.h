@@ -36,6 +36,10 @@ int SHARED_EXPORT setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(i
 int SHARED_EXPORT setCAMBasicVehicleContainerHighFrequencyPerformaceClass(int id, int performanceClass);
 int SHARED_EXPORT setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int id, int protectedZoneLatitude, 
     int protectedZoneLongitude, int cenDsrcTollingZoneID);
+
+int SHARED_EXPORT setCAMBasicVehicleContainerLowFrequency(int id, int vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize);
+int SHARED_EXPORT addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, DeltaPathPoint pathPoint);
 #pragma endregion
 
 #pragma region Getter
@@ -80,6 +84,15 @@ int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int
     int *protectedZoneLongitude, int *cenDsrcTollingZoneID);
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone_recv(int id, int *protectedZoneLatitude, 
     int *protectedZoneLongitude, int *cenDsrcTollingZoneID);
+
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(int id, int *vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize, int *actualExteriorLightsSize);
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize, int *actualExteriorLightsSize);
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, DeltaPathPoint* pathHistory, 
+    int pathHistorySize, int *actualPathHistorySize);
+int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, DeltaPathPoint* pathHistory, 
+    int pathHistorySize, int *actualPathHistorySize);
 #pragma endregion
 
 #ifdef __cplusplus

@@ -32,6 +32,14 @@ void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int size) {
     bitString->size = size;
 }
 
+void freePathPoint(PathPoint *pathPoint) {
+    if (!pathPoint) {
+        return;
+    }
+    delete pathPoint->pathDeltaTime;
+    delete pathPoint;
+}
+
 int createCAM(int heighFrequencyContainerType) {
     CAM_t* cam = new CAM_t();
     if (!cam) {
@@ -333,6 +341,63 @@ int setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int id, int prote
             new CenDsrcTollingZoneID_t();
     }
     *hfc->cenDsrcTollingZone->cenDsrcTollingZoneID = cenDsrcTollingZoneID;
+
+    databaseLock_.unlock();
+}
+
+
+int setCAMBasicVehicleContainerLowFrequency(int id, int vehicleRole, uint8_t *exteriorLights, int exteriorLightsSize)
+{
+    databaseLock_.lock();
+    GET_CAM(id);
+    
+    if (!cam->cam.camParameters.lowFrequencyContainer) 
+    {
+        cam->cam.camParameters.lowFrequencyContainer = new LowFrequencyContainer();
+        cam->cam.camParameters.lowFrequencyContainer->present = 
+            LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
+    }
+    else if (cam->cam.camParameters.lowFrequencyContainer->present != 
+        LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+        return ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE;
+    }
+
+    BasicVehicleContainerLowFrequency *lfc = &cam->cam.camParameters
+        .lowFrequencyContainer->choice.basicVehicleContainerLowFrequency;
+    
+    lfc->vehicleRole = vehicleRole;
+    setBitString(&lfc->exteriorLights, exteriorLights, exteriorLightsSize);
+
+    databaseLock_.unlock();
+}
+
+int addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, DeltaPathPoint pathPoint)
+{
+    databaseLock_.lock();
+    GET_CAM(id);
+    
+    if (!cam->cam.camParameters.lowFrequencyContainer) 
+    {
+        cam->cam.camParameters.lowFrequencyContainer = new LowFrequencyContainer();
+        cam->cam.camParameters.lowFrequencyContainer->present = 
+            LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
+    }
+    else if (cam->cam.camParameters.lowFrequencyContainer->present != 
+        LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+        return ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE;
+    }
+
+    BasicVehicleContainerLowFrequency *lfc = &cam->cam.camParameters
+        .lowFrequencyContainer->choice.basicVehicleContainerLowFrequency;
+    
+    PathPoint *pp = new PathPoint();
+    pp->pathDeltaTime = new PathDeltaTime_t();
+    *pp->pathDeltaTime = pathPoint.deltaTime;
+    pp->pathPosition.deltaLatitude = pathPoint.deltaLatitude;
+    pp->pathPosition.deltaLongitude = pathPoint.deltaLongitude;
+    pp->pathPosition.deltaAltitude = pathPoint.deltaAltitude;
+    lfc->pathHistory.list.free = freePathPoint;
+    asn_sequence_add(&lfc->pathHistory.list, pp);
 
     databaseLock_.unlock();
 }
@@ -817,6 +882,92 @@ int getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone_recv(int id,
 {
     // TODO
 }
+
+
+int getCAMBasicVehicleContainerLowFrequency(CAM_t *cam, int *vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize, int *actualExteriorLightsSize)
+{
+    if (!cam->cam.camParameters.lowFrequencyContainer) {
+        return ERR_NULL;
+    }
+
+    if (cam->cam.camParameters.lowFrequencyContainer->present != 
+        LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) 
+    {
+        return ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE;
+    }
+
+    BasicVehicleContainerLowFrequency *lfc = 
+        &cam->cam.camParameters.lowFrequencyContainer->choice.basicVehicleContainerLowFrequency;
+    
+    if (vehicleRole) {
+        *vehicleRole = lfc->vehicleRole;
+    }
+
+    int cpySize = 0;
+    if (exteriorLights && lfc->exteriorLights.buf) {
+        cpySize = std::min(exteriorLightsSize, lfc->exteriorLights.size);
+        memcpy(exteriorLights, lfc->exteriorLights.buf, cpySize);
+    }
+    if (actualExteriorLightsSize) {
+        *actualExteriorLightsSize = lfc->exteriorLights.size;
+    }
+}
+
+int getCAMBasicVehicleContainerLowFrequency(int id, int *vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize, int *actualExteriorLightsSize)
+{
+    databaseLock_.lock();
+    GET_CAM(id);
+
+    int ret = getCAMBasicVehicleContainerLowFrequency(cam, vehicleRole, exteriorLights, exteriorLightsSize, 
+        actualExteriorLightsSize);
+
+    databaseLock_.unlock();
+    return ret;
+}
+
+int getCAMBasicVehicleContainerLowFrequency_recv(int stationId, int *vehicleRole, uint8_t *exteriorLights, 
+    int exteriorLightsSize, int *actualExteriorLightsSize)
+{
+    // TODO
+}
+
+int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, DeltaPathPoint* pathHistory, 
+    int pathHistorySize, int *actualPathHistorySize)
+{
+    if (!cam->cam.camParameters.lowFrequencyContainer) {
+        return ERR_NULL;
+    }
+
+    if (cam->cam.camParameters.lowFrequencyContainer->present != 
+        LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) 
+    {
+        return ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE;
+    }
+
+    BasicVehicleContainerLowFrequency *lfc = 
+        &cam->cam.camParameters.lowFrequencyContainer->choice.basicVehicleContainerLowFrequency;
+}
+
+int getCAMBasicVehicleContainerLowFrequencyPathHistory(int id, DeltaPathPoint* pathHistory, 
+    int pathHistorySize, int *actualPathHistorySize)
+{
+    databaseLock_.lock();
+    GET_CAM(id);
+
+    int ret = 0;
+
+    databaseLock_.unlock();
+    return ret;
+}
+
+int getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, DeltaPathPoint* pathHistory, 
+    int pathHistorySize, int *actualPathHistorySize)
+{
+    // TODO
+}
+
 
 #pragma endregion
 
