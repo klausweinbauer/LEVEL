@@ -10,8 +10,7 @@ TEST(Basic, Create_And_Delete_CAM) {
 TEST(CAM_Values, Set_And_Get_CAM_Header_Values) {
     int id = c2x::createCAM();
 
-    int protVers, msgId;
-    unsigned int statId;
+    int protVers, msgId, statId;
     c2x::setCAMHeader(id, 1, 2, 3);
     c2x::getCAMHeader(id, &protVers, &msgId, &statId);
 

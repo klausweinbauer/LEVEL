@@ -1,6 +1,8 @@
 #include <VectorBuffer.hpp>
 #include <stdlib.h>
 
+namespace c2x {
+    
 VectorBuffer::VectorBuffer()
 {
 
@@ -43,3 +45,4 @@ void VectorBuffer::reset()
 {
     buffer_.clear();
 }
+};

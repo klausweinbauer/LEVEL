@@ -13,13 +13,24 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_ALLOC_FAILED:
         snprintf(buffer, size, "Memory allocation failed.");
         break;
+    case ERR_NULL:
+        snprintf(buffer, size, "Null pointer.");
+        break;
+    case ERR_BUFFER_OVERFLOW:
+        snprintf(buffer, size, "Buffer is too small.");
+        break;
+    case ERR_ENCODE:
+        snprintf(buffer, size, "Encoding failed.");
+        break;
     case ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
         snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
             "message has to be of type " 
             "HighFrequencyContainerBasicVehicleContainer");
         break;
-    case ERR_NULL:
-        snprintf(buffer, size, "Null pointer.");
+    case ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
+        snprintf(buffer, size, "The LowFrequencyContainer of this CAM "
+            "message has to be of type " 
+            "LowFrequencyContainerBasicVehicleContainer");
         break;
     default:
         break;

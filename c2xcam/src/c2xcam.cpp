@@ -2,10 +2,8 @@
 #include <map>
 #include <mutex>
 #include <c2xcam.h>
-
-static std::map<int, CAM_t*> database_;
-static int databaseId_ = 0;
-static std::mutex databaseLock_;
+#include <VectorBuffer.hpp>
+#include <mutex>
 
 #ifdef __cplusplus
 namespace c2x {
@@ -16,6 +14,19 @@ namespace c2x {
         databaseLock_.unlock();  \
         return ERR_MSG_NOT_FOUND; } \
     CAM_t *cam = it__->second; 
+
+static std::map<int, CAM_t*> database_;
+static int databaseId_ = 0;
+static std::mutex databaseLock_;
+static c2x::Buffer* writeCallbackBuffer_;
+static std::mutex writeCallbackLock_;
+
+void insertCAM(CAM_t* cam, int* id) {
+    databaseLock_.lock();
+    *id = ++databaseId_; 
+    database_.insert(std::pair<int, CAM_t*>(*id, cam));
+    databaseLock_.unlock();
+}
 
 void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int size) {
     if (!buffer) {
@@ -65,10 +76,8 @@ int createCAM(int heighFrequencyContainerType) {
         break;
     }
 
-    databaseLock_.lock();
-    int id = ++databaseId_;
-    database_.insert(std::pair<int, CAM_t*>(id, cam));
-    databaseLock_.unlock();
+    int id;
+    insertCAM(cam, &id);
 
     return id;
 }
@@ -87,7 +96,7 @@ int deleteCAM(int id) {
 
 #pragma region Setter
 
-int setCAMHeader(int id, int protocolVersion, int messageID, unsigned int stationID) 
+int setCAMHeader(int id, int protocolVersion, int messageID, int stationID) 
 {
     databaseLock_.lock();
     GET_CAM(id);
@@ -371,7 +380,8 @@ int setCAMBasicVehicleContainerLowFrequency(int id, int vehicleRole, uint8_t *ex
     databaseLock_.unlock();
 }
 
-int addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, DeltaPathPoint pathPoint)
+int addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, int deltaLatitude, int deltaLongitude, int deltaAltitude, 
+    int deltaTime)
 {
     databaseLock_.lock();
     GET_CAM(id);
@@ -392,10 +402,10 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, DeltaPathPoint path
     
     PathPoint *pp = new PathPoint();
     pp->pathDeltaTime = new PathDeltaTime_t();
-    *pp->pathDeltaTime = pathPoint.deltaTime;
-    pp->pathPosition.deltaLatitude = pathPoint.deltaLatitude;
-    pp->pathPosition.deltaLongitude = pathPoint.deltaLongitude;
-    pp->pathPosition.deltaAltitude = pathPoint.deltaAltitude;
+    *pp->pathDeltaTime = deltaTime;
+    pp->pathPosition.deltaLatitude = deltaLatitude;
+    pp->pathPosition.deltaLongitude = deltaLongitude;
+    pp->pathPosition.deltaAltitude = deltaAltitude;
     lfc->pathHistory.list.free = freePathPoint;
     asn_sequence_add(&lfc->pathHistory.list, pp);
 
@@ -405,7 +415,7 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int id, DeltaPathPoint path
 #pragma endregion
 
 #pragma region Getter
-void getCAMHeader(CAM_t* cam, int *protocolVersion, int *messageID, unsigned int *stationID)
+void getCAMHeader(CAM_t* cam, int *protocolVersion, int *messageID, int *stationID)
 {
     if (protocolVersion) {
         *protocolVersion = cam->header.protocolVersion;        
@@ -418,7 +428,7 @@ void getCAMHeader(CAM_t* cam, int *protocolVersion, int *messageID, unsigned int
     }
 }
 
-int getCAMHeader(int id, int *protocolVersion, int *messageID, unsigned int *stationID) 
+int getCAMHeader(int id, int *protocolVersion, int *messageID, int *stationID) 
 {
     databaseLock_.lock();
     GET_CAM(id);
@@ -429,7 +439,7 @@ int getCAMHeader(int id, int *protocolVersion, int *messageID, unsigned int *sta
     return 0;
 }
 
-int getCAMHeader_recv(int stationId, int *protocolVersion, int *messageID, unsigned int *stationID) 
+int getCAMHeader_recv(int stationId, int *protocolVersion, int *messageID, int *stationID) 
 {
     // TODO
 }
@@ -457,39 +467,54 @@ int getCAMGenerationDeltaTime_recv(int stationId, int *generationDeltaTime)
     // TODO
 }
 
-void getCAMBasicContainer(CAM_t* cam, int *stationType, Position *position) 
+void getCAMBasicContainer(CAM_t* cam, int *stationType, int *latitude, int *longitude, int *confidenceMajor, 
+    int *confidenceMinor, int *confidenceMajorOrientation, int *altitudeValue, int *altitudeConfidence) 
 {
     if (stationType) {
         *stationType = cam->cam.camParameters.basicContainer.stationType;
     }
-    if (position) {
-        ReferencePosition* pos = 
-            &cam->cam.camParameters.basicContainer.referencePosition;
-        position->latitude = pos->latitude;
-        position->longitude = pos->longitude;
-        position->confidenceMajor = 
-            pos->positionConfidenceEllipse.semiMajorConfidence; 
-        position->confidenceMinor = 
-            pos->positionConfidenceEllipse.semiMinorConfidence;
-        position->confidenceMajorOrientation = 
-            pos->positionConfidenceEllipse.semiMajorOrientation;
-        position->altitudeValue = pos->altitude.altitudeValue;
-        position->altitudeConfidence = pos->altitude.altitudeConfidence;
+
+    ReferencePosition* pos = 
+        &cam->cam.camParameters.basicContainer.referencePosition;
+
+    if (latitude) {
+        *latitude = pos->latitude;
+    }
+    if (longitude) {
+        *longitude = pos->longitude;
+    }
+    if (confidenceMajor) {
+        *confidenceMajor = pos->positionConfidenceEllipse.semiMajorConfidence;
+    } 
+    if (confidenceMinor) {
+        *confidenceMinor = pos->positionConfidenceEllipse.semiMinorConfidence;
+    }
+    if (confidenceMajorOrientation) {
+        *confidenceMajorOrientation = pos->positionConfidenceEllipse.semiMajorOrientation;
+    }
+    if (altitudeValue) {
+        *altitudeValue = pos->altitude.altitudeValue;
+    }
+    if (altitudeConfidence) {
+        *altitudeConfidence = pos->altitude.altitudeConfidence;
     }
 }
 
-int getCAMBasicContainer(int id, int *stationType, Position *position) 
+int getCAMBasicContainer(int id, int *stationType, int *latitude, int *longitude, int *confidenceMajor, 
+    int *confidenceMinor, int *confidenceMajorOrientation, int *altitudeValue, int *altitudeConfidence)
 {
     databaseLock_.lock();
     GET_CAM(id);
 
-    getCAMBasicContainer(cam, stationType, position);
+    getCAMBasicContainer(cam, stationType, latitude, longitude, confidenceMajor, confidenceMinor, 
+        confidenceMajorOrientation, altitudeValue, altitudeConfidence);
 
     databaseLock_.unlock();
     return 0;
 }
 
-int getCAMBasicContainer_recv(int stationId, int *stationType, Position *position) 
+int getCAMBasicContainer_recv(int stationId, int *stationType, int *latitude, int *longitude, int *confidenceMajor, 
+    int *confidenceMinor, int *confidenceMajorOrientation, int *altitudeValue, int *altitudeConfidence)
 {
     // TODO
 }
@@ -985,6 +1010,80 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, Delta
     // TODO
 }
 
+#pragma endregion
+
+
+#pragma region De-/En-coding
+int decodeCAM(int *id, uint8_t* buffer, int size)
+{
+    databaseLock_.lock();
+    *id = createCAM();
+    databaseLock_.unlock();
+
+    return decodeCAMOverride(*id, buffer, size);    
+}
+
+int decodeCAMOverride(int id, uint8_t* buffer, int size)
+{
+    databaseLock_.lock();
+    GET_CAM(id)
+
+    asn_dec_rval_t retVal;
+    asn_codec_ctx_t opt_codec_ctx{};
+    opt_codec_ctx.max_stack_size = 0;
+    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, size);
+
+    if (cam->cam.camParameters.lowFrequencyContainer) {
+        LowFrequencyContainer* lfc = cam->cam.camParameters.lowFrequencyContainer;
+        if (lfc->present == LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+            lfc->choice.basicVehicleContainerLowFrequency.pathHistory.list.free = freePathPoint;
+        } 
+    }
+
+    databaseLock_.unlock();
+
+    return retVal.code;
+}
+
+int writeCallback(const void* src, size_t size, void* application_specific_key)
+{
+    return (int)writeCallbackBuffer_->write(src, (int)size, application_specific_key);
+}
+
+int encodeCAM(int id, uint8_t* buffer, int size)
+{
+    VectorBuffer* vectorBuffer = new VectorBuffer();
+
+    databaseLock_.lock();
+    GET_CAM(id);
+    writeCallbackLock_.lock();
+    writeCallbackBuffer_ = vectorBuffer;
+    asn_enc_rval_t retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallback, NULL);
+    writeCallbackBuffer_ = nullptr;
+    writeCallbackLock_.unlock();
+    databaseLock_.unlock();
+
+    if (retVal.encoded == -1)
+    {
+        return ERR_ENCODE;
+    }
+
+    size_t required_buffer_size = vectorBuffer->size();
+    if (size < required_buffer_size)
+    {
+        return ERR_BUFFER_OVERFLOW;
+    }
+
+    ((char*)buffer)[required_buffer_size + 1] = '\0';
+    size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
+
+    return copiedBytes;
+}
+
+int encodeCAM_recv(int stationId, uint8_t* buffer, int size)
+{
+    // TODO
+}
 
 #pragma endregion
 

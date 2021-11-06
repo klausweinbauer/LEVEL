@@ -104,7 +104,7 @@ def loadTemplate(functionDefinition):
     path = os.path.join(templateDirectory, defaultTemplate)
     fPath = os.path.join(templateDirectory, getClassName(functionDefinition)) + ".template"
     if os.path.isfile(fPath):
-        print("Found Template for " + getClassName(functionDefinition))
+        print("[INFO] Found custom template for " + getClassName(functionDefinition))
         path = fPath
     if not os.path.isfile(path):
         print("[ERROR] No template found.")
@@ -122,6 +122,7 @@ with open(headerFile) as f:
 
 functionDefinitions = re.findall(functionDefinitionRegex, headerFileTxt)
 for functionDefinition in functionDefinitions:
+    print("[INFO] ##### Build matlab class for " + getClassName(functionDefinition))
     paramList = getParameterList(functionDefinition)
     matlabFileContent = loadTemplate(functionDefinition)
     templateObjectMappings = resolveTemplateObjects(functionDefinition, paramList)
