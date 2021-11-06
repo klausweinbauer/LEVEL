@@ -1110,6 +1110,29 @@ int encodeCAM_recv(int stationId, uint8_t* buffer, int size)
 
 #pragma endregion
 
+#pragma region NetworkService
+int startCAMReceiver(int port)
+{
+    
+}
+
+int stopCAMReceiver()
+{
+
+}
+
+int startCAMTransmitter(int port)
+{
+
+}
+
+int stopCAMTransmitter()
+{
+
+}
+
+#pragma endregion
+
 #ifdef __cplusplus
 };
 #endif

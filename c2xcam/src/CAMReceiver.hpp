@@ -1,21 +1,20 @@
-#ifndef __CAMReceiver_H
-#define __CAMReceiver_H
+#pragma once
 
 #include <PacketReceiver.hpp>
 
-class CAMReceiver : public PacketReceiver
-{
-protected:
-	CAMReceiver();
+namespace c2x {
+    class CAMReceiver : public PacketReceiver
+    {
+    protected:
+        CAMReceiver();
 
-	void decodeMessage(char* buffer, int len);
+        void decodeMessage(char* buffer, int len);
 
-public:
-	static CAMReceiver& getInstance()
-	{
-		static CAMReceiver instance;
-		return instance;
-	}
+    public:
+        static CAMReceiver& getInstance()
+        {
+            static CAMReceiver instance;
+            return instance;
+        }
+    };
 };
-
-#endif // __CAMReceiver_H

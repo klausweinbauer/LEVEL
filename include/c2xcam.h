@@ -108,6 +108,13 @@ int SHARED_EXPORT decodeCAM(int* id, uint8_t* buffer, int size);
 int SHARED_EXPORT decodeCAMOverride(int id, uint8_t* buffer, int size);
 #pragma endregion
 
+#pragma region NetworkService
+int SHARED_EXPORT startCAMReceiver(int port);
+int SHARED_EXPORT stopCAMReceiver();
+int SHARED_EXPORT startCAMTransmitter(int port);
+int SHARED_EXPORT stopCAMTransmitter();
+#pragma endregion
+
 #ifdef __cplusplus
 }
 };
