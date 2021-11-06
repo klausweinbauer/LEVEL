@@ -1,10 +1,12 @@
 import re
+import os.path
 
 ########## Parameters ##########
 
 libName = 'c2xcam'
 headerFile = './include/c2xcam.h'
-templateFile = 'simulink-component.template'
+templateDirectory = './matlab/templates'
+defaultTemplate = 'simulink-component.template'
 outputDirectory = './matlab/c2xlib/'
 
 simulinkBlockDefine = "SIMULINK_BLOCK"
@@ -16,7 +18,7 @@ def getClassName(functionDefinition):
     fName = functionDefinition[1]
     if fName.startswith(("get", "set", "add")):
         fName = fName[3:]
-    return fName;
+    return fName
 
 class Parameter:
     isPointer = False
@@ -96,28 +98,40 @@ def resolveTemplateObjects(functionDefinition, paramList):
 def getFileName(functionDefinition):
     return getClassName(functionDefinition) + ".m"
 
+
+def loadTemplate(functionDefinition):
+    content = ""
+    path = os.path.join(templateDirectory, defaultTemplate)
+    fPath = os.path.join(templateDirectory, getClassName(functionDefinition)) + ".template"
+    if os.path.isfile(fPath):
+        print("Found Template for " + getClassName(functionDefinition))
+        path = fPath
+    if not os.path.isfile(path):
+        print("[ERROR] No template found.")
+        exit(-1)
+    with open(path) as f:
+        content = f.read()
+    return content
+    
+
 functionDefinitionRegex = "(int|void).*" + simulinkBlockDefine + ".*[ ]([a-zA-Z_]+)\(([a-zA-Z0-9, *\n_]*)\);"
 
 headerFileTxt = ""
 with open(headerFile) as f:
     headerFileTxt = f.read()
 
-templateFileTxt = ""
-with open(templateFile) as f:
-    templateFileTxt = f.read()
-
 functionDefinitions = re.findall(functionDefinitionRegex, headerFileTxt)
 for functionDefinition in functionDefinitions:
     paramList = getParameterList(functionDefinition)
-    matlabFileTxt = templateFileTxt
+    matlabFileContent = loadTemplate(functionDefinition)
     templateObjectMappings = resolveTemplateObjects(functionDefinition, paramList)
     for key in templateObjectMappings.keys():
-        matlabFileTxt = matlabFileTxt.replace(key, templateObjectMappings[key])
-    match = re.search("__([a-zA-Z]+)__", matlabFileTxt)
+        matlabFileContent = matlabFileContent.replace(key, templateObjectMappings[key])
+    match = re.search("__([a-zA-Z]+)__", matlabFileContent)
     if match:
         print("[ERROR] Unknown template object: " + match.group())
         exit(-1)
     with open(outputDirectory + getFileName(functionDefinition), "w") as oFile:
-        oFile.write(matlabFileTxt)
+        oFile.write(matlabFileContent)
 
     

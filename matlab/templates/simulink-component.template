@@ -6,7 +6,10 @@ classdef __className__ < matlab.System & coder.ExternalDependency
     
     properties (Hidden)
     end
-        
+    
+    properties (Access = protected)
+    end
+
     methods (Access = protected)
         function setupImpl(~)
         end

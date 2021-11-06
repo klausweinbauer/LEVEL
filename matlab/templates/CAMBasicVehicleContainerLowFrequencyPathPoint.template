@@ -1,0 +1,61 @@
+classdef __className__ < matlab.System & coder.ExternalDependency
+
+    properties (Nontunable)
+        __nontunableProperties__  
+    end
+    
+    properties (Hidden)
+    end
+
+    properties (Access = protected)
+        SampleActive = 1;
+    end
+        
+    methods (Access = protected)
+        function setupImpl(~)
+        end
+        
+        function [__outputParameterList__] = stepImpl(obj, __inputParameterList__, SamplePathPoint) 
+            if coder.target('Rtw') || coder.target('Sfun') 
+                if SamplePathPoint == 1 && obj.SampleActive == 1
+                    obj.SampleActive = 0;
+                    coder.ceval('__cFunctionName__', __coderParameterList__);
+                elseif SamplePathPoint == 0 && obj.SampleActive == 0
+                    obj.SampleActive = 1;
+                end                
+            end            
+        end
+        
+        function releaseImpl(~)            
+        end
+    end
+    methods (Static)
+        function bName = getDescriptiveName(~)
+            bName = '__className__';
+        end
+        
+        function supported = isSupportedContext(buildContext)
+            myTarget = {'rtw'};
+            if  buildContext.isCodeGenTarget(myTarget)
+                supported = true;
+            else
+                error('API only supported for mex, lib, exe, dll');
+            end
+        end
+        
+        function updateBuildInfo(buildInfo, buildContext)
+            [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
+
+            % Parametrize library extension
+            libName =  strcat('__libName__', linkLibExt);
+            % Other linking parameters
+            libPath = './';
+            libPriority = '';
+            libPreCompiled = true;
+            libLinkOnly = true;
+
+            % Linking command
+            buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+        end
+    end
+end
