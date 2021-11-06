@@ -22,6 +22,9 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_ENCODE:
         snprintf(buffer, size, "Encoding failed.");
         break;
+    case ERR_DECODE:
+        snprintf(buffer, size, "Decoding failed.");
+        break;
     case ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
         snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
             "message has to be of type " 

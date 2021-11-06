@@ -63,3 +63,50 @@ TEST(CAM_Values, Set_And_Reset_BitString) {
     );
     c2x::deleteCAM(id);
 }
+
+TEST(CAM_Coding, Encode_CAM_Message) {
+    int id = c2x::createCAM();
+    uint8_t buffer[4096];
+
+    int ret = c2x::encodeCAM(id, buffer, 4096);
+
+    ASSERT_GT(ret, 0);
+
+    c2x::deleteCAM(id);
+}
+
+
+TEST(CAM_Coding, Decode_CAM_As_New_Message) {
+    int id = c2x::createCAM();
+    c2x::setCAMHeader(id, 1, 2, 3);
+
+    uint8_t buffer[4096];    
+    int size = c2x::encodeCAM(id, buffer, 4096);
+    int newId, newProtVers, newMsgId, newStatId;
+    c2x::decodeCAM(&newId, buffer, size);
+    c2x::getCAMHeader(newId, &newProtVers, &newMsgId, &newStatId);
+
+    ASSERT_EQ(1, newProtVers);
+    ASSERT_EQ(2, newMsgId);
+    ASSERT_EQ(3, newStatId);
+
+    c2x::deleteCAM(id);
+    c2x::deleteCAM(newId);
+}
+
+TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
+    int id = c2x::createCAM();
+    c2x::setCAMHeader(id, 1, 2, 3);
+
+    uint8_t buffer[4096];    
+    int size = c2x::encodeCAM(id, buffer, 4096);
+    int  newProtVers, newMsgId, newStatId;
+    c2x::decodeCAMOverride(id, buffer, size);
+    c2x::getCAMHeader(id, &newProtVers, &newMsgId, &newStatId);
+
+    ASSERT_EQ(1, newProtVers);
+    ASSERT_EQ(2, newMsgId);
+    ASSERT_EQ(3, newStatId);
+
+    c2x::deleteCAM(id);
+}

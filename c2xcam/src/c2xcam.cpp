@@ -4,6 +4,7 @@
 #include <c2xcam.h>
 #include <VectorBuffer.hpp>
 #include <mutex>
+#include <iostream>
 
 #ifdef __cplusplus
 namespace c2x {
@@ -58,21 +59,15 @@ int createCAM(int heighFrequencyContainerType) {
     }
     switch (heighFrequencyContainerType)
     {
-    case HIGH_FREQ_CONTAINER_TYPE_NONE:
-        cam->cam.camParameters.highFrequencyContainer.present
-            = HighFrequencyContainer_PR::HighFrequencyContainer_PR_NOTHING;
-        break;
-    case HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
-        cam->cam.camParameters.highFrequencyContainer.present
-            = HighFrequencyContainer_PR::
-                HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
-        break;
     case HIGH_FREQ_CONTAINER_TYPE_RSU:
         cam->cam.camParameters.highFrequencyContainer.present
             = HighFrequencyContainer_PR::
                 HighFrequencyContainer_PR_rsuContainerHighFrequency;
         break;
     default:
+        cam->cam.camParameters.highFrequencyContainer.present
+            = HighFrequencyContainer_PR::
+                HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
         break;
     }
 
@@ -1016,22 +1011,16 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory_recv(int stationId, Delta
 #pragma region De-/En-coding
 int decodeCAM(int *id, uint8_t* buffer, int size)
 {
-    databaseLock_.lock();
-    *id = createCAM();
-    databaseLock_.unlock();
-
-    return decodeCAMOverride(*id, buffer, size);    
-}
-
-int decodeCAMOverride(int id, uint8_t* buffer, int size)
-{
-    databaseLock_.lock();
-    GET_CAM(id)
-
+    CAM_t* cam = nullptr;
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
     retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, size);
+
+    if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
+    {
+        return ERR_DECODE;
+    }
 
     if (cam->cam.camParameters.lowFrequencyContainer) {
         LowFrequencyContainer* lfc = cam->cam.camParameters.lowFrequencyContainer;
@@ -1040,6 +1029,37 @@ int decodeCAMOverride(int id, uint8_t* buffer, int size)
         } 
     }
 
+    insertCAM(cam, id);
+
+    return retVal.code;
+}
+
+int decodeCAMOverride(int id, uint8_t* buffer, int size)
+{
+    databaseLock_.lock();
+    GET_CAM(id);
+
+    cam = nullptr;
+    asn_dec_rval_t retVal;
+    asn_codec_ctx_t opt_codec_ctx{};
+    opt_codec_ctx.max_stack_size = 0;
+    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, size);
+
+    if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
+    {
+        return ERR_DECODE;
+    }
+
+    if (cam->cam.camParameters.lowFrequencyContainer) {
+        LowFrequencyContainer* lfc = cam->cam.camParameters.lowFrequencyContainer;
+        if (lfc->present == LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+            lfc->choice.basicVehicleContainerLowFrequency.pathHistory.list.free = freePathPoint;
+        } 
+    }
+
+    auto it = database_.find(id);
+    ASN_STRUCT_FREE(asn_DEF_CAM, it->second);
+    it->second = cam;
     databaseLock_.unlock();
 
     return retVal.code;
@@ -1052,11 +1072,10 @@ int writeCallback(const void* src, size_t size, void* application_specific_key)
 
 int encodeCAM(int id, uint8_t* buffer, int size)
 {
-    VectorBuffer* vectorBuffer = new VectorBuffer();
-
     databaseLock_.lock();
     GET_CAM(id);
     writeCallbackLock_.lock();
+    VectorBuffer* vectorBuffer = new VectorBuffer();
     writeCallbackBuffer_ = vectorBuffer;
     asn_enc_rval_t retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallback, NULL);
     writeCallbackBuffer_ = nullptr;
@@ -1065,18 +1084,22 @@ int encodeCAM(int id, uint8_t* buffer, int size)
 
     if (retVal.encoded == -1)
     {
+        delete vectorBuffer;
+        std::cout << "[ERROR] Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
         return ERR_ENCODE;
     }
 
     size_t required_buffer_size = vectorBuffer->size();
     if (size < required_buffer_size)
     {
+        delete vectorBuffer;
         return ERR_BUFFER_OVERFLOW;
     }
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
     size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
 
+    delete vectorBuffer;
     return copiedBytes;
 }
 

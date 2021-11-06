@@ -11,11 +11,10 @@ extern "C"
 #define SIMULINK_BLOCK
 #define SIMULINK_NONTUNABLE_PROPERTY
 
-#define HIGH_FREQ_CONTAINER_TYPE_NONE 0
 #define HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE 1
 #define HIGH_FREQ_CONTAINER_TYPE_RSU 2
 
-int SHARED_EXPORT createCAM(int heighFrequencyContainerType = 0);
+int SHARED_EXPORT createCAM(int heighFrequencyContainerType = HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
 int SHARED_EXPORT deleteCAM(int id);
 
 #pragma region Setter
