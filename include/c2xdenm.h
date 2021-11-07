@@ -1,5 +1,4 @@
-#ifndef __c2xdenm_h
-#define __c2xdenm_h
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -59,47 +58,7 @@ int SHARED_EXPORT setDENMTransmissionFrequency(double f);
 int SHARED_EXPORT SIMULINK_BLOCK DENMTransmitter(int *stationIDs_send, int size);
 #pragma endregion
 
-
-/*int SHARED_EXPORT setDENMManagementContainer(
-    int stationId, int sequenceNumber,
-    uint8_t* detectionTime, int detectionTimeSize,
-    uint8_t* referenceTime, int referenceTimeSize,
-    int termination, int relevanceDistance,
-    int relevanceTrafficDirection, int validityDuration,
-    int transmissionInterval, int stationType);
-
-int SHARED_EXPORT setManagementContainerEventPosition(
-    int stationId, int sequenceNumber,
-    int latitude, int intitude,
-    int posConfEllSemiMajorConf, int posConfEllSemiMinorConf, int posConfEllSemiMajorOri,
-    int altitudeValue, int altitudeConf);
-
-// receive DENM
-int SHARED_EXPORT getManagementContainer(
-    int stationId, int sequenceNumber,
-    uint8_t * detectionTime, int* detectionTimeSize, int detectionTimeMaxSize,
-    uint8_t * referenceTime, int* referenceTimeSize, int referenceTimeMaxSize,
-    int* termination, int* relevanceDistance,
-    int* relevanceTrafficDirection, int* validityDuration,
-    int* transmissionInterval, int* stationType);
-
-int SHARED_EXPORT getManagementContainerEventPosition(
-    int stationId, int sequenceNumber,
-    int* latitude, int* intitude,
-    int* posConfEllSemiMajorConf, int* posConfEllSemiMinorConf, int* posConfEllSemiMajorOri,
-    int* altitudeValue, int* altitudeConf);
-
-
-void SHARED_EXPORT startDENMReceiver();
-void SHARED_EXPORT stopDENMReceiver();
-void SHARED_EXPORT startDENMTransmitter();
-void SHARED_EXPORT stopDENMTransmitter();
-
-void SHARED_EXPORT cleanupDENM();*/
-
 #ifdef __cplusplus
 }
 };
 #endif
-
-#endif // __c2xdenm_h
