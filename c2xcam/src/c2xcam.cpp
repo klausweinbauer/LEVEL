@@ -12,16 +12,28 @@
 namespace c2x {
 #endif
 
-#define GET_CAM(id) auto it__ = database_.find(id); \
-    if (it__ == database_.end()) { \
-        databaseLock_.unlock();  \
-        return ERR_MSG_NOT_FOUND; } \
-    CAM_t *cam = it__->second; 
+static std::map<int, CAM_t*> databaseCAM_;
+static std::mutex databaseLockCAM_;
+static c2x::Buffer* writeCallbackBufferCAM_;
+static std::mutex writeCallbackLockCAM_;
 
-static std::map<int, CAM_t*> database_;
-static std::mutex databaseLock_;
-static c2x::Buffer* writeCallbackBuffer_;
-static std::mutex writeCallbackLock_;
+std::map<int, CAM_t*>::iterator getCAMiterator(int stationID) {
+    for (auto it = databaseCAM_.begin(); it != databaseCAM_.end(); it++) {
+        if (it->first == stationID) {
+            return it;
+        }
+    }
+    return databaseCAM_.end();
+}
+
+CAM_t* getCAM(int stationID) {
+    auto it = getCAMiterator(stationID);
+    if (it != databaseCAM_.end()) 
+    {
+        return it->second;
+    }
+    return nullptr;
+}
 
 void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int size) {
     if (!buffer) {
@@ -48,16 +60,16 @@ void freePathPoint(PathPoint *pathPoint) {
 
 int createCAM(int stationID, int heighFrequencyContainerType) {
 
-    databaseLock_.lock();
-    auto it = database_.find(stationID);
-    if (it != database_.end()) {
-        databaseLock_.unlock();
+    databaseLockCAM_.lock();
+    auto it = databaseCAM_.find(stationID);
+    if (it != databaseCAM_.end()) {
+        databaseLockCAM_.unlock();
         return ERR_CAM_ALREADY_EXISTS;
     }
 
     CAM_t* cam  = new CAM_t();
     if (!cam) {
-        databaseLock_.unlock();
+        databaseLockCAM_.unlock();
         return ERR_ALLOC_FAILED;
     }
     cam->header.stationID = stationID;
@@ -76,23 +88,23 @@ int createCAM(int stationID, int heighFrequencyContainerType) {
         break;
     }
 
-    database_.insert(std::pair<int, CAM_t*>(stationID, cam));
-    databaseLock_.unlock();
+    databaseCAM_.insert(std::pair<int, CAM_t*>(stationID, cam));
+    databaseLockCAM_.unlock();
 
     return stationID;
 }
 
 int deleteCAM(int id) {
-    databaseLock_.lock();
-    auto it = database_.find(id);
-    if (it == database_.end()) {
-        databaseLock_.unlock();
+    databaseLockCAM_.lock();
+    auto it = databaseCAM_.find(id);
+    if (it == databaseCAM_.end()) {
+        databaseLockCAM_.unlock();
         return ERR_MSG_NOT_FOUND;
     }
     ASN_STRUCT_FREE(asn_DEF_CAM, it->second);
-    database_.erase(id);
+    databaseCAM_.erase(id);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return 0;
 }
 
@@ -100,29 +112,41 @@ int deleteCAM(int id) {
 
 int setCAMHeader(int stationID, int protocolVersion, int messageID) 
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     cam->header.protocolVersion = protocolVersion;
     cam->header.messageID = messageID;
     cam->header.stationID = stationID;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return 0;
 }
 
 int setCAMGenerationDeltaTime(int stationID, int generationDeltaTime) {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     cam->cam.generationDeltaTime = generationDeltaTime;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicContainer(int stationID, int stationType, Position position) {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     cam->cam.camParameters.basicContainer.stationType = stationType;
     ReferencePosition *pos = 
@@ -138,7 +162,7 @@ int setCAMBasicContainer(int stationID, int stationType, Position position) {
     pos->altitude.altitudeValue = position.altitudeValue;
     pos->altitude.altitudeConfidence = position.altitudeConfidence;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequency(int stationID,
@@ -152,8 +176,12 @@ int setCAMBasicVehicleContainerHighFrequency(int stationID,
     int curvatureCalculationMode,
     int yawRateValue, int yawRateConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -180,13 +208,17 @@ int setCAMBasicVehicleContainerHighFrequency(int stationID,
     hfc->yawRate.yawRateValue = yawRateValue;
     hfc->yawRate.yawRateConfidence = yawRateConfidence;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int size)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -202,13 +234,17 @@ int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, u
     }
     setBitString(hfc->accelerationControl, buffer, size);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int lanePosition)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -224,14 +260,18 @@ int setCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int lane
     }
     *hfc->lanePosition = lanePosition;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, int steeringWheelAngleValue, 
     int steeringWheelAngleConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -249,14 +289,18 @@ int setCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, in
     hfc->steeringWheelAngle->steeringWheelAngleConfidence = 
         steeringWheelAngleConfidence;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyLateralAcceleration(int stationID, int lateralAccelerationValue, 
     int lateralAccelerationConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -275,14 +319,18 @@ int setCAMBasicVehicleContainerHighFrequencyLateralAcceleration(int stationID, i
     hfc->lateralAcceleration->lateralAccelerationConfidence = 
         lateralAccelerationConfidence;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, int verticalAccelerationValue, 
     int verticalAccelerationConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -301,13 +349,17 @@ int setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, 
     hfc->verticalAcceleration->verticalAccelerationConfidence = 
         verticalAccelerationConfidence;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int performanceClass)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -323,14 +375,18 @@ int setCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int p
     }
     *hfc->performanceClass = performanceClass;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, int protectedZoneLatitude, 
     int protectedZoneLongitude, int cenDsrcTollingZoneID)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
     
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -353,14 +409,18 @@ int setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, in
     }
     *hfc->cenDsrcTollingZone->cenDsrcTollingZoneID = cenDsrcTollingZoneID;
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 
 int setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, uint8_t *exteriorLights, int exteriorLightsSize)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
     
     if (!cam->cam.camParameters.lowFrequencyContainer) 
     {
@@ -379,14 +439,18 @@ int setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, uint
     lfc->vehicleRole = vehicleRole;
     setBitString(&lfc->exteriorLights, exteriorLights, exteriorLightsSize);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLatitude, int deltaLongitude, int deltaAltitude, 
     int deltaTime)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
     
     if (!cam->cam.camParameters.lowFrequencyContainer) 
     {
@@ -411,7 +475,7 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLat
     lfc->pathHistory.list.free = freePathPoint;
     asn_sequence_add(&lfc->pathHistory.list, pp);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
 }
 
 #pragma endregion
@@ -429,12 +493,16 @@ void getCAMHeader(CAM_t* cam, int *protocolVersion, int *messageID)
 
 int getCAMHeader(int stationID, int *protocolVersion, int *messageID) 
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     getCAMHeader(cam, protocolVersion, messageID);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return 0;
 }
 
@@ -447,12 +515,16 @@ void getCAMGenerationDeltaTime(CAM_t* cam, int *generationDeltaTime)
 
 int getCAMGenerationDeltaTime(int stationID, int *generationDeltaTime) 
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     getCAMGenerationDeltaTime(cam, generationDeltaTime);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return 0;
 }
 
@@ -492,13 +564,17 @@ void getCAMBasicContainer(CAM_t* cam, int *stationType, int *latitude, int *long
 int getCAMBasicContainer(int stationID, int *stationType, int *latitude, int *longitude, int *confidenceMajor, 
     int *confidenceMinor, int *confidenceMajorOrientation, int *altitudeValue, int *altitudeConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     getCAMBasicContainer(cam, stationType, latitude, longitude, confidenceMajor, confidenceMinor, 
         confidenceMajorOrientation, altitudeValue, altitudeConfidence);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return 0;
 }
 
@@ -573,15 +649,19 @@ int getCAMBasicVehicleContainerHighFrequency(int stationID, int *headingValue, i
     int *curvatureValue, int *curvatureConfidence, int *curvatureCalculationMode, int *yawRateValue, 
     int *yawRateConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequency(cam, headingValue, headingConfidence, speedValue, 
         speedConfidence, driveDirection, vehicleLengthValue, vehicleLengthConfidenceIndication, vehicleWidth, 
         longitudinalAccelerationValue, longitudinalAccelerationConfidence, curvatureValue, curvatureConfidence, 
         curvatureCalculationMode, yawRateValue, yawRateConfidence);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -612,12 +692,16 @@ int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint
 
 int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int size, int* actualSize)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyAccelerationControl(cam, buffer, size, actualSize);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -643,12 +727,16 @@ int getCAMBasicVehicleContainerHighFrequencyLanePosition(CAM_t *cam, int *lanePo
 
 int getCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int *lanePosition)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyLanePosition(cam, lanePosition);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -681,13 +769,17 @@ int getCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(CAM_t *cam,
 int getCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, int *steeringWheelAngleValue, 
     int *steeringWheelAngleConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(cam,
         steeringWheelAngleValue, steeringWheelAngleConfidence);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -720,13 +812,17 @@ int getCAMBasicVehicleContainerHighFrequencyLateralAcceleration(CAM_t *cam,
 int getCAMBasicVehicleContainerHighFrequencyLateralAcceleration(int stationID,
     int *lateralAccelerationValue, int *lateralAccelerationConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyLateralAcceleration(cam,
         lateralAccelerationValue, lateralAccelerationConfidence);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -759,13 +855,17 @@ int getCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(CAM_t *cam,
 int getCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID,
     int *verticalAccelerationValue, int *verticalAccelerationConfidence)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(cam,
         verticalAccelerationValue, verticalAccelerationConfidence);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -791,12 +891,16 @@ int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(CAM_t *cam, int *per
 
 int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int *performanceClass)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyPerformaceClass(cam, performanceClass);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -833,13 +937,17 @@ int getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(CAM_t *cam,
 int getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID,
     int *protectedZoneLatitude, int *protectedZoneLongitude, int *cenDsrcTollingZoneID)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(cam,
         protectedZoneLatitude, protectedZoneLongitude, cenDsrcTollingZoneID);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -876,13 +984,17 @@ int getCAMBasicVehicleContainerLowFrequency(CAM_t *cam, int *vehicleRole, uint8_
 int getCAMBasicVehicleContainerLowFrequency(int stationID, int *vehicleRole, uint8_t *exteriorLights, 
     int exteriorLightsSize, int *actualExteriorLightsSize)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerLowFrequency(cam, vehicleRole, exteriorLights, exteriorLightsSize, 
         actualExteriorLightsSize);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 
@@ -922,13 +1034,17 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, int* pathHist
 int getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
 
     int ret = getCAMBasicVehicleContainerLowFrequencyPathHistory(cam, pathHistory, pathHistorySize, 
         actualPathHistorySize);
 
-    databaseLock_.unlock();
+    databaseLockCAM_.unlock();
     return ret;
 }
 #pragma endregion
@@ -937,7 +1053,7 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathH
 #pragma region De-/En-coding
 int decodeCAM(int *stationID, uint8_t* buffer, int size)
 {
-    databaseLock_.lock();
+    databaseLockCAM_.lock();
 
     CAM_t* cam = nullptr;
     asn_dec_rval_t retVal;
@@ -947,7 +1063,7 @@ int decodeCAM(int *stationID, uint8_t* buffer, int size)
 
     if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
     {
-        databaseLock_.unlock();
+        databaseLockCAM_.unlock();
         return ERR_DECODE;
     }
 
@@ -960,32 +1076,39 @@ int decodeCAM(int *stationID, uint8_t* buffer, int size)
         } 
     }
 
-    auto it = database_.find(cam->header.stationID);
-    if (it != database_.end()) {
-        ASN_STRUCT_FREE(asn_DEF_CAM, it->second);
+    auto dbIt = getCAMiterator(*stationID);
+    if (dbIt != databaseCAM_.end()) {
+        ASN_STRUCT_FREE(asn_DEF_CAM, dbIt->second);
+        dbIt->second = cam;
     }
-    it->second = cam;
-    databaseLock_.unlock();
+    else {
+        databaseCAM_.insert(std::pair<int, CAM_t*>(*stationID, cam));
+    }
+    databaseLockCAM_.unlock();
 
     return retVal.code;
 }
 
-int writeCallback(const void* src, size_t size, void* application_specific_key)
+int writeCallbackCAM(const void* src, size_t size, void* application_specific_key)
 {
-    return (int)writeCallbackBuffer_->write(src, (int)size, application_specific_key);
+    return (int)writeCallbackBufferCAM_->write(src, (int)size, application_specific_key);
 }
 
 int encodeCAM(int stationID, uint8_t* buffer, int size, int *actualSize)
 {
-    databaseLock_.lock();
-    GET_CAM(stationID);
-    writeCallbackLock_.lock();
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+    writeCallbackLockCAM_.lock();
     VectorBuffer* vectorBuffer = new VectorBuffer();
-    writeCallbackBuffer_ = vectorBuffer;
-    asn_enc_rval_t retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallback, NULL);
-    writeCallbackBuffer_ = nullptr;
-    writeCallbackLock_.unlock();
-    databaseLock_.unlock();
+    writeCallbackBufferCAM_ = vectorBuffer;
+    asn_enc_rval_t retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallbackCAM, NULL);
+    writeCallbackBufferCAM_ = nullptr;
+    writeCallbackLockCAM_.unlock();
+    databaseLockCAM_.unlock();
 
     if (retVal.encoded == -1)
     {
@@ -1051,6 +1174,12 @@ int stopCAMTransmitter()
 {
     CAMTransmitter::getInstance().stop();
     return 0;
+}
+
+int setCAMTransmissionFrequency(double f)
+{
+    unsigned int int_ms = (unsigned int)(1000 / f);
+    CAMTransmitter::getInstance().setInterval(int_ms);
 }
 
 int CAMTransmitter(int *stationIDs_send, int size)

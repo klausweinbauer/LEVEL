@@ -1,21 +1,15 @@
 #include <c2xcam.h>
 #include <iostream>
 #include <unistd.h>
+#include <c2xdenm.h>
 
 int main(int argc, char** argv) {
-    c2x::createCAM(1);
-    c2x::createCAM(2);
-    int ids[]{1, 2};
+    c2x::createDENM(1, 1);
+    uint8_t buffer[4096];
 
-    c2x::startCAMReceiver(1997);
-    c2x::startCAMTransmitter(1997);
-    c2x::CAMTransmitter(ids, 2);
-    usleep(2000000);
-    c2x::stopCAMTransmitter();
-    c2x::stopCAMReceiver();
+    int ret = c2x::encodeDENM(1, 1, buffer, 4096, nullptr);
 
-    c2x::deleteCAM(1);
-    c2x::deleteCAM(2);
-    
+
+    c2x::deleteDENM(1, 1);
     return 0;
 }

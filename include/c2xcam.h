@@ -8,18 +8,15 @@ extern "C"
 {
 #endif
 
-#define SIMULINK_BLOCK
-#define SIMULINK_NONTUN_PROP
-
 #define HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE 1
 #define HIGH_FREQ_CONTAINER_TYPE_RSU 2
 
 int SHARED_EXPORT SIMULINK_BLOCK createCAM(SIMULINK_NONTUN_PROP int stationID, 
     SIMULINK_NONTUN_PROP int heighFrequencyContainerType = HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
-int SHARED_EXPORT deleteCAM(int id);
+int SHARED_EXPORT deleteCAM(int stationID);
 
 #pragma region Setter
-int SHARED_EXPORT SIMULINK_BLOCK setCAMHeader(int protocolVersion, int messageID, int stationID);
+int SHARED_EXPORT SIMULINK_BLOCK setCAMHeader(int stationID, int protocolVersion, int messageID);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMGenerationDeltaTime(int stationID, int generationDeltaTime);
 int SHARED_EXPORT setCAMBasicContainer(int stationID, int stationType, Position position);
 
@@ -86,6 +83,7 @@ int SHARED_EXPORT startCAMReceiver(int port);
 int SHARED_EXPORT stopCAMReceiver();
 int SHARED_EXPORT startCAMTransmitter(int port);
 int SHARED_EXPORT stopCAMTransmitter();
+int SHARED_EXPORT setCAMTransmissionFrequency(double f);
 int SHARED_EXPORT SIMULINK_BLOCK CAMTransmitter(int *stationIDs_send, int size);
 #pragma endregion
 

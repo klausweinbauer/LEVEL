@@ -32,6 +32,10 @@ extern "C"
 #define ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE -20
 #define ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE -21
 #define ERR_CAM_ALREADY_EXISTS -22
+#define ERR_DENM_ALREADY_EXISTS -40
+
+#define SIMULINK_BLOCK
+#define SIMULINK_NONTUN_PROP
 
 typedef struct Position {
     int latitude = 0;

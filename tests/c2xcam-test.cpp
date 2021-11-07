@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include <c2xcam.h>
 
-TEST(Basic, Create_And_Delete_CAM) {
+TEST(CAM_Basic, Create_And_Delete_CAM) {
     int id = c2x::createCAM(1);
     c2x::deleteCAM(id);
     ASSERT_GT(id, 0);
 }
 
-TEST(Basic, Create_CAM_With_The_Same_ID_Twice) {
+TEST(CAM_Basic, Create_CAM_With_The_Same_ID_Twice) {
     int ret1 = c2x::createCAM(1);
     int ret2 = c2x::createCAM(1);
     c2x::deleteCAM(1);
@@ -15,7 +15,7 @@ TEST(Basic, Create_CAM_With_The_Same_ID_Twice) {
     ASSERT_EQ(ret2, ERR_CAM_ALREADY_EXISTS);
 }
 
-TEST(Basic, Double_Delete_CAM) {
+TEST(CAM_Basic, Double_Delete_CAM) {
     int id = c2x::createCAM(1);
     int ret1 = c2x::deleteCAM(id);
     int ret2 = c2x::deleteCAM(id);
@@ -115,4 +115,19 @@ TEST(CAM_Network, Start_And_Stop_Receiver) {
     ASSERT_EQ(0, retStop1);
     ASSERT_EQ(0, retStart2);
     ASSERT_EQ(0, retStop2);
+}
+
+TEST(CAM_Coding, Decode_New_Message) {
+    c2x::createCAM(1);
+    uint8_t buffer[4000];
+    int size;
+    c2x::encodeCAM(1, buffer, 4000, &size);
+    c2x::deleteCAM(1);
+
+    int id;
+    int ret = c2x::decodeCAM(&id, buffer, size);
+    int retDel = c2x::deleteCAM(1);
+    ASSERT_EQ(1, id);
+    ASSERT_EQ(0, ret);
+    ASSERT_EQ(0, retDel);
 }
