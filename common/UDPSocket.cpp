@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #endif
 
+namespace c2x {
 #ifdef _WIN32
 WSASession::WSASession()
 {
@@ -140,3 +141,4 @@ void UDPSocket::bindSocket(unsigned short port)
     }
     #endif
 }
+};

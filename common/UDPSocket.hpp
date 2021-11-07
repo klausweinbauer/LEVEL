@@ -1,5 +1,4 @@
-#ifndef __UDPSocket_H
-#define __UDPSocket_H
+#pragma once
 
 #include <string>
 
@@ -9,36 +8,37 @@
 #include <netinet/in.h>
 #endif
 
+namespace c2x {
+    
 #ifdef _WIN32
-class WSASession
-{
-public:
-    WSASession();
-    ~WSASession();
-private:
-    WSAData data_;
-};
+    class WSASession
+    {
+    public:
+        WSASession();
+        ~WSASession();
+    private:
+        WSAData data_;
+    };
 #endif
 
-class UDPSocket
-{
-private:
-    bool recv_fail_;
-    #ifdef _WIN32
-    SOCKET sock_;
-    #else
-    int sock_;
-    #endif
+    class UDPSocket
+    {
+    private:
+        bool recv_fail_;
+        #ifdef _WIN32
+        SOCKET sock_;
+        #else
+        int sock_;
+        #endif
 
-public:
-    UDPSocket();
-    ~UDPSocket();
+    public:
+        UDPSocket();
+        ~UDPSocket();
 
-    void sendTo(unsigned short port, const char* buffer, int len, int flags = 0);
-    //void SendTo(sockaddr_in& address, const char* buffer, int len, int flags = 0);
-    int recvFrom(char* buffer, int len, sockaddr_in* from_addr, int flags = 0);
-    void bindSocket(unsigned short port);
-    void close();
+        void sendTo(unsigned short port, const char* buffer, int len, int flags = 0);
+        //void SendTo(sockaddr_in& address, const char* buffer, int len, int flags = 0);
+        int recvFrom(char* buffer, int len, sockaddr_in* from_addr, int flags = 0);
+        void bindSocket(unsigned short port);
+        void close();
+    };
 };
-
-#endif // __UDPSocket_H
