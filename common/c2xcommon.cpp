@@ -25,6 +25,15 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_DECODE:
         snprintf(buffer, size, "Decoding failed.");
         break;
+    case ERR_RECEIVER_START:
+        snprintf(buffer, size, "Starting the receiver failed.");
+        break;
+    case ERR_TRANSMITTER_START:
+        snprintf(buffer, size, "Starting the transmitter failed.");
+        break;
+    case ERR_ARG_NULL:
+        snprintf(buffer, size, "Argument was null.");
+        break;
     case ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
         snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
             "message has to be of type " 

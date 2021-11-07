@@ -81,7 +81,7 @@ TEST(CAM_Coding, Encode_CAM_Message) {
     int id = c2x::createCAM(1);
     uint8_t buffer[4096];
 
-    int ret = c2x::encodeCAM(id, buffer, 4096);
+    int ret = c2x::encodeCAM(id, buffer, 4096, nullptr);
 
     ASSERT_GT(ret, 0);
 
@@ -93,7 +93,7 @@ TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
     c2x::setCAMHeader(id, 1, 2);
 
     uint8_t buffer[4096];    
-    int size = c2x::encodeCAM(id, buffer, 4096);
+    int size = c2x::encodeCAM(id, buffer, 4096, nullptr);
     int  newProtVers, newMsgId, newStatId;
     c2x::decodeCAM(&newStatId, buffer, size);
     c2x::getCAMHeader(newStatId, &newProtVers, &newMsgId);
@@ -103,4 +103,16 @@ TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
     ASSERT_EQ(1, newStatId);
 
     c2x::deleteCAM(id);
+}
+
+TEST(CAM_Network, Start_And_Stop_Receiver) {
+    int retStart1 = c2x::startCAMReceiver(1997);
+    int retStop1 = c2x::stopCAMReceiver();
+    int retStart2 = c2x::startCAMReceiver(1997);
+    int retStop2 = c2x::stopCAMReceiver();
+    
+    ASSERT_EQ(0, retStart1);
+    ASSERT_EQ(0, retStop1);
+    ASSERT_EQ(0, retStart2);
+    ASSERT_EQ(0, retStop2);
 }

@@ -10,7 +10,7 @@ defaultTemplate = 'simulink-component.template'
 outputDirectory = './matlab/c2xlib/'
 
 simulinkBlockDefine = "SIMULINK_BLOCK"
-simulinkNontunableProperty = "SIMULINK_NONTUNABLE_PROPERTY"
+simulinkNontunableProperty = "SIMULINK_NONTUN_PROP"
 
 ################################
 

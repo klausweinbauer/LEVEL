@@ -5,6 +5,8 @@
 #include <VectorBuffer.hpp>
 #include <mutex>
 #include <iostream>
+#include <CAMReceiver.hpp>
+#include <CAMTransmitter.hpp>
 
 #ifdef __cplusplus
 namespace c2x {
@@ -973,7 +975,7 @@ int writeCallback(const void* src, size_t size, void* application_specific_key)
     return (int)writeCallbackBuffer_->write(src, (int)size, application_specific_key);
 }
 
-int encodeCAM(int stationID, uint8_t* buffer, int size)
+int encodeCAM(int stationID, uint8_t* buffer, int size, int *actualSize)
 {
     databaseLock_.lock();
     GET_CAM(stationID);
@@ -1001,8 +1003,11 @@ int encodeCAM(int stationID, uint8_t* buffer, int size)
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
     size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
-
+    if (actualSize) {
+        *actualSize = copiedBytes;
+    }
     delete vectorBuffer;
+
     return copiedBytes;
 }
 #pragma endregion
@@ -1010,22 +1015,47 @@ int encodeCAM(int stationID, uint8_t* buffer, int size)
 #pragma region NetworkService
 int startCAMReceiver(int port)
 {
-    
+    try
+    {
+        CAMReceiver::getInstance().start(port);
+    }
+    catch (const std::exception& ex)
+    {
+        return ERR_RECEIVER_START;
+        std::cout << "[ERROR] " << ex.what() << std::endl;
+    }
+    return 0;
 }
 
 int stopCAMReceiver()
 {
-
+    CAMReceiver::getInstance().stop();
+    return 0;
 }
 
 int startCAMTransmitter(int port)
 {
-
+    try
+    {
+        CAMTransmitter::getInstance().start(port);
+    }
+    catch (const std::exception& ex)
+    {
+        return ERR_TRANSMITTER_START;
+        std::cout << "[ERROR] " << ex.what() << std::endl;
+    }
+    return 0;
 }
 
 int stopCAMTransmitter()
 {
+    CAMTransmitter::getInstance().stop();
+    return 0;
+}
 
+int CAMTransmitter(int *stationIDs_send, int size)
+{
+    return CAMTransmitter::getInstance().setIDsToTransmit(stationIDs_send, size);
 }
 
 #pragma endregion

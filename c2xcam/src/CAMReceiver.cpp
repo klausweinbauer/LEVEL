@@ -10,10 +10,10 @@ CAMReceiver::CAMReceiver() {
 
 void CAMReceiver::decodeMessage(char* buffer, int len) 
 {
-    int id, stationId;
-	decodeCAM(&id, (uint8_t*)buffer, len);
-    getCAMHeader(id, nullptr, nullptr, &stationId);
+    int stationID;
+	decodeCAM(&stationID, (uint8_t*)buffer, len);
 
-	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationId << " | ";
+	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationID << std::endl;
 }
+
 };

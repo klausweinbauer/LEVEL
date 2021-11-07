@@ -1,6 +1,5 @@
 #include <PacketReceiver.hpp>
 #include <iostream>
-#include <Error.hpp>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -50,7 +49,7 @@ namespace c2x {
             {
                 sockaddr_in from_addr;
                 int len = socket_->recvFrom(buffer, RECEIVE_BUFFER_LEN, &from_addr);
-                if (len < 0)
+                if (len <= 0)
                 {
                     continue;
                 }
