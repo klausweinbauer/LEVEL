@@ -35,6 +35,9 @@ void getErrMsg(int err, char* buffer, int size) {
             "message has to be of type " 
             "LowFrequencyContainerBasicVehicleContainer");
         break;
+    case ERR_CAM_ALREADY_EXISTS:
+        snprintf(buffer, size, "A CAM with this ID already exists.");
+        break;
     default:
         break;
     }
