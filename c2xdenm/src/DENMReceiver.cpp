@@ -1,33 +1,23 @@
 #include <DENMReceiver.hpp>
 #include <DENMContainer.hpp>
 #include <DENM.h>
-#include <DENMService.hpp>
 #include <iostream>
+#include <c2xdenm.h>
+
+namespace c2x {
 
 DENMReceiver::DENMReceiver()
-	: msgContainer_(new DENMContainer())
 {
 
 }
 
 void DENMReceiver::decodeMessage(char* buffer, int len)
 {
-	DENM_t* newDENM = nullptr;
-	decodeDENM(&newDENM, buffer, len);
+    int stationID, sequenceNumber;
+	decodeDENM(&stationID, &sequenceNumber, (uint8_t*)buffer, len);
 
-	std::cout << "Received message (length: " << len << " bytes)" << " from station " << newDENM->header.stationID << " | ";
-
-	lockMsgContainer();
-	msgContainer_->addOrUpdate(newDENM);
-	unlockMsgContainer();
+	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationID 
+        << " | Sequence Number: " << sequenceNumber << std::endl;
 }
 
-void DENMReceiver::lockMsgContainer()
-{
-	msgContainerLock_.lock();
-}
-
-void DENMReceiver::unlockMsgContainer()
-{
-	msgContainerLock_.unlock();
-}
+};

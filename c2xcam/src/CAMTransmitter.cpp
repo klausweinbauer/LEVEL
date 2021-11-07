@@ -2,25 +2,27 @@
 #include <CAMService.hpp>
 #include <iostream>
 #include <UDPSocket.hpp>
+#include <c2xcommon.h>
+#include <c2xcam.h>
 
 #ifndef WIN32
 #include <unistd.h>
 #endif
 
-CAMTransmitter::CAMTransmitter() : cam_()
+namespace c2x {
+
+CAMTransmitter::CAMTransmitter()
 {
 	
 }
 
-void CAMTransmitter::start(unsigned short port, unsigned int interval_ms)
+void CAMTransmitter::start(unsigned short port)
 {
 	if (thread_running_)
 	{
-		//throw std::invalid_argument("Packet transmitter already started.");
 		return;
 	}
 
-	interval_ms_ = interval_ms;
 	port_ = port;
 
 	thread_running_ = true;
@@ -31,18 +33,19 @@ void CAMTransmitter::stop()
 {
 	if (!thread_running_)
 	{
-		//throw std::invalid_argument("Transmitting thread is not running.");
 		return;
 	}
 
 	thread_running_ = false;
 	send_thread_.join();
+
+    transmit_ids_lock_.lock();
+    free(transmit_ids_);
+    transmit_ids_lock_.unlock();
 }
 
 void CAMTransmitter::send()
 {
-	std::cout << "Transmitting thread started." << std::endl;
-
 #ifdef WIN32
 	WSASession session;
 #endif
@@ -53,13 +56,15 @@ void CAMTransmitter::send()
 	{
 		try
 		{
-			CAMTransmitter::getInstance().lockCAM();
-			int stationId = CAMTransmitter::getInstance().cam_.header.stationID;
-			int len = encodeCAM(CAMTransmitter::getInstance().localCAM(), buffer, TRANSMIT_BUFFER_LEN);
-			CAMTransmitter::getInstance().unlockCAM();
-
-			std::cout << "Send CAM message (length: " << len << " bytes) from station " << stationId << std::endl;
-			socket.sendTo(CAMTransmitter::getInstance().port_, buffer, len);
+            CAMTransmitter::getInstance().transmit_ids_lock_.lock();
+            for (int i = 0; i < CAMTransmitter::getInstance().transmit_ids_size_; i++) {
+                int len = 0;
+                int stationID = CAMTransmitter::getInstance().transmit_ids_[i];
+                c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
+                std::cout << "Send CAM message (length: " << len << " bytes) from station " << stationID << std::endl;
+                socket.sendTo(CAMTransmitter::getInstance().port_, buffer, len);
+            }            
+            CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
 
             #ifdef WIN32
 			Sleep(CAMTransmitter::getInstance().interval_ms_);
@@ -80,12 +85,11 @@ void CAMTransmitter::send()
 		}
 	}
 	free(buffer);
-	std::cout << "Transmitting thread stopped." << std::endl;
 }
 
-void CAMTransmitter::setInterval(unsigned int interval)
+void CAMTransmitter::setInterval(unsigned int interval_ms)
 {
-	interval_ms_ = interval;
+	interval_ms_ = interval_ms;
 }
 
 unsigned int CAMTransmitter::getInterval()
@@ -93,22 +97,31 @@ unsigned int CAMTransmitter::getInterval()
 	return interval_ms_;
 }
 
-void CAMTransmitter::setStationId(int stationId)
+int CAMTransmitter::setIDsToTransmit(int *ids, int size)
 {
-	stationId_ = stationId;
+    if (!ids) {
+        return ERR_ARG_NULL;
+    }
+
+    transmit_ids_lock_.lock();
+    if (!transmit_ids_) {
+        transmit_ids_ = (int*)malloc(size * sizeof(int));
+    }
+    else {
+        transmit_ids_ = (int*)realloc(transmit_ids_, size * sizeof(int));
+    }
+    transmit_ids_size_ = 0;
+
+    if (!transmit_ids_) {
+        transmit_ids_lock_.unlock();
+        return ERR_ALLOC_FAILED;
+    }
+
+    memcpy(transmit_ids_, ids, size * sizeof(int));
+    transmit_ids_size_ = size;
+
+    transmit_ids_lock_.unlock();
+    return 0;
 }
 
-CAM_t* CAMTransmitter::localCAM()
-{
-	return &cam_;
-}
-
-void CAMTransmitter::lockCAM()
-{
-	cam_lock_.lock();
-}
-
-void CAMTransmitter::unlockCAM()
-{
-	cam_lock_.unlock();
-}
+};

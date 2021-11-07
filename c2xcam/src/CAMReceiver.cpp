@@ -1,21 +1,19 @@
 #include <CAMReceiver.hpp>
-#include <CAMContainer.hpp>
 #include <CAM.h>
-#include <CAMService.hpp>
 #include <iostream>
+#include <c2xcam.h>
 
+namespace c2x {
 CAMReceiver::CAMReceiver() {
 
 }
 
 void CAMReceiver::decodeMessage(char* buffer, int len) 
 {
-	CAM_t* newCAM = nullptr;
-	decodeCAM(&newCAM, buffer, len);
+    int stationID;
+	decodeCAM(&stationID, (uint8_t*)buffer, len);
 
-	std::cout << "Received message (length: " << len << " bytes)" << " from station " << newCAM->header.stationID << " | ";
-
-	CAMContainer::getInstance().lockContainer();
-	CAMContainer::getInstance().addOrUpdate(newCAM);
-	CAMContainer::getInstance().unlockContainer();
+	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationID << std::endl;
 }
+
+};
