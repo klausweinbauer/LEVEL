@@ -17,7 +17,8 @@ classdef __className__ < matlab.System & coder.ExternalDependency
             end 
         end
         
-        function stepImpl(~)                       
+        function [StationID] = stepImpl(obj)
+            StationID = obj.StationID;                       
         end
         
         function releaseImpl(obj)

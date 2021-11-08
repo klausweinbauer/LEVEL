@@ -18,7 +18,8 @@ HeighFrequencyContainerType = 0;
             end 
         end
         
-        function stepImpl(~)                       
+        function [StationID] = stepImpl(obj)
+            StationID = obj.StationID;                       
         end
         
         function releaseImpl(obj)
