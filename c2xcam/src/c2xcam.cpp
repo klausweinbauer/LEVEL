@@ -58,6 +58,11 @@ void freePathPoint(PathPoint *pathPoint) {
     delete pathPoint;
 }
 
+int CAMMessage(int stationID, int heighFrequencyContainerType)
+{
+    return createCAM(stationID, heighFrequencyContainerType);
+}
+
 int createCAM(int stationID, int heighFrequencyContainerType) {
 
     databaseLockCAM_.lock();
