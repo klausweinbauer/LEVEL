@@ -15,10 +15,7 @@ simulinkNontunableProperty = "SIMULINK_NONTUN_PROP"
 ################################
 
 def getClassName(functionDefinition):
-    fName = functionDefinition[1]
-    if fName.startswith(("get", "set", "add")):
-        fName = fName[3:]
-    return fName
+    return functionDefinition[1][0].capitalize() + functionDefinition[1][1:] 
 
 class Parameter:
     isPointer = False
