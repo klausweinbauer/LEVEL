@@ -145,7 +145,9 @@ int setCAMGenerationDeltaTime(int stationID, int generationDeltaTime) {
     databaseLockCAM_.unlock();
 }
 
-int setCAMBasicContainer(int stationID, int stationType, Position position) {
+int setCAMBasicContainer(int stationID, int stationType, int latitude, int longitude, int confidenceMajor, 
+    int confidenceMinor, int confidenceMajorOrientation, int altitudeValue, int altitudeConfidence) 
+{
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
     if (!cam) {
@@ -156,16 +158,13 @@ int setCAMBasicContainer(int stationID, int stationType, Position position) {
     cam->cam.camParameters.basicContainer.stationType = stationType;
     ReferencePosition *pos = 
         &cam->cam.camParameters.basicContainer.referencePosition;
-    pos->latitude = position.latitude;
-    pos->longitude = position.longitude;
-    pos->positionConfidenceEllipse.semiMajorConfidence = 
-        position.confidenceMajor;
-    pos->positionConfidenceEllipse.semiMinorConfidence = 
-        position.confidenceMinor;
-    pos->positionConfidenceEllipse.semiMajorOrientation = 
-        position.confidenceMajorOrientation;
-    pos->altitude.altitudeValue = position.altitudeValue;
-    pos->altitude.altitudeConfidence = position.altitudeConfidence;
+    pos->latitude = latitude;
+    pos->longitude = longitude;
+    pos->positionConfidenceEllipse.semiMajorConfidence = confidenceMajor;
+    pos->positionConfidenceEllipse.semiMinorConfidence = confidenceMinor;
+    pos->positionConfidenceEllipse.semiMajorOrientation = confidenceMajorOrientation;
+    pos->altitude.altitudeValue = altitudeValue;
+    pos->altitude.altitudeConfidence = altitudeConfidence;
 
     databaseLockCAM_.unlock();
 }

@@ -20,7 +20,8 @@ int SHARED_EXPORT deleteCAM(int stationID);
 #pragma region Setter
 int SHARED_EXPORT SIMULINK_BLOCK setCAMHeader(int stationID, int protocolVersion, int messageID);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMGenerationDeltaTime(int stationID, int generationDeltaTime);
-int SHARED_EXPORT setCAMBasicContainer(int stationID, int stationType, Position position);
+int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicContainer(int stationID, int stationType, int latitude, int longitude, int confidenceMajor, 
+    int confidenceMinor, int confidenceMajorOrientation, int altitudeValue, int altitudeConfidence);
 
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequency(int stationID, int headingValue, int headingConfidence, 
     int speedValue, int speedConfidence, int driveDirection, int vehicleLengthValue, 
