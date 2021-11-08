@@ -1,7 +1,7 @@
 classdef GetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+        Size = 0;  
     end
     
     properties (Hidden)
@@ -14,9 +14,9 @@ classdef GetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.Sy
         function setupImpl(~)
         end
         
-        function [Buffer, ActualSize] = stepImpl(obj, StationID, Size) 
+        function [Buffer, ActualSize] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('getCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, coder.wref(Buffer), Size, coder.wref(ActualSize));
+                coder.ceval('getCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, coder.wref(Buffer), obj.Size, coder.wref(ActualSize));
             end            
         end
         

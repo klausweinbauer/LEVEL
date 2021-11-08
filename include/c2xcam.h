@@ -57,7 +57,7 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequency(int st
     int *longitudinalAccelerationConfidence, int *curvatureValue, int *curvatureConfidence, 
     int *curvatureCalculationMode, int *yawRateValue, int *yawRateConfidence);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, 
-    int size, int* actualSize);
+    SIMULINK_NONTUN_PROP int size, int* actualSize);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int *lanePosition);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, int *steeringWheelAngleValue, 
     int *steeringWheelAngleConfidence);
