@@ -17,10 +17,11 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
             end 
         end
         
-        function [] = stepImpl(obj, Send) 
-            Size = length(Send);
+        function [] = stepImpl(obj, IDsToTransmit, f_send) 
+            Size = length(IDsToTransmit);
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('setCAMIDsForTransmission', coder.wref(Send), Size);
+                coder.ceval('setCAMTransmissionFrequency', f_send);
+                coder.ceval('setCAMIDsForTransmission', coder.wref(IDsToTransmit), Size);
             end            
         end
         

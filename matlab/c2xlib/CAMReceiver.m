@@ -17,7 +17,7 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
             end 
         end
         
-        function [__outputParameterList__] = stepImpl(obj, __inputParameterList__)                        
+        function stepImpl(obj)                        
         end
         
         function releaseImpl(~)  
