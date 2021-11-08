@@ -101,6 +101,7 @@ int setDENMTransmissionFrequency(double f)
 {
     unsigned int int_ms = (unsigned int)(1000 / f);
     DENMTransmitter::getInstance().setInterval(int_ms);
+    return 0;
 }
 
 int createDENM(int stationID, int sequenceNumber)
@@ -305,7 +306,7 @@ int getDENMManagementContainer(DENM_t* denm,
     int* termination, int* relevanceDistance, int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType)
 {
     if (detectionTime && detectionTimeSize > 0 && denm->denm.management.detectionTime.buf) {
-        int cpySize = std::min(detectionTimeSize, denm->denm.management.detectionTime.size);
+        int cpySize = (std::min)(detectionTimeSize, denm->denm.management.detectionTime.size);
         memcpy(detectionTime, denm->denm.management.detectionTime.buf, cpySize);
     }
     if (detectionTimeActualSize) {
@@ -313,7 +314,7 @@ int getDENMManagementContainer(DENM_t* denm,
     }
 
     if (referenceTime && referenceTimeSize > 0 && denm->denm.management.referenceTime.buf) {
-        int cpySize = std::min(referenceTimeSize, denm->denm.management.referenceTime.size);
+        int cpySize = (std::min)(referenceTimeSize, denm->denm.management.referenceTime.size);
         memcpy(referenceTime, denm->denm.management.referenceTime.buf, cpySize);
     }
     if (referenceTimeActualSize) {
@@ -338,6 +339,7 @@ int getDENMManagementContainer(DENM_t* denm,
     if (stationType) {
         *stationType = denm->denm.management.stationType;
     }
+    return 0;
 }
 
 int getDENMManagementContainer(int stationID, int sequenceNumber, 
@@ -384,6 +386,7 @@ int getDENMManagementContainerEventPosition(DENM_t* denm, int* latitude, int* lo
     if (altitudeConf != nullptr) {
         *altitudeConf = denm->denm.management.eventPosition.altitude.altitudeConfidence;
     }
+    return 0;
 }
 
 int getDENMManagementContainerEventPosition(int stationID, int sequenceNumber, int* latitude, int* longitude, 

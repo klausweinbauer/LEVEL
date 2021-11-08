@@ -682,7 +682,7 @@ int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint
 
     int cpySize = 0;
     if (buffer) {
-        cpySize = std::min(size, hfc->accelerationControl->size);
+        cpySize = (std::min)(size, hfc->accelerationControl->size);
         memcpy(buffer, hfc->accelerationControl, cpySize);
     }
     if (actualSize) {
@@ -973,7 +973,7 @@ int getCAMBasicVehicleContainerLowFrequency(CAM_t *cam, int *vehicleRole, uint8_
 
     int cpySize = 0;
     if (exteriorLights && lfc->exteriorLights.buf) {
-        cpySize = std::min(exteriorLightsSize, lfc->exteriorLights.size);
+        cpySize = (std::min)(exteriorLightsSize, lfc->exteriorLights.size);
         memcpy(exteriorLights, lfc->exteriorLights.buf, cpySize);
     }
     if (actualExteriorLightsSize) {
@@ -1017,7 +1017,7 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, int* pathHist
     if (pathHistory)
     {
         int len = lfc->pathHistory.list.count;
-        int cpySize = std::min((int)(pathHistorySize / 4), len);
+        int cpySize = (std::min)((int)(pathHistorySize / 4), len);
         for (int i = 0; i < cpySize; i++)
         {
             pathHistory[i*4 + 0] = lfc->pathHistory.list.array[len - 1 - i]->pathPosition.deltaLatitude;
@@ -1180,6 +1180,7 @@ int setCAMTransmissionFrequency(double f)
 {
     unsigned int int_ms = (unsigned int)(1000 / f);
     CAMTransmitter::getInstance().setInterval(int_ms);
+    return 0;
 }
 
 int CAMTransmitter(int *stationIDs_send, int size)

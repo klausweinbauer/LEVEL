@@ -1,7 +1,10 @@
 #include <c2xcam.h>
 #include <iostream>
-#include <unistd.h>
 #include <c2xdenm.h>
+
+#ifndef WIN32
+#include <unistd.h>
+#endif
 
 int main(int argc, char** argv) {
     c2x::createDENM(1, 1);
