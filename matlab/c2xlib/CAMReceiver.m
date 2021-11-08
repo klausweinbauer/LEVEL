@@ -1,7 +1,7 @@
-classdef CAMTransmitter < matlab.System & coder.ExternalDependency
+classdef CAMReceiver < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        Port = 1997;
+        Port = 1997;  
     end
     
     properties (Hidden)
@@ -13,26 +13,22 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('startCAMTransmitter', obj.Port);
+                coder.ceval('startCAMReceiver', obj.Port);
             end 
         end
         
-        function [] = stepImpl(obj, Send) 
-            Size = length(Send);
-            if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('setCAMIDsForTransmission', coder.wref(Send), Size);
-            end            
+        function [__outputParameterList__] = stepImpl(obj, __inputParameterList__)                        
         end
         
-        function releaseImpl(~)   
+        function releaseImpl(~)  
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('stopCAMTransmitter');
-            end          
+                coder.ceval('stopCAMReceiver');
+            end           
         end
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'CAMTransmitter';
+            bName = '__className__';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -48,7 +44,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
             [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
 
             % Parametrize library extension
-            libName =  strcat('c2xcam', linkLibExt);
+            libName =  strcat('__libName__', linkLibExt);
             % Other linking parameters
             libPath = './';
             libPriority = '';

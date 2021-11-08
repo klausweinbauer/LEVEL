@@ -87,7 +87,7 @@ int SHARED_EXPORT stopCAMReceiver();
 int SHARED_EXPORT startCAMTransmitter(int port);
 int SHARED_EXPORT stopCAMTransmitter();
 int SHARED_EXPORT setCAMTransmissionFrequency(double f);
-int SHARED_EXPORT SIMULINK_BLOCK CAMTransmitter(int *stationIDs_send, int size);
+int SHARED_EXPORT setCAMIDsForTransmission(int *stationIDs_send, int size);
 #pragma endregion
 
 #ifdef __cplusplus

@@ -1187,7 +1187,7 @@ int setCAMTransmissionFrequency(double f)
     return 0;
 }
 
-int CAMTransmitter(int *stationIDs_send, int size)
+int setCAMIDsForTransmission(int *stationIDs_send, int size)
 {
     return CAMTransmitter::getInstance().setIDsToTransmit(stationIDs_send, size);
 }
