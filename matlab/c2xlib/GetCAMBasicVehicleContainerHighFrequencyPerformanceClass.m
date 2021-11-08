@@ -1,4 +1,4 @@
-classdef SetCAMBasicVehicleContainerHighFrequencyPerformaceClass < matlab.System & coder.ExternalDependency
+classdef GetCAMBasicVehicleContainerHighFrequencyPerformanceClass < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
           
@@ -14,9 +14,9 @@ classdef SetCAMBasicVehicleContainerHighFrequencyPerformaceClass < matlab.System
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, PerformanceClass) 
+        function [PerformanceClass] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('setCAMBasicVehicleContainerHighFrequencyPerformaceClass', StationID, PerformanceClass);
+                coder.ceval('getCAMBasicVehicleContainerHighFrequencyPerformanceClass', StationID, coder.wref(PerformanceClass));
             end            
         end
         
@@ -25,7 +25,7 @@ classdef SetCAMBasicVehicleContainerHighFrequencyPerformaceClass < matlab.System
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMBasicVehicleContainerHighFrequencyPerformaceClass';
+            bName = 'GetCAMBasicVehicleContainerHighFrequencyPerformanceClass';
         end
         
         function supported = isSupportedContext(buildContext)

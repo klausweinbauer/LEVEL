@@ -35,7 +35,7 @@ int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyLateral
     int lateralAccelerationConfidence);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, int verticalAccelerationValue, 
     int verticalAccelerationConfidence);
-int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int performanceClass);
+int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int performanceClass);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, int protectedZoneLatitude, 
     int protectedZoneLongitude, int cenDsrcTollingZoneID);
 
@@ -65,7 +65,7 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyLateral
     int *lateralAccelerationConfidence);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, int *verticalAccelerationValue, 
     int *verticalAccelerationConfidence);
-int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int *performanceClass);
+int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int *performanceClass);
 int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, int *protectedZoneLatitude, 
     int *protectedZoneLongitude, int *cenDsrcTollingZoneID);
 

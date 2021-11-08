@@ -357,7 +357,7 @@ int setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, 
     databaseLockCAM_.unlock();
 }
 
-int setCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int performanceClass)
+int setCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int performanceClass)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -874,7 +874,7 @@ int getCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID,
     return ret;
 }
 
-int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(CAM_t *cam, int *performanceClass)
+int getCAMBasicVehicleContainerHighFrequencyPerformanceClass(CAM_t *cam, int *performanceClass)
 {
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -894,7 +894,7 @@ int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(CAM_t *cam, int *per
     }
 }
 
-int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int *performanceClass)
+int getCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int *performanceClass)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -903,7 +903,7 @@ int getCAMBasicVehicleContainerHighFrequencyPerformaceClass(int stationID, int *
         return ERR_MSG_NOT_FOUND;
     }
 
-    int ret = getCAMBasicVehicleContainerHighFrequencyPerformaceClass(cam, performanceClass);
+    int ret = getCAMBasicVehicleContainerHighFrequencyPerformanceClass(cam, performanceClass);
 
     databaseLockCAM_.unlock();
     return ret;
