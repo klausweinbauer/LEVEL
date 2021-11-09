@@ -14,7 +14,7 @@ classdef SetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.Sy
         function setupImpl(~)
         end
         
-        function [Buffer] = stepImpl(obj, StationID, BufferSize) 
+        function [] = stepImpl(obj, StationID, Buffer, BufferSize) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('setCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, coder.wref(Buffer), BufferSize);
@@ -86,24 +86,20 @@ end
         end
     end
     methods (Access = protected)
-        function [Buffer] = getOutputSizeImpl(obj)
-            Buffer = [obj.BufferSize, 1];
-
+        function [] = getOutputSizeImpl(obj)
+            
         end 
         
-        function [Buffer] = isOutputFixedSizeImpl(obj)
-            true;
-
+        function [] = isOutputFixedSizeImpl(obj)
+            
         end
         
-        function [Buffer] = getOutputDataTypeImpl(obj)
-            'uint8';
-
+        function [] = getOutputDataTypeImpl(obj)
+            
         end
         
-        function [Buffer] = isOutputComplexImpl(obj)
-            false;
-
+        function [] = isOutputComplexImpl(obj)
+            
         end
     end
 end

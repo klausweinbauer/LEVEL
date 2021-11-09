@@ -14,7 +14,7 @@ classdef SetCAMBasicVehicleContainerLowFrequency < matlab.System & coder.Externa
         function setupImpl(~)
         end
         
-        function [ExteriorLights] = stepImpl(obj, StationID, VehicleRole, ExteriorLightsSize) 
+        function [] = stepImpl(obj, StationID, VehicleRole, ExteriorLights, ExteriorLightsSize) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('setCAMBasicVehicleContainerLowFrequency', StationID, VehicleRole, coder.wref(ExteriorLights), ExteriorLightsSize);
@@ -86,24 +86,20 @@ end
         end
     end
     methods (Access = protected)
-        function [ExteriorLights] = getOutputSizeImpl(obj)
-            ExteriorLights = [1, 1];
-
+        function [] = getOutputSizeImpl(obj)
+            
         end 
         
-        function [ExteriorLights] = isOutputFixedSizeImpl(obj)
-            true;
-
+        function [] = isOutputFixedSizeImpl(obj)
+            
         end
         
-        function [ExteriorLights] = getOutputDataTypeImpl(obj)
-            'uint8';
-
+        function [] = getOutputDataTypeImpl(obj)
+            
         end
         
-        function [ExteriorLights] = isOutputComplexImpl(obj)
-            false;
-
+        function [] = isOutputComplexImpl(obj)
+            
         end
     end
 end

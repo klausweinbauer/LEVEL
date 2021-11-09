@@ -28,7 +28,7 @@ int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequency(int st
     int vehicleLengthConfidenceIndication, int vehicleWidth, int longitudinalAccelerationValue, 
     int longitudinalAccelerationConfidence, int curvatureValue, int curvatureConfidence, int curvatureCalculationMode, 
     int yawRateValue, int yawRateConfidence);
-int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, SIMULINK_OUTPUT_MATRIX_A_1 uint8_t *buffer, int bufferSize);
+int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, SIMULINK_INPUT uint8_t *buffer, int bufferSize);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int lanePosition);
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, int steeringWheelAngleValue, 
     int steeringWheelAngleConfidence);
@@ -40,7 +40,7 @@ int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyPerform
 int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, int protectedZoneLatitude, 
     int protectedZoneLongitude, int cenDsrcTollingZoneID);
 
-int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, uint8_t *exteriorLights, 
+int SHARED_EXPORT SIMULINK_BLOCK setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, SIMULINK_INPUT uint8_t *exteriorLights, 
     int exteriorLightsSize);
 int SHARED_EXPORT SIMULINK_BLOCK addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLatitude, 
     int deltaLongitude, int deltaAltitude, int deltaTime);
