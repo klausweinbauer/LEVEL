@@ -36,6 +36,9 @@ extern "C"
 
 #define SIMULINK_BLOCK
 #define SIMULINK_NONTUN_PROP
+#define SIMULINK_INPUT
+#define SIMULINK_OUTPUT_MATRIX_A_1
+#define SIMULINK_OUTPUT_MATRIX_A_4
 
 typedef struct Position {
     int latitude = 0;

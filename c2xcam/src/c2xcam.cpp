@@ -35,19 +35,19 @@ CAM_t* getCAM(int stationID) {
     return nullptr;
 }
 
-void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int size) {
+void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int bufferSize) {
     if (!buffer) {
         return;
     }
 
     if (!bitString->buf) {
-        bitString->buf = (uint8_t*)malloc(size);
+        bitString->buf = (uint8_t*)malloc(bufferSize);
     }
     else {
-        bitString->buf = (uint8_t*)realloc(bitString->buf, size);
+        bitString->buf = (uint8_t*)realloc(bitString->buf, bufferSize);
     }
-    memcpy(bitString->buf, buffer, size);
-    bitString->size = size;
+    memcpy(bitString->buf, buffer, bufferSize);
+    bitString->size = bufferSize;
 }
 
 void freePathPoint(PathPoint *pathPoint) {
@@ -215,7 +215,7 @@ int setCAMBasicVehicleContainerHighFrequency(int stationID,
     databaseLockCAM_.unlock();
 }
 
-int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int size)
+int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int bufferSize)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -236,7 +236,7 @@ int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, u
     if (!hfc->accelerationControl) {
         hfc->accelerationControl = new AccelerationControl_t();
     }
-    setBitString(hfc->accelerationControl, buffer, size);
+    setBitString(hfc->accelerationControl, buffer, bufferSize);
 
     databaseLockCAM_.unlock();
 }
@@ -669,7 +669,7 @@ int getCAMBasicVehicleContainerHighFrequency(int stationID, int *headingValue, i
     return ret;
 }
 
-int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint8_t *buffer, int size, int* actualSize)
+int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint8_t *buffer, int bufferSize, int* actualBufferSize)
 {
     if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
@@ -686,15 +686,15 @@ int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint
 
     int cpySize = 0;
     if (buffer) {
-        cpySize = (std::min)(size, hfc->accelerationControl->size);
+        cpySize = (std::min)(bufferSize, hfc->accelerationControl->size);
         memcpy(buffer, hfc->accelerationControl, cpySize);
     }
-    if (actualSize) {
-        *actualSize = cpySize;
+    if (actualBufferSize) {
+        *actualBufferSize = cpySize;
     }
 }
 
-int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int size, int* actualSize)
+int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int bufferSize, int* actualBufferSize)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -703,7 +703,7 @@ int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, u
         return ERR_MSG_NOT_FOUND;
     }
 
-    int ret = getCAMBasicVehicleContainerHighFrequencyAccelerationControl(cam, buffer, size, actualSize);
+    int ret = getCAMBasicVehicleContainerHighFrequencyAccelerationControl(cam, buffer, bufferSize, actualBufferSize);
 
     databaseLockCAM_.unlock();
     return ret;
@@ -1055,7 +1055,7 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathH
 
 
 #pragma region De-/En-coding
-int decodeCAM(int *stationID, uint8_t* buffer, int size)
+int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize)
 {
     databaseLockCAM_.lock();
 
@@ -1063,7 +1063,7 @@ int decodeCAM(int *stationID, uint8_t* buffer, int size)
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
-    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, size);
+    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
 
     if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
     {
@@ -1098,7 +1098,7 @@ int writeCallbackCAM(const void* src, size_t size, void* application_specific_ke
     return (int)writeCallbackBufferCAM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeCAM(int stationID, uint8_t* buffer, int size, int *actualSize)
+int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -1122,7 +1122,7 @@ int encodeCAM(int stationID, uint8_t* buffer, int size, int *actualSize)
     }
 
     size_t required_buffer_size = vectorBuffer->size();
-    if (size < required_buffer_size)
+    if (bufferSize < required_buffer_size)
     {
         delete vectorBuffer;
         return ERR_BUFFER_OVERFLOW;
@@ -1130,8 +1130,8 @@ int encodeCAM(int stationID, uint8_t* buffer, int size, int *actualSize)
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
     size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
-    if (actualSize) {
-        *actualSize = copiedBytes;
+    if (actualBufferSize) {
+        *actualBufferSize = copiedBytes;
     }
     delete vectorBuffer;
 
@@ -1187,9 +1187,9 @@ int setCAMTransmissionFrequency(double f)
     return 0;
 }
 
-int setCAMIDsForTransmission(int *stationIDs_send, int size)
+int setCAMIDsForTransmission(int *stationIDs_send, int numberStationIDs)
 {
-    return CAMTransmitter::getInstance().setIDsToTransmit(stationIDs_send, size);
+    return CAMTransmitter::getInstance().setIDsToTransmit(stationIDs_send, numberStationIDs);
 }
 
 #pragma endregion

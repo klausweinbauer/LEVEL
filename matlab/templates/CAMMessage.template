@@ -13,7 +13,9 @@ classdef __className__ < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('createCAM', __coderParameterList__);
+                err = int32(0);
+                err = coder.ceval('createCAM', __coderParameterList__);
+                __errorCodeFunctionName__(err);
             end 
         end
         
@@ -23,9 +25,13 @@ classdef __className__ < matlab.System & coder.ExternalDependency
         
         function releaseImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.ceval('deleteCAM', obj.StationID);
+                err = int32(0);
+                err = coder.ceval('deleteCAM', obj.StationID);
+                __errorCodeFunctionName__(err);
             end    
         end
+
+        __errorCodeFunction__
     end
     methods (Static)
         function bName = getDescriptiveName(~)

@@ -19,7 +19,9 @@ classdef __className__ < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 if SamplePathPoint == 1 && obj.SampleActive == 1
                     obj.SampleActive = 0;
-                    coder.ceval('__cFunctionName__', __coderParameterList__);
+                    err = int32(0);
+                    err = coder.ceval('__cFunctionName__', __coderParameterList__);
+                    __errorCodeFunctionName__(err);
                 elseif SamplePathPoint == 0 && obj.SampleActive == 0
                     obj.SampleActive = 1;
                 end                
@@ -28,6 +30,8 @@ classdef __className__ < matlab.System & coder.ExternalDependency
         
         function releaseImpl(~)            
         end
+
+        __errorCodeFunction__
     end
     methods (Static)
         function bName = getDescriptiveName(~)
@@ -56,6 +60,23 @@ classdef __className__ < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+        end
+    end
+    methods (Access = protected)
+        function [__outputParameterList__] = getOutputSizeImpl(obj)
+            __outputSizeImpl__
+        end 
+        
+        function [__outputParameterList__] = isOutputFixedSizeImpl(obj)
+            __outputFixedSizeImpl__
+        end
+        
+        function [__outputParameterList__] = getOutputDataTypeImpl(obj)
+            __outputDataTypeImpl__
+        end
+        
+        function [__outputParameterList__] = isOutputComplexImpl(obj)
+            __outputComplexImpl__
         end
     end
 end
