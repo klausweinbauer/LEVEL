@@ -127,7 +127,7 @@ def resolveTemplateObjects(functionDefinition, paramList):
         '__libName__': libName,
         '__nontunableProperties__': getNontunableProperties(paramList),
         '__errorCodeFunction__': createErrorFunction(),
-        '__errorCodeFunctionName__': errorCodeFunctionName,
+        '__errorCodeFunctionName__': "obj." + errorCodeFunctionName,
         '__outputSizeImpl__' : getOutputSizeImpl(paramList),
         '__outputFixedSizeImpl__' : getOutputFixedSizeImpl(paramList),
         '__outputDataTypeImpl__' : getOutputDataTypeImpl(paramList),
@@ -153,7 +153,7 @@ def loadTemplate(functionDefinition):
     return content
     
 def createErrorFunction():
-    code = "function " + errorCodeFunctionName + "(err)\n"
+    code = "function " + errorCodeFunctionName + "(~, err)\n"
     code += "   if "
     for err in errorCodes:
         code += "(err == " + str(err) + ")\n"

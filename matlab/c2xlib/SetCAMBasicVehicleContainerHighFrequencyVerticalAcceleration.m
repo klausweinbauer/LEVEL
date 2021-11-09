@@ -18,14 +18,14 @@ classdef SetCAMBasicVehicleContainerHighFrequencyVerticalAcceleration < matlab.S
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration', StationID, VerticalAccelerationValue, VerticalAccelerationConfidence);
-                printErrorCode(err);
+                obj.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
 
-        function printErrorCode(err)
+        function printErrorCode(~, err)
    if (err == -22)
        error('ERR_CAM_ALREADY_EXISTS')
    elseif (err == -21)

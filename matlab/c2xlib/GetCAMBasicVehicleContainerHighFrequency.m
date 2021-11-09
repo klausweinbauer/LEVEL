@@ -18,14 +18,14 @@ classdef GetCAMBasicVehicleContainerHighFrequency < matlab.System & coder.Extern
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('getCAMBasicVehicleContainerHighFrequency', StationID, coder.wref(HeadingValue), coder.wref(HeadingConfidence), coder.wref(SpeedValue), coder.wref(SpeedConfidence), coder.wref(DriveDirection), coder.wref(VehicleLengthValue), coder.wref(VehicleLengthConfidenceIndication), coder.wref(VehicleWidth), coder.wref(LongitudinalAccelerationValue), coder.wref(LongitudinalAccelerationConfidence), coder.wref(CurvatureValue), coder.wref(CurvatureConfidence), coder.wref(CurvatureCalculationMode), coder.wref(YawRateValue), coder.wref(YawRateConfidence));
-                printErrorCode(err);
+                obj.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
 
-        function printErrorCode(err)
+        function printErrorCode(~, err)
    if (err == -22)
        error('ERR_CAM_ALREADY_EXISTS')
    elseif (err == -21)

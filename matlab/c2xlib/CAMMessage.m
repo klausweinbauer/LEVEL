@@ -16,7 +16,7 @@ HeighFrequencyContainerType = 0;
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('createCAM', obj.StationID, obj.HeighFrequencyContainerType);
-                printErrorCode(err);
+                obj.printErrorCode(err);
             end 
         end
         
@@ -28,11 +28,11 @@ HeighFrequencyContainerType = 0;
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('deleteCAM', obj.StationID);
-                printErrorCode(err);
+                obj.printErrorCode(err);
             end    
         end
 
-        function printErrorCode(err)
+        function printErrorCode(~, err)
    if (err == -22)
        error('ERR_CAM_ALREADY_EXISTS')
    elseif (err == -21)

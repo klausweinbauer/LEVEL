@@ -18,14 +18,14 @@ classdef GetCAMBasicContainer < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 err = coder.ceval('getCAMBasicContainer', StationID, coder.wref(StationType), coder.wref(Latitude), coder.wref(Longitude), coder.wref(ConfidenceMajor), coder.wref(ConfidenceMinor), coder.wref(ConfidenceMajorOrientation), coder.wref(AltitudeValue), coder.wref(AltitudeConfidence));
-                printErrorCode(err);
+                obj.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
 
-        function printErrorCode(err)
+        function printErrorCode(~, err)
    if (err == -22)
        error('ERR_CAM_ALREADY_EXISTS')
    elseif (err == -21)
