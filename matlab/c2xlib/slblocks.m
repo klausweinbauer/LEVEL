@@ -1,4 +1,4 @@
 function blkStruct = slblocks
     Browser.Library = 'c2xlib';
-    Browser.Name = 'CAM and DENM Library';
+    Browser.Name = 'C2XLib';
     blkStruct.Browser = Browser;

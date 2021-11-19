@@ -3,3 +3,7 @@ out/
 build/
 debug/
 .vs/
+slprj/
+
+*.autosave
+*.mexw64

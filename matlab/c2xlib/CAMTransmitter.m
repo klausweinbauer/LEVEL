@@ -51,7 +51,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
             % Parametrize library extension
             libName =  strcat('c2xcam', linkLibExt);
             % Other linking parameters
-            libPath = './';
+            libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
             libPriority = '';
             libPreCompiled = true;
             libLinkOnly = true;
