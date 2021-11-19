@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <c2xcam.h>
+#include <sstream>
+#include <c2xcommon.h>
 
 TEST(CAM_Basic, Create_And_Delete_CAM) {
     int id = c2x::createCAM(1);
@@ -130,4 +132,15 @@ TEST(CAM_Coding, Decode_New_Message) {
     ASSERT_EQ(1, id);
     ASSERT_EQ(0, ret);
     ASSERT_EQ(0, retDel);
+}
+
+TEST(Error_Msg, Set_And_Get_Last_Error_Message) {
+    std::stringstream ss;
+    ss << "Hello World" << std::endl;
+    c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+
+    char buffer[128];
+    int actualSize = 0;
+    c2x::getLastErrMsg(buffer, 128, &actualSize);
+    ASSERT_STREQ(ss.str().c_str(), buffer);
 }

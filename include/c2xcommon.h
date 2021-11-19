@@ -58,6 +58,8 @@ typedef struct DeltaPathPoint {
 } DeltaPathPoint;
 
 void getErrMsg(int err, char* buffer, int size);
+void getLastErrMsg(char* buffer, int size, int* actualSize);
+void setLastErrMsg(const char* buffer, int size);
 
 #ifdef __cplusplus
 }

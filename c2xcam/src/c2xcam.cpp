@@ -7,6 +7,8 @@
 #include <iostream>
 #include <CAMReceiver.hpp>
 #include <CAMTransmitter.hpp>
+#include <string.h>
+#include <sstream>
 
 #ifdef __cplusplus
 namespace c2x {
@@ -1117,7 +1119,10 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
     if (retVal.encoded == -1)
     {
         delete vectorBuffer;
-        std::cout << "[ERROR] Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
+        std::stringstream errMsgStream;
+        errMsgStream << "[ERROR] Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
+        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        std::cout << errMsgStream.str();
         return ERR_ENCODE;
     }
 
