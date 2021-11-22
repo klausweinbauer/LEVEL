@@ -19,6 +19,10 @@ static std::mutex databaseLockCAM_;
 static c2x::Buffer* writeCallbackBufferCAM_;
 static std::mutex writeCallbackLockCAM_;
 
+void test() {
+    
+}
+
 std::map<int, CAM_t*>::iterator getCAMiterator(int stationID) {
     for (auto it = databaseCAM_.begin(); it != databaseCAM_.end(); it++) {
         if (it->first == stationID) {
@@ -58,6 +62,44 @@ void freePathPoint(PathPoint *pathPoint) {
     }
     delete pathPoint->pathDeltaTime;
     delete pathPoint;
+}
+
+static char* lastErrMsg = nullptr;
+static int lastErrMsgSize = 0;
+
+void getLastErrMsg(char* buffer, int size, int* actualSize)
+{
+    if (!lastErrMsg) {
+        return;
+    }
+
+    int cpySize = (std::min)(size, lastErrMsgSize);
+    memcpy(buffer, lastErrMsg, cpySize);
+
+    if (actualSize) {
+        *actualSize = cpySize;
+    }
+}
+
+void setLastErrMsg(const char* buffer, int size)
+{
+    if (!buffer) {
+        return;
+    }
+
+    if (lastErrMsg) {
+        lastErrMsg = (char*)realloc(lastErrMsg, size);
+    }
+    else {
+        lastErrMsg = (char*)malloc(size);
+    }
+
+    if (!lastErrMsg) {
+        return;
+    }
+
+    memcpy(lastErrMsg, buffer, size);
+    lastErrMsgSize = size;
 }
 
 int CAMMessage(int stationID, int heighFrequencyContainerType)
