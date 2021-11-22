@@ -144,3 +144,7 @@ TEST(Error_Msg, Set_And_Get_Last_Error_Message) {
     c2x::getLastErrMsg(buffer, 128, &actualSize);
     ASSERT_STREQ(ss.str().c_str(), buffer);
 }
+
+TEST(CAM_Coding, Matlab_Encode) {
+    
+}

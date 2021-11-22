@@ -82,7 +82,7 @@ int SHARED_EXPORT SIMULINK_BLOCK getCAMBasicVehicleContainerLowFrequencyPathHist
 #pragma endregion
 
 #pragma region De-/En-coding
-int SHARED_EXPORT SIMULINK_BLOCK encodeCAM(int stationID, SIMULINK_OUTPUT_MATRIX_A_1 uint8_t* buffer, SIMULINK_NONTUN_PROP int bufferSize, int *actualBufferSize);
+int SHARED_EXPORT SIMULINK_BLOCK encodeCAM(int stationID, SIMULINK_OUTPUT_MATRIX_A_1 uint8_t* buffer, SIMULINK_NONTUN_PROP size_t bufferSize, int *actualBufferSize);
 int SHARED_EXPORT SIMULINK_BLOCK decodeCAM(int* stationID, SIMULINK_OUTPUT_MATRIX_A_1 uint8_t* buffer, SIMULINK_NONTUN_PROP int bufferSize);
 #pragma endregion
 

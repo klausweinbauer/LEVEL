@@ -8,12 +8,11 @@
 #endif
 
 int main(int argc, char** argv) {
-    std::stringstream ss;
-    ss << "Hello World" << std::endl;
-    c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+    int id = 1;c2x::createCAM(2, 1);
+    uint8_t buffer[65000];
+    int size;
+    int ret = c2x::encodeCAM(id, buffer, 65000, &size);
+    std::cout << ret << std::endl;
 
-    char buffer[128];
-    int actualSize = 0;
-    c2x::getLastErrMsg(buffer, 128, &actualSize);
     return 0;
 }
