@@ -1,7 +1,8 @@
-classdef CAMReceiver < matlab.System & coder.ExternalDependency
+classdef DENMTransmitter < matlab.System & coder.ExternalDependency
+    % IDsToTransmit is a vector of StationIDs which should be sent from this instance
     
     properties (Nontunable)
-        Port = 1997;  
+        Port = 1998;
     end
     
     properties (Hidden)
@@ -13,24 +14,29 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xcam.h');
-                coder.ceval('startCAMReceiver', obj.Port);
+                coder.cinclude('c2xdenm.h');
+                coder.ceval('startDENMTransmitter', obj.Port);
             end 
         end
         
-        function stepImpl(obj)                        
+        function [] = stepImpl(obj, StationID, SequenceNumber, f_send) 
+            if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xdenm.h');
+                coder.ceval('setDENMTransmissionFrequency', f_send);
+                coder.ceval('setDENMTransmissionSource', StationID, SequenceNumber);
+            end            
         end
         
-        function releaseImpl(~)  
+        function releaseImpl(~)   
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xcam.h');
-                coder.ceval('stopCAMReceiver');
-            end           
+                coder.cinclude('c2xdenm.h');
+                coder.ceval('stopDENMTransmitter');
+            end          
         end
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'CAMReceiver';
+            bName = 'DENMTransmitter';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -46,7 +52,7 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
             [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
 
             % Parametrize library extension
-            libName =  strcat('c2xcam', linkLibExt);
+            libName =  strcat('c2xdenm', linkLibExt);
             % Other linking parameters
             libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
             libPriority = '';
