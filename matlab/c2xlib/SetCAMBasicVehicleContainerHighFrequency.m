@@ -17,6 +17,7 @@ classdef SetCAMBasicVehicleContainerHighFrequency < matlab.System & coder.Extern
         function [] = stepImpl(obj, StationID, HeadingValue, HeadingConfidence, SpeedValue, SpeedConfidence, DriveDirection, VehicleLengthValue, VehicleLengthConfidenceIndication, VehicleWidth, LongitudinalAccelerationValue, LongitudinalAccelerationConfidence, CurvatureValue, CurvatureConfidence, CurvatureCalculationMode, YawRateValue, YawRateConfidence) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('setCAMBasicVehicleContainerHighFrequency', StationID, HeadingValue, HeadingConfidence, SpeedValue, SpeedConfidence, DriveDirection, VehicleLengthValue, VehicleLengthConfidenceIndication, VehicleWidth, LongitudinalAccelerationValue, LongitudinalAccelerationConfidence, CurvatureValue, CurvatureConfidence, CurvatureCalculationMode, YawRateValue, YawRateConfidence);
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

@@ -13,6 +13,7 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 coder.ceval('startCAMReceiver', obj.Port);
             end 
         end
@@ -22,6 +23,7 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
         
         function releaseImpl(~)  
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 coder.ceval('stopCAMReceiver');
             end           
         end
@@ -53,6 +55,8 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
 end

@@ -17,6 +17,7 @@ classdef GetCAMBasicContainer < matlab.System & coder.ExternalDependency
         function [StationType, Latitude, Longitude, ConfidenceMajor, ConfidenceMinor, ConfidenceMajorOrientation, AltitudeValue, AltitudeConfidence] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('getCAMBasicContainer', StationID, coder.wref(StationType), coder.wref(Latitude), coder.wref(Longitude), coder.wref(ConfidenceMajor), coder.wref(ConfidenceMinor), coder.wref(ConfidenceMajorOrientation), coder.wref(AltitudeValue), coder.wref(AltitudeConfidence));
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

@@ -17,6 +17,7 @@ classdef GetCAMBasicVehicleContainerLowFrequencyPathHistory < matlab.System & co
         function [PathHistory, ActualPathHistorySize] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('getCAMBasicVehicleContainerLowFrequencyPathHistory', StationID, coder.wref(PathHistory), obj.PathHistorySize, coder.wref(ActualPathHistorySize));
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

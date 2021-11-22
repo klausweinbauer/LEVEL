@@ -20,6 +20,7 @@ classdef __className__ < matlab.System & coder.ExternalDependency
                 if SamplePathPoint == 1 && obj.SampleActive == 1
                     obj.SampleActive = 0;
                     err = int32(0);
+                    coder.cinclude('c2xcam.h');
                     err = coder.ceval('__cFunctionName__', __coderParameterList__);
                     __errorCodeFunctionName__(err);
                 elseif SamplePathPoint == 0 && obj.SampleActive == 0
@@ -60,6 +61,8 @@ classdef __className__ < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

@@ -17,6 +17,7 @@ classdef __className__ < matlab.System & coder.ExternalDependency
         function [__outputParameterList__] = stepImpl(obj, __inputParameterList__) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('__cFunctionName__', __coderParameterList__);
                 __errorCodeFunctionName__(err);
             end            
@@ -54,6 +55,8 @@ classdef __className__ < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

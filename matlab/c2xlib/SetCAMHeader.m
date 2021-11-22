@@ -17,6 +17,7 @@ classdef SetCAMHeader < matlab.System & coder.ExternalDependency
         function [] = stepImpl(obj, StationID, ProtocolVersion, MessageID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('setCAMHeader', StationID, int32(ProtocolVersion), int32(MessageID));
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ classdef SetCAMHeader < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

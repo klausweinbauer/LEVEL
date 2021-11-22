@@ -13,6 +13,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 coder.ceval('startCAMTransmitter', obj.Port);
             end 
         end
@@ -20,6 +21,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
         function [] = stepImpl(obj, IDsToTransmit, f_send) 
             Size = length(IDsToTransmit);
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 coder.ceval('setCAMTransmissionFrequency', f_send);
                 coder.ceval('setCAMIDsForTransmission', coder.wref(IDsToTransmit), Size);
             end            
@@ -27,6 +29,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
         
         function releaseImpl(~)   
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 coder.ceval('stopCAMTransmitter');
             end          
         end
@@ -58,6 +61,8 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
 end

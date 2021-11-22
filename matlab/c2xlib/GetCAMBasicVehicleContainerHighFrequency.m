@@ -17,6 +17,7 @@ classdef GetCAMBasicVehicleContainerHighFrequency < matlab.System & coder.Extern
         function [HeadingValue, HeadingConfidence, SpeedValue, SpeedConfidence, DriveDirection, VehicleLengthValue, VehicleLengthConfidenceIndication, VehicleWidth, LongitudinalAccelerationValue, LongitudinalAccelerationConfidence, CurvatureValue, CurvatureConfidence, CurvatureCalculationMode, YawRateValue, YawRateConfidence] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('getCAMBasicVehicleContainerHighFrequency', StationID, coder.wref(HeadingValue), coder.wref(HeadingConfidence), coder.wref(SpeedValue), coder.wref(SpeedConfidence), coder.wref(DriveDirection), coder.wref(VehicleLengthValue), coder.wref(VehicleLengthConfidenceIndication), coder.wref(VehicleWidth), coder.wref(LongitudinalAccelerationValue), coder.wref(LongitudinalAccelerationConfidence), coder.wref(CurvatureValue), coder.wref(CurvatureConfidence), coder.wref(CurvatureCalculationMode), coder.wref(YawRateValue), coder.wref(YawRateConfidence));
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

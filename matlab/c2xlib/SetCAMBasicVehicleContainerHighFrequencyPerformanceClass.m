@@ -17,6 +17,7 @@ classdef SetCAMBasicVehicleContainerHighFrequencyPerformanceClass < matlab.Syste
         function [] = stepImpl(obj, StationID, PerformanceClass) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('setCAMBasicVehicleContainerHighFrequencyPerformanceClass', StationID, PerformanceClass);
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

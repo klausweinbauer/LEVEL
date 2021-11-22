@@ -17,6 +17,7 @@ classdef GetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.Sy
         function [Buffer, ActualBufferSize] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('getCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, coder.wref(Buffer), obj.BufferSize, coder.wref(ActualBufferSize));
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

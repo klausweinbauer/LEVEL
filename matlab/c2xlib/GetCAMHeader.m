@@ -19,6 +19,7 @@ classdef GetCAMHeader < matlab.System & coder.ExternalDependency
                 err = int32(0);
                 ProtocolVersion = int32(0);
                 MessageID = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('getCAMHeader', StationID, coder.ref(ProtocolVersion), coder.ref(MessageID));
                 obj.printErrorCode(err);
             end            
@@ -84,6 +85,8 @@ classdef GetCAMHeader < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

@@ -17,6 +17,7 @@ classdef SetCAMGenerationDeltaTime < matlab.System & coder.ExternalDependency
         function [] = stepImpl(obj, StationID, GenerationDeltaTime) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('setCAMGenerationDeltaTime', StationID, GenerationDeltaTime);
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ end
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

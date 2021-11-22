@@ -17,6 +17,7 @@ classdef DecodeCAM < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 StationID = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('decodeCAM', coder.ref(StationID), coder.ref(Buffer), BufferSize);
                 obj.printErrorCode(err);
             end            
@@ -83,6 +84,8 @@ classdef DecodeCAM < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end    
 end
