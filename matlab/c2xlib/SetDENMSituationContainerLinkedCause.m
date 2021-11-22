@@ -1,8 +1,7 @@
-classdef DENMMessage < matlab.System & coder.ExternalDependency
+classdef SetDENMSituationContainerLinkedCause < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        StationID = int32(1);
-        SequenceNumber = int32(1);  
+          
     end
     
     properties (Hidden)
@@ -12,27 +11,19 @@ classdef DENMMessage < matlab.System & coder.ExternalDependency
     end
 
     methods (Access = protected)
-        function setupImpl(obj)
+        function setupImpl(~)
+        end
+        
+        function [] = stepImpl(obj, StationID, SequenceNumber, CauseCode, SubCauseCode) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('createDENM', obj.StationID, obj.SequenceNumber);
+                err = coder.ceval('setDENMSituationContainerLinkedCause', StationID, SequenceNumber, CauseCode, SubCauseCode);
                 obj.printErrorCode(err);
-            end 
+            end
         end
         
-        function [StationID, SequenceNumber] = stepImpl(obj)
-            StationID = obj.StationID;   
-            SequenceNumber = obj.SequenceNumber;
-        end
-        
-        function releaseImpl(obj)
-            if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                coder.cinclude('c2xdenm.h');
-                err = coder.ceval('deleteDENM', obj.StationID, obj.SequenceNumber);
-                obj.printErrorCode(err);
-            end    
+        function releaseImpl(~)            
         end
 
         function printErrorCode(~, err)
@@ -63,12 +54,12 @@ classdef DENMMessage < matlab.System & coder.ExternalDependency
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-        end
+            end
 
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'CAMMessage';
+            bName = 'SetDENMSituationContainerLinkedCause';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -95,6 +86,23 @@ classdef DENMMessage < matlab.System & coder.ExternalDependency
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
+        end
+    end
+    methods (Access = protected)
+        function [] = getOutputSizeImpl(obj)
+            
+        end 
+        
+        function [] = isOutputFixedSizeImpl(obj)
+            
+        end
+        
+        function [] = getOutputDataTypeImpl(obj)
+            
+        end
+        
+        function [] = isOutputComplexImpl(obj)
+            
         end
     end
 end
