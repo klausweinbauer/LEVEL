@@ -16,6 +16,9 @@ private:
 	bool thread_running_ = false;
 	unsigned int interval_ms_ = 1000;
 	std::thread send_thread_;
+    int src_stationID_ = 0;
+    int src_sequenceNumber_ = 0;
+    std::mutex src_lock_;
 
 	DENMTransmitter();
 
@@ -34,6 +37,7 @@ public:
 	void start(unsigned short port);
 	void stop();
 	void setInterval(unsigned int interval_ms);
+    void setMessageSource(int stationID, int sequenceNumber);
 	unsigned int getInterval();
 };
 };

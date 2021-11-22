@@ -459,4 +459,9 @@ int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size)
     return retVal.code;
 }
 
+int setDENMTransmissionSource(int stationID, int sequenceID)
+{
+    
+}
+
 };

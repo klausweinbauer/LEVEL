@@ -63,7 +63,7 @@ void CAMTransmitter::send()
                 c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
                 std::cout << "Send CAM message (length: " << len << " bytes) from station " << stationID << std::endl;
                 socket.sendTo(CAMTransmitter::getInstance().port_, buffer, len);
-            }            
+            }
             CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
 
             #ifdef WIN32

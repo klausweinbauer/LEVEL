@@ -1,6 +1,7 @@
 #include <DENMTransmitter.hpp>
 #include <iostream>
 #include <UDPSocket.hpp>
+#include <c2xdenm.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -49,8 +50,18 @@ void DENMTransmitter::send()
 	{
 		try
 		{
-			int len = 0;
-			socket.sendTo(DENMTransmitter::getInstance().port_, buffer, len);
+            int stationID, sequenceNumber, len;
+            DENMTransmitter::getInstance().src_lock_.lock();
+            stationID = DENMTransmitter::getInstance().src_stationID_;
+            sequenceNumber = DENMTransmitter::getInstance().src_sequenceNumber_;
+            DENMTransmitter::getInstance().src_lock_.unlock();
+
+            int encRet = c2x::encodeDENM(stationID, sequenceNumber, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
+            
+			if (encRet > 0) 
+            {
+                socket.sendTo(DENMTransmitter::getInstance().port_, buffer, len);
+            }
 
 #ifdef WIN32
 			Sleep(DENMTransmitter::getInstance().interval_ms_);
@@ -82,4 +93,13 @@ unsigned int DENMTransmitter::getInterval()
 {
 	return interval_ms_;
 }
+
+void DENMTransmitter::setMessageSource(int stationID, int sequenceNumber)
+{
+    src_lock_.lock();
+    src_stationID_ = stationID;
+    src_sequenceNumber_ = sequenceNumber;
+    src_lock_.unlock();
+}
+
 };
