@@ -11,11 +11,6 @@ extern "C"
 #define HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE 1
 #define HIGH_FREQ_CONTAINER_TYPE_RSU 2
 
-void SHARED_EXPORT test();
-
-void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);
-void SHARED_EXPORT setLastErrMsg(const char* buffer, int size);
-
 int SHARED_EXPORT createCAM(int stationID, int heighFrequencyContainerType);
 int SHARED_EXPORT deleteCAM(int stationID);
 

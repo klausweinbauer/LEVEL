@@ -1,9 +1,14 @@
 #include <c2xcommon.h>
 #include <cstdio>
+#include <string.h>
+#include <sstream>
 
 #ifdef __cplusplus
 namespace c2x {
 #endif
+
+static char* lastErrMsg = nullptr;
+static int lastErrMsgSize = 0;
 
 void getErrMsg(int err, char* buffer, int size) {
     switch (err)
@@ -54,6 +59,41 @@ void getErrMsg(int err, char* buffer, int size) {
     default:
         break;
     }
+}
+
+void getLastErrMsg(char* buffer, int size, int* actualSize)
+{
+    if (!lastErrMsg) {
+        return;
+    }
+
+    int cpySize = (std::min)(size, lastErrMsgSize);
+    memcpy(buffer, lastErrMsg, cpySize);
+
+    if (actualSize) {
+        *actualSize = cpySize;
+    }
+}
+
+void setLastErrMsg(const char* buffer, int size)
+{
+    if (!buffer) {
+        return;
+    }
+
+    if (lastErrMsg) {
+        lastErrMsg = (char*)realloc(lastErrMsg, size);
+    }
+    else {
+        lastErrMsg = (char*)malloc(size);
+    }
+
+    if (!lastErrMsg) {
+        return;
+    }
+
+    memcpy(lastErrMsg, buffer, size);
+    lastErrMsgSize = size;
 }
 
 #pragma endregion

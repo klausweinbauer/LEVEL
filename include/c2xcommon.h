@@ -39,7 +39,9 @@ extern "C"
 #define SIMULINK_OUTPUT_MATRIX_A_1
 #define SIMULINK_OUTPUT_MATRIX_A_4
 
-void getErrMsg(int err, char* buffer, int size);
+void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);
+void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);
+void SHARED_EXPORT setLastErrMsg(const char* buffer, int size);
 
 #ifdef __cplusplus
 }
