@@ -480,7 +480,7 @@ int getDENMManagementContainerEventPosition(int stationID, int sequenceNumber, i
 int getSituationContainer(DENM_t* denm, SituationContainer **sc) 
 {
     *sc = denm->denm.situation;
-    if (!sc) {
+    if (!*sc) {
         std::stringstream ss;
         ss << "There is no SituationContainer present in this message. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
         setLastErrMsg(ss.str().c_str(), ss.str().size());

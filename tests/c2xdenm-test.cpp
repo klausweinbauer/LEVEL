@@ -132,3 +132,13 @@ TEST(DENM_SituationContainer, Event_History)
     ASSERT_EQ(5, history[9]);
     c2x::deleteDENM(1, 1);
 }
+
+TEST(DENM_SituationContainer, Get_Empty_Event_History)
+{
+    c2x::createDENM(1, 1);
+    int history[100];
+    int actualSize;
+    c2x::getDENMSituationContainerEventHistory(1, 1, history, 100, &actualSize);
+    ASSERT_EQ(0, actualSize);
+    c2x::deleteDENM(1, 1);
+}
