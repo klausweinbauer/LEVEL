@@ -58,7 +58,7 @@ int SHARED_EXPORT stopDENMReceiver();
 int SHARED_EXPORT startDENMTransmitter(int port);
 int SHARED_EXPORT stopDENMTransmitter();
 int SHARED_EXPORT setDENMTransmissionFrequency(double f);
-int SHARED_EXPORT setDENMTransmissionSource(int stationID, int sequenceID);
+int SHARED_EXPORT setDENMTransmissionSource(int stationID, int sequenceNumber);
 #pragma endregion
 
 #ifdef __cplusplus
