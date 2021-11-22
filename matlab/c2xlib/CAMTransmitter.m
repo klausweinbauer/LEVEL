@@ -1,4 +1,5 @@
 classdef CAMTransmitter < matlab.System & coder.ExternalDependency
+    % IDsToTransmit is a vector of StationIDs which should be sent from this instance
     
     properties (Nontunable)
         Port = 1997;
@@ -23,7 +24,7 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 coder.cinclude('c2xcam.h');
                 coder.ceval('setCAMTransmissionFrequency', f_send);
-                coder.ceval('setCAMIDsForTransmission', coder.wref(IDsToTransmit), Size);
+                coder.ceval('setCAMIDsForTransmission', coder.ref(IDsToTransmit), Size);
             end            
         end
         
