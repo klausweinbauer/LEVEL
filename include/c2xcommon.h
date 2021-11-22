@@ -33,12 +33,6 @@ extern "C"
 #define ERR_CAM_ALREADY_EXISTS -22
 #define ERR_DENM_ALREADY_EXISTS -40
 
-#define SIMULINK_BLOCK
-#define SIMULINK_NONTUN_PROP
-#define SIMULINK_INPUT
-#define SIMULINK_OUTPUT_MATRIX_A_1
-#define SIMULINK_OUTPUT_MATRIX_A_4
-
 void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);
 void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);
 void SHARED_EXPORT setLastErrMsg(const char* buffer, int size);

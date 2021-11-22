@@ -173,8 +173,7 @@ int setDENMHeader(int stationID, int sequenceNumber, int protocolVersion, int me
     return 0;
 }
 
-int setDENMManagementContainer(int stationID, int sequenceNumber, int originatingStationID,
-    uint8_t* detectionTime, int detectionTimeSize, uint8_t* referenceTime, int referenceTimeSize, int termination, 
+int setDENMManagementContainer(int stationID, int sequenceNumber, int originatingStationID, int detectionTime, int referenceTime, int termination, 
     int relevanceDistance, int relevanceTrafficDirection, int validityDuration, int transmissionInterval, int stationType)
 {
     databaseLockDENM_.lock();
@@ -185,41 +184,27 @@ int setDENMManagementContainer(int stationID, int sequenceNumber, int originatin
         return ERR_MSG_NOT_FOUND;
     }
 
-    if (detectionTime != nullptr)
-    {
-        if (denm->denm.management.detectionTime.buf) {
-            denm->denm.management.detectionTime.buf = (uint8_t*)realloc(denm->denm.management.detectionTime.buf, detectionTimeSize);
-        }
-        else {
-            denm->denm.management.detectionTime.buf = (uint8_t*)malloc(detectionTimeSize);
-        }
-        denm->denm.management.detectionTime.size = 0;
-        if (!denm->denm.management.detectionTime.buf)
-        {
-            databaseLockDENM_.unlock();
-            return ERR_ALLOC_FAILED;
-        }
-        memcpy(denm->denm.management.detectionTime.buf, detectionTime, detectionTimeSize);
-        denm->denm.management.detectionTime.size = detectionTimeSize;
+    if (!denm->denm.management.detectionTime.buf) {
+        denm->denm.management.detectionTime.buf = (uint8_t*)malloc(sizeof(int));
     }
+    if (!denm->denm.management.detectionTime.buf)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_ALLOC_FAILED;
+    }
+    memcpy(denm->denm.management.detectionTime.buf, (uint8_t*)&detectionTime, sizeof(int));
+    denm->denm.management.detectionTime.size = sizeof(int);
 
-    if (referenceTime != nullptr)
-    {
-        if (denm->denm.management.referenceTime.buf) {
-            denm->denm.management.referenceTime.buf = (uint8_t*)realloc(denm->denm.management.referenceTime.buf, referenceTimeSize);
-        }
-        else {
-            denm->denm.management.referenceTime.buf = (uint8_t*)malloc(referenceTimeSize);
-        }
-        denm->denm.management.referenceTime.size = 0;
-        if (!denm->denm.management.referenceTime.buf)
-        {
-            databaseLockDENM_.unlock();
-            return ERR_ALLOC_FAILED;
-        }
-        memcpy(denm->denm.management.referenceTime.buf, referenceTime, referenceTimeSize);
-        denm->denm.management.referenceTime.size = referenceTimeSize;
+    if (!denm->denm.management.referenceTime.buf) {
+        denm->denm.management.referenceTime.buf = (uint8_t*)malloc(sizeof(int));
     }
+    if (!denm->denm.management.referenceTime.buf)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_ALLOC_FAILED;
+    }
+    memcpy(denm->denm.management.referenceTime.buf, (uint8_t*)&referenceTime, sizeof(int));
+    denm->denm.management.referenceTime.size = sizeof(int);
 
     if (!denm->denm.management.termination) {
         denm->denm.management.termination = new Termination_t();
@@ -300,25 +285,17 @@ int getDENMHeader(int stationID, int sequenceNumber, int *protocolVersion, int *
     return 0;
 }
 
-int getDENMManagementContainer(DENM_t* denm,
-    uint8_t * detectionTime, int detectionTimeSize, int* detectionTimeActualSize,
-    uint8_t * referenceTime, int referenceTimeSize, int* referenceTimeActualSize, 
-    int* termination, int* relevanceDistance, int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType)
+int getDENMManagementContainer(DENM_t* denm, int* detectionTime, int* referenceTime, int* termination, int* relevanceDistance, 
+    int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType)
 {
-    if (detectionTime && detectionTimeSize > 0 && denm->denm.management.detectionTime.buf) {
-        int cpySize = (std::min)(detectionTimeSize, denm->denm.management.detectionTime.size);
-        memcpy(detectionTime, denm->denm.management.detectionTime.buf, cpySize);
-    }
-    if (detectionTimeActualSize) {
-        *detectionTimeActualSize = denm->denm.management.detectionTime.size;
+    if (detectionTime && denm->denm.management.detectionTime.buf) {
+        int cpySize = (std::min)((int)sizeof(int), denm->denm.management.detectionTime.size);
+        memcpy((uint8_t*)detectionTime, denm->denm.management.detectionTime.buf, cpySize);
     }
 
-    if (referenceTime && referenceTimeSize > 0 && denm->denm.management.referenceTime.buf) {
-        int cpySize = (std::min)(referenceTimeSize, denm->denm.management.referenceTime.size);
-        memcpy(referenceTime, denm->denm.management.referenceTime.buf, cpySize);
-    }
-    if (referenceTimeActualSize) {
-        *referenceTimeActualSize = denm->denm.management.referenceTime.size;
+    if (referenceTime && denm->denm.management.referenceTime.buf) {
+        int cpySize = (std::min)((int)sizeof(int), denm->denm.management.referenceTime.size);
+        memcpy((uint8_t*)referenceTime, denm->denm.management.referenceTime.buf, cpySize);
     }
 
     if (termination) {
@@ -342,10 +319,8 @@ int getDENMManagementContainer(DENM_t* denm,
     return 0;
 }
 
-int getDENMManagementContainer(int stationID, int sequenceNumber, 
-    uint8_t* detectionTime, int detectionTimeSize, int* detectionTimeActualSize,
-    uint8_t* referenceTime, int referenceTimeSize, int* referenceTimeActualSize, 
-    int* termination, int* relevanceDistance, int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType)
+int getDENMManagementContainer(int stationID, int sequenceNumber, int* detectionTime, int* referenceTime, int* termination, 
+    int* relevanceDistance, int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType)
 {
     databaseLockDENM_.lock();
     DENM_t* denm = getDENM(stationID, sequenceNumber);
@@ -354,8 +329,7 @@ int getDENMManagementContainer(int stationID, int sequenceNumber,
         return ERR_MSG_NOT_FOUND;
     }
 
-    int ret = getDENMManagementContainer(denm, detectionTime, detectionTimeSize, detectionTimeActualSize, referenceTime, 
-        referenceTimeSize, referenceTimeActualSize, termination, relevanceDistance, 
+    int ret = getDENMManagementContainer(denm, detectionTime, referenceTime, termination, relevanceDistance, 
         relevanceTrafficDirection, validityDuration, transmissionInterval, stationType);
 
     databaseLockDENM_.unlock();
@@ -411,7 +385,7 @@ int writeCallbackDENM(const void* src, size_t size, void* application_specific_k
     return (int)writeCallbackBufferDENM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, SIMULINK_NONTUN_PROP int size, int *actualSize)
+int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize)
 {
     databaseLockDENM_.lock();
     DENM_t* denm = getDENM(stationID, sequenceNumber);
