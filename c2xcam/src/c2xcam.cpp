@@ -1137,7 +1137,7 @@ int writeCallbackCAM(const void* src, size_t size, void* application_specific_ke
     return (int)writeCallbackBufferCAM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeCAM(int stationID, uint8_t* buffer, size_t bufferSize, int *actualBufferSize)
+int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);

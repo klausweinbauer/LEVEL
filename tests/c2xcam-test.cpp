@@ -4,21 +4,21 @@
 #include <c2xcommon.h>
 
 TEST(CAM_Basic, Create_And_Delete_CAM) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
     c2x::deleteCAM(id);
     ASSERT_GT(id, 0);
 }
 
 TEST(CAM_Basic, Create_CAM_With_The_Same_ID_Twice) {
-    int ret1 = c2x::createCAM(1);
-    int ret2 = c2x::createCAM(1);
+    int ret1 = c2x::createCAM(1, 1);
+    int ret2 = c2x::createCAM(1, 1);
     c2x::deleteCAM(1);
     ASSERT_EQ(ret1, 1);
     ASSERT_EQ(ret2, ERR_CAM_ALREADY_EXISTS);
 }
 
 TEST(CAM_Basic, Double_Delete_CAM) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
     int ret1 = c2x::deleteCAM(id);
     int ret2 = c2x::deleteCAM(id);
     ASSERT_EQ(0, ret1);
@@ -26,7 +26,7 @@ TEST(CAM_Basic, Double_Delete_CAM) {
 }
 
 TEST(CAM_Values, Set_And_Get_CAM_Header_Values) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
 
     int protVers, msgId;
     c2x::setCAMHeader(id, 1, 2);
@@ -38,7 +38,7 @@ TEST(CAM_Values, Set_And_Get_CAM_Header_Values) {
 }
 
 TEST(CAM_Values, Get_CAM_Header_Values_With_Nullptr_Parameters) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
 
     c2x::getCAMHeader(id, nullptr, nullptr);
 
@@ -46,7 +46,7 @@ TEST(CAM_Values, Get_CAM_Header_Values_With_Nullptr_Parameters) {
 }
 
 TEST(CAM_Values, Set_And_Get_CAM_GenerationDeltaTime_Value) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
 
     int dt;
     c2x::setCAMGenerationDeltaTime(id, 4);
@@ -57,7 +57,7 @@ TEST(CAM_Values, Set_And_Get_CAM_GenerationDeltaTime_Value) {
 }
 
 TEST(CAM_Values, Get_CAM_GenerationDeltaTime_Value_With_Nullptr_Parameter) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
     c2x::getCAMGenerationDeltaTime(id, nullptr);
     c2x::deleteCAM(id);
 }
@@ -80,7 +80,7 @@ TEST(CAM_Values, Set_And_Reset_BitString) {
 }
 
 TEST(CAM_Coding, Encode_CAM_Message) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
     uint8_t buffer[4096];
 
     int ret = c2x::encodeCAM(id, buffer, 4096, nullptr);
@@ -91,7 +91,7 @@ TEST(CAM_Coding, Encode_CAM_Message) {
 }
 
 TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
-    int id = c2x::createCAM(1);
+    int id = c2x::createCAM(1, 1);
     c2x::setCAMHeader(id, 1, 2);
 
     uint8_t buffer[4096];    
@@ -120,7 +120,7 @@ TEST(CAM_Network, Start_And_Stop_Receiver) {
 }
 
 TEST(CAM_Coding, Decode_New_Message) {
-    c2x::createCAM(1);
+    c2x::createCAM(1, 1);
     uint8_t buffer[4000];
     int size;
     c2x::encodeCAM(1, buffer, 4000, &size);
@@ -143,8 +143,4 @@ TEST(Error_Msg, Set_And_Get_Last_Error_Message) {
     int actualSize = 0;
     c2x::getLastErrMsg(buffer, 128, &actualSize);
     ASSERT_STREQ(ss.str().c_str(), buffer);
-}
-
-TEST(CAM_Coding, Matlab_Encode) {
-    
 }
