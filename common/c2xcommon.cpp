@@ -1,4 +1,5 @@
 #include <c2xcommon.h>
+#include <cstdio>
 
 #ifdef __cplusplus
 namespace c2x {

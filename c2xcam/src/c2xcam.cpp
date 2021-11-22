@@ -102,11 +102,6 @@ void setLastErrMsg(const char* buffer, int size)
     lastErrMsgSize = size;
 }
 
-int CAMMessage(int stationID, int heighFrequencyContainerType)
-{
-    return createCAM(stationID, heighFrequencyContainerType);
-}
-
 int createCAM(int stationID, int heighFrequencyContainerType) {
 
     databaseLockCAM_.lock();

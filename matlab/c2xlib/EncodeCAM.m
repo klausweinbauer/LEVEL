@@ -18,12 +18,9 @@ classdef EncodeCAM < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 Buffer = uint8(zeros(obj.BufferSize, 1));
-                ActualBufferSize = int32(0);
+                ActualBufferSize = int32(0);                
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('encodeCAM', StationID, coder.ref(Buffer), obj.BufferSize, coder.ref(ActualBufferSize));
-                errMsg = uint8(zeros(256, 1));
-                msgSize = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(errMsg), 256, coder.ref(msgSize));
-                disp(msgSize);
                 obj.printErrorCode(err);
             end            
         end
@@ -89,6 +86,8 @@ classdef EncodeCAM < matlab.System & coder.ExternalDependency
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
     methods (Access = protected)

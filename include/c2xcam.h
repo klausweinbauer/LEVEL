@@ -16,10 +16,7 @@ void SHARED_EXPORT test();
 void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);
 void SHARED_EXPORT setLastErrMsg(const char* buffer, int size);
 
-int SHARED_EXPORT SIMULINK_BLOCK CAMMessage(SIMULINK_NONTUN_PROP int stationID, 
-    SIMULINK_NONTUN_PROP int heighFrequencyContainerType);
-int SHARED_EXPORT createCAM(SIMULINK_NONTUN_PROP int stationID, 
-    SIMULINK_NONTUN_PROP int heighFrequencyContainerType = HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+int SHARED_EXPORT createCAM(int stationID, int heighFrequencyContainerType);
 int SHARED_EXPORT deleteCAM(int stationID);
 
 #pragma region Setter

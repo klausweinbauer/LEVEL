@@ -2,7 +2,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         StationID = 0;
-HeighFrequencyContainerType = 0;  
+        HeighFrequencyContainerType = 0;  
     end
     
     properties (Hidden)
@@ -15,6 +15,7 @@ HeighFrequencyContainerType = 0;
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('createCAM', obj.StationID, obj.HeighFrequencyContainerType);
                 obj.printErrorCode(err);
             end 
@@ -27,6 +28,7 @@ HeighFrequencyContainerType = 0;
         function releaseImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                coder.cinclude('c2xcam.h');
                 err = coder.ceval('deleteCAM', obj.StationID);
                 obj.printErrorCode(err);
             end    
@@ -90,6 +92,8 @@ HeighFrequencyContainerType = 0;
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
 end

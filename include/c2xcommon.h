@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <cstdio>
 
 #ifdef _WIN32
 #ifdef shared_EXPORTS
@@ -39,23 +38,6 @@ extern "C"
 #define SIMULINK_INPUT
 #define SIMULINK_OUTPUT_MATRIX_A_1
 #define SIMULINK_OUTPUT_MATRIX_A_4
-
-typedef struct Position {
-    int latitude = 0;
-    int longitude = 0;
-    int confidenceMajor = 0;
-    int confidenceMinor = 0;
-    int confidenceMajorOrientation = 0;
-    int altitudeValue = 0;
-    int altitudeConfidence = 0;
-} Position;
-
-typedef struct DeltaPathPoint {
-    int deltaLatitude = 0;
-    int deltaLongitude = 0;
-    int deltaAltitude = 0;
-    int deltaTime = 0;
-} DeltaPathPoint;
 
 void getErrMsg(int err, char* buffer, int size);
 
