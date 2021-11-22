@@ -5,6 +5,7 @@
 #include <map>
 #include <DENM.h>
 #include <VectorBuffer.hpp>
+#include <sstream>
 
 namespace c2x {
 
@@ -55,6 +56,14 @@ DENM* getDENM(ActionID_t aID) {
 
 DENM* getDENM(ActionID aID) {
     return getDENM(aID.stationID_, aID.sequenceNumber_);
+}
+
+void freeEventPoint(EventPoint *point)
+{
+    if (!point) {
+        return;
+    }
+    delete point->eventDeltaTime;
 }
 
 int startDENMReceiver(int port)
@@ -260,6 +269,94 @@ int setDENMManagementContainerEventPosition(int stationID, int sequenceNumber, i
     return 0;
 }
 
+int setDENMSituationContainer(int stationID, int sequenceNumber, int informationQuality, int causeCode, int subCauseCode)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.situation) 
+    {
+        denm->denm.situation = new SituationContainer();
+    }
+    SituationContainer* sc = denm->denm.situation;
+
+    sc->informationQuality = informationQuality;
+    sc->eventType.causeCode = causeCode;
+    sc->eventType.subCauseCode = subCauseCode;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int causeCode, int subCauseCode)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.situation) 
+    {
+        denm->denm.situation = new SituationContainer();
+    }
+    SituationContainer* sc = denm->denm.situation;
+
+    if (!sc->linkedCause) 
+    {
+        sc->linkedCause = new CauseCode();
+    }
+
+    sc->linkedCause->causeCode = causeCode;
+    sc->linkedCause->subCauseCode = subCauseCode;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int addDENMSituationContainerEventPoint(int stationID, int sequenceNumber, int deltaLatitude, int deltaLongitude, int deltaAltitude, int deltaTime, int informationQuality)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.situation) 
+    {
+        denm->denm.situation = new SituationContainer();
+    }
+    SituationContainer* sc = denm->denm.situation;
+
+    if (!sc->eventHistory) 
+    {
+        sc->eventHistory = new EventHistory();
+        sc->eventHistory->list.free = freeEventPoint;
+    }
+
+    EventPoint *point = new EventPoint();
+    point->eventPosition.deltaLatitude = deltaLatitude;
+    point->eventPosition.deltaLongitude = deltaLongitude;
+    point->eventPosition.deltaAltitude = deltaAltitude;
+    point->eventDeltaTime = new PathDeltaTime_t();
+    *point->eventDeltaTime = deltaTime;
+    point->informationQuality = informationQuality;
+    asn_sequence_add(&sc->eventHistory->list, point);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+
 void getDENMHeader(DENM_t *denm, int *protocolVersion, int *messageID) 
 {
     if (protocolVersion) {
@@ -379,6 +476,143 @@ int getDENMManagementContainerEventPosition(int stationID, int sequenceNumber, i
     databaseLockDENM_.unlock();
     return ret;
 }
+
+int getSituationContainer(DENM_t* denm, SituationContainer **sc) 
+{
+    *sc = denm->denm.situation;
+    if (!sc) {
+        std::stringstream ss;
+        ss << "There is no SituationContainer present in this message. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_NULL;
+    }
+    return 0;
+}
+
+int getDENMSituationContainer(DENM_t* denm, int *informationQuality, int *causeCode, int *subCauseCode)
+{
+    SituationContainer *sc;
+    int scRet = getSituationContainer(denm, &sc);
+    if (scRet != 0) 
+    {
+        return scRet;
+    }
+
+    if (informationQuality) {
+        *informationQuality = sc->informationQuality;
+    }
+    if (causeCode) {
+        *causeCode = sc->eventType.causeCode;
+    }
+    if (subCauseCode) {
+        *subCauseCode = sc->eventType.subCauseCode;
+    }
+    return 0;
+}
+
+int getDENMSituationContainer(int stationID, int sequenceNumber, int *informationQuality, int *causeCode, int *subCauseCode)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMSituationContainer(denm, informationQuality, causeCode, subCauseCode);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getDENMSituationContainerLinkedCause(DENM_t *denm, int *causeCode, int *subCauseCode)
+{
+    SituationContainer *sc;
+    int scRet = getSituationContainer(denm, &sc);
+    if (scRet != 0) 
+    {
+        return scRet;
+    }
+
+    CauseCode *cc = sc->linkedCause;
+    if (!cc) {
+        std::stringstream ss;
+        ss << "There is no LinkedCauseCode present in this SituationContainer. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_NULL;
+    }
+
+    *causeCode = cc->causeCode;
+    *subCauseCode = cc->subCauseCode;
+
+    return 0;
+}
+
+int getDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMSituationContainerLinkedCause(denm, causeCode, subCauseCode);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getDENMSituationContainerEventHistory(DENM_t *denm, int *eventHistory, int eventHistorySize, int *actualEventHistorySize)
+{
+    SituationContainer *sc;
+    int scRet = getSituationContainer(denm, &sc);
+    if (scRet != 0) 
+    {
+        return scRet;
+    }
+
+    EventHistory *eh = sc->eventHistory;
+    if (!eh) {
+        std::stringstream ss;
+        ss << "There is no EventHistory present in this SituationContainer. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_NULL;
+    }
+
+    if (eventHistory) 
+    {
+        int len = eh->list.count;
+        int cpySize = (std::min)((int)(eventHistorySize / 5), len);
+        for (int i = 0; i < cpySize; i++)
+        {
+            eventHistory[i*5 + 0] = eh->list.array[len - 1 - i]->eventPosition.deltaLatitude;
+            eventHistory[i*5 + 1] = eh->list.array[len - 1 - i]->eventPosition.deltaLongitude;
+            eventHistory[i*5 + 2] = eh->list.array[len - 1 - i]->eventPosition.deltaAltitude;
+            eventHistory[i*5 + 3] = *eh->list.array[len - 1 - i]->eventDeltaTime;
+            eventHistory[i*5 + 4] = eh->list.array[len - 1 - i]->informationQuality;
+        }
+    }
+    if (actualEventHistorySize) {
+        *actualEventHistorySize = eh->list.count * 5;
+    }
+}
+
+int getDENMSituationContainerEventHistory(int stationID, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMSituationContainerEventHistory(denm, eventHistory, eventHistorySize, actualEventHistorySize);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
 
 int writeCallbackDENM(const void* src, size_t size, void* application_specific_key)
 {

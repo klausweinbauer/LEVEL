@@ -31,6 +31,9 @@ int SHARED_EXPORT setDENMManagementContainer(int stationID, int sequenceNumber, 
     int termination, int relevanceDistance, int relevanceTrafficDirection, int validityDuration, int transmissionInterval, int stationType);
 int SHARED_EXPORT setDENMManagementContainerEventPosition(int stationID, int sequenceNumber, int latitude, int longitude,
     int posConfEllSemiMajorConf, int posConfEllSemiMinorConf, int posConfEllSemiMajorOri, int altitudeValue, int altitudeConf);
+int SHARED_EXPORT setDENMSituationContainer(int stationID, int sequenceNumber, int informationQuality, int causeCode, int subCauseCode);
+int SHARED_EXPORT setDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int causeCode, int subCauseCode);
+int SHARED_EXPORT addDENMSituationContainerEventPoint(int stationID, int sequenceNumber, int deltaLatitude, int deltaLongitude, int deltaAltitude, int deltaTime, int informationQuality);
 #pragma endregion
 
 #pragma region Getter
@@ -39,6 +42,9 @@ int SHARED_EXPORT getDENMManagementContainer(int stationID, int sequenceNumber, 
     int* termination, int* relevanceDistance, int* relevanceTrafficDirection, int* validityDuration, int* transmissionInterval, int* stationType);
 int SHARED_EXPORT getDENMManagementContainerEventPosition(int stationID, int sequenceNumber, int* latitude, int* longitude,
     int* posConfEllSemiMajorConf, int* posConfEllSemiMinorConf, int* posConfEllSemiMajorOri, int* altitudeValue, int* altitudeConf);
+int SHARED_EXPORT getDENMSituationContainer(int stationID, int sequenceNumber, int *informationQuality, int *causeCode, int *subCauseCode);
+int SHARED_EXPORT getDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode);
+int SHARED_EXPORT getDENMSituationContainerEventHistory(int stationIDe, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize);
 #pragma endregion
 
 #pragma region De-/En-coding
