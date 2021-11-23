@@ -40,6 +40,9 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_ARG_NULL:
         snprintf(buffer, size, "Argument was null.");
         break;
+    case ERR_INDEX_OUT_OF_RANGE:
+        snprintf(buffer, size, "Index is out of range.");
+        break;
     case ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
         snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
             "message has to be of type " 

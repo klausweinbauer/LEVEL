@@ -34,6 +34,11 @@ int SHARED_EXPORT setDENMManagementContainerEventPosition(int stationID, int seq
 int SHARED_EXPORT setDENMSituationContainer(int stationID, int sequenceNumber, int informationQuality, int causeCode, int subCauseCode);
 int SHARED_EXPORT setDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int causeCode, int subCauseCode);
 int SHARED_EXPORT addDENMSituationContainerEventPoint(int stationID, int sequenceNumber, int deltaLatitude, int deltaLongitude, int deltaAltitude, int deltaTime, int informationQuality);
+int SHARED_EXPORT addDENMLocationContainerTrace(int stationID, int sequenceNumber, int* trace, int traceLength);
+int SHARED_EXPORT clearDENMLocationContainerTraces(int stationID, int sequenceNumber);
+int SHARED_EXPORT setDENMLocationContainerSpeed(int stationID, int sequenceNumber, int speedValue, int speedConfidence);
+int SHARED_EXPORT setDENMLocationContainerHeading(int stationID, int sequenceNumber, int headingValue, int headingConfidence);
+int SHARED_EXPORT setDENMLocationContainerRoadType(int stationID, int sequenceNumber, int roadType);
 #pragma endregion
 
 #pragma region Getter
@@ -45,6 +50,10 @@ int SHARED_EXPORT getDENMManagementContainerEventPosition(int stationID, int seq
 int SHARED_EXPORT getDENMSituationContainer(int stationID, int sequenceNumber, int *informationQuality, int *causeCode, int *subCauseCode);
 int SHARED_EXPORT getDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode);
 int SHARED_EXPORT getDENMSituationContainerEventHistory(int stationIDe, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize);
+int SHARED_EXPORT getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIndex, int* trace, int traceBufferLength);
+int SHARED_EXPORT getDENMLocationContainerSpeed(int stationID, int sequenceNumber, int *speedValue, int *speedConfidence);
+int SHARED_EXPORT getDENMLocationContainerHeading(int stationID, int sequenceNumber, int *headingValue, int *headingConfidence);
+int SHARED_EXPORT getDENMLocationContainerRoadType(int stationID, int sequenceNumber, int *roadType);
 #pragma endregion
 
 #pragma region De-/En-coding

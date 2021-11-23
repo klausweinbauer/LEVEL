@@ -142,3 +142,103 @@ TEST(DENM_SituationContainer, Get_Empty_Event_History)
     ASSERT_EQ(0, actualSize);
     c2x::deleteDENM(1, 1);
 }
+
+TEST(DENM_LocationContainer, Set_And_Get_Traces)
+{
+    c2x::createDENM(1, 1);
+    int trace1[4] = {1, 2, 3, 4};
+    int trace2[8] = {11, 12, 13, 14, 15, 16, 17, 18};
+    int trace1_out[4];
+    int trace2_out[8];
+    c2x::addDENMLocationContainerTrace(1, 1, trace1, 4);
+    c2x::addDENMLocationContainerTrace(1, 1, trace2, 8);
+    c2x::getDENMLocationContainerTrace(1, 1, 0, trace1_out, 4);
+    c2x::getDENMLocationContainerTrace(1, 1, 1, trace2_out, 8);
+    ASSERT_EQ(1, trace1_out[0]);
+    ASSERT_EQ(2, trace1_out[1]);
+    ASSERT_EQ(3, trace1_out[2]);
+    ASSERT_EQ(4, trace1_out[3]);
+    ASSERT_EQ(11, trace2_out[0]);
+    ASSERT_EQ(12, trace2_out[1]);
+    ASSERT_EQ(13, trace2_out[2]);
+    ASSERT_EQ(14, trace2_out[3]);
+    ASSERT_EQ(15, trace2_out[4]);
+    ASSERT_EQ(16, trace2_out[5]);
+    ASSERT_EQ(17, trace2_out[6]);
+    ASSERT_EQ(18, trace2_out[7]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_LocationContainer, Get_Trace_With_Wrong_Size)
+{
+    c2x::createDENM(2, 1);
+    int trace[8] = {11, 12, 13, 14, 15, 16, 17, 18};
+    int trace_out[4];
+    c2x::addDENMLocationContainerTrace(2, 1, trace, 8);
+    int getRet = c2x::getDENMLocationContainerTrace(2, 1, 0, trace_out, 4);
+    ASSERT_EQ(0, getRet);
+    ASSERT_EQ(11, trace_out[0]);
+    ASSERT_EQ(12, trace_out[1]);
+    ASSERT_EQ(13, trace_out[2]);
+    ASSERT_EQ(14, trace_out[3]);
+    c2x::deleteDENM(2, 1);
+}
+
+TEST(DENM_LocationContainer, Get_Trace_With_Index_Out_Of_Range)
+{
+    c2x::createDENM(3, 1);
+    int trace_out[4] = {0,0,0,0};
+    c2x::addDENMLocationContainerTrace(3, 1, trace_out, 4);
+    int getRet = c2x::getDENMLocationContainerTrace(3, 1, 1, trace_out, 4);
+    ASSERT_EQ(ERR_INDEX_OUT_OF_RANGE, getRet);
+    c2x::deleteDENM(3, 1);
+}
+
+TEST(DENM_LocationContainer, Clear_Traces)
+{
+    c2x::createDENM(4, 1);
+    int trace1[4] = {1,2,3,4};
+    int trace2[4] = {5,6,7,8};
+    int trace_out[4];
+    c2x::addDENMLocationContainerTrace(4, 1, trace1, 4);
+    c2x::clearDENMLocationContainerTraces(4, 1);
+    c2x::addDENMLocationContainerTrace(4, 1, trace2, 4);
+    c2x::getDENMLocationContainerTrace(4, 1, 0, trace_out, 4);
+    ASSERT_EQ(5, trace_out[0]);
+    ASSERT_EQ(6, trace_out[1]);
+    ASSERT_EQ(7, trace_out[2]);
+    ASSERT_EQ(8, trace_out[3]);
+    c2x::deleteDENM(4, 1);
+}
+
+TEST(DENM_LocationContainer, Set_And_Get_Speed)
+{
+    c2x::createDENM(1, 1);
+    int val, conf;
+    c2x::setDENMLocationContainerSpeed(1, 1, 7, 9);
+    c2x::getDENMLocationContainerSpeed(1, 1, &val, &conf);
+    ASSERT_EQ(7, val);
+    ASSERT_EQ(9, conf);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_LocationContainer, Set_And_Get_Heading)
+{
+    c2x::createDENM(1, 1);
+    int val, conf;
+    c2x::setDENMLocationContainerHeading(1, 1, 7, 9);
+    c2x::getDENMLocationContainerHeading(1, 1, &val, &conf);
+    ASSERT_EQ(7, val);
+    ASSERT_EQ(9, conf);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_LocationContainer, Set_And_Get_Road_Type)
+{
+    c2x::createDENM(1, 1);
+    int type;
+    c2x::setDENMLocationContainerRoadType(1, 1, 7);
+    c2x::getDENMLocationContainerRoadType(1, 1, &type);
+    ASSERT_EQ(7, type);
+    c2x::deleteDENM(1, 1);
+}

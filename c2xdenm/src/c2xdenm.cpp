@@ -66,6 +66,27 @@ void freeEventPoint(EventPoint *point)
     delete point->eventDeltaTime;
 }
 
+void freePathPoint(PathPoint *pathPoint) {
+    if (!pathPoint) {
+        return;
+    }
+    delete pathPoint->pathDeltaTime;
+    delete pathPoint;
+}
+
+void freePathHistory(PathHistory *pathHistory)
+{
+    if (!pathHistory)
+    {
+        return;
+    }
+    while (pathHistory->list.count > 0) 
+    {
+        asn_sequence_del(&pathHistory->list, 0, 1);
+    }
+    delete pathHistory;
+}
+
 int startDENMReceiver(int port)
 {
     try
@@ -356,6 +377,147 @@ int addDENMSituationContainerEventPoint(int stationID, int sequenceNumber, int d
     return 0;
 }
 
+int addDENMLocationContainerTrace(int stationID, int sequenceNumber, int* trace, int traceLength)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.location) 
+    {
+        denm->denm.location = new LocationContainer();
+        denm->denm.location->traces.list.free = freePathHistory;
+    }
+    LocationContainer* lc = denm->denm.location;
+
+    PathHistory *newHistory = new PathHistory();
+    newHistory->list.free = freePathPoint;
+    int len = (int)(traceLength / 4);
+    for (int i = 0; i < len; i++)
+    {
+        PathPoint *pathPoint = new PathPoint();
+        pathPoint->pathDeltaTime = new PathDeltaTime_t();
+        pathPoint->pathPosition.deltaLatitude = trace[i*4 + 0];
+        pathPoint->pathPosition.deltaLongitude = trace[i*4 + 1];
+        pathPoint->pathPosition.deltaAltitude = trace[i*4 + 2];
+        *pathPoint->pathDeltaTime = trace[i*4 + 3];
+        asn_sequence_add(&newHistory->list, pathPoint);
+    }
+    asn_sequence_add(&lc->traces.list, newHistory);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int clearDENMLocationContainerTraces(int stationID, int sequenceNumber)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.location) 
+    {
+        return 0;
+    }
+    LocationContainer* lc = denm->denm.location;
+
+    asn_sequence_empty(&lc->traces);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMLocationContainerSpeed(int stationID, int sequenceNumber, int speedValue, int speedConfidence)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.location) 
+    {
+        denm->denm.location = new LocationContainer();
+        denm->denm.location->traces.list.free = freePathHistory;
+    }
+    LocationContainer* lc = denm->denm.location;
+
+    if (!lc->eventSpeed)
+    {
+        lc->eventSpeed = new Speed();
+    }
+    lc->eventSpeed->speedValue = speedValue;
+    lc->eventSpeed->speedConfidence = speedConfidence;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMLocationContainerHeading(int stationID, int sequenceNumber, int headingValue, int headingConfidence)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.location) 
+    {
+        denm->denm.location = new LocationContainer();
+        denm->denm.location->traces.list.free = freePathHistory;
+    }
+    LocationContainer* lc = denm->denm.location;
+
+    if (!lc->eventPositionHeading)
+    {
+        lc->eventPositionHeading = new Heading();
+    }
+    lc->eventPositionHeading->headingValue = headingValue;
+    lc->eventPositionHeading->headingConfidence = headingConfidence;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMLocationContainerRoadType(int stationID, int sequenceNumber, int roadType)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.location) 
+    {
+        denm->denm.location = new LocationContainer();
+        denm->denm.location->traces.list.free = freePathHistory;
+    }
+    LocationContainer* lc = denm->denm.location;
+
+    if (!lc->roadType)
+    {
+        lc->roadType = new RoadType_t();
+    }
+    *lc->roadType = roadType;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
 
 void getDENMHeader(DENM_t *denm, int *protocolVersion, int *messageID) 
 {
@@ -608,6 +770,180 @@ int getDENMSituationContainerEventHistory(int stationID, int sequenceNumber, int
     }
 
     int ret = getDENMSituationContainerEventHistory(denm, eventHistory, eventHistorySize, actualEventHistorySize);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getLocationContainer(DENM_t* denm, LocationContainer **lc) 
+{
+    *lc = denm->denm.location;
+    if (!*lc) {
+        std::stringstream ss;
+        ss << "There is no LocationContainer present in this message. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_NULL;
+    }
+    return 0;
+}
+
+int getDENMLocationContainerTrace(DENM_t *denm, int traceIndex, int* trace, int traceBufferLength)
+{
+    if (!trace) 
+    {
+        return ERR_ARG_NULL;
+    }
+
+    LocationContainer *lc;
+    int lcRet = getLocationContainer(denm, &lc);
+    if (lcRet != 0) 
+    {
+        return lcRet;
+    }
+
+    if (traceIndex >= lc->traces.list.count) 
+    {
+        std::stringstream ss;
+        ss << "Trace index '" << traceIndex << "' is out of range. Threr are only '" << lc->traces.list.count << "' traces in the message.";
+        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_INDEX_OUT_OF_RANGE;
+    }
+
+    int len = (std::min)((int)(traceBufferLength / 4), lc->traces.list.array[traceIndex]->list.count);
+    for (int i = 0; i < len; i++)
+    {
+        trace[i*4 + 0] = lc->traces.list.array[traceIndex]->list.array[i]->pathPosition.deltaLatitude;
+        trace[i*4 + 1] = lc->traces.list.array[traceIndex]->list.array[i]->pathPosition.deltaLongitude;
+        trace[i*4 + 2] = lc->traces.list.array[traceIndex]->list.array[i]->pathPosition.deltaAltitude;
+        trace[i*4 + 3] = *lc->traces.list.array[traceIndex]->list.array[i]->pathDeltaTime;
+    }
+    
+    return 0;
+}
+
+int getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIndex, int* trace, int traceBufferLength)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMLocationContainerTrace(denm, traceIndex, trace, traceBufferLength);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getDENMLocationContainerSpeed(DENM_t *denm, int *speedValue, int *speedConfidence)
+{
+    LocationContainer *lc;
+    int lcRet = getLocationContainer(denm, &lc);
+    if (lcRet != 0) 
+    {
+        return lcRet;
+    }
+
+    if (!lc->eventSpeed)
+    {        
+        return ERR_NULL;
+    }
+
+    if (speedValue) 
+    {
+        *speedValue = lc->eventSpeed->speedValue;
+    }
+    if (speedConfidence)
+    {
+        *speedConfidence = lc->eventSpeed->speedConfidence;
+    }
+}
+
+int getDENMLocationContainerSpeed(int stationID, int sequenceNumber, int *speedValue, int *speedConfidence)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMLocationContainerSpeed(denm, speedValue, speedConfidence);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getDENMLocationContainerHeading(DENM_t *denm, int *headingValue, int *headingConfidence)
+{
+    LocationContainer *lc;
+    int lcRet = getLocationContainer(denm, &lc);
+    if (lcRet != 0) 
+    {
+        return lcRet;
+    }
+
+    if (!lc->eventPositionHeading)
+    {        
+        return ERR_NULL;
+    }
+
+    if (headingValue) 
+    {
+        *headingValue = lc->eventPositionHeading->headingValue;
+    }
+    if (headingConfidence)
+    {
+        *headingConfidence = lc->eventPositionHeading->headingConfidence;
+    }
+}
+
+int getDENMLocationContainerHeading(int stationID, int sequenceNumber, int *headingValue, int *headingConfidence)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMLocationContainerHeading(denm, headingValue, headingConfidence);
+
+    databaseLockDENM_.unlock();
+    return ret;
+}
+
+int getDENMLocationContainerRoadType(DENM_t *denm, int *roadType)
+{
+    LocationContainer *lc;
+    int lcRet = getLocationContainer(denm, &lc);
+    if (lcRet != 0) 
+    {
+        return lcRet;
+    }
+
+    if (!lc->roadType)
+    {        
+        return ERR_NULL;
+    }
+
+    if (roadType) 
+    {
+        *roadType = *lc->roadType;
+    }
+}
+
+int getDENMLocationContainerRoadType(int stationID, int sequenceNumber, int *roadType)
+{
+    databaseLockDENM_.lock();
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm) {
+        databaseLockDENM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    int ret = getDENMLocationContainerRoadType(denm, roadType);
 
     databaseLockDENM_.unlock();
     return ret;
