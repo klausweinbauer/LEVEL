@@ -254,3 +254,20 @@ TEST(DENM_LocationContainer, Test_Actual_Trace_Length)
     ASSERT_EQ(8, actualLen);
     c2x::deleteDENM(1, 1);
 }
+
+TEST(DENM_LocationContainer, Clear_Uninitialized_Trace_History) 
+{
+    c2x::createDENM(1, 1);
+    int ret = c2x::clearDENMLocationContainerTraces(1, 1);
+    ASSERT_EQ(0, ret);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_LocationContainer, Clear_Empty_Trace_History) 
+{
+    c2x::createDENM(1, 1);
+    c2x::setDENMLocationContainerSpeed(1, 1, 0, 0);
+    int ret = c2x::clearDENMLocationContainerTraces(1, 1);
+    ASSERT_EQ(0, ret);
+    c2x::deleteDENM(1, 1);
+}

@@ -425,11 +425,12 @@ int clearDENMLocationContainerTraces(int stationID, int sequenceNumber)
 
     if (!denm->denm.location) 
     {
+        databaseLockDENM_.unlock();
         return 0;
     }
     LocationContainer* lc = denm->denm.location;
 
-    asn_sequence_empty(&lc->traces);
+    asn_sequence_empty(&lc->traces.list);
 
     databaseLockDENM_.unlock();
     return 0;
