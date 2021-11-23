@@ -1,8 +1,6 @@
-classdef SetDENMHeader < matlab.System & coder.ExternalDependency
+classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        StationID = 1;
-        SequenceNumber = 1;  
     end
     
     properties (Hidden)
@@ -12,26 +10,21 @@ classdef SetDENMHeader < matlab.System & coder.ExternalDependency
     end
 
     methods (Access = protected)
-        function setupImpl(obj)
-            if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                coder.cinclude('c2xdenm.h');
-                err = coder.ceval('createDENM', obj.StationID, obj.SequenceNumber);
-                obj.printErrorCode(err);
-            end 
+        function setupImpl(~)
         end
         
-        function [StationID] = stepImpl(obj)
-            StationID = obj.StationID;                       
-        end
-        
-        function releaseImpl(obj)
+        function [Value, Confidence] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                Value = int32(0);
+                Confidence = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('deleteDENM', obj.StationID);
+                err = coder.ceval('getDENMLocationContainerHeading', StationID, SequenceNumber, coder.ref(Value), coder.ref(Confidence));
                 obj.printErrorCode(err);
-            end    
+            end            
+        end
+        
+        function releaseImpl(~)            
         end
 
         function printErrorCode(~, err)
@@ -67,7 +60,7 @@ classdef SetDENMHeader < matlab.System & coder.ExternalDependency
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'CAMMessage';
+            bName = 'GetDENMLocationContainerHeading';
         end
         
         function supported = isSupportedContext(buildContext)

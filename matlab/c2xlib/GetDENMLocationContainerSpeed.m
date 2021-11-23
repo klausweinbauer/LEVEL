@@ -1,7 +1,6 @@
-classdef GetDENMHeader < matlab.System & coder.ExternalDependency
+classdef GetDENMLocationContainerSpeed < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
     end
     
     properties (Hidden)
@@ -14,11 +13,13 @@ classdef GetDENMHeader < matlab.System & coder.ExternalDependency
         function setupImpl(~)
         end
         
-        function [ProtocolVersion, MessageID] = stepImpl(obj, StationID, SequenceNumber) 
+        function [Value, Confidence] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                Value = int32(0);
+                Confidence = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMHeader', StationID, SequenceNumber);
+                err = coder.ceval('getDENMLocationContainerSpeed', StationID, SequenceNumber, coder.ref(Value), coder.ref(Confidence));
                 obj.printErrorCode(err);
             end            
         end
@@ -54,12 +55,12 @@ classdef GetDENMHeader < matlab.System & coder.ExternalDependency
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'GetDENM';
+            bName = 'GetDENMLocationContainerSpeed';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -86,23 +87,6 @@ classdef GetDENMHeader < matlab.System & coder.ExternalDependency
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
-        end
-    end
-    methods (Access = protected)
-        function [] = getOutputSizeImpl(obj)
-            
-        end 
-        
-        function [] = isOutputFixedSizeImpl(obj)
-            
-        end
-        
-        function [] = getOutputDataTypeImpl(obj)
-            
-        end
-        
-        function [] = isOutputComplexImpl(obj)
-            
         end
     end
 end
