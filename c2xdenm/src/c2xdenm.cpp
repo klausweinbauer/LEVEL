@@ -787,7 +787,7 @@ int getLocationContainer(DENM_t* denm, LocationContainer **lc)
     return 0;
 }
 
-int getDENMLocationContainerTrace(DENM_t *denm, int traceIndex, int* trace, int traceBufferLength)
+int getDENMLocationContainerTrace(DENM_t *denm, int traceIndex, int* trace, int traceBufferLength, int *actualTraceLength)
 {
     if (!trace) 
     {
@@ -817,11 +817,15 @@ int getDENMLocationContainerTrace(DENM_t *denm, int traceIndex, int* trace, int 
         trace[i*4 + 2] = lc->traces.list.array[traceIndex]->list.array[i]->pathPosition.deltaAltitude;
         trace[i*4 + 3] = *lc->traces.list.array[traceIndex]->list.array[i]->pathDeltaTime;
     }
+
+    if (actualTraceLength) {
+        *actualTraceLength = lc->traces.list.array[traceIndex]->list.count * 4;
+    }
     
     return 0;
 }
 
-int getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIndex, int* trace, int traceBufferLength)
+int getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIndex, int* trace, int traceBufferLength, int *actualTraceLength)
 {
     databaseLockDENM_.lock();
     DENM_t* denm = getDENM(stationID, sequenceNumber);
@@ -830,7 +834,7 @@ int getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIn
         return ERR_MSG_NOT_FOUND;
     }
 
-    int ret = getDENMLocationContainerTrace(denm, traceIndex, trace, traceBufferLength);
+    int ret = getDENMLocationContainerTrace(denm, traceIndex, trace, traceBufferLength, actualTraceLength);
 
     databaseLockDENM_.unlock();
     return ret;
