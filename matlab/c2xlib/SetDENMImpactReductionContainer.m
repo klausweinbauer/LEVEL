@@ -19,11 +19,13 @@ classdef SetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
             PositionOfOccupants, VehicleMass, RequestResponseIndication)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                TmpPositionOfPillars = int32(PositionOfPillars);
+                TmpPositionOfOccupants = int32(PositionOfOccupants);
                 coder.cinclude('c2xdenm.h');
                 err = coder.ceval('setDENMImpactReductionContainer', StationID, SequenceNumber, int32(HeightLonCarrLeft), ...
-                    int32(HeightLonCarrRight), int32(PosLonCarrLeft), int32(PosLonCarrRight), int32(PositionOfPillars), length(PositionOfPillars), ...
+                    int32(HeightLonCarrRight), int32(PosLonCarrLeft), int32(PosLonCarrRight), coder.ref(TmpPositionOfPillars), length(TmpPositionOfPillars), ...
                     int32(PosCentMass), int32(WheelBaseVehicle), int32(TurningRadius), int32(PosFrontAx), ...
-                    int32(PositionOfOccupants), length(PositionOfOccupants), int32(VehicleMass), int32(RequestResponseIndication));
+                    coder.ref(TmpPositionOfOccupants), length(TmpPositionOfOccupants), int32(VehicleMass), int32(RequestResponseIndication));
                 obj.printErrorCode(err);
             end            
         end

@@ -17,8 +17,10 @@ classdef SetDENMRoadWorksContainerExtendedLightBarSiren < matlab.System & coder.
         function [] = stepImpl(obj, StationID, SequenceNumber, LightBarSirenInUse)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
+                TmpLightBarSirenInUser = uint8(LightBarSirenInUse);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMRoadWorksContainerExtendedLightBarSiren', StationID, SequenceNumber, uint8(LightBarSirenInUse), length(uint8(LightBarSirenInUse)));
+                err = coder.ceval('setDENMRoadWorksContainerExtendedLightBarSiren', StationID, SequenceNumber, ...
+                    coder.ref(TmpLightBarSirenInUser), length(TmpLightBarSirenInUser));
                 obj.printErrorCode(err);
             end            
         end
