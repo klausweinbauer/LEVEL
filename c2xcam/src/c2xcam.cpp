@@ -38,7 +38,7 @@ CAM_t* getCAM(int stationID) {
 }
 
 void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int bufferSize) {
-    if (!buffer) {
+    if (!bitString || !buffer) {
         return;
     }
 
@@ -50,6 +50,7 @@ void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int bufferSize) {
     }
     memcpy(bitString->buf, buffer, bufferSize);
     bitString->size = bufferSize;
+    bitString->bits_unused = 0;
 }
 
 void freePathPoint(PathPoint *pathPoint) {

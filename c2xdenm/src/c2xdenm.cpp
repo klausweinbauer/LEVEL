@@ -9,22 +9,22 @@
 
 namespace c2x {
 
-typedef struct ActionID {
+typedef struct ActionId {
     int stationID_ = 0;
     int sequenceNumber_ = 0;
-    ActionID(ActionID_t &aID) : stationID_(aID.originatingStationID), sequenceNumber_(aID.sequenceNumber) {}
-    friend bool operator<(const ActionID& a1, const ActionID& a2) {
+    ActionId(ActionID_t &aID) : stationID_(aID.originatingStationID), sequenceNumber_(aID.sequenceNumber) {}
+    friend bool operator<(const ActionId& a1, const ActionId& a2) {
         return (((uint64_t)a1.stationID_ << (uint64_t)32) + (uint64_t)a1.sequenceNumber_) < 
             (((uint64_t)a2.stationID_ << (uint64_t)32) + (uint64_t)a2.sequenceNumber_);
     }
-} ActionID;
+} ActionId;
 
-static std::map<ActionID, DENM_t*> databaseDENM_;
+static std::map<ActionId, DENM_t*> databaseDENM_;
 static std::mutex databaseLockDENM_;
 static c2x::Buffer* writeCallbackBufferDENM_;
 static std::mutex writeCallbackLockDENM_;
 
-std::map<ActionID, DENM_t*>::iterator getDENMiterator(int stationID, int sequenceNumber) {
+std::map<ActionId, DENM_t*>::iterator getDENMiterator(int stationID, int sequenceNumber) {
     for (auto it = databaseDENM_.begin(); it != databaseDENM_.end(); it++) {
         if (it->first.stationID_ == stationID && it->first.sequenceNumber_ == sequenceNumber) {
             return it;
@@ -42,11 +42,11 @@ DENM_t* getDENM(int stationID, int sequenceNumber) {
     return nullptr;
 }
 
-std::map<ActionID, DENM_t*>::iterator getDENMiterator(ActionID_t aID) {
+std::map<ActionId, DENM_t*>::iterator getDENMiterator(ActionID_t aID) {
     return getDENMiterator(aID.originatingStationID, aID.sequenceNumber);
 }
 
-std::map<ActionID, DENM_t*>::iterator getDENMiterator(ActionID aID) {
+std::map<ActionId, DENM_t*>::iterator getDENMiterator(ActionId aID) {
     return getDENMiterator(aID.stationID_, aID.sequenceNumber_);
 }
 
@@ -54,7 +54,7 @@ DENM* getDENM(ActionID_t aID) {
     return getDENM(aID.originatingStationID, aID.sequenceNumber);
 }
 
-DENM* getDENM(ActionID aID) {
+DENM* getDENM(ActionId aID) {
     return getDENM(aID.stationID_, aID.sequenceNumber_);
 }
 
@@ -85,6 +85,85 @@ void freePathHistory(PathHistory *pathHistory)
         asn_sequence_del(&pathHistory->list, 0, 1);
     }
     delete pathHistory;
+}
+
+void freePosPillar(PosPillar_t *pillar) {
+    if (!pillar) {
+        return;
+    }
+    delete pillar;
+}
+
+void freeStationType(StationType_t *stationType) {
+    if (!stationType) {
+        return;
+    }
+    delete stationType;
+}
+
+void freeReferencePosition(ReferencePosition *refPos) {
+    if (!refPos) {
+        return;
+    }
+    delete refPos;
+}
+
+void freeActionID(ActionID *actionID) {
+    if (!actionID) {
+        return;
+    }
+    delete actionID;
+}
+
+void setBitString(BIT_STRING_t *bitString, uint8_t *data, int dataSize) {
+    if (!bitString || !data) {
+        return;
+    }
+
+    if (!bitString->buf) {
+        bitString->buf = (uint8_t*)malloc(dataSize);
+    }
+    else {
+        bitString->buf = (uint8_t*)realloc(bitString->buf, dataSize);
+    }
+    memcpy(bitString->buf, data, dataSize);
+    bitString->size = dataSize;
+    bitString->bits_unused = 0;
+}
+
+int getBitString(BIT_STRING_t *bitString, uint8_t *buffer, int bufferSize) {
+    if (!bitString || !buffer || !bitString->buf) {
+        return;
+    }
+
+    int cpyLen = (std::min)(bufferSize, bitString->size);
+    memcpy(buffer, bitString->buf, cpyLen);
+    return cpyLen;
+}
+
+void setOctetString(OCTET_STRING_t *octetString, uint8_t *data, int dataSize) {
+    if (!octetString || !data) {
+        return;
+    }
+
+    if (!octetString->buf) {
+        octetString->buf = (uint8_t*)malloc(dataSize);
+    }
+    else {
+        octetString->buf = (uint8_t*)realloc(octetString->buf, dataSize);
+    }
+    memcpy(octetString->buf, data, dataSize);
+    octetString->size = dataSize;
+}
+
+int getOctetString(OCTET_STRING_t *octetString, uint8_t *buffer, int bufferSize) {
+    if (!octetString || !buffer || !octetString->buf) {
+        return;
+    }
+
+    int cpyLen = (std::min)(bufferSize, octetString->size);
+    memcpy(buffer, octetString->buf, cpyLen);
+    return cpyLen;
 }
 
 int startDENMReceiver(int port)
@@ -163,8 +242,8 @@ int createDENM(int stationID, int sequenceNumber)
     denm->denm.location = nullptr;
     denm->denm.alacarte = nullptr;
 
-    ActionID aID(denm->denm.management.actionID);
-    databaseDENM_.insert(std::pair<ActionID, DENM_t*>(aID, denm));
+    ActionId aID(denm->denm.management.actionID);
+    databaseDENM_.insert(std::pair<ActionId, DENM_t*>(aID, denm));
     databaseLockDENM_.unlock();
 
     return 0;
@@ -179,7 +258,7 @@ int deleteDENM(int stationID, int sequenceNumber)
         return ERR_MSG_NOT_FOUND;
     }
 
-    ActionID aID = it->first;
+    ActionId aID = it->first;
     ASN_STRUCT_FREE(asn_DEF_DENM, it->second);
     databaseDENM_.erase(aID);
     databaseLockDENM_.unlock();
@@ -519,6 +598,520 @@ int setDENMLocationContainerRoadType(int stationID, int sequenceNumber, int road
     return 0;
 }
 
+int getAlacarteContainerInitialized(int stationID, int sequenceNumber, AlacarteContainer **ac) 
+{
+    DENM_t* denm = getDENM(stationID, sequenceNumber);
+    if (!denm)
+    {
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!denm->denm.alacarte) {
+        denm->denm.alacarte = new AlacarteContainer();
+    }
+
+    *ac = denm->denm.alacarte;
+}
+
+int setDENMAlacarteContainer(int stationID, int sequenceNumber, int lanePosition, int externalTemperature, int positioningSolution)
+{
+    databaseLockDENM_.lock();
+    AlacarteContainer* ac;
+    int err = getAlacarteContainerInitialized(stationID, sequenceNumber, &ac);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!ac->lanePosition) {
+        ac->lanePosition = new LanePosition_t();
+    }
+    *ac->lanePosition = lanePosition;
+
+    if (!ac->externalTemperature) {
+        ac->externalTemperature = new Temperature_t();
+    }
+    *ac->externalTemperature = externalTemperature;
+
+    if (!ac->positioningSolution) {
+        ac->positioningSolution = new PositioningSolutionType_t();
+    }
+    *ac->positioningSolution = positioningSolution;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMImpactReductionContainer(int stationID, int sequenceNumber, int heightLonCarrLeft, int heightLonCarrRight, int posLonCarrLeft, 
+    int posLonCarrRight, int *positionOfPillars, int positionOfPillarsSize, int posCentMass, int wheelBaseVehicle, int turningRadius, int posFrontAx, 
+    uint8_t *positionOfOccupants, int positionOfOccupantsSize, int vehicleMass, int requestResponseIndication)
+{
+    databaseLockDENM_.lock();
+    AlacarteContainer* ac;
+    int err = getAlacarteContainerInitialized(stationID, sequenceNumber, &ac);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!ac->impactReduction) {
+        ac->impactReduction = new ImpactReductionContainer();
+    }
+    ac->impactReduction->heightLonCarrLeft = heightLonCarrLeft;
+    ac->impactReduction->heightLonCarrRight = heightLonCarrRight;
+    ac->impactReduction->posLonCarrLeft = posLonCarrLeft;
+    ac->impactReduction->posLonCarrRight = posLonCarrRight;
+    ac->impactReduction->posCentMass = posCentMass;
+    ac->impactReduction->wheelBaseVehicle = wheelBaseVehicle;
+    ac->impactReduction->turningRadius = turningRadius;
+    ac->impactReduction->posFrontAx = posFrontAx;
+    ac->impactReduction->vehicleMass = vehicleMass;
+    ac->impactReduction->requestResponseIndication = requestResponseIndication;
+    
+    ac->impactReduction->positionOfPillars.list.free = freePosPillar;
+    asn_sequence_empty(&ac->impactReduction->positionOfPillars.list);
+    for (int i = 0; i < positionOfPillarsSize; i++) {
+        PosPillar_t *pillar = new PosPillar_t();
+        *pillar = positionOfPillars[i];
+        asn_sequence_add(&ac->impactReduction->positionOfPillars.list, pillar);
+    }
+
+    setBitString(&ac->impactReduction->positionOfOccupants, positionOfOccupants, positionOfOccupantsSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}    
+
+int getRoadWorksContainerExtendedInitialized(int stationID, int sequenceNumber, RoadWorksContainerExtended **rwc) 
+{
+    AlacarteContainer* ac;
+    int err = getAlacarteContainerInitialized(stationID, sequenceNumber, &ac);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!ac->roadWorks) {
+        ac->roadWorks = new RoadWorksContainerExtended();
+    }
+    *rwc = ac->roadWorks;
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedLightBarSiren(int stationID, int sequenceNumber, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->lightBarSirenInUse) {
+        rwc->lightBarSirenInUse = new LightBarSirenInUse_t();
+    }
+    setBitString(rwc->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedClosedLanes(int stationID, int sequenceNumber, int innerhardShoulderStatus, int outerhardShoulderStatus, int drivingLaneStatus)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->closedLanes) {
+        rwc->closedLanes = new ClosedLanes();
+        rwc->closedLanes->innerhardShoulderStatus = new HardShoulderStatus_t();
+        rwc->closedLanes->outerhardShoulderStatus = new HardShoulderStatus_t();
+        rwc->closedLanes->drivingLaneStatus = new DrivingLaneStatus_t();
+    }
+    *rwc->closedLanes->innerhardShoulderStatus = innerhardShoulderStatus;
+    *rwc->closedLanes->outerhardShoulderStatus = outerhardShoulderStatus;
+    setBitString(rwc->closedLanes->drivingLaneStatus, (uint8_t*)(&drivingLaneStatus), sizeof(int));   
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedRestriction(int stationID, int sequenceNumber, int *stationTypes, int stationTypesSize)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->restriction) {
+        rwc->restriction = new RestrictedTypes_t();
+        rwc->restriction->list.free = freeStationType;
+    }
+    asn_sequence_empty(&rwc->restriction->list);
+    for (int i = 0; i < stationTypesSize; i++) {
+        StationType_t *stationType = new StationType_t();
+        *stationType = stationTypes[i];
+        asn_sequence_add(&rwc->restriction->list, stationType);
+    }
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedSpeedLimit(int stationID, int sequenceNumber, int speedLimit)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->speedLimit) {
+        rwc->speedLimit = new SpeedLimit_t();
+    }
+    *rwc->speedLimit = speedLimit;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedIncidentIndication(int stationID, int sequenceNumber, int causeCode, int subCauseCode)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->incidentIndication) {
+        rwc->incidentIndication = new CauseCode_t();
+    }
+    rwc->incidentIndication->causeCode = causeCode;
+    rwc->incidentIndication->subCauseCode = subCauseCode;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedRecommendedPath(int stationID, int sequenceNumber, int *referencePositions, int referencePositionsSize)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->recommendedPath) {
+        rwc->recommendedPath = new ItineraryPath_t();
+        rwc->recommendedPath->list.free = freeReferencePosition;
+    }
+    asn_sequence_empty(&rwc->recommendedPath->list);
+    int nrPositions = (int)(referencePositionsSize / 7);
+    for (int i = 0; i < nrPositions; i++)
+    {
+        ReferencePosition *refPos = new ReferencePosition();
+        refPos->latitude = referencePositions[i*7 + 0];
+        refPos->longitude = referencePositions[i*7 + 1];
+        refPos->positionConfidenceEllipse.semiMajorConfidence = referencePositions[i*7 + 2];
+        refPos->positionConfidenceEllipse.semiMinorConfidence = referencePositions[i*7 + 3];
+        refPos->positionConfidenceEllipse.semiMajorOrientation = referencePositions[i*7 + 4];
+        refPos->altitude.altitudeValue = referencePositions[i*7 + 5];
+        refPos->altitude.altitudeConfidence = referencePositions[i*7 + 6];
+        asn_sequence_add(&rwc->recommendedPath->list, refPos);
+    }    
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedStartingPointSpeedLimit(int stationID, int sequenceNumber, int deltaLatitude, int deltaLongitude, int deltaAltitude)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->startingPointSpeedLimit) {
+        rwc->startingPointSpeedLimit = new DeltaReferencePosition();
+    }
+    rwc->startingPointSpeedLimit->deltaLatitude = deltaLatitude;
+    rwc->startingPointSpeedLimit->deltaLongitude = deltaLongitude;
+    rwc->startingPointSpeedLimit->deltaAltitude = deltaAltitude;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedTrafficFlowRule(int stationID, int sequenceNumber, int trafficFlowRule)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->trafficFlowRule) {
+        rwc->trafficFlowRule = new TrafficRule_t();
+    }
+    *rwc->trafficFlowRule = trafficFlowRule;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMRoadWorksContainerExtendedReferenceDenms(int stationID, int sequenceNumber, int *actionIDs, int actionIDsSize)
+{
+    databaseLockDENM_.lock();
+    RoadWorksContainerExtended* rwc;
+    int err = getRoadWorksContainerExtendedInitialized(stationID, sequenceNumber, &rwc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!rwc->referenceDenms) {
+        rwc->referenceDenms = new ReferenceDenms();
+        rwc->referenceDenms->list.free = freeActionID;
+    }
+    asn_sequence_empty(&rwc->referenceDenms->list);
+    int nrActionIDs = (int)(actionIDsSize / 2);
+    for (int i = 0; i < nrActionIDs; i++) {
+        ActionID *aID = new ActionID();
+        aID->originatingStationID = actionIDs[i*2 + 0];
+        aID->sequenceNumber = actionIDs[i*2 + 1];
+        asn_sequence_add(&rwc->referenceDenms->list, aID);
+    }
+    
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int getStationaryVehicleContainerInitialized(int stationID, int sequenceNumber, StationaryVehicleContainer **swc) 
+{
+    AlacarteContainer* ac;
+    int err = getAlacarteContainerInitialized(stationID, sequenceNumber, &ac);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!ac->stationaryVehicle) {
+        ac->stationaryVehicle = new StationaryVehicleContainer();
+    }
+    *swc = ac->stationaryVehicle;
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerStationarySince(int stationID, int sequenceNumber, int stationarySince)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->stationarySince) {
+        swc->stationarySince = new StationarySince_t();
+    }
+    *swc->stationarySince = stationarySince;
+    
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerStationaryCause(int stationID, int sequenceNumber, int causeCode, int subCauseCode)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->stationaryCause) {
+        swc->stationaryCause = new CauseCode();
+    }
+    swc->stationaryCause->causeCode = causeCode;
+    swc->stationaryCause->subCauseCode = subCauseCode;
+    
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerCarryingDangerousGoods(int stationID, int sequenceNumber, int dangerousGoodsType, 
+    int unNumber, int elevatedTemperature, int tunnelsRestricted, int limitedQuantity)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->carryingDangerousGoods) {
+        swc->carryingDangerousGoods = new DangerousGoodsExtended();
+    }
+    swc->carryingDangerousGoods->dangerousGoodsType = dangerousGoodsType;
+    swc->carryingDangerousGoods->unNumber = unNumber;
+    swc->carryingDangerousGoods->elevatedTemperature = elevatedTemperature;
+    swc->carryingDangerousGoods->tunnelsRestricted = tunnelsRestricted;
+    swc->carryingDangerousGoods->limitedQuantity = limitedQuantity;
+    
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(int stationID, int sequenceNumber, 
+    uint8_t *emergencyActionCode, int emergencyActionCodeSize)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->carryingDangerousGoods) {
+        swc->carryingDangerousGoods = new DangerousGoodsExtended();
+    }
+    if (!swc->carryingDangerousGoods->emergencyActionCode) {
+        swc->carryingDangerousGoods->emergencyActionCode = new IA5String_t();
+    }
+    setOctetString(swc->carryingDangerousGoods->emergencyActionCode, emergencyActionCode, emergencyActionCodeSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(int stationID, int sequenceNumber, uint8_t *phoneNumber, int phoneNumberSize)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->carryingDangerousGoods) {
+        swc->carryingDangerousGoods = new DangerousGoodsExtended();
+    }
+    if (!swc->carryingDangerousGoods->phoneNumber) {
+        swc->carryingDangerousGoods->phoneNumber = new PhoneNumber_t();
+    }
+    setOctetString(swc->carryingDangerousGoods->phoneNumber, phoneNumber, phoneNumberSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(int stationID, int sequenceNumber, uint8_t *companyName, int companyNameSize)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->carryingDangerousGoods) {
+        swc->carryingDangerousGoods = new DangerousGoodsExtended();
+    }
+    if (!swc->carryingDangerousGoods->companyName) {
+        swc->carryingDangerousGoods->companyName = new PhoneNumber_t();
+    }
+    setOctetString(swc->carryingDangerousGoods->companyName, companyName, companyNameSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerNumberOfOccupants(int stationID, int sequenceNumber, int numberOfOccupants)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->numberOfOccupants) {
+        swc->numberOfOccupants = new NumberOfOccupants_t();
+    }
+    *swc->numberOfOccupants = numberOfOccupants;
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerVehicleIdentification(int stationID, int sequenceNumber, uint8_t *wMInumber, int wMInumberSize, uint8_t *vDS, int vDSSize)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->vehicleIdentification) {
+        swc->vehicleIdentification = new VehicleIdentification();
+        swc->vehicleIdentification->vDS = new IA5String_t();
+        swc->vehicleIdentification->wMInumber = new IA5String_t();
+    }
+    setOctetString(swc->vehicleIdentification->vDS, vDS, vDSSize);
+    setOctetString(swc->vehicleIdentification->wMInumber, wMInumber, wMInumberSize);
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+int setDENMStationaryVehicleContainerEnergyStorageType(int stationID, int sequenceNumber, int energyStorageType)
+{
+    databaseLockDENM_.lock();
+    StationaryVehicleContainer* swc;
+    int err = getStationaryVehicleContainerInitialized(stationID, sequenceNumber, &swc);
+    if (err) { 
+        databaseLockDENM_.unlock();
+        return err;
+    }
+
+    if (!swc->energyStorageType) {
+        swc->energyStorageType = new EnergyStorageType_t();
+    }
+    setBitString(swc->energyStorageType, (uint8_t*)(&energyStorageType), sizeof(int));
+
+    databaseLockDENM_.unlock();
+    return 0;
+}
+
+
 
 void getDENMHeader(DENM_t *denm, int *protocolVersion, int *messageID) 
 {
@@ -781,7 +1374,8 @@ int getLocationContainer(DENM_t* denm, LocationContainer **lc)
     *lc = denm->denm.location;
     if (!*lc) {
         std::stringstream ss;
-        ss << "There is no LocationContainer present in this message. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        ss << "There is no LocationContainer present in this message. (StationID=" << denm->header.stationID 
+            << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
         setLastErrMsg(ss.str().c_str(), ss.str().size());
         return ERR_NULL;
     }
@@ -1027,7 +1621,7 @@ int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size)
         dbIt->second = denm;
     }
     else {
-        databaseDENM_.insert(std::pair<ActionID, DENM_t*>(aID, denm));
+        databaseDENM_.insert(std::pair<ActionId, DENM_t*>(aID, denm));
     }
     databaseLockDENM_.unlock();
 
