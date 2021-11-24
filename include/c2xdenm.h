@@ -87,6 +87,33 @@ int SHARED_EXPORT getDENMLocationContainerTrace(int stationID, int sequenceNumbe
 int SHARED_EXPORT getDENMLocationContainerSpeed(int stationID, int sequenceNumber, int *speedValue, int *speedConfidence);
 int SHARED_EXPORT getDENMLocationContainerHeading(int stationID, int sequenceNumber, int *headingValue, int *headingConfidence);
 int SHARED_EXPORT getDENMLocationContainerRoadType(int stationID, int sequenceNumber, int *roadType);
+
+int SHARED_EXPORT getDENMAlacarteContainer(int stationID, int sequenceNumber, int *lanePosition, int *externalTemperature, int *positioningSolution);
+
+int SHARED_EXPORT getDENMImpactReductionContainer(int stationID, int sequenceNumber, int *heightLonCarrLeft, int *heightLonCarrRight, int *posLonCarrLeft, 
+    int *posLonCarrRight, int *positionOfPillars, int positionOfPillarsSize, int *posCentMass, int *wheelBaseVehicle, int *turningRadius, int *posFrontAx, 
+    uint8_t *positionOfOccupants, int positionOfOccupantsSize, int *vehicleMass, int *requestResponseIndication);
+
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedLightBarSiren(int stationID, int sequenceNumber, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedClosedLanes(int stationID, int sequenceNumber, int *innerhardShoulderStatus, int *outerhardShoulderStatus, int *drivingLaneStatus);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedRestriction(int stationID, int sequenceNumber, int *stationTypes, int stationTypesSize);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedSpeedLimit(int stationID, int sequenceNumber, int *speedLimit);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedIncidentIndication(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedRecommendedPath(int stationID, int sequenceNumber, int *referencePositions, int referencePositionsSize);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedStartingPointSpeedLimit(int stationID, int sequenceNumber, int *deltaLatitude, int *deltaLongitude, int *deltaAltitude);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedTrafficFlowRule(int stationID, int sequenceNumber, int *trafficFlowRule);
+int SHARED_EXPORT getDENMRoadWorksContainerExtendedReferenceDenms(int stationID, int sequenceNumber, int *actionIDs, int actionIDsSize);
+
+int SHARED_EXPORT getDENMStationaryVehicleContainerStationarySince(int stationID, int sequenceNumber, int *stationarySince);
+int SHARED_EXPORT getDENMStationaryVehicleContainerStationaryCause(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode);
+int SHARED_EXPORT getDENMStationaryVehicleContainerCarryingDangerousGoods(int stationID, int sequenceNumber, int *dangerousGoodsType, 
+    int *unNumber, int *elevatedTemperature, int *tunnelsRestricted, int *limitedQuantity);
+int SHARED_EXPORT getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(int stationID, int sequenceNumber, uint8_t *emergencyActionCode, int emergencyActionCodeSize);
+int SHARED_EXPORT getDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(int stationID, int sequenceNumber, uint8_t *phoneNumber, int phoneNumberSize);
+int SHARED_EXPORT getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(int stationID, int sequenceNumber, uint8_t *companyName, int companyNameSize);
+int SHARED_EXPORT getDENMStationaryVehicleContainerNumberOfOccupants(int stationID, int sequenceNumber, int *numberOfOccupants);
+int SHARED_EXPORT getDENMStationaryVehicleContainerVehicleIdentification(int stationID, int sequenceNumber, uint8_t *wMInumber, int wMInumberSize, uint8_t *vDS, int vDSSize);
+int SHARED_EXPORT getDENMStationaryVehicleContainerEnergyStorageType(int stationID, int sequenceNumber, int *energyStorageType);
 #pragma endregion
 
 #pragma region De-/En-coding
