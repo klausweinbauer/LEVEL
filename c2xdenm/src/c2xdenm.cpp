@@ -611,6 +611,7 @@ int getAlacarteContainerInitialized(int stationID, int sequenceNumber, AlacarteC
     }
 
     *ac = denm->denm.alacarte;
+    return 0;
 }
 
 int setDENMAlacarteContainer(int stationID, int sequenceNumber, int lanePosition, int externalTemperature, int positioningSolution)
@@ -1563,9 +1564,9 @@ int getDENMAlacarteContainer(int stationID, int sequenceNumber, int *lanePositio
         return ERR_NULL;
     }
 
-    if (!lanePosition && !ac->lanePosition) { *lanePosition = *ac->lanePosition; }
-    if (!externalTemperature && !ac->externalTemperature) { *externalTemperature = *ac->externalTemperature; }
-    if (!positioningSolution && !ac->positioningSolution) { *positioningSolution = *ac->positioningSolution; }
+    if (lanePosition && ac->lanePosition) { *lanePosition = *ac->lanePosition; }
+    if (externalTemperature && ac->externalTemperature) { *externalTemperature = *ac->externalTemperature; }
+    if (positioningSolution && ac->positioningSolution) { *positioningSolution = *ac->positioningSolution; }
 
     databaseLockDENM_.unlock();
     return 0;
@@ -1595,24 +1596,24 @@ int getDENMImpactReductionContainer(int stationID, int sequenceNumber, int *heig
         return ERR_NULL;
     }
 
-    if (!heightLonCarrLeft) { *heightLonCarrLeft = irc->heightLonCarrLeft; }
-    if (!heightLonCarrRight) { *heightLonCarrRight = irc->heightLonCarrRight; }
-    if (!posLonCarrLeft) { *posLonCarrLeft = irc->posLonCarrLeft; }
-    if (!posLonCarrRight) { *posLonCarrRight = irc->posLonCarrRight; }
-    if (!posCentMass) { *posCentMass = irc->posCentMass; }
-    if (!wheelBaseVehicle) { *wheelBaseVehicle = irc->wheelBaseVehicle; }
-    if (!turningRadius) { *turningRadius = irc->turningRadius; }
-    if (!posFrontAx) { *posFrontAx = irc->posFrontAx; }
-    if (!vehicleMass) { *vehicleMass = irc->vehicleMass; }
-    if (!requestResponseIndication) { *requestResponseIndication = irc->requestResponseIndication; }
-    if (!positionOfPillars && positionOfPillarsSize > 0) {
+    if (heightLonCarrLeft) { *heightLonCarrLeft = irc->heightLonCarrLeft; }
+    if (heightLonCarrRight) { *heightLonCarrRight = irc->heightLonCarrRight; }
+    if (posLonCarrLeft) { *posLonCarrLeft = irc->posLonCarrLeft; }
+    if (posLonCarrRight) { *posLonCarrRight = irc->posLonCarrRight; }
+    if (posCentMass) { *posCentMass = irc->posCentMass; }
+    if (wheelBaseVehicle) { *wheelBaseVehicle = irc->wheelBaseVehicle; }
+    if (turningRadius) { *turningRadius = irc->turningRadius; }
+    if (posFrontAx) { *posFrontAx = irc->posFrontAx; }
+    if (vehicleMass) { *vehicleMass = irc->vehicleMass; }
+    if (requestResponseIndication) { *requestResponseIndication = irc->requestResponseIndication; }
+    if (positionOfPillars && positionOfPillarsSize > 0) {
         int mLen = (std::min)(positionOfPillarsSize, irc->positionOfPillars.list.count);
         for (int i = 0; i < mLen; i++)
         {
             positionOfPillars[i] = *irc->positionOfPillars.list.array[i];
         }        
     }
-    if (!positionOfOccupants && positionOfOccupantsSize > 0) {
+    if (positionOfOccupants && positionOfOccupantsSize > 0) {
         getBitString(&irc->positionOfOccupants, positionOfOccupants, positionOfOccupantsSize);
     }
 

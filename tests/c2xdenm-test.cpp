@@ -271,3 +271,631 @@ TEST(DENM_LocationContainer, Clear_Empty_Trace_History)
     ASSERT_EQ(0, ret);
     c2x::deleteDENM(1, 1);
 }
+
+TEST(DENM_AlacarteContainer, Check_AlacarteContainer_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMAlacarteContainer(0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMAlacarteContainer(0, 0, nullptr, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMAlacarteContainer(1, 1, nullptr, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_AlacarteContainer)
+{
+    c2x::createDENM(1, 1);
+    int a, b, c; 
+    int retSet = c2x::setDENMAlacarteContainer(1, 1, 2, 3, 4);
+    int retGet = c2x::getDENMAlacarteContainer(1, 1, &a, &b, &c);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(2, a);
+    ASSERT_EQ(3, b);
+    ASSERT_EQ(4, c);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_ImpactReductionContainer_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMImpactReductionContainer(0, 0, 0, 0, 0, 0, nullptr, 0, 0, 0, 0, 0, nullptr, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMImpactReductionContainer(0, 0, nullptr, nullptr, nullptr, nullptr, nullptr, 0, 
+        nullptr, nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMImpactReductionContainer(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr, 0, nullptr, 
+        nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int ircNull = c2x::getDENMImpactReductionContainer(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr, 0, nullptr, 
+        nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, ircNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_ImpactReductionContainer)
+{
+    c2x::createDENM(1, 1);
+    int pillarPos[2] = { 99, 98 };
+    uint8_t posOcc[2] = { 97, 96 };
+    int a, b, c, d, e, f, g, h, i, j, k, l, m, n, o;
+    int pillarPos_out[2];
+    uint8_t posOcc_out[2];
+    int retSet = c2x::setDENMImpactReductionContainer(1, 1, 1, 2, 3, 4, pillarPos, 2, 5, 6, 7, 8, posOcc, 2, 9, 10);
+    int retGet = c2x::getDENMImpactReductionContainer(1, 1, &a, &b, &c, &d, pillarPos_out, 2, &e, &f, &g, &h, posOcc_out, 2, &i, &j);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(1, a);
+    ASSERT_EQ(2, b);
+    ASSERT_EQ(3, c);
+    ASSERT_EQ(4, d);
+    ASSERT_EQ(5, e);
+    ASSERT_EQ(6, f);
+    ASSERT_EQ(7, g);
+    ASSERT_EQ(8, h);
+    ASSERT_EQ(9, i);
+    ASSERT_EQ(10, j);
+    ASSERT_EQ(pillarPos[0], pillarPos_out[0]);
+    ASSERT_EQ(pillarPos[1], pillarPos_out[1]);
+    ASSERT_EQ(posOcc[0], posOcc_out[0]);
+    ASSERT_EQ(posOcc[1], posOcc_out[1]);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedLightBarSiren_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedLightBarSiren(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedLightBarSiren(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedLightBarSiren(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedLightBarSiren(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedLightBarSiren)
+{
+    c2x::createDENM(1, 1);
+    uint8_t a[2] = {7, 9};
+    uint8_t a_out[2];
+    int retSet = c2x::setDENMRoadWorksContainerExtendedLightBarSiren(1, 1, a, 2);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedLightBarSiren(1, 1, a_out, 2); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedClosedLanes_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedClosedLanes(0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedClosedLanes(0, 0, nullptr, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedClosedLanes(1, 1, nullptr, nullptr, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedClosedLanes(1, 1, nullptr, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedClosedLanes)
+{
+    c2x::createDENM(1, 1);
+    int a, b, c;
+    int retSet = c2x::setDENMRoadWorksContainerExtendedClosedLanes(1, 1, 2, 3, 4);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedClosedLanes(1, 1, &a, &b, &c); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(2, a);
+    ASSERT_EQ(3, b);
+    ASSERT_EQ(4, c);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedRestriction_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedRestriction(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedRestriction(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedRestriction(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedRestriction(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedRestriction)
+{
+    c2x::createDENM(1, 1);
+    int a[2] = {1, 2};
+    int a_out[2];
+    int retSet = c2x::setDENMRoadWorksContainerExtendedRestriction(1, 1, a, 2);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedRestriction(1, 1, a_out, 2); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedSpeedLimit_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedSpeedLimit(0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedSpeedLimit(0, 0, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedSpeedLimit(1, 1, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedSpeedLimit(1, 1, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedSpeedLimit)
+{
+    c2x::createDENM(1, 1);
+    int a;
+    int retSet = c2x::setDENMRoadWorksContainerExtendedSpeedLimit(1, 1, 60);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedSpeedLimit(1, 1, &a); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a, 60);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedIncidentIndication_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedIncidentIndication(0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedIncidentIndication(0, 0, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedIncidentIndication(1, 1, nullptr, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedIncidentIndication(1, 1, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedIncidentIndication)
+{
+    c2x::createDENM(1, 1);
+    int a, b;
+    int retSet = c2x::setDENMRoadWorksContainerExtendedIncidentIndication(1, 1, 10, 11);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedIncidentIndication(1, 1, &a, &b); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(10, a);
+    ASSERT_EQ(11, b);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedRecommendedPath_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedRecommendedPath(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedRecommendedPath(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedRecommendedPath(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedRecommendedPath(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedRecommendedPath)
+{
+    c2x::createDENM(1, 1);
+    int refpos[14] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 10, 12, 13, 14};
+    int refpos_out[14];
+    int retSet = c2x::setDENMRoadWorksContainerExtendedRecommendedPath(1, 1, refpos, 14);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedRecommendedPath(1, 1, refpos_out, 14); 
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(refpos[0], refpos_out[0]);
+    ASSERT_EQ(refpos[1], refpos_out[1]);
+    ASSERT_EQ(refpos[2], refpos_out[2]);
+    ASSERT_EQ(refpos[3], refpos_out[3]);
+    ASSERT_EQ(refpos[4], refpos_out[4]);
+    ASSERT_EQ(refpos[5], refpos_out[5]);
+    ASSERT_EQ(refpos[6], refpos_out[6]);
+    ASSERT_EQ(refpos[7], refpos_out[7]);
+    ASSERT_EQ(refpos[8], refpos_out[8]);
+    ASSERT_EQ(refpos[9], refpos_out[9]);
+    ASSERT_EQ(refpos[10], refpos_out[10]);
+    ASSERT_EQ(refpos[11], refpos_out[11]);
+    ASSERT_EQ(refpos[12], refpos_out[12]);
+    ASSERT_EQ(refpos[13], refpos_out[13]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedStartingPointSpeedLimit_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedStartingPointSpeedLimit(0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedStartingPointSpeedLimit(0, 0, 0, 0, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedStartingPointSpeedLimit(1, 1, 0, 0, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedStartingPointSpeedLimit(1, 1, 0, 0, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedStartingPointSpeedLimit)
+{
+    c2x::createDENM(1, 1);
+    int a, b, c;  
+    int retSet = c2x::setDENMRoadWorksContainerExtendedStartingPointSpeedLimit(1, 1, 1, 2, 3);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedStartingPointSpeedLimit(1, 1, &a, &b, &c);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(1, a);
+    ASSERT_EQ(2, b);
+    ASSERT_EQ(3, c);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedTrafficFlowRule_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedTrafficFlowRule(0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedTrafficFlowRule(0, 0, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedTrafficFlowRule(1, 1, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedTrafficFlowRule(1, 1, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedTrafficFlowRule)
+{
+    c2x::createDENM(1, 1);
+    int a, b, c;  
+    int retSet = c2x::setDENMRoadWorksContainerExtendedTrafficFlowRule(1, 1, 9);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedTrafficFlowRule(1, 1, &a);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(9, a);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_RoadWorksContainerExtendedReferenceDenms_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMRoadWorksContainerExtendedReferenceDenms(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMRoadWorksContainerExtendedReferenceDenms(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMRoadWorksContainerExtendedReferenceDenms(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int rwcNull = c2x::getDENMRoadWorksContainerExtendedReferenceDenms(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, rwcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_RoadWorksContainerExtendedReferenceDenms)
+{
+    c2x::createDENM(1, 1);
+    int a[4] = {1, 1, 2, 2};
+    int a_out[4];
+    int retSet = c2x::setDENMRoadWorksContainerExtendedReferenceDenms(1, 1, a, 4);
+    int retGet = c2x::getDENMRoadWorksContainerExtendedReferenceDenms(1, 1, a_out, 4);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    ASSERT_EQ(a[3], a_out[3]);
+    ASSERT_EQ(a[2], a_out[2]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerStationarySince_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerStationarySince(0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerStationarySince(0, 0, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerStationarySince(1, 1, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerStationarySince(1, 1, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerStationarySince)
+{
+    c2x::createDENM(1, 1);
+    int a;
+    int retSet = c2x::setDENMStationaryVehicleContainerStationarySince(1, 1, 4);
+    int retGet = c2x::getDENMStationaryVehicleContainerStationarySince(1, 1, &a);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(4, a);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerStationaryCause_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerStationaryCause(0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerStationaryCause(0, 0, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerStationaryCause(1, 1, nullptr, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerStationaryCause(1, 1, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerStationaryCause)
+{
+    c2x::createDENM(1, 1);
+    int a, b;
+    int retSet = c2x::setDENMStationaryVehicleContainerStationaryCause(1, 1, 2, 3);
+    int retGet = c2x::getDENMStationaryVehicleContainerStationaryCause(1, 1, &a, &b);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(2, a);
+    ASSERT_EQ(3, b);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerCarryingDangerousGoods_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoods(0, 0, 0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoods(0, 0, nullptr, nullptr, nullptr, nullptr, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerCarryingDangerousGoods)
+{
+    c2x::createDENM(1, 1);
+    int a, b, c, d, e;
+    int retSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, 1, 2, 3, 4, 5);
+    int retGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, &a, &b, &c, &d, &e);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(1, a);    
+    ASSERT_EQ(2, b);
+    ASSERT_EQ(3, c);
+    ASSERT_EQ(4, d);
+    ASSERT_EQ(5, e);    
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, nullptr, 0);
+    c2x::setDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, 0, 0, 0, 0, 0);
+    int cdgNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+    ASSERT_EQ(ERR_NULL, cdgNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode)
+{
+    c2x::createDENM(1, 1);
+    uint8_t a[2] = { 7, 8 }, a_out[2];
+    int retSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, a, 2);
+    int retGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, a_out, 2);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerCarryingDangerousGoodsPhoneNumber_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(1, 1, nullptr, 0);
+    c2x::setDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, 0, 0, 0, 0, 0);
+    int cdgNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+    ASSERT_EQ(ERR_NULL, cdgNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerCarryingDangerousGoodsPhoneNumber)
+{
+    c2x::createDENM(1, 1);
+    uint8_t a[2] = { 3, 4 }, a_out[2];
+    int retSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(1, 1, a, 2);
+    int retGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber(1, 1, a_out, 2);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerCarryingDangerousGoodsCompanyName_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(0, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(0, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(1, 1, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(1, 1, nullptr, 0);
+    c2x::setDENMStationaryVehicleContainerCarryingDangerousGoods(1, 1, 0, 0, 0, 0, 0);
+    int cdgNull = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode(1, 1, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+    ASSERT_EQ(ERR_NULL, cdgNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerCarryingDangerousGoodsCompanyName)
+{
+    c2x::createDENM(1, 1);
+    uint8_t a[2] = { 3, 4 }, a_out[2];
+    int retSet = c2x::setDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(1, 1, a, 2);
+    int retGet = c2x::getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName(1, 1, a_out, 2);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerNumberOfOccupants_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerNumberOfOccupants(0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerNumberOfOccupants(0, 0, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerNumberOfOccupants(1, 1, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerNumberOfOccupants(1, 1, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerNumberOfOccupants)
+{
+    c2x::createDENM(1, 1);
+    int a;
+    int retSet = c2x::setDENMStationaryVehicleContainerNumberOfOccupants(1, 1, 17);
+    int retGet = c2x::getDENMStationaryVehicleContainerNumberOfOccupants(1, 1, &a);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(17, a);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerVehicleIdentification_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerVehicleIdentification(0, 0, nullptr, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerVehicleIdentification(0, 0, nullptr, 0, nullptr, 0);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerVehicleIdentification(1, 1, nullptr, 0, nullptr, 0);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerVehicleIdentification(1, 1, nullptr, 0, nullptr, 0);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerVehicleIdentification)
+{
+    c2x::createDENM(1, 1);
+    uint8_t a[2] = {1, 2}, b[2] = {3, 4}, a_out[2], b_out[2];
+    int retSet = c2x::setDENMStationaryVehicleContainerVehicleIdentification(1, 1, a, 2, b, 2);
+    int retGet = c2x::getDENMStationaryVehicleContainerVehicleIdentification(1, 1, a_out, 2, b_out, 2);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a[0], a_out[0]);
+    ASSERT_EQ(b[0], b_out[0]);
+    ASSERT_EQ(a[1], a_out[1]);
+    ASSERT_EQ(b[1], b_out[1]);
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Check_StationaryVehicleContainerEnergyStorageType_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMStationaryVehicleContainerEnergyStorageType(0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMStationaryVehicleContainerEnergyStorageType(0, 0, nullptr);
+    c2x::createDENM(1, 1);
+    int acNull = c2x::getDENMStationaryVehicleContainerEnergyStorageType(1, 1, nullptr);
+    c2x::setDENMAlacarteContainer(1, 1, 0, 0, 0);
+    int svcNull = c2x::getDENMStationaryVehicleContainerEnergyStorageType(1, 1, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    ASSERT_EQ(ERR_NULL, acNull);
+    ASSERT_EQ(ERR_NULL, svcNull);
+
+    c2x::deleteDENM(1, 1);
+}
+
+TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerEnergyStorageType)
+{
+    c2x::createDENM(1, 1);
+    int a;
+    int retSet = c2x::setDENMStationaryVehicleContainerEnergyStorageType(1, 1, 3);
+    int retGet = c2x::getDENMStationaryVehicleContainerEnergyStorageType(1, 1, &a);
+    ASSERT_EQ(0, retSet);
+    ASSERT_EQ(0, retGet);
+    ASSERT_EQ(a, 3);
+    c2x::deleteDENM(1, 1);
+}
