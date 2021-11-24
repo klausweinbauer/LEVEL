@@ -29,7 +29,7 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
                 WheelBaseVehicle = int32(0); 
                 TurningRadius = int32(0); 
                 PosFrontAx = int32(0); 
-                PositionOfOccupants = int32(zeros(obj.PositionOfOccupantsSize, 1)); 
+                PositionOfOccupants = uint8(zeros(obj.PositionOfOccupantsSize, 1)); 
                 VehicleMass = int32(0); 
                 RequestResponseIndication = int32(0);
                 coder.cinclude('c2xdenm.h');
@@ -45,7 +45,7 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
                     coder.ref(PosFrontAx), ...
                     coder.ref(PositionOfOccupants), obj.PositionOfOccupantsSize,  ...
                     coder.ref(VehicleMass), ...
-                    coder.ref(RequestResponseIndication),
+                    coder.ref(RequestResponseIndication));
                 obj.printErrorCode(err);
             end            
         end
