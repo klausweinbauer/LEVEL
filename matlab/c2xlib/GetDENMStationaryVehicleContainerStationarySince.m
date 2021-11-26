@@ -15,7 +15,7 @@ classdef GetDENMStationaryVehicleContainerStationarySince < matlab.System & code
         
         function [StationarySince] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                LightBarSirenInUse = uint8(zeros(obj.LightBarSirenInUseSize, 1));
+                StationarySince = int32(0);
                 coder.cinclude('c2xdenm.h');
                 coder.ceval('getDENMStationaryVehicleContainerStationarySince', StationID, SequenceNumber, coder.ref(StationarySince));
             end            

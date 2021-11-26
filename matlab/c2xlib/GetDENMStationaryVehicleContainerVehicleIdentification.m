@@ -21,7 +21,7 @@ classdef GetDENMStationaryVehicleContainerVehicleIdentification < matlab.System 
                 VDS = uint8(zeros(obj.VDSSize, 1));
                 coder.cinclude('c2xdenm.h');
                 coder.ceval('getDENMStationaryVehicleContainerVehicleIdentification', StationID, SequenceNumber, ...
-                    coder.ref(WMInumber), coder.ref(VDS));
+                    coder.ref(WMInumber), length(WMInumber), coder.ref(VDS), length(VDS));
             end            
         end
         
