@@ -15,13 +15,11 @@ classdef GetDENMRoadWorksContainerExtendedIncidentIndication < matlab.System & c
         
         function [CauseCode, SubCauseCode] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 CauseCode = int32(0);
                 SubCauseCode = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedIncidentIndication', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedIncidentIndication', StationID, SequenceNumber, ...
                     coder.ref(CauseCode), coder.ref(SubCauseCode));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -56,7 +54,7 @@ classdef GetDENMRoadWorksContainerExtendedIncidentIndication < matlab.System & c
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

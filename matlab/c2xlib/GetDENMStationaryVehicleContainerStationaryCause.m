@@ -15,13 +15,11 @@ classdef GetDENMStationaryVehicleContainerStationaryCause < matlab.System & code
         
         function [CauseCode, SubCauseCode] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 CauseCode = int32(0);
                 SubCauseCode = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerStationaryCause', StationID, SequenceNumber, ...
+                coder.ceval('getDENMStationaryVehicleContainerStationaryCause', StationID, SequenceNumber, ...
                     coder.ref(CauseCode), coder.ref(SubCauseCode));
-                obj.printErrorCode(err);
             end            
         end
         

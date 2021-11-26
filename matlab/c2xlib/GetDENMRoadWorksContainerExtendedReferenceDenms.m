@@ -26,51 +26,49 @@ classdef GetDENMRoadWorksContainerExtendedReferenceDenms < matlab.System & coder
             StationID_8, SequenceNumber_8, ...
             StationID_9, SequenceNumber_9] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun')
-                err = int32(0);
                 ActionIDs = int32(zeros(obj.ActionIDsSize * 2, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedReferenceDenms', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedReferenceDenms', StationID, SequenceNumber, ...
                     coder.ref(ActionIDs), length(ActionIDs));
-                obj.printErrorCode(err);
                 if obj.ActionIDsSize > 0
-                    StationID_0 = ActionIDs(0 * 2);
-                    SequenceNumber_0 = ActionIDs(0 * 2 + 1);
+                    StationID_0 = ActionIDs(1);
+                    SequenceNumber_0 = ActionIDs(2);
                 end
                 if obj.ActionIDsSize > 1
-                    StationID_1 = ActionIDs(1 * 2);
-                    SequenceNumber_1 = ActionIDs(1 * 2 + 1);
+                    StationID_1 = ActionIDs(3);
+                    SequenceNumber_1 = ActionIDs(4);
                 end
                 if obj.ActionIDsSize > 2
-                    StationID_2 = ActionIDs(2 * 2);
-                    SequenceNumber_2 = ActionIDs(2 * 2 + 1);
+                    StationID_2 = ActionIDs(5);
+                    SequenceNumber_2 = ActionIDs(6);
                 end
                 if obj.ActionIDsSize > 3
-                    StationID_3 = ActionIDs(3 * 2);
-                    SequenceNumber_3 = ActionIDs(3 * 2 + 1);
+                    StationID_3 = ActionIDs(7);
+                    SequenceNumber_3 = ActionIDs(8);
                 end
                 if obj.ActionIDsSize > 4
-                    StationID_4 = ActionIDs(4 * 2);
-                    SequenceNumber_4 = ActionIDs(4 * 2 + 1);
+                    StationID_4 = ActionIDs(9);
+                    SequenceNumber_4 = ActionIDs(10);
                 end
                 if obj.ActionIDsSize > 5
-                    StationID_5 = ActionIDs(5 * 2);
-                    SequenceNumber_5 = ActionIDs(5 * 2 + 1);
+                    StationID_5 = ActionIDs(11);
+                    SequenceNumber_5 = ActionIDs(12);
                 end
                 if obj.ActionIDsSize > 6
-                    StationID_6 = ActionIDs(6 * 2);
-                    SequenceNumber_6 = ActionIDs(6 * 2 + 1);
+                    StationID_6 = ActionIDs(13);
+                    SequenceNumber_6 = ActionIDs(14);
                 end
                 if obj.ActionIDsSize > 7
-                    StationID_7 = ActionIDs(7 * 2);
-                    SequenceNumber_7 = ActionIDs(7 * 2 + 1);
+                    StationID_7 = ActionIDs(15);
+                    SequenceNumber_7 = ActionIDs(16);
                 end
                 if obj.ActionIDsSize > 8
-                    StationID_8 = ActionIDs(8 * 2);
-                    SequenceNumber_8 = ActionIDs(8 * 2 + 1);
+                    StationID_8 = ActionIDs(17);
+                    SequenceNumber_8 = ActionIDs(18);
                 end
                 if obj.ActionIDsSize > 9
-                    StationID_9 = ActionIDs(9 * 2);
-                    SequenceNumber_9 = ActionIDs(9 * 2 + 1);
+                    StationID_9 = ActionIDs(19);
+                    SequenceNumber_9 = ActionIDs(20);
                 end
             end            
         end

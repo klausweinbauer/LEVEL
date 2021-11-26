@@ -15,12 +15,10 @@ classdef GetDENMStationaryVehicleContainerNumberOfOccupants < matlab.System & co
         
         function [NumberOfOccupants] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 NumberOfOccupants = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerNumberOfOccupants', StationID, SequenceNumber, ...
+                coder.ceval('getDENMStationaryVehicleContainerNumberOfOccupants', StationID, SequenceNumber, ...
                     coder.ref(NumberOfOccupants));
-                obj.printErrorCode(err);
             end            
         end
         

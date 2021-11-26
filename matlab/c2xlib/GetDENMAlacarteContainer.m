@@ -16,14 +16,12 @@ classdef GetDENMAlacarteContainer < matlab.System & coder.ExternalDependency
         
         function [LanePosition, ExternalTemperature, PositioningSolution] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 LanePosition = int32(0);
                 ExternalTemperature = int32(0);
                 PositioningSolution = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMAlacarteContainer', StationID, SequenceNumber, ...
+                coder.ceval('getDENMAlacarteContainer', StationID, SequenceNumber, ...
                     coder.ref(LanePosition), coder.ref(ExternalTemperature), coder.ref(PositioningSolution));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -58,7 +56,7 @@ classdef GetDENMAlacarteContainer < matlab.System & coder.ExternalDependency
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

@@ -16,12 +16,10 @@ classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsCompName < matla
         
         function [CompanyName] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 CompanyName = uint8(zeros(obj.CompanyNameSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName', ...
+                coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName', ...
                     StationID, SequenceNumber, coder.ref(CompanyName), length(CompanyName));
-                obj.printErrorCode(err);
             end            
         end
         

@@ -16,13 +16,11 @@ classdef GetDENMRoadWorksContainerExtendedRecommendedPath < matlab.System & code
         
         function [ReferencePositions] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 TmpReferencePositions = int32(zeros(obj.ReferencePositionsSize * 7, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedRecommendedPath', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedRecommendedPath', StationID, SequenceNumber, ...
                     coder.ref(TmpReferencePositions), length(TmpReferencePositions));
-                obj.printErrorCode(err);
-                ReferencePositions = reshape(TmpReferencePositions, obj.ReferencePositionsSize, 7);
+                ReferencePositions = transpose(reshape(TmpReferencePositions, [7 obj.ReferencePositionsSize]));
             end            
         end
         
@@ -57,7 +55,7 @@ classdef GetDENMRoadWorksContainerExtendedRecommendedPath < matlab.System & code
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

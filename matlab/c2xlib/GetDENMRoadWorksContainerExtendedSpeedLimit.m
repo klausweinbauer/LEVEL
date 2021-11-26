@@ -15,11 +15,9 @@ classdef GetDENMRoadWorksContainerExtendedSpeedLimit < matlab.System & coder.Ext
         
         function [SpeedLimit] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 SpeedLimit = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedSpeedLimit', StationID, SequenceNumber, coder.ref(SpeedLimit));
-                obj.printErrorCode(err);
+                coder.ceval('getDENMRoadWorksContainerExtendedSpeedLimit', StationID, SequenceNumber, coder.ref(SpeedLimit));
             end            
         end
         
@@ -54,7 +52,7 @@ classdef GetDENMRoadWorksContainerExtendedSpeedLimit < matlab.System & coder.Ext
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

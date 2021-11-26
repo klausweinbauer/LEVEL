@@ -19,7 +19,6 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
             PosLonCarrRight, PositionOfPillars, PosCentMass, WheelBaseVehicle, TurningRadius, PosFrontAx, ...
             PositionOfOccupants, VehicleMass, RequestResponseIndication] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 HeightLonCarrLeft = int32(0); 
                 HeightLonCarrRight = int32(0); 
                 PosLonCarrLeft = int32(0); 
@@ -33,7 +32,7 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
                 VehicleMass = int32(0); 
                 RequestResponseIndication = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMImpactReductionContainer', StationID, SequenceNumber, ...
+                coder.ceval('getDENMImpactReductionContainer', StationID, SequenceNumber, ...
                     coder.ref(HeightLonCarrLeft), ...
                     coder.ref(HeightLonCarrRight), ...
                     coder.ref(PosLonCarrLeft), ...
@@ -46,7 +45,6 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
                     coder.ref(PositionOfOccupants), obj.PositionOfOccupantsSize,  ...
                     coder.ref(VehicleMass), ...
                     coder.ref(RequestResponseIndication));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -81,7 +79,7 @@ classdef GetDENMImpactReductionContainer < matlab.System & coder.ExternalDepende
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

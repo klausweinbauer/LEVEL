@@ -15,14 +15,12 @@ classdef GetDENMRoadWorksContainerExtendedClosedLanes < matlab.System & coder.Ex
         
         function [InnerhardShoulderStatus, OuterhardShoulderStatus, DrivingLaneStatus] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 InnerhardShoulderStatus = int32(0);
                 OuterhardShoulderStatus = int32(0);
                 DrivingLaneStatus = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedClosedLanes', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedClosedLanes', StationID, SequenceNumber, ...
                     coder.ref(InnerhardShoulderStatus), coder.ref(OuterhardShoulderStatus), coder.ref(DrivingLaneStatus));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -57,7 +55,7 @@ classdef GetDENMRoadWorksContainerExtendedClosedLanes < matlab.System & coder.Ex
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

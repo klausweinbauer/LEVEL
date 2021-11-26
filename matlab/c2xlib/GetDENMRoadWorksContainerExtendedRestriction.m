@@ -16,12 +16,10 @@ classdef GetDENMRoadWorksContainerExtendedRestriction < matlab.System & coder.Ex
         
         function [StationTypes] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 StationTypes = int32(zeros(obj.StationTypesSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedRestriction', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedRestriction', StationID, SequenceNumber, ...
                     coder.ref(StationTypes), length(StationTypes));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -56,7 +54,7 @@ classdef GetDENMRoadWorksContainerExtendedRestriction < matlab.System & coder.Ex
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

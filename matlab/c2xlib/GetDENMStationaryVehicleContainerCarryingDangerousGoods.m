@@ -16,13 +16,11 @@ classdef GetDENMStationaryVehicleContainerCarryingDangerousGoods < matlab.System
         function [DangerousGoodsType, UnNumber, ElevatedTemperature, TunnelsRestricted, LimitedQuantity] ...
             = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 LightBarSirenInUse = uint8(zeros(obj.LightBarSirenInUseSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoods', StationID, SequenceNumber, ...
+                coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoods', StationID, SequenceNumber, ...
                     coder.ref(DangerousGoodsType), coder.ref(UnNumber), coder.ref(ElevatedTemperature), ...
                     coder.ref(TunnelsRestricted), coder.ref(LimitedQuantity));
-                obj.printErrorCode(err);
             end            
         end
         

@@ -15,11 +15,9 @@ classdef GetDENMStationaryVehicleContainerEnergyStorageType < matlab.System & co
         
         function [EnergyStorageType] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 EnergyStorageType = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerEnergyStorageType', StationID, SequenceNumber, coder.ref(EnergyStorageType));
-                obj.printErrorCode(err);
+                coder.ceval('getDENMStationaryVehicleContainerEnergyStorageType', StationID, SequenceNumber, coder.ref(EnergyStorageType));
             end            
         end
         

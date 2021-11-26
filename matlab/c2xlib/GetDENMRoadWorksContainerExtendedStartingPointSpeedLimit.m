@@ -15,14 +15,12 @@ classdef GetDENMRoadWorksContainerExtendedStartingPointSpeedLimit < matlab.Syste
         
         function [DeltaLatitude, DeltaLongitude, DeltaAltitude] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 DeltaLatitude = int32(0);
                 DeltaLongitude = int32(0);
                 DeltaAltitude = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedStartingPointSpeedLimit', StationID, SequenceNumber, ...
+                coder.ceval('getDENMRoadWorksContainerExtendedStartingPointSpeedLimit', StationID, SequenceNumber, ...
                     coder.ref(DeltaLatitude), coder.ref(DeltaLongitude), coder.ref(DeltaAltitude));
-                obj.printErrorCode(err);
             end            
         end
         
@@ -57,7 +55,7 @@ classdef GetDENMRoadWorksContainerExtendedStartingPointSpeedLimit < matlab.Syste
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

@@ -15,12 +15,10 @@ classdef GetDENMRoadWorksContainerExtendedTrafficFlowRule < matlab.System & code
         
         function [TrafficFlowRule] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                LTrafficFlowRule = int32(0);
+                TrafficFlowRule = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMRoadWorksContainerExtendedTrafficFlowRule', StationID, SequenceNumber, ...
-                    coder.ref(LTrafficFlowRule));
-                obj.printErrorCode(err);
+                coder.ceval('getDENMRoadWorksContainerExtendedTrafficFlowRule', StationID, SequenceNumber, ...
+                    coder.ref(TrafficFlowRule));
             end            
         end
         
@@ -55,7 +53,7 @@ classdef GetDENMRoadWorksContainerExtendedTrafficFlowRule < matlab.System & code
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)

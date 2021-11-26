@@ -18,7 +18,7 @@ classdef SetDENMRoadWorksContainerExtendedStartingPointSpeedLimit < matlab.Syste
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMRoadWorksContainerExtendedStartingPointSpeedLimit', StationID, ... 
+                err = coder.ceval('setDENMRoadWorksContainerExtendedStartingPointSpeedLimit', StationID, SequenceNumber, ... 
                     int32(DeltaLatitude), int32(DeltaLongitude), int32(DeltaAltitude));
                 obj.printErrorCode(err);
             end            

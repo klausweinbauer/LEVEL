@@ -17,13 +17,11 @@ classdef GetDENMStationaryVehicleContainerVehicleIdentification < matlab.System 
         
         function [WMInumber, VDS] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 WMInumber = uint8(zeros(obj.WMInumberSize, 1));
                 VDS = uint8(zeros(obj.VDSSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerVehicleIdentification', StationID, SequenceNumber, ...
+                coder.ceval('getDENMStationaryVehicleContainerVehicleIdentification', StationID, SequenceNumber, ...
                     coder.ref(WMInumber), coder.ref(VDS));
-                obj.printErrorCode(err);
             end            
         end
         

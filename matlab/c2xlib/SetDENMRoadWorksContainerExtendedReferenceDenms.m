@@ -30,34 +30,34 @@ classdef SetDENMRoadWorksContainerExtendedReferenceDenms < matlab.System & coder
                 err = int32(0);
                 RefDENMs = [];
                 if obj.NumberActionIDs > 0 
-                    RefDENMs = [RefDENMs StationID_0 SequenceNumber_0];
+                    RefDENMs = [RefDENMs int32(StationID_0) int32(SequenceNumber_0)];
                 end
                 if obj.NumberActionIDs > 1 
-                    RefDENMs = [RefDENMs StationID_1 SequenceNumber_1];
+                    RefDENMs = [RefDENMs int32(StationID_1) int32(SequenceNumber_1)];
                 end
                 if obj.NumberActionIDs > 2 
-                    RefDENMs = [RefDENMs StationID_2 SequenceNumber_2];
+                    RefDENMs = [RefDENMs int32(StationID_2) int32(SequenceNumber_2)];
                 end
                 if obj.NumberActionIDs > 3 
-                    RefDENMs = [RefDENMs StationID_3 SequenceNumber_3];
+                    RefDENMs = [RefDENMs int32(StationID_3) int32(SequenceNumber_3)];
                 end
                 if obj.NumberActionIDs > 4 
-                    RefDENMs = [RefDENMs StationID_4 SequenceNumber_4];
+                    RefDENMs = [RefDENMs int32(StationID_4) int32(SequenceNumber_4)];
                 end
                 if obj.NumberActionIDs > 5 
-                    RefDENMs = [RefDENMs StationID_5 SequenceNumber_5];
+                    RefDENMs = [RefDENMs int32(StationID_5) int32(SequenceNumber_5)];
                 end
                 if obj.NumberActionIDs > 6 
-                    RefDENMs = [RefDENMs StationID_6 SequenceNumber_6];
+                    RefDENMs = [RefDENMs int32(StationID_6) int32(SequenceNumber_6)];
                 end
                 if obj.NumberActionIDs > 7 
-                    RefDENMs = [RefDENMs StationID_7 SequenceNumber_7];
+                    RefDENMs = [RefDENMs int32(StationID_7) int32(SequenceNumber_7)];
                 end
                 if obj.NumberActionIDs > 8 
-                    RefDENMs = [RefDENMs StationID_8 SequenceNumber_8];
+                    RefDENMs = [RefDENMs int32(StationID_8) int32(SequenceNumber_8)];
                 end
                 if obj.NumberActionIDs > 9 
-                    RefDENMs = [RefDENMs StationID_9 SequenceNumber_9];
+                    RefDENMs = [RefDENMs int32(StationID_9) int32(SequenceNumber_9)];
                 end
                 coder.cinclude('c2xdenm.h');
                 err = coder.ceval('setDENMRoadWorksContainerExtendedReferenceDenms', StationID, SequenceNumber, coder.ref(RefDENMs), length(RefDENMs));
