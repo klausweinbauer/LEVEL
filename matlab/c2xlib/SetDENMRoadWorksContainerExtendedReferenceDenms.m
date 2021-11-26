@@ -1,7 +1,7 @@
 classdef SetDENMRoadWorksContainerExtendedReferenceDenms < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        NunberActionIDs = 1;
+        NumberActionIDs = 1;
     end
     
     properties (Hidden)
@@ -29,36 +29,36 @@ classdef SetDENMRoadWorksContainerExtendedReferenceDenms < matlab.System & coder
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 RefDENMs = [];
-                if (obj.NumberActionIDs > 0) {
+                if obj.NumberActionIDs > 0 
                     RefDENMs = [RefDENMs StationID_0 SequenceNumber_0];
-                }
-                if (obj.NumberActionIDs > 1) {
+                end
+                if obj.NumberActionIDs > 1 
                     RefDENMs = [RefDENMs StationID_1 SequenceNumber_1];
-                }
-                if (obj.NumberActionIDs > 2) {
+                end
+                if obj.NumberActionIDs > 2 
                     RefDENMs = [RefDENMs StationID_2 SequenceNumber_2];
-                }
-                if (obj.NumberActionIDs > 3) {
+                end
+                if obj.NumberActionIDs > 3 
                     RefDENMs = [RefDENMs StationID_3 SequenceNumber_3];
-                }
-                if (obj.NumberActionIDs > 4) {
+                end
+                if obj.NumberActionIDs > 4 
                     RefDENMs = [RefDENMs StationID_4 SequenceNumber_4];
-                }
-                if (obj.NumberActionIDs > 5) {
+                end
+                if obj.NumberActionIDs > 5 
                     RefDENMs = [RefDENMs StationID_5 SequenceNumber_5];
-                }
-                if (obj.NumberActionIDs > 6) {
+                end
+                if obj.NumberActionIDs > 6 
                     RefDENMs = [RefDENMs StationID_6 SequenceNumber_6];
-                }
-                if (obj.NumberActionIDs > 7) {
+                end
+                if obj.NumberActionIDs > 7 
                     RefDENMs = [RefDENMs StationID_7 SequenceNumber_7];
-                }
-                if (obj.NumberActionIDs > 8) {
+                end
+                if obj.NumberActionIDs > 8 
                     RefDENMs = [RefDENMs StationID_8 SequenceNumber_8];
-                }
-                if (obj.NumberActionIDs > 9) {
+                end
+                if obj.NumberActionIDs > 9 
                     RefDENMs = [RefDENMs StationID_9 SequenceNumber_9];
-                }
+                end
                 coder.cinclude('c2xdenm.h');
                 err = coder.ceval('setDENMRoadWorksContainerExtendedReferenceDenms', StationID, SequenceNumber, coder.ref(RefDENMs), length(RefDENMs));
                 obj.printErrorCode(err);
@@ -69,11 +69,11 @@ classdef SetDENMRoadWorksContainerExtendedReferenceDenms < matlab.System & coder
         end
 
         function numIn = getNumInputsImpl(obj)
-            numIn = obj.NumberActionIDs * 2;
+            numIn = obj.NumberActionIDs * 2 + 2;
         end
 
         function validatePropertiesImpl(obj)
-            if ((obj.NumberTraces < 1 || obj.NumberTraces > 10))
+            if ((obj.NumberActionIDs < 1 || obj.NumberActionIDs > 10))
                 error("Number of Action IDs must be between 1 and 10.");
             end
         end

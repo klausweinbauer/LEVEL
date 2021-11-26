@@ -1,4 +1,4 @@
-classdef SetDENMStationaryVehicleContainerStationarySince < matlab.System & coder.ExternalDependency
+classdef SetDENMStationaryVehicleContainerStationaryCause < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
           
@@ -18,7 +18,7 @@ classdef SetDENMStationaryVehicleContainerStationarySince < matlab.System & code
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMStationaryVehicleContainerStationarySince', StationID, SequenceNumber, int32(CauseCode), int32(SubCauseCode));
+                err = coder.ceval('setDENMStationaryVehicleContainerStationaryCause', StationID, SequenceNumber, int32(CauseCode), int32(SubCauseCode));
                 obj.printErrorCode(err);
             end            
         end
@@ -59,7 +59,7 @@ classdef SetDENMStationaryVehicleContainerStationarySince < matlab.System & code
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetDENMStationaryVehicleContainerStationarySince';
+            bName = 'SetDENMStationaryVehicleContainerStationaryCause';
         end
         
         function supported = isSupportedContext(buildContext)

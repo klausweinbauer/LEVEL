@@ -1,7 +1,7 @@
-classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode < matlab.System & coder.ExternalDependency
+classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsEActCode < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        EmergencyActionCodeSize = int32(1);
+          
     end
     
     properties (Hidden)
@@ -14,13 +14,13 @@ classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionC
         function setupImpl(~)
         end
         
-        function [EmergencyActionCode] = stepImpl(obj, StationID, SequenceNumber) 
+        function [] = stepImpl(obj, StationID, SequenceNumber, EmergencyActionCode)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                EmergencyActionCode = uint8(zeros(obj.EmergencyActionCodeSize, 1));
+                TmpEmergencyActionCode = uint8(EmergencyActionCode);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode', ...
-                    StationID, SequenceNumber, coder.ref(EmergencyActionCode), length(EmergencyActionCode));
+                err = coder.ceval('setDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode', ... 
+                    StationID, SequenceNumber, coder.ref(TmpEmergencyActionCode), length(TmpEmergencyActionCode));
                 obj.printErrorCode(err);
             end            
         end
@@ -61,7 +61,7 @@ classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionC
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode';
+            bName = 'SetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -88,24 +88,6 @@ classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionC
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
-        end
-    end
-
-    methods (Access = protected)
-        function [EmergencyActionCode] = getOutputSizeImpl(obj)
-            EmergencyActionCode = [obj.EmergencyActionCodeSize 1];
-        end 
-        
-        function [EmergencyActionCode] = isOutputFixedSizeImpl(obj)
-            EmergencyActionCode = true;
-        end
-        
-        function [EmergencyActionCode] = getOutputDataTypeImpl(obj)
-            EmergencyActionCode = 'uint8';
-        end
-        
-        function [EmergencyActionCode] = isOutputComplexImpl(obj)
-            EmergencyActionCode = false;
         end
     end
 end

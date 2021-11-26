@@ -1,7 +1,7 @@
-classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName < matlab.System & coder.ExternalDependency
+classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsCompName < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+        CompanyNameSize = int32(16);
     end
     
     properties (Hidden)
@@ -14,13 +14,13 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName < ma
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, SequenceNumber, CompanyName)
+        function [CompanyName] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpCompanyName = uint8(CompanyName);
+                CompanyName = uint8(zeros(obj.CompanyNameSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName', ...
-                    StationID, SequenceNumber, coder.ref(TmpCompanyName), length(CompanyName));
+                err = coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName', ...
+                    StationID, SequenceNumber, coder.ref(CompanyName), length(CompanyName));
                 obj.printErrorCode(err);
             end            
         end
@@ -61,7 +61,7 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName < ma
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName';
+            bName = 'GetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -88,6 +88,24 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName < ma
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
+        end
+    end
+
+    methods (Access = protected)
+        function [CompanyName] = getOutputSizeImpl(obj)
+            CompanyName = [obj.CompanyNameSize 1];
+        end 
+        
+        function [CompanyName] = isOutputFixedSizeImpl(obj)
+            CompanyName = true;
+        end
+        
+        function [CompanyName] = getOutputDataTypeImpl(obj)
+            CompanyName = 'uint8';
+        end
+        
+        function [CompanyName] = isOutputComplexImpl(obj)
+            CompanyName = false;
         end
     end
 end

@@ -1,4 +1,4 @@
-classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode < matlab.System & coder.ExternalDependency
+classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompName < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
           
@@ -14,13 +14,13 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionC
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, SequenceNumber, EmergencyActionCode)
+        function [] = stepImpl(obj, StationID, SequenceNumber, CompanyName)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpEmergencyActionCode = uint8(EmergencyActionCode);
+                TmpCompanyName = uint8(CompanyName);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode', ... 
-                    StationID, SequenceNumber, coder.ref(TmpEmergencyActionCode), length(TmpEmergencyActionCode));
+                err = coder.ceval('setDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName', ...
+                    StationID, SequenceNumber, coder.ref(TmpCompanyName), length(CompanyName));
                 obj.printErrorCode(err);
             end            
         end
@@ -61,7 +61,7 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionC
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode';
+            bName = 'SetDENMStationaryVehicleContainerCarryingDangerousGoodsCompanyName';
         end
         
         function supported = isSupportedContext(buildContext)

@@ -1,7 +1,7 @@
-classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber < matlab.System & coder.ExternalDependency
+classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsEActCode < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+        EmergencyActionCodeSize = int32(1);
     end
     
     properties (Hidden)
@@ -14,13 +14,13 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber < ma
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, SequenceNumber, PhoneNumber)
+        function [EmergencyActionCode] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpPhoneNumber = uint8(PhoneNumber);
+                EmergencyActionCode = uint8(zeros(obj.EmergencyActionCodeSize, 1));
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber', ...
-                    StationID, SequenceNumber, coder.ref(TmpPhoneNumber), length(TmpPhoneNumber));
+                err = coder.ceval('getDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode', ...
+                    StationID, SequenceNumber, coder.ref(EmergencyActionCode), length(EmergencyActionCode));
                 obj.printErrorCode(err);
             end            
         end
@@ -61,7 +61,7 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber < ma
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber';
+            bName = 'GetDENMStationaryVehicleContainerCarryingDangerousGoodsEmergencyActionCode';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -88,6 +88,24 @@ classdef SetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber < ma
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
+        end
+    end
+
+    methods (Access = protected)
+        function [EmergencyActionCode] = getOutputSizeImpl(obj)
+            EmergencyActionCode = [obj.EmergencyActionCodeSize 1];
+        end 
+        
+        function [EmergencyActionCode] = isOutputFixedSizeImpl(obj)
+            EmergencyActionCode = true;
+        end
+        
+        function [EmergencyActionCode] = getOutputDataTypeImpl(obj)
+            EmergencyActionCode = 'uint8';
+        end
+        
+        function [EmergencyActionCode] = isOutputComplexImpl(obj)
+            EmergencyActionCode = false;
         end
     end
 end

@@ -1,4 +1,4 @@
-classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNumber < matlab.System & coder.ExternalDependency
+classdef GetDENMStationaryVehicleContainerCarryingDangerousGoodsPhoneNbr < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         PhoneNumberSize = int32(16);
