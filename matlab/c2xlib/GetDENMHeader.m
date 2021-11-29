@@ -90,21 +90,4 @@ classdef GetDENMHeader < matlab.System & coder.ExternalDependency
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
-    methods (Access = protected)
-        function [] = getOutputSizeImpl(obj)
-            
-        end 
-        
-        function [] = isOutputFixedSizeImpl(obj)
-            
-        end
-        
-        function [] = getOutputDataTypeImpl(obj)
-            
-        end
-        
-        function [] = isOutputComplexImpl(obj)
-            
-        end
-    end
 end

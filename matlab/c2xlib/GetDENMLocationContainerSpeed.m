@@ -15,12 +15,10 @@ classdef GetDENMLocationContainerSpeed < matlab.System & coder.ExternalDependenc
         
         function [Value, Confidence] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 Value = int32(0);
                 Confidence = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMLocationContainerSpeed', StationID, SequenceNumber, coder.ref(Value), coder.ref(Confidence));
-                obj.printErrorCode(err);
+                coder.ceval('getDENMLocationContainerSpeed', StationID, SequenceNumber, coder.ref(Value), coder.ref(Confidence));
             end            
         end
         

@@ -65,7 +65,7 @@ classdef GetDENMManagementContainer < matlab.System & coder.ExternalDependency
             elseif (err == -2)
                 error('ERR_ALLOC_FAILED')
             end
-            end
+        end
 
     end
     methods (Static)
@@ -97,23 +97,6 @@ classdef GetDENMManagementContainer < matlab.System & coder.ExternalDependency
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
-        end
-    end
-    methods (Access = protected)
-        function [] = getOutputSizeImpl(obj)
-            
-        end 
-        
-        function [] = isOutputFixedSizeImpl(obj)
-            
-        end
-        
-        function [] = getOutputDataTypeImpl(obj)
-            
-        end
-        
-        function [] = isOutputComplexImpl(obj)
-            
         end
     end
 end

@@ -15,11 +15,9 @@ classdef GetDENMLocationContainerRoadType < matlab.System & coder.ExternalDepend
         
         function [RoadType] = stepImpl(obj, StationID, SequenceNumber) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 RoadType = int32(0);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('getDENMLocationContainerRoadType', StationID, SequenceNumber, coder.ref(RoadType));
-                obj.printErrorCode(err);
+                coder.ceval('getDENMLocationContainerRoadType', StationID, SequenceNumber, coder.ref(RoadType));
             end            
         end
         

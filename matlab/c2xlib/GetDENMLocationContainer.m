@@ -1,5 +1,6 @@
 classdef GetDENMLocationContainer < matlab.System & coder.ExternalDependency
-    
+    % Row in a trace matrix: [DeltaLatitude DeltaLongitude DeltaAltitude PathDeltaTime]
+
     properties (Nontunable)   
         NumberTraces = 1;
         TraceLength = 1;
@@ -32,43 +33,43 @@ classdef GetDENMLocationContainer < matlab.System & coder.ExternalDependency
                 coder.cinclude('c2xdenm.h');
                 if obj.NumberTraces > 0
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 0, coder.ref(T0Buffer), length(T0Buffer), coder.ref(ActualSize));
-                    T0 = int32(reshape(T0Buffer, obj.TraceLength, 4));
+                    T0 = int32(transpose(reshape(T0Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 1
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 1, coder.ref(T1Buffer), length(T1Buffer), coder.ref(ActualSize));
-                    T1 = reshape(T1Buffer, obj.TraceLength, 4);
+                    T1 = int32(transpose(reshape(T1Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 2
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 2, coder.ref(T2Buffer), length(T2Buffer), coder.ref(ActualSize));
-                    T2 = reshape(T2Buffer, obj.TraceLength, 4);
+                    T2 = int32(transpose(reshape(T2Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 3
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 3, coder.ref(T3Buffer), length(T3Buffer), coder.ref(ActualSize));
-                    T3 = reshape(T3Buffer, obj.TraceLength, 4);
+                    T3 = int32(transpose(reshape(T3Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 4
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 4, coder.ref(T4Buffer), length(T4Buffer), coder.ref(ActualSize));
-                    T4 = reshape(T4Buffer, obj.TraceLength, 4);
+                    T4 = int32(transpose(reshape(T4Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 5
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 5, coder.ref(T5Buffer), length(T5Buffer), coder.ref(ActualSize));
-                    T5 = reshape(T5Buffer, obj.TraceLength, 4);
+                    T5 = int32(transpose(reshape(T5Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 6
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 6, coder.ref(T6Buffer), length(T6Buffer), coder.ref(ActualSize));
-                    T6 = reshape(T6Buffer, obj.TraceLength, 4);
+                    T6 = int32(transpose(reshape(T6Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 7
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 7, coder.ref(T7Buffer), length(T7Buffer), coder.ref(ActualSize));
-                    T7 = reshape(T7Buffer, obj.TraceLength, 4);
+                    T7 = int32(transpose(reshape(T7Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 8
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 8, coder.ref(T8Buffer), length(T8Buffer), coder.ref(ActualSize));
-                    T8 = reshape(T8Buffer, obj.TraceLength, 4);
+                    T8 = int32(transpose(reshape(T8Buffer, 4, obj.TraceLength)));
                 end
                 if obj.NumberTraces > 9
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 9, coder.ref(T9Buffer), length(T9Buffer), coder.ref(ActualSize));
-                    T9 = reshape(T9Buffer, obj.TraceLength, 4);
+                    T9 = int32(transpose(reshape(T9Buffer, 4, obj.TraceLength)));
                 end
                 
             end 

@@ -22,7 +22,7 @@ classdef AddDENMSituationContainerEventPoint < matlab.System & coder.ExternalDep
                     err = int32(0);
                     err = coder.ceval('addDENMSituationContainerEventPoint', StationID, SequenceNumber, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime, InformationQuality);
                     obj.printErrorCode(err);
-                elseif obj.SampleActive && SampleTrigger == 0
+                elseif ~obj.SampleActive && SampleTrigger == 0
                     obj.SampleActive = true;
                 end
             end            

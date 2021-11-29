@@ -1,6 +1,6 @@
-classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDependency
+classdef PathPoint < matlab.System & coder.ExternalDependency
     
-    properties (Nontunable)
+    properties (Nontunable)          
     end
     
     properties (Hidden)
@@ -13,13 +13,8 @@ classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDepende
         function setupImpl(~)
         end
         
-        function [Value, Confidence] = stepImpl(obj, StationID, SequenceNumber) 
-            if coder.target('Rtw') || coder.target('Sfun') 
-                Value = int32(0);
-                Confidence = int32(0);
-                coder.cinclude('c2xdenm.h');
-                coder.ceval('getDENMLocationContainerHeading', StationID, SequenceNumber, coder.ref(Value), coder.ref(Confidence));
-            end            
+        function [PathPoint] = stepImpl(obj, DeltaLatitude, DeltaLongitude, DeltaAltitude, PathDeltaTime) 
+            PathPoint = int32(transpose([DeltaLatitude DeltaLongitude DeltaAltitude PathDeltaTime]));
         end
         
         function releaseImpl(~)            
@@ -58,7 +53,7 @@ classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDepende
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'GetDENMLocationContainerHeading';
+            bName = 'SetCAMBasicContainer';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -74,7 +69,7 @@ classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDepende
             [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
 
             % Parametrize library extension
-            libName =  strcat('c2xdenm', linkLibExt);
+            libName =  strcat('c2xcam', linkLibExt);
             % Other linking parameters
             libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
             libPriority = '';
@@ -85,6 +80,23 @@ classdef GetDENMLocationContainerHeading < matlab.System & coder.ExternalDepende
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
+        end
+    end
+    methods (Access = protected)
+        function [PathPoint] = getOutputSizeImpl(obj)
+            PathPoint = [4 1];
+        end 
+        
+        function [PathPoint] = isOutputFixedSizeImpl(obj)
+            PathPoint = true;
+        end
+        
+        function [PathPoint] = getOutputDataTypeImpl(obj)
+            PathPoint = 'int32';
+        end
+        
+        function [PathPoint] = isOutputComplexImpl(obj)
+            PathPoint = false;
         end
     end
 end
