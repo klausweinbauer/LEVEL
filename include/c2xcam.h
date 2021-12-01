@@ -41,6 +41,10 @@ int SHARED_EXPORT setCAMBasicVehicleContainerLowFrequency(int stationID, int veh
     int exteriorLightsSize);
 int SHARED_EXPORT addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLatitude, 
     int deltaLongitude, int deltaAltitude, int deltaTime);
+
+int SHARED_EXPORT addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int protectedZoneType, 
+    int expiryTime, int protectedZoneLatitude, int protectedZoneLongitude, int protectedZoneRadius, int protectedZoneID);
+int SHARED_EXPORT clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID);
 #pragma endregion
 
 #pragma region Getter
@@ -71,6 +75,8 @@ int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(int stationID, int *ve
     int exteriorLightsSize, int *actualExteriorLightsSize);
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
+
+int SHARED_EXPORT getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int* buffer, int bufferSize);
 #pragma endregion
 
 #pragma region De-/En-coding

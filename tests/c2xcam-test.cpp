@@ -165,4 +165,69 @@ TEST(CAM_HighFrequencyContainer, Set_And_Get_HighFrequencyAccelerationControl_Va
     EXPECT_EQ(accelControl[2], accelControl_out[2]);
     EXPECT_EQ(accelControl[3], accelControl_out[3]);
     EXPECT_EQ(actualSize, 4);
+    c2x::deleteCAM(1);
+}
+
+TEST(CAM_RSUContainerHighFrequency, Check_RSUContainerHighFrequency_Errors)
+{
+    int msgNotFoundAdd = c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, 0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, 0);
+    int msgNotFoundClr = c2x::clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(1);
+    
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    int wrongContainer = c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, 0, 0, 0, 0, 0);
+    c2x::deleteCAM(1);
+
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_RSU);
+    int buffer[6];
+    int errNull = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, buffer, 6);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
+    int errNullBuffer = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, 0);
+    int indexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, buffer, 6);
+    int bufferToSmall = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, buffer, 5);
+    c2x::deleteCAM(1);
+
+    EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundAdd);
+    EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundClr);
+    EXPECT_EQ(ERR_HIGH_FREQ_CONTAINER_TYPE, wrongContainer);
+    EXPECT_EQ(ERR_NULL, errNullBuffer);
+    EXPECT_EQ(ERR_NULL, errNull);
+    EXPECT_EQ(ERR_INDEX_OUT_OF_RANGE, indexOutOfRange);
+    EXPECT_EQ(ERR_BUFFER_OVERFLOW, bufferToSmall);
+}
+
+TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunicationZone_Values)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_RSU);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 11, 12, 13, 14, 15, 16);
+    int zone1[6], zone2[6], zone3[6], zonex[6];
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zone1, 6);
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, zone2, 6);
+    c2x::clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(1);
+    int errIndexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zonex, 6);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 21, 22, 23, 24, 25, 26);
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zone3, 6);
+    c2x::deleteCAM(1);
+
+    EXPECT_EQ(ERR_INDEX_OUT_OF_RANGE, errIndexOutOfRange);
+    EXPECT_EQ(1, zone1[0]);
+    EXPECT_EQ(11, zone2[0]);
+    EXPECT_EQ(21, zone3[0]);
+    EXPECT_EQ(2, zone1[1]);
+    EXPECT_EQ(12, zone2[1]);
+    EXPECT_EQ(22, zone3[1]);
+    EXPECT_EQ(3, zone1[2]);
+    EXPECT_EQ(13, zone2[2]);
+    EXPECT_EQ(23, zone3[2]);
+    EXPECT_EQ(4, zone1[3]);
+    EXPECT_EQ(14, zone2[3]);
+    EXPECT_EQ(24, zone3[3]);
+    EXPECT_EQ(5, zone1[4]);
+    EXPECT_EQ(15, zone2[4]);
+    EXPECT_EQ(25, zone3[4]);
+    EXPECT_EQ(6, zone1[5]);
+    EXPECT_EQ(16, zone2[5]);
+    EXPECT_EQ(26, zone3[5]);
 }

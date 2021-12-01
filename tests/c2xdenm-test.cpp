@@ -922,4 +922,5 @@ TEST(DENM_ManagementContainer, Set_And_Get_ManagementContainer)
     ASSERT_EQ(7, valDur);
     ASSERT_EQ(8, transInt);
     ASSERT_EQ(9, statType);
+    c2x::deleteDENM(1, 1);
 }

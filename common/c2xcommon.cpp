@@ -43,15 +43,11 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_INDEX_OUT_OF_RANGE:
         snprintf(buffer, size, "Index is out of range.");
         break;
-    case ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
-        snprintf(buffer, size, "The HighFrequencyContainer of this CAM "
-            "message has to be of type " 
-            "HighFrequencyContainerBasicVehicleContainer");
+    case ERR_HIGH_FREQ_CONTAINER_TYPE:
+        snprintf(buffer, size, "Wrong Type of HighFrequencyContainer.");
         break;
-    case ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE:
-        snprintf(buffer, size, "The LowFrequencyContainer of this CAM "
-            "message has to be of type " 
-            "LowFrequencyContainerBasicVehicleContainer");
+    case ERR_LOW_FREQ_CONTAINER_TYPE:
+        snprintf(buffer, size, "Wrong Type of LowFrequencyContainer.");
         break;
     case ERR_CAM_ALREADY_EXISTS:
         snprintf(buffer, size, "A CAM with this ID already exists.");
