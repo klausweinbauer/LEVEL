@@ -1,7 +1,7 @@
 classdef EncodeCAM < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-        BufferSize = int32(16384);
+        BufferSize = int32(65535);
     end
     
     properties (Hidden)

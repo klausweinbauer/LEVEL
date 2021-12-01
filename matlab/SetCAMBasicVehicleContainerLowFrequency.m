@@ -14,11 +14,11 @@ classdef SetCAMBasicVehicleContainerLowFrequency < matlab.System & coder.Externa
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, VehicleRole, ExteriorLights, ExteriorLightsSize) 
+        function [] = stepImpl(obj, StationID, VehicleRole, ExteriorLights) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMBasicVehicleContainerLowFrequency', StationID, VehicleRole, coder.wref(ExteriorLights), ExteriorLightsSize);
+                err = coder.ceval('setCAMBasicVehicleContainerLowFrequency', StationID, VehicleRole, coder.ref(ExteriorLights), length(ExteriorLights));
                 obj.printErrorCode(err);
             end            
         end
