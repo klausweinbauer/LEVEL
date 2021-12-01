@@ -5,7 +5,7 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
     end
     
     properties (Hidden)
-        SampleActive = False;
+        SampleActive = false;
     end
     
     properties (Access = protected)
@@ -15,16 +15,16 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime) 
+        function [] = stepImpl(obj, StationID, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime, SampleTrigger) 
             if coder.target('Rtw') || coder.target('Sfun') 
+                coder.cinclude('c2xcam.h');
                 if obj.SampleActive && SampleTrigger == 1
-                    obj.SampleActive = False;
+                    obj.SampleActive = false;
                     err = int32(0);
-                    coder.cinclude('c2xcam.h');
                     err = coder.ceval('addCAMBasicVehicleContainerLowFrequencyPathPoint', StationID, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime);
                     obj.printErrorCode(err);
                 elseif obj.SampleActive && SampleTrigger == 0
-                    obj.SampleActive = True;
+                    obj.SampleActive = true;
                 end                
             end            
         end
