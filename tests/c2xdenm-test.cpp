@@ -899,3 +899,27 @@ TEST(DENM_AlacarteContainer, Set_And_Get_StationaryVehicleContainerEnergyStorage
     ASSERT_EQ(a, 3);
     c2x::deleteDENM(1, 1);
 }
+
+TEST(DENM_ManagementContainer, Check_ManagementContainer_Errors)
+{
+    int msgNotFoundSet = c2x::setDENMManagementContainer(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    int msgNotFoundGet = c2x::getDENMManagementContainer(0, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+}
+
+TEST(DENM_ManagementContainer, Set_And_Get_ManagementContainer)
+{
+    c2x::createDENM(1, 1);
+    c2x::setDENMManagementContainer(1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    int detTime, refTime, term, relDist, relTraffDir, valDur, transInt, statType;
+    c2x::getDENMManagementContainer(1, 1, &detTime, &refTime, &term, &relDist, &relTraffDir, &valDur, &transInt, &statType);
+    ASSERT_EQ(2, detTime);
+    ASSERT_EQ(3, refTime);
+    ASSERT_EQ(4, term);
+    ASSERT_EQ(5, relDist);
+    ASSERT_EQ(6, relTraffDir);
+    ASSERT_EQ(7, valDur);
+    ASSERT_EQ(8, transInt);
+    ASSERT_EQ(9, statType);
+}
