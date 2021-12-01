@@ -5,7 +5,9 @@ debug/
 .vs/
 slprj/
 
-matlab/c2xlib/c2x*
+matlab/*.dll
+matlab/*.h
+matlab/*.lib
 
 *.autosave
 *.mexw64
