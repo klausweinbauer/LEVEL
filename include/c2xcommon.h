@@ -32,6 +32,7 @@ extern "C"
 #define ERR_HIGH_FREQ_CONTAINER_TYPE -20
 #define ERR_LOW_FREQ_CONTAINER_TYPE -21
 #define ERR_CAM_ALREADY_EXISTS -22
+#define ERR_SPECIAL_VEHICLE_CONTAINER_TYPE -23
 #define ERR_DENM_ALREADY_EXISTS -40
 
 void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);

@@ -627,9 +627,71 @@ int clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID)
     return 0;
 }
 
+int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleContainer_PR type)
+{
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    if (!cam->cam.camParameters.specialVehicleContainer) {
+        return ERR_NULL;
+    }
+
+    if (cam->cam.camParameters.specialVehicleContainer->present == type) {
+        *container = &cam->cam.camParameters.specialVehicleContainer->present;
+    } else {
+        std::stringstream errMsgStream;
+        errMsgStream << "Wrong type of special vehicle container." << std::endl;
+        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        return ERR_SPECIAL_VEHICLE_CONTAINER_TYPE;
+    }
+    return 0;
+}
+
+template<typename T> int getSpecialVehicleContainer(int stationID, T** container);
+template<> int getSpecialVehicleContainer<PublicTransportContainer>(int stationID, PublicTransportContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_publicTransportContainer);
+}
+template<> int getSpecialVehicleContainer<SpecialTransportContainer>(int stationID, SpecialTransportContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_specialTransportContainer);
+}
+template<> int getSpecialVehicleContainer<DangerousGoodsContainer>(int stationID, DangerousGoodsContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_dangerousGoodsContainer);
+}
+template<> int getSpecialVehicleContainer<RoadWorksContainerBasic>(int stationID, RoadWorksContainerBasic** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_roadWorksContainerBasic);
+}
+template<> int getSpecialVehicleContainer<RescueContainer>(int stationID, RescueContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_rescueContainer);
+}
+template<> int getSpecialVehicleContainer<EmergencyContainer>(int stationID, EmergencyContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_emergencyContainer);
+}
+template<> int getSpecialVehicleContainer<SafetyCarContainer>(int stationID, SafetyCarContainer** container) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_safetyCarContainer);
+}
+
 int setCAMPublicTransportContainer(int stationID, int embarkationStatus, int ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    PublicTransportContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (!c->ptActivation) {
+        c->ptActivation = new PtActivation_t();
+    }
+
+    c->embarkationStatus = embarkationStatus;
+    c->ptActivation->ptActivationType = ptActivationType;
+    setOctetString(&c->ptActivation->ptActivationData, ptActivationData, ptActivationDataSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize) 

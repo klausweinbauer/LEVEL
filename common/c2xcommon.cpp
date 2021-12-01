@@ -52,6 +52,9 @@ void getErrMsg(int err, char* buffer, int size) {
     case ERR_CAM_ALREADY_EXISTS:
         snprintf(buffer, size, "A CAM with this ID already exists.");
         break;
+    case ERR_SPECIAL_VEHICLE_CONTAINER_TYPE:
+        snprintf(buffer, size, "Wrong Type of SpecialVehicleContainer.");
+        break;
     case ERR_DENM_ALREADY_EXISTS:
         snprintf(buffer, size, "A DENM with this ID and SequenceNumber already exists.");
         break;
