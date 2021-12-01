@@ -144,3 +144,25 @@ TEST(Error_Msg, Set_And_Get_Last_Error_Message) {
     c2x::getLastErrMsg(buffer, 128, &actualSize);
     ASSERT_STREQ(ss.str().c_str(), buffer);
 }
+
+TEST(CAM_HighFrequencyContainer, Check_HighFrequencyAccelerationControl_Errors)
+{
+    int msgNotFoundGet = c2x::getCAMBasicVehicleContainerHighFrequencyAccelerationControl(1, nullptr, 0, nullptr);
+    int msgNotFoundSet = c2x::setCAMBasicVehicleContainerHighFrequencyAccelerationControl(1, nullptr, 0);
+    EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
+    EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundSet);
+}
+
+TEST(CAM_HighFrequencyContainer, Set_And_Get_HighFrequencyAccelerationControl_Values)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t accelControl[] = { 1, 2, 3, 4 }, accelControl_out[8];
+    int actualSize;
+    int msgNotFoundSet = c2x::setCAMBasicVehicleContainerHighFrequencyAccelerationControl(1, accelControl, 4);
+    int msgNotFoundGet = c2x::getCAMBasicVehicleContainerHighFrequencyAccelerationControl(1, accelControl_out, 8, &actualSize);
+    EXPECT_EQ(accelControl[0], accelControl_out[0]);
+    EXPECT_EQ(accelControl[1], accelControl_out[1]);
+    EXPECT_EQ(accelControl[2], accelControl_out[2]);
+    EXPECT_EQ(accelControl[3], accelControl_out[3]);
+    EXPECT_EQ(actualSize, 4);
+}

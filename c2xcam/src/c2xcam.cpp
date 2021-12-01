@@ -37,20 +37,30 @@ CAM_t* getCAM(int stationID) {
     return nullptr;
 }
 
-void setBitString(BIT_STRING_t *bitString, uint8_t* buffer, int bufferSize) {
-    if (!bitString || !buffer) {
+void setBitString(BIT_STRING_t *bitString, uint8_t *data, int dataSize) {
+    if (!bitString || !data) {
         return;
     }
 
     if (!bitString->buf) {
-        bitString->buf = (uint8_t*)malloc(bufferSize);
+        bitString->buf = (uint8_t*)malloc(dataSize);
     }
     else {
-        bitString->buf = (uint8_t*)realloc(bitString->buf, bufferSize);
+        bitString->buf = (uint8_t*)realloc(bitString->buf, dataSize);
     }
-    memcpy(bitString->buf, buffer, bufferSize);
-    bitString->size = bufferSize;
+    memcpy(bitString->buf, data, dataSize);
+    bitString->size = dataSize;
     bitString->bits_unused = 0;
+}
+
+int getBitString(BIT_STRING_t *bitString, uint8_t *buffer, int bufferSize) {
+    if (!bitString || !buffer || !bitString->buf) {
+        return 0;
+    }
+
+    int cpyLen = (std::min)(bufferSize, bitString->size);
+    memcpy(buffer, bitString->buf, cpyLen);
+    return cpyLen;
 }
 
 void freePathPoint(PathPoint *pathPoint) {
@@ -682,13 +692,9 @@ int getCAMBasicVehicleContainerHighFrequencyAccelerationControl(CAM_t *cam, uint
         return ERR_NULL;
     }
 
-    int cpySize = 0;
-    if (buffer) {
-        cpySize = (std::min)(bufferSize, hfc->accelerationControl->size);
-        memcpy(buffer, hfc->accelerationControl, cpySize);
-    }
+    int actualSize = getBitString(hfc->accelerationControl, buffer, bufferSize);
     if (actualBufferSize) {
-        *actualBufferSize = cpySize;
+        *actualBufferSize = actualSize;
     }
 }
 
