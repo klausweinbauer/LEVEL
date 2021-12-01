@@ -14,13 +14,13 @@ classdef GetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.Sy
         function setupImpl(~)
         end
         
-        function [Buffer, ActualBufferSize] = stepImpl(obj, StationID) 
+        function [AccelerationControl, ActualBufferSize] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                Buffer = int32(0);
+                AccelerationControl = uint8(zeros(obj.BufferSize, 1));
                 ActualBufferSize = int32(0);
                 coder.cinclude('c2xcam.h');
                 coder.ceval('getCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, ...
-                    coder.wref(Buffer), obj.BufferSize, coder.wref(ActualBufferSize));
+                    coder.ref(AccelerationControl), length(AccelerationControl), coder.ref(ActualBufferSize));
             end            
         end
         

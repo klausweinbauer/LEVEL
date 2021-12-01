@@ -18,7 +18,8 @@ classdef SetCAMBasicVehicleContainerHighFrequencyAccelerationControl < matlab.Sy
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);                
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, coder.ref(AccelerationControl),  length(AccelerationControl));
+                err = coder.ceval('setCAMBasicVehicleContainerHighFrequencyAccelerationControl', StationID, ...
+                    coder.ref(AccelerationControl),  length(AccelerationControl));
                 obj.printErrorCode(err);
             end            
         end
