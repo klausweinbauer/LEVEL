@@ -19,11 +19,9 @@ classdef SetDENMManagementContainer < matlab.System & coder.ExternalDependency
             RelevanceTrafficDirection, ValidityDuration, TransmissionInterval, StationType) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpDetectionTime = int32(DetectionTime);
-                TmpReferenceTime = int32(ReferenceTime);
                 coder.cinclude('c2xdenm.h');
-                err = coder.ceval('setDENMManagementContainer', StationID, SequenceNumber, OriginatingStationID, coder.ref(TmpDetectionTime), ...
-                coder.ref(TmpReferenceTime), Termination, RelevanceDistance, RelevanceTrafficDirection, ValidityDuration, TransmissionInterval, StationType);
+                err = coder.ceval('setDENMManagementContainer', StationID, SequenceNumber, OriginatingStationID, DetectionTime, ...
+                ReferenceTime, Termination, RelevanceDistance, RelevanceTrafficDirection, ValidityDuration, TransmissionInterval, StationType);
                 obj.printErrorCode(err);
             end            
         end
