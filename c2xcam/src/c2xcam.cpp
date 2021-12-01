@@ -53,6 +53,41 @@ void setBitString(BIT_STRING_t *bitString, uint8_t *data, int dataSize) {
     bitString->bits_unused = 0;
 }
 
+int getBitString(BIT_STRING_t *bitString, uint8_t *buffer, int bufferSize) {
+    if (!bitString || !buffer || !bitString->buf) {
+        return 0;
+    }
+
+    int cpyLen = (std::min)(bufferSize, bitString->size);
+    memcpy(buffer, bitString->buf, cpyLen);
+    return cpyLen;
+}
+
+void setOctetString(OCTET_STRING_t *octetString, uint8_t *data, int dataSize) {
+    if (!octetString || !data) {
+        return;
+    }
+
+    if (!octetString->buf) {
+        octetString->buf = (uint8_t*)malloc(dataSize);
+    }
+    else {
+        octetString->buf = (uint8_t*)realloc(octetString->buf, dataSize);
+    }
+    memcpy(octetString->buf, data, dataSize);
+    octetString->size = dataSize;
+}
+
+int getOctetString(OCTET_STRING_t *octetString, uint8_t *buffer, int bufferSize) {
+    if (!octetString || !buffer || !octetString->buf) {
+        return 0;
+    }
+
+    int cpyLen = (std::min)(bufferSize, octetString->size);
+    memcpy(buffer, octetString->buf, cpyLen);
+    return cpyLen;
+}
+
 void setTimestamp(TimestampIts_t *timestamp, int time) {
     if (!timestamp) {
         return;
@@ -81,16 +116,6 @@ void getTimestamp(TimestampIts_t *timestamp, int *time) {
         int cpySize = (std::min)((int)sizeof(int), timestamp->size);
         memcpy((uint8_t*)time, timestamp->buf, cpySize);
     }
-}
-
-int getBitString(BIT_STRING_t *bitString, uint8_t *buffer, int bufferSize) {
-    if (!bitString || !buffer || !bitString->buf) {
-        return 0;
-    }
-
-    int cpyLen = (std::min)(bufferSize, bitString->size);
-    memcpy(buffer, bitString->buf, cpyLen);
-    return cpyLen;
 }
 
 void freePathPoint(PathPoint *pathPoint) {
@@ -600,6 +625,44 @@ int clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID)
 
     databaseLockCAM_.unlock();
     return 0;
+}
+
+int setCAMPublicTransportContainer(int stationID, int embarkationStatus, int ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize) 
+{
+    // TODO
+}
+
+int setCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize) 
+{
+    // TODO
+}
+
+int setCAMDangerousGoodsContainer(int stationID, int dangerousGoodsBasic) 
+{
+    // TODO
+}
+
+int setCAMRoadWorksContainerBasic(int stationID, int roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
+    int closedLaneInnerhardShoulderStatus, int closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize) 
+{
+    // TODO
+}
+
+int setCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize) 
+{
+    // TODO
+}
+
+int setCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, 
+    int subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize) 
+{
+    // TODO
+}
+
+int setCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, int subCauseCode, 
+    int trafficRule, int speedLimit) 
+{
+    // TODO
 }
 #pragma endregion
 
@@ -1213,6 +1276,43 @@ int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
     return 0;
 }
 
+int getCAMPublicTransportContainer(int stationID, int *embarkationStatus, int *ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize)
+{
+    // TODO
+}
+
+int getCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize)
+{
+    // TODO
+}
+
+int getCAMDangerousGoodsContainer(int stationID, int *dangerousGoodsBasic)
+{
+    // TODO
+}
+
+int getCAMRoadWorksContainerBasic(int stationID, int *roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
+    int *closedLaneInnerhardShoulderStatus, int *closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize)
+{
+    // TODO
+}
+
+int getCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize)
+{
+    // TODO
+}
+
+int getCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, 
+    int *subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize)
+{
+    // TODO
+}
+
+int getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, int *subCauseCode, 
+    int *trafficRule, int *speedLimit)
+{
+    // TODO
+}
 #pragma endregion
 
 

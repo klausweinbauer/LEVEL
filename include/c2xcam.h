@@ -45,6 +45,17 @@ int SHARED_EXPORT addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID
 int SHARED_EXPORT addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int protectedZoneType, 
     int expiryTime, int protectedZoneLatitude, int protectedZoneLongitude, int protectedZoneRadius, int protectedZoneID);
 int SHARED_EXPORT clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID);
+
+int SHARED_EXPORT setCAMPublicTransportContainer(int stationID, int embarkationStatus, int ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize);
+int SHARED_EXPORT setCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);
+int SHARED_EXPORT setCAMDangerousGoodsContainer(int stationID, int dangerousGoodsBasic);
+int SHARED_EXPORT setCAMRoadWorksContainerBasic(int stationID, int roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
+    int closedLaneInnerhardShoulderStatus, int closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize);
+int SHARED_EXPORT setCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);
+int SHARED_EXPORT setCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, 
+    int subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize);
+int SHARED_EXPORT setCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, int subCauseCode, 
+    int trafficRule, int speedLimit);
 #pragma endregion
 
 #pragma region Getter
@@ -77,6 +88,17 @@ int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int station
     int pathHistorySize, int *actualPathHistorySize);
 
 int SHARED_EXPORT getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int* buffer, int bufferSize);
+
+int SHARED_EXPORT getCAMPublicTransportContainer(int stationID, int *embarkationStatus, int *ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize);
+int SHARED_EXPORT getCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);
+int SHARED_EXPORT getCAMDangerousGoodsContainer(int stationID, int *dangerousGoodsBasic);
+int SHARED_EXPORT getCAMRoadWorksContainerBasic(int stationID, int *roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
+    int *closedLaneInnerhardShoulderStatus, int *closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize);
+int SHARED_EXPORT getCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);
+int SHARED_EXPORT getCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, 
+    int *subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize);
+int SHARED_EXPORT getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, int *subCauseCode, 
+    int *trafficRule, int *speedLimit);
 #pragma endregion
 
 #pragma region De-/En-coding
