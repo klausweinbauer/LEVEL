@@ -5,10 +5,10 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
     end
     
     properties (Hidden)
-        SampleActive = false;
     end
     
     properties (Access = protected)
+        SampleActive = true;
     end
 
     methods (Access = protected)
@@ -18,12 +18,12 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
         function [] = stepImpl(obj, StationID, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime, SampleTrigger) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 coder.cinclude('c2xcam.h');
-                if obj.SampleActive && SampleTrigger == 1
+                if obj.SampleActive && SampleTrigger ~= 0
                     obj.SampleActive = false;
                     err = int32(0);
                     err = coder.ceval('addCAMBasicVehicleContainerLowFrequencyPathPoint', StationID, DeltaLatitude, DeltaLongitude, DeltaAltitude, DeltaTime);
                     obj.printErrorCode(err);
-                elseif obj.SampleActive && SampleTrigger == 0
+                elseif ~obj.SampleActive && SampleTrigger == 0
                     obj.SampleActive = true;
                 end                
             end            
@@ -92,23 +92,6 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
-        end
-    end
-    methods (Access = protected)
-        function [] = getOutputSizeImpl(obj)
-            
-        end 
-        
-        function [] = isOutputFixedSizeImpl(obj)
-            
-        end
-        
-        function [] = getOutputDataTypeImpl(obj)
-            
-        end
-        
-        function [] = isOutputComplexImpl(obj)
-            
         end
     end
 end

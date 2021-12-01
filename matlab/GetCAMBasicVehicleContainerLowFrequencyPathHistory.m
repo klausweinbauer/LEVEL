@@ -17,11 +17,12 @@ classdef GetCAMBasicVehicleContainerLowFrequencyPathHistory < matlab.System & co
         function [PathHistory, ActualPathHistorySize] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 TmpPathHistory = int32(zeros(obj.PathHistorySize * 4, 1));
-                ActualPathHistorySize = int32(0);
+                TmpActualPathHistorySize = int32(0);
                 coder.cinclude('c2xcam.h');
                 coder.ceval('getCAMBasicVehicleContainerLowFrequencyPathHistory', StationID, ...
-                    coder.ref(TmpPathHistory), length(TmpPathHistory), coder.ref(ActualPathHistorySize));
+                    coder.ref(TmpPathHistory), length(TmpPathHistory), coder.ref(TmpActualPathHistorySize));
                 PathHistory = transpose(reshape(TmpPathHistory, 4, obj.PathHistorySize));
+                ActualPathHistorySize = TmpActualPathHistorySize / 4;
             end            
         end
         
