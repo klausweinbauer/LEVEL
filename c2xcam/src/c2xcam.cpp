@@ -670,7 +670,7 @@ int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleCo
     }
 
     if (cam->cam.camParameters.specialVehicleContainer->present == type) {
-        *container = &cam->cam.camParameters.specialVehicleContainer->present;
+        *container = &cam->cam.camParameters.specialVehicleContainer->choice;
     } else {
         std::stringstream errMsgStream;
         errMsgStream << "Wrong type of SpecialVehicleContainer. "

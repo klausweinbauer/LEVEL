@@ -253,5 +253,99 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)
 {
     c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t ptActivation[2] = {1, 2}, ptActivation_out[2];
+    c2x::setCAMPublicTransportContainer(1, 1, 2, ptActivation, 2);
+    int embStatus, ptActType;
+    c2x::getCAMPublicTransportContainer(1, &embStatus, &ptActType, ptActivation_out, 2);
     c2x::deleteCAM(1);
+    ASSERT_EQ(1, embStatus);
+    ASSERT_EQ(2, ptActType);
+    ASSERT_EQ(1, ptActivation_out[0]);
+    ASSERT_EQ(2, ptActivation_out[1]);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_SpecialTransportContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t specTransType[2] = {1, 2}, siren[2] = {3, 4};
+    uint8_t specTransType_out[2], siren_out[2];
+    c2x::setCAMSpecialTransportContainer(1, specTransType, 2, siren, 2);
+    int embStatus, ptActType;
+    c2x::getCAMSpecialTransportContainer(1, specTransType_out, 2, siren_out, 2);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(specTransType[0], specTransType_out[0]);
+    ASSERT_EQ(specTransType[1], specTransType_out[1]);
+    ASSERT_EQ(siren[0], siren_out[0]);
+    ASSERT_EQ(siren[1], siren_out[1]);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_DangerousGoodsContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::setCAMDangerousGoodsContainer(1, 7);
+    int goods;
+    c2x::getCAMDangerousGoodsContainer(1, &goods);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(7, goods);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_RoadWorksContainerBasic)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t siren[2] = {1, 2}, clsdLaneStatus[2] = {1, 2}, siren_out[2], clsdLaneStatus_out[2];
+    c2x::setCAMRoadWorksContainerBasic(1, 1, siren, 2, 2, 3, clsdLaneStatus, 2);
+    int subCauseCode, innerStat, outerStat;
+    c2x::getCAMRoadWorksContainerBasic(1, &subCauseCode, siren_out, 2, &innerStat, &outerStat, clsdLaneStatus_out, 2);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(siren[0], siren_out[0]);
+    ASSERT_EQ(siren[1], siren_out[1]);    
+    ASSERT_EQ(clsdLaneStatus[0], clsdLaneStatus_out[0]);
+    ASSERT_EQ(clsdLaneStatus[1], clsdLaneStatus_out[1]);
+    ASSERT_EQ(subCauseCode, 1);
+    ASSERT_EQ(innerStat, 2);
+    ASSERT_EQ(outerStat, 3);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_RescueContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t siren[2] = {1, 2}, siren_out[2];
+    c2x::setCAMRescueContainer(1, siren, 2);
+    c2x::getCAMRescueContainer(1, siren_out, 2);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(siren[0], siren_out[0]);
+    ASSERT_EQ(siren[1], siren_out[1]);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_EmergencyContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t siren[2] = {1, 2}, siren_out[2], emergPrio[3] = {1, 2, 3}, emergPrio_out[3];
+    c2x::setCAMEmergencyContainer(1, siren, 2, 3, 4, emergPrio, 3);
+    int causeCode, subCauseCode;
+    c2x::getCAMEmergencyContainer(1, siren_out, 2, &causeCode, &subCauseCode, emergPrio_out, 3);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(siren[0], siren_out[0]);
+    ASSERT_EQ(siren[1], siren_out[1]);
+    ASSERT_EQ(emergPrio[0], emergPrio_out[0]);
+    ASSERT_EQ(emergPrio[1], emergPrio_out[1]);
+    ASSERT_EQ(emergPrio[2], emergPrio_out[2]);
+    ASSERT_EQ(causeCode, 3);
+    ASSERT_EQ(subCauseCode, 4);
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_SafetyCarContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    uint8_t siren[2] = {3, 4}, siren_out[2];
+    c2x::setCAMSafetyCarContainer(1, siren, 2, 3, 4, 5, 6);
+    int causeCode, subCauseCode, rule, speed;
+    c2x::getCAMSafetyCarContainer(1, siren_out, 2, &causeCode, &subCauseCode, &rule, &speed);
+    c2x::deleteCAM(1);
+    ASSERT_EQ(siren[0], siren_out[0]);
+    ASSERT_EQ(siren[1], siren_out[1]);
+    ASSERT_EQ(3, causeCode);
+    ASSERT_EQ(4, subCauseCode);
+    ASSERT_EQ(5, rule);
+    ASSERT_EQ(6, speed);
 }
