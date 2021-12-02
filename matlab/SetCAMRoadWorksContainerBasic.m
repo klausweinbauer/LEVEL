@@ -1,4 +1,4 @@
-classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependency
+classdef SetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
           
@@ -14,13 +14,16 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, EmbarkationStatus, PtActivationType, PtActivationData) 
+        function [] = stepImpl(obj, StationID, RoadworksSubCauseCode, LightBarSirenInUse, ... 
+            ClosedLaneInnerhardShoulderStatus, ClosedLaneOuterhardShoulderStatus, ClosedLaneDrivingLaneStatus) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpPtActivationData = uint8(PtActivationData);
+                TmpLightBarSirenInUse = uint8(LightBarSirenInUse);
+                TmpClosedLaneDrivingLaneStatus = uint8(ClosedLaneDrivingLaneStatus);
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMPublicTransportContainer', StationID, int32(EmbarkationStatus), ...
-                    int32(PtActivationType), coder.ref(TmpPtActivationData), length(TmpPtActivationData));
+                err = coder.ceval('setCAMRoadWorksContainerBasic', StationID, RoadworksSubCauseCode, coder.ref(TmpLightBarSirenInUse), ...
+                    length(TmpLightBarSirenInUse), ClosedLaneInnerhardShoulderStatus, ClosedLaneOuterhardShoulderStatus, ...
+                    coder.ref(TmpClosedLaneDrivingLaneStatus), length(TmpClosedLaneDrivingLaneStatus));
                 obj.printErrorCode(err);
             end            
         end
@@ -41,7 +44,7 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMPublicTransportContainer';
+            bName = 'SetCAMRoadWorksContainerBasic';
         end
         
         function supported = isSupportedContext(buildContext)

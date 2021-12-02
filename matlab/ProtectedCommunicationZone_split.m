@@ -1,7 +1,6 @@
-classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependency
+classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
     
-    properties (Nontunable)
-          
+    properties (Nontunable)          
     end
     
     properties (Hidden)
@@ -14,34 +13,25 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, EmbarkationStatus, PtActivationType, PtActivationData) 
-            if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                TmpPtActivationData = uint8(PtActivationData);
-                coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMPublicTransportContainer', StationID, int32(EmbarkationStatus), ...
-                    int32(PtActivationType), coder.ref(TmpPtActivationData), length(TmpPtActivationData));
-                obj.printErrorCode(err);
-            end            
+        function [ProtectedZoneType, ExpiryTime, ProtectedZoneLatitude, ProtectedZoneLongitude, ...
+            ProtectedZoneRadius, ProtectedZoneID] = stepImpl(obj, ProtectedCommunicationZone) 
+            if length(ProtectedCommunicationZone) ~= 7
+                error("ProtectedCommunicationZone must be of length 7.");
+            end
+            ProtectedZoneType = int32(ProtectedCommunicationZone(1));
+            ExpiryTime = int32(ProtectedCommunicationZone(2));
+            ProtectedZoneLatitude = int32(ProtectedCommunicationZone(3));
+            ProtectedZoneLongitude = int32(ProtectedCommunicationZone(4));
+            ProtectedZoneRadius = int32(ProtectedCommunicationZone(5));
+            ProtectedZoneID = int32(ProtectedCommunicationZone(6));
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err ~= 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                disp(MsgLength);
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMPublicTransportContainer';
+            bName = 'SetCAMBasicContainer';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -69,5 +59,5 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
-    end
+    end    
 end

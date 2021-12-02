@@ -1,7 +1,7 @@
-classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependency
+classdef GetCAMRescueContainer < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+        LightBarSirenInUseSize = 1;
     end
     
     properties (Hidden)
@@ -14,34 +14,20 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, EmbarkationStatus, PtActivationType, PtActivationData) 
+        function [LightBarSirenInUse] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                TmpPtActivationData = uint8(PtActivationData);
+                LightBarSirenInUse = uint8(zeros(obj.LightBarSirenInUseSize, 1));
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMPublicTransportContainer', StationID, int32(EmbarkationStatus), ...
-                    int32(PtActivationType), coder.ref(TmpPtActivationData), length(TmpPtActivationData));
-                obj.printErrorCode(err);
-            end            
+                coder.ceval('getCAMRescueContainer', StationID, coder.ref(LightBarSirenInUse), length(LightBarSirenInUse));
+            end
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err ~= 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                disp(MsgLength);
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMPublicTransportContainer';
+            bName = 'GetCAMRescueContainer';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -68,6 +54,23 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
+        end
+    end
+    methods (Access = protected)
+        function [LightBarSirenInUse] = getOutputSizeImpl(obj)
+            LightBarSirenInUse = [obj.LightBarSirenInUseSize 1];
+        end 
+        
+        function [LightBarSirenInUse] = isOutputFixedSizeImpl(obj)
+            LightBarSirenInUse = true;
+        end
+        
+        function [LightBarSirenInUse] = getOutputDataTypeImpl(obj)
+            LightBarSirenInUse = 'uint8'; 
+        end
+        
+        function [LightBarSirenInUse] = isOutputComplexImpl(obj)
+            LightBarSirenInUse = false;
         end
     end
 end

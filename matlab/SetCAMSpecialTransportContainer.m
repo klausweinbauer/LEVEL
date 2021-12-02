@@ -34,8 +34,8 @@ classdef SetCAMSpecialTransportContainer < matlab.System & coder.ExternalDepende
                 MsgBytes = uint8(zeros(255, 1));
                 MsgLength = int32(0);
                 coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                Msg = ascii2str(MsgBytes);
-                error(Msg);
+                disp(MsgLength);
+                error(char(MsgBytes));
             end
         end
 

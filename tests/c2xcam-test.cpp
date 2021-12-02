@@ -247,7 +247,7 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
     ASSERT_EQ(ERR_MSG_NOT_FOUND, errMsgNotFound);
     ASSERT_EQ(ERR_NULL, errNull); 
     ASSERT_EQ(ERR_SPECIAL_VEHICLE_CONTAINER_TYPE, errType);
-    ASSERT_STREQ(buffer, "Wrong type of SpecialVehicleContainer. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
+    ASSERT_STREQ(buffer, "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer per CAM message. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
 }
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)

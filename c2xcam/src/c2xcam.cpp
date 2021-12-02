@@ -673,7 +673,7 @@ int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleCo
         *container = &cam->cam.camParameters.specialVehicleContainer->choice;
     } else {
         std::stringstream errMsgStream;
-        errMsgStream << "Wrong type of SpecialVehicleContainer. "
+        errMsgStream << "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer per CAM message. "
             << "Container is of type '" << toString(cam->cam.camParameters.specialVehicleContainer->present) << "' "
             << "but type '" << toString(type) << "' "
             << "is needed." << std::endl;
@@ -1432,7 +1432,8 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathH
     return ret;
 }
 
-int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int* buffer, int bufferSize)
+int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int *protectedZoneType, 
+    int *expiryTime, int *protectedZoneLatitude, int *protectedZoneLongitude, int *protectedZoneRadius, int *protectedZoneID)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -1450,7 +1451,7 @@ int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
 
     ProtectedCommunicationZonesRSU *zonesRSU = cam->cam.camParameters.highFrequencyContainer.choice
         .rsuContainerHighFrequency.protectedCommunicationZonesRSU;
-    if (!zonesRSU || !buffer) {
+    if (!zonesRSU) {
         databaseLockCAM_.unlock();
         return ERR_NULL;
     }
@@ -1459,20 +1460,14 @@ int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
         databaseLockCAM_.unlock();
         return ERR_INDEX_OUT_OF_RANGE;
     }
-    if (bufferSize < 6) {
-        databaseLockCAM_.unlock();
-        return ERR_BUFFER_OVERFLOW;
-    }
+
     ProtectedCommunicationZone_t *zone = zonesRSU->list.array[index];
-    buffer[0] = zone->protectedZoneType;
-    buffer[1] = 0;
-    getTimestamp(zone->expiryTime, &buffer[1]);
-    buffer[2] = zone->protectedZoneLatitude;
-    buffer[3] = zone->protectedZoneLongitude;
-    buffer[4] = 0;
-    if (zone->protectedZoneRadius) { buffer[4] = *zone->protectedZoneRadius; }
-    buffer[5] = 0;
-    if (zone->protectedZoneID) { buffer[5] = *zone->protectedZoneID; }
+    if (protectedZoneType) { *protectedZoneType = zone->protectedZoneType; }
+    if (expiryTime) { getTimestamp(zone->expiryTime, expiryTime); }
+    if (zone->protectedZoneRadius && protectedZoneRadius) { *protectedZoneRadius = *zone->protectedZoneRadius; }
+    if (zone->protectedZoneID && protectedZoneID) { *protectedZoneID = *zone->protectedZoneID; }
+    if (protectedZoneLatitude) { *protectedZoneLatitude = zone->protectedZoneLatitude; }
+    if (protectedZoneLongitude) { *protectedZoneLongitude = zone->protectedZoneLongitude; }    
     
     databaseLockCAM_.unlock();
     return 0;

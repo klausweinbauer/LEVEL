@@ -87,7 +87,8 @@ int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(int stationID, int *ve
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathHistory, 
     int pathHistorySize, int *actualPathHistorySize);
 
-int SHARED_EXPORT getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int* buffer, int bufferSize);
+int SHARED_EXPORT getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int index, int *protectedZoneType, 
+    int *expiryTime, int *protectedZoneLatitude, int *protectedZoneLongitude, int *protectedZoneRadius, int *protectedZoneID);
 
 int SHARED_EXPORT getCAMPublicTransportContainer(int stationID, int *embarkationStatus, int *ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize);
 int SHARED_EXPORT getCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize);

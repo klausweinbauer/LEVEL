@@ -1,7 +1,7 @@
-classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependency
+classdef SetCAMEmergencyContainer < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+    
     end
     
     properties (Hidden)
@@ -14,13 +14,14 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, EmbarkationStatus, PtActivationType, PtActivationData) 
+        function [] = stepImpl(obj, StationID, LightBarSirenInUse, CauseCode, SubCauseCode, EmergencyPriority) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                TmpPtActivationData = uint8(PtActivationData);
+                TmpLightBarSirenInUse = uint8(LightBarSirenInUse);
+                TmpEmergencyPriority = uint8(EmergencyPriority);
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMPublicTransportContainer', StationID, int32(EmbarkationStatus), ...
-                    int32(PtActivationType), coder.ref(TmpPtActivationData), length(TmpPtActivationData));
+                err = coder.ceval('setCAMEmergencyContainer', StationID, coder.ref(TmpLightBarSirenInUse), length(TmpLightBarSirenInUse), ...
+                    CauseCode, SubCauseCode, coder.ref(TmpEmergencyPriority), length(TmpEmergencyPriority));
                 obj.printErrorCode(err);
             end            
         end
@@ -41,7 +42,7 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMPublicTransportContainer';
+            bName = 'SetCAMEmergencyContainer';
         end
         
         function supported = isSupportedContext(buildContext)

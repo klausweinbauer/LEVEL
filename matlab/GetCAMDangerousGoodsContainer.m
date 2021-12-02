@@ -1,7 +1,8 @@
-classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependency
+classdef GetCAMDangerousGoodsContainer < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
+        LightBarSirenInUseSize = 1;
+        SpecialTransportTypeSize = 1;
     end
     
     properties (Hidden)
@@ -14,34 +15,20 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
         function setupImpl(~)
         end
         
-        function [] = stepImpl(obj, StationID, EmbarkationStatus, PtActivationType, PtActivationData) 
+        function [DangerousGoodsBasic] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
-                TmpPtActivationData = uint8(PtActivationData);
+                DangerousGoodsBasic = int32(0);
                 coder.cinclude('c2xcam.h');
-                err = coder.ceval('setCAMPublicTransportContainer', StationID, int32(EmbarkationStatus), ...
-                    int32(PtActivationType), coder.ref(TmpPtActivationData), length(TmpPtActivationData));
-                obj.printErrorCode(err);
-            end            
+                coder.ceval('getCAMDangerousGoodsContainer', StationID, coder.ref(DangerousGoodsBasic));
+            end
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err ~= 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                disp(MsgLength);
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMPublicTransportContainer';
+            bName = 'GetCAMDangerousGoodsContainer';
         end
         
         function supported = isSupportedContext(buildContext)
@@ -69,5 +56,5 @@ classdef SetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
             buildInfo.addIncludePaths(libPath);
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
-    end
+    end    
 end
