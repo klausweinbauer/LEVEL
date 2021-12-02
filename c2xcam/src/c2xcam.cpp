@@ -136,6 +136,31 @@ void freeProtectedCommunicationZone(ProtectedCommunicationZone *zone) {
     delete zone;
 }
 
+inline const char* toString(SpecialVehicleContainer_PR v)
+{
+    switch (v)
+    {
+        case SpecialVehicleContainer_PR_dangerousGoodsContainer: 
+            return "DangerousGoodsContainer";
+        case SpecialVehicleContainer_PR_emergencyContainer:   
+            return "EmergencyContainer";
+        case SpecialVehicleContainer_PR_NOTHING:   
+            return "[Not present]";
+        case SpecialVehicleContainer_PR_publicTransportContainer:
+            return "PublicTransportContainer";
+        case SpecialVehicleContainer_PR_rescueContainer:
+            return "RescueContainer";
+        case SpecialVehicleContainer_PR_roadWorksContainerBasic:
+            return "RoadWorksContainerBasic";
+        case SpecialVehicleContainer_PR_safetyCarContainer:
+            return "SafetyCarContainer";
+        case SpecialVehicleContainer_PR_specialTransportContainer:
+            return "SpecialTransportContainer";
+        default:  
+            return "[Unknown SpecialVehicleContainer]";
+    }
+}
+
 int createCAM(int stationID, int heighFrequencyContainerType) {
 
     databaseLockCAM_.lock();
@@ -627,7 +652,7 @@ int clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID)
     return 0;
 }
 
-int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleContainer_PR type)
+int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleContainer_PR type, bool initialize = false)
 {
     CAM_t* cam = getCAM(stationID);
     if (!cam) {
@@ -635,48 +660,58 @@ int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleCo
     }
 
     if (!cam->cam.camParameters.specialVehicleContainer) {
-        return ERR_NULL;
+        if (initialize) 
+        {
+            cam->cam.camParameters.specialVehicleContainer = new SpecialVehicleContainer();
+            cam->cam.camParameters.specialVehicleContainer->present = type;
+        } else {
+            return ERR_NULL;
+        }
     }
 
     if (cam->cam.camParameters.specialVehicleContainer->present == type) {
         *container = &cam->cam.camParameters.specialVehicleContainer->present;
     } else {
         std::stringstream errMsgStream;
-        errMsgStream << "Wrong type of special vehicle container." << std::endl;
+        errMsgStream << "Wrong type of SpecialVehicleContainer. "
+            << "Container is of type '" << toString(cam->cam.camParameters.specialVehicleContainer->present) << "' "
+            << "but type '" << toString(type) << "' "
+            << "is needed." << std::endl;
         setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_SPECIAL_VEHICLE_CONTAINER_TYPE;
     }
     return 0;
 }
 
-template<typename T> int getSpecialVehicleContainer(int stationID, T** container);
-template<> int getSpecialVehicleContainer<PublicTransportContainer>(int stationID, PublicTransportContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_publicTransportContainer);
+template<typename T> int getSpecialVehicleContainer(int stationID, T** container, bool initialize = false);
+template<> int getSpecialVehicleContainer<PublicTransportContainer>(int stationID, PublicTransportContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_publicTransportContainer, initialize);
 }
-template<> int getSpecialVehicleContainer<SpecialTransportContainer>(int stationID, SpecialTransportContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_specialTransportContainer);
+template<> int getSpecialVehicleContainer<SpecialTransportContainer>(int stationID, SpecialTransportContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_specialTransportContainer, initialize);
 }
-template<> int getSpecialVehicleContainer<DangerousGoodsContainer>(int stationID, DangerousGoodsContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_dangerousGoodsContainer);
+template<> int getSpecialVehicleContainer<DangerousGoodsContainer>(int stationID, DangerousGoodsContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_dangerousGoodsContainer, initialize);
 }
-template<> int getSpecialVehicleContainer<RoadWorksContainerBasic>(int stationID, RoadWorksContainerBasic** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_roadWorksContainerBasic);
+template<> int getSpecialVehicleContainer<RoadWorksContainerBasic>(int stationID, RoadWorksContainerBasic** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_roadWorksContainerBasic, initialize);
 }
-template<> int getSpecialVehicleContainer<RescueContainer>(int stationID, RescueContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_rescueContainer);
+template<> int getSpecialVehicleContainer<RescueContainer>(int stationID, RescueContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_rescueContainer, initialize);
 }
-template<> int getSpecialVehicleContainer<EmergencyContainer>(int stationID, EmergencyContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_emergencyContainer);
+template<> int getSpecialVehicleContainer<EmergencyContainer>(int stationID, EmergencyContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_emergencyContainer, initialize);
 }
-template<> int getSpecialVehicleContainer<SafetyCarContainer>(int stationID, SafetyCarContainer** container) {
-    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_safetyCarContainer);
+template<> int getSpecialVehicleContainer<SafetyCarContainer>(int stationID, SafetyCarContainer** container, bool initialize) {
+    return getSpecialVehicleContainer(stationID, (void**)container, SpecialVehicleContainer_PR_safetyCarContainer, initialize);
 }
+
 
 int setCAMPublicTransportContainer(int stationID, int embarkationStatus, int ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize) 
 {
     databaseLockCAM_.lock();
     PublicTransportContainer *c;
-    int err = getSpecialVehicleContainer(stationID, &c);
+    int err = getSpecialVehicleContainer(stationID, &c, true);
     if (err) {
         databaseLockCAM_.unlock();
         return err;
@@ -696,35 +731,140 @@ int setCAMPublicTransportContainer(int stationID, int embarkationStatus, int ptA
 
 int setCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    SpecialTransportContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    setBitString(&c->specialTransportType, specialTransportType, specialTransportTypeSize);
+    setBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMDangerousGoodsContainer(int stationID, int dangerousGoodsBasic) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    DangerousGoodsContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    c->dangerousGoodsBasic = dangerousGoodsBasic;
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMRoadWorksContainerBasic(int stationID, int roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
     int closedLaneInnerhardShoulderStatus, int closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    RoadWorksContainerBasic *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (!c->roadworksSubCauseCode) {
+        c->roadworksSubCauseCode = new RoadworksSubCauseCode_t();
+    }
+    if (!c->closedLanes) {
+        c->closedLanes = new ClosedLanes();
+        c->closedLanes->innerhardShoulderStatus = new HardShoulderStatus_t();
+        c->closedLanes->outerhardShoulderStatus = new HardShoulderStatus_t();
+        c->closedLanes->drivingLaneStatus = new DrivingLaneStatus_t();
+    }
+
+    *c->roadworksSubCauseCode = roadworksSubCauseCode;
+    setBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    *c->closedLanes->innerhardShoulderStatus = closedLaneInnerhardShoulderStatus;
+    *c->closedLanes->outerhardShoulderStatus = closedLaneOuterhardShoulderStatus;
+    setBitString(c->closedLanes->drivingLaneStatus, closedLaneDrivingLaneStatus, closedLaneDrivingLaneStatusSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    RescueContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    setBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, 
     int subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    EmergencyContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (!c->incidentIndication) {
+        c->incidentIndication = new CauseCode();
+    }
+    if (!c->emergencyPriority) {
+        c->emergencyPriority = new EmergencyPriority_t();
+    }
+
+    setBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    c->incidentIndication->causeCode = causeCode;
+    c->incidentIndication->subCauseCode = subCauseCode;
+    setBitString(c->emergencyPriority, emergencyPriority, emergencyPrioritySize);
+    
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int causeCode, int subCauseCode, 
     int trafficRule, int speedLimit) 
 {
-    // TODO
+    databaseLockCAM_.lock();
+    SafetyCarContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c, true);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (!c->incidentIndication) {
+        c->incidentIndication = new CauseCode();
+    }
+    if (!c->trafficRule) {
+        c->trafficRule = new TrafficRule_t();
+    }
+    if (!c->speedLimit) {
+        c->speedLimit = new SpeedLimit_t();
+    }
+
+    setBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    c->incidentIndication->causeCode = causeCode;
+    c->incidentIndication->subCauseCode = subCauseCode;
+    *c->trafficRule = trafficRule;
+    *c->speedLimit = speedLimit;
+    
+    databaseLockCAM_.unlock();
+    return 0;
 }
 #pragma endregion
 
@@ -1340,40 +1480,157 @@ int getCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
 
 int getCAMPublicTransportContainer(int stationID, int *embarkationStatus, int *ptActivationType, uint8_t *ptActivationData, int ptActivationDataSize)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    PublicTransportContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (embarkationStatus) { 
+        *embarkationStatus = c->embarkationStatus; 
+    }
+    if (ptActivationType && c->ptActivation) { 
+        *ptActivationType = c->ptActivation->ptActivationType; 
+    }
+    getOctetString(&c->ptActivation->ptActivationData, ptActivationData, ptActivationDataSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMSpecialTransportContainer(int stationID, uint8_t *specialTransportType, int specialTransportTypeSize, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    SpecialTransportContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    getBitString(&c->specialTransportType, specialTransportType, specialTransportTypeSize);
+    getBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMDangerousGoodsContainer(int stationID, int *dangerousGoodsBasic)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    DangerousGoodsContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (dangerousGoodsBasic) {
+        *dangerousGoodsBasic = c->dangerousGoodsBasic;
+    }
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMRoadWorksContainerBasic(int stationID, int *roadworksSubCauseCode, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, 
     int *closedLaneInnerhardShoulderStatus, int *closedLaneOuterhardShoulderStatus, uint8_t *closedLaneDrivingLaneStatus, int closedLaneDrivingLaneStatusSize)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    RoadWorksContainerBasic *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    if (roadworksSubCauseCode && c->roadworksSubCauseCode) {
+        *roadworksSubCauseCode = *c->roadworksSubCauseCode;
+    }
+    getBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    if (closedLaneOuterhardShoulderStatus && c->closedLanes && c->closedLanes->outerhardShoulderStatus) {
+        *closedLaneOuterhardShoulderStatus = *c->closedLanes->outerhardShoulderStatus;
+    }
+    if (closedLaneInnerhardShoulderStatus && c->closedLanes && c->closedLanes->innerhardShoulderStatus) {
+        *closedLaneInnerhardShoulderStatus = *c->closedLanes->innerhardShoulderStatus;
+    }
+    if (closedLaneDrivingLaneStatus && c->closedLanes && c->closedLanes->drivingLaneStatus) {
+        getBitString(c->closedLanes->drivingLaneStatus, closedLaneDrivingLaneStatus, closedLaneDrivingLaneStatusSize);
+    }
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMRescueContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    RescueContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    getBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMEmergencyContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, 
     int *subCauseCode, uint8_t *emergencyPriority, int emergencyPrioritySize)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    EmergencyContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    getBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    if (causeCode && c->incidentIndication) {
+        *causeCode = c->incidentIndication->causeCode;
+    }
+    if (subCauseCode && c->incidentIndication) {
+        *subCauseCode = c->incidentIndication->subCauseCode;
+    } 
+    getBitString(c->emergencyPriority, emergencyPriority, emergencyPrioritySize);
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lightBarSirenInUseSize, int *causeCode, int *subCauseCode, 
     int *trafficRule, int *speedLimit)
 {
-    // TODO
+    databaseLockCAM_.lock();
+    SafetyCarContainer *c;
+    int err = getSpecialVehicleContainer(stationID, &c);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    getBitString(&c->lightBarSirenInUse, lightBarSirenInUse, lightBarSirenInUseSize);
+    if (causeCode && c->incidentIndication) {
+        *causeCode = c->incidentIndication->causeCode;
+    }
+    if (subCauseCode && c->incidentIndication) {
+        *subCauseCode = c->incidentIndication->subCauseCode;
+    }
+    if (trafficRule && c->trafficRule) {
+        *trafficRule = *c->trafficRule;
+    }
+    if (speedLimit && c->speedLimit) {
+        *speedLimit = *c->speedLimit;
+    }
+
+    databaseLockCAM_.unlock();
+    return 0;
 }
 #pragma endregion
 

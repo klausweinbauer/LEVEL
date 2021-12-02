@@ -231,3 +231,27 @@ TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunica
     EXPECT_EQ(16, zone2[5]);
     EXPECT_EQ(26, zone3[5]);
 }
+
+TEST(CAM_SpecialVehicleContainer, Error_Messages) 
+{
+    int errMsgNotFound = c2x::setCAMPublicTransportContainer(1, 0, 0, nullptr, 0);
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    int errNull = c2x::getCAMPublicTransportContainer(1, nullptr, nullptr, nullptr, 0);
+    c2x::setCAMPublicTransportContainer(1, 0, 0, nullptr, 0);
+    int errType = c2x::setCAMDangerousGoodsContainer(1, 0);
+    char buffer[255];
+    int len = 0;
+    c2x::getLastErrMsg(buffer, 255, &len);
+    c2x::deleteCAM(1);
+
+    ASSERT_EQ(ERR_MSG_NOT_FOUND, errMsgNotFound);
+    ASSERT_EQ(ERR_NULL, errNull); 
+    ASSERT_EQ(ERR_SPECIAL_VEHICLE_CONTAINER_TYPE, errType);
+    ASSERT_STREQ(buffer, "Wrong type of SpecialVehicleContainer. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
+}
+
+TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)
+{
+    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::deleteCAM(1);
+}
