@@ -58,42 +58,6 @@ void initCAM_LFC_BasicVehicle(BasicVehicleContainerLowFrequency_t* bvclf)
     bvclf->pathHistory.list.free = freePathPoint;
 }
 
-void initCAM_SVC_PublicTransport(PublicTransportContainer_t* ptc)
-{
-    ptc->embarkationStatus = false;
-    //TODO
-}
-
-void initCAM_SVC_SpecialTransport(SpecialTransportContainer_t* stc)
-{
-    //TODO
-}
-
-void initCAM_SVC_DangerousGoods(DangerousGoodsContainer_t* dgc)
-{
-    //TODO
-}
-
-void initCAM_SVC_RoadWorksContainer(RoadWorksContainerBasic_t* rwc)
-{
-    //TODO
-}
-
-void initCAM_SVC_RescueContainer(RescueContainer_t* rc)
-{
-    //TODO
-}
-
-void initCAM_SVC_EmergencyContainer(EmergencyContainer_t* ec)
-{
-    //TODO
-}
-
-void initCAM_SVC_SafetyCarContainer(SafetyCarContainer_t* scc)
-{
-    //TODO
-}
-
 int writeCallback(const void* src, size_t size, void* application_specific_key)
 {
 #ifdef PRINT_ENCODED_MSG
