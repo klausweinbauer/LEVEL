@@ -35,35 +35,13 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
         end
 
         function printErrorCode(~, err)
-            if (err == -22)
-                error('ERR_CAM_ALREADY_EXISTS')
-            elseif (err == -21)
-                error('ERR_LOW_FREQ_CONTAINER_TYPE_BASIC_VEHICLE')
-            elseif (err == -20)
-                error('ERR_HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE')
-            elseif (err == -40)
-                error('ERR_DENM_ALREADY_EXISTS')
-            elseif (err == -1)
-                error('ERR_MSG_NOT_FOUND')
-            elseif (err == -9)
-                error('ERR_ARG_NULL')
-            elseif (err == -8)
-                error('ERR_TRANSMITTER_START')
-            elseif (err == -7)
-                error('ERR_RECEIVER_START')
-            elseif (err == -6)
-                error('ERR_DECODE')
-            elseif (err == -5)
-                error('ERR_ENCODE')
-            elseif (err == -4)
-                error('ERR_BUFFER_OVERFLOW')
-            elseif (err == -3)
-                error('ERR_NULL')
-            elseif (err == -2)
-                error('ERR_ALLOC_FAILED')
+            if (err < 0)
+                MsgBytes = uint8(zeros(255, 1));
+                MsgLength = int32(0);
+                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
+                error(char(MsgBytes));
             end
         end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)

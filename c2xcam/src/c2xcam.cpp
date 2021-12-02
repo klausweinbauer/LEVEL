@@ -167,6 +167,10 @@ int createCAM(int stationID, int heighFrequencyContainerType) {
     auto it = databaseCAM_.find(stationID);
     if (it != databaseCAM_.end()) {
         databaseLockCAM_.unlock();
+        std::stringstream errMsgStream;
+        errMsgStream << "[ERROR] CAM with Id '" << stationID << "' already exists. " 
+            << "You can not have two CAMMessage Blocks with the same Id." << std::endl;
+        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_CAM_ALREADY_EXISTS;
     }
 

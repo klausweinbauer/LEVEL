@@ -24,8 +24,9 @@ classdef GetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
                 ClosedLaneOuterhardShoulderStatus = int32(0);
                 ClosedLaneDrivingLaneStatus = uint8(zeros(obj.ClosedLaneDrivingLaneStatusSize, 1));
                 coder.cinclude('c2xcam.h');
-                coder.ceval('getCAMRoadWorksContainerBasic', StationID, coder.ref(EmbarkationStatus), ...
-                    coder.ref(PtActivationType), coder.ref(PtActivationData), obj.PtActivationDataSize);
+                coder.ceval('getCAMRoadWorksContainerBasic', StationID, coder.ref(RoadworksSubCauseCode), ...
+                    coder.ref(LightBarSirenInUse), length(LightBarSirenInUse), coder.ref(ClosedLaneInnerhardShoulderStatus), ...
+                    coder.ref(ClosedLaneOuterhardShoulderStatus), coder.ref(ClosedLaneDrivingLaneStatus), length(ClosedLaneDrivingLaneStatus));
             end
         end
         
@@ -67,10 +68,10 @@ classdef GetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
         function [RoadworksSubCauseCode, LightBarSirenInUse, ClosedLaneInnerhardShoulderStatus, ...
             ClosedLaneOuterhardShoulderStatus, ClosedLaneDrivingLaneStatus] = getOutputSizeImpl(obj)
             RoadworksSubCauseCode = [1 1];
-            LightBarSirenInUse = [1 1];
+            LightBarSirenInUse = [obj.LightBarSirenInUseSize 1];
             ClosedLaneInnerhardShoulderStatus = [1 1];
             ClosedLaneOuterhardShoulderStatus = [1 1];
-            ClosedLaneDrivingLaneStatus = [1 1];
+            ClosedLaneDrivingLaneStatus = [obj.ClosedLaneDrivingLaneStatusSize 1];
         end 
         
         function [RoadworksSubCauseCode, LightBarSirenInUse, ClosedLaneInnerhardShoulderStatus, ...
@@ -85,10 +86,10 @@ classdef GetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
         function [RoadworksSubCauseCode, LightBarSirenInUse, ClosedLaneInnerhardShoulderStatus, ...
             ClosedLaneOuterhardShoulderStatus, ClosedLaneDrivingLaneStatus] = getOutputDataTypeImpl(obj)
             RoadworksSubCauseCode = 'int32';
-            LightBarSirenInUse = 'int32';
+            LightBarSirenInUse = 'uint8';
             ClosedLaneInnerhardShoulderStatus = 'int32';
             ClosedLaneOuterhardShoulderStatus = 'int32';
-            ClosedLaneDrivingLaneStatus = 'int32';
+            ClosedLaneDrivingLaneStatus = 'uint8';
             
         end
         

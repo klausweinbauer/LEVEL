@@ -11,3 +11,5 @@ matlab/*.lib
 
 *.autosave
 *.mexw64
+
+*.original

@@ -1,4 +1,4 @@
-classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
+classdef ProtectedCommunicationZone_split < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)          
     end
@@ -15,8 +15,8 @@ classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
         
         function [ProtectedZoneType, ExpiryTime, ProtectedZoneLatitude, ProtectedZoneLongitude, ...
             ProtectedZoneRadius, ProtectedZoneID] = stepImpl(obj, ProtectedCommunicationZone) 
-            if length(ProtectedCommunicationZone) ~= 7
-                error("ProtectedCommunicationZone must be of length 7.");
+            if length(ProtectedCommunicationZone) ~= 6
+                error("ProtectedCommunicationZone must be of length 6.");
             end
             ProtectedZoneType = int32(ProtectedCommunicationZone(1));
             ExpiryTime = int32(ProtectedCommunicationZone(2));
@@ -31,7 +31,7 @@ classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMBasicContainer';
+            bName = 'ProtectedCommunicationZone_split';
         end
         
         function supported = isSupportedContext(buildContext)

@@ -1,4 +1,4 @@
-classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
+classdef ProtectedCommunicationZone_concat < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)          
     end
@@ -24,7 +24,7 @@ classdef ProtectedCommunicationZone < matlab.System & coder.ExternalDependency
     end
     methods (Static)
         function bName = getDescriptiveName(~)
-            bName = 'SetCAMBasicContainer';
+            bName = 'ProtectedCommunicationZone_concat';
         end
         
         function supported = isSupportedContext(buildContext)

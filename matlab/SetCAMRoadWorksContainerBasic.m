@@ -32,11 +32,10 @@ classdef SetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
         end
 
         function printErrorCode(~, err)
-            if (err ~= 0)
+            if (err < 0)
                 MsgBytes = uint8(zeros(255, 1));
                 MsgLength = int32(0);
                 coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                disp(MsgLength);
                 error(char(MsgBytes));
             end
         end
