@@ -171,7 +171,7 @@ TEST(CAM_HighFrequencyContainer, Set_And_Get_HighFrequencyAccelerationControl_Va
 TEST(CAM_RSUContainerHighFrequency, Check_RSUContainerHighFrequency_Errors)
 {
     int msgNotFoundAdd = c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, 0, 0, 0, 0, 0);
-    int msgNotFoundGet = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, 0);
+    int msgNotFoundGet = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     int msgNotFoundClr = c2x::clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(1);
     
     c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
@@ -180,21 +180,17 @@ TEST(CAM_RSUContainerHighFrequency, Check_RSUContainerHighFrequency_Errors)
 
     c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_RSU);
     int buffer[6];
-    int errNull = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, buffer, 6);
+    int errNull = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
-    int errNullBuffer = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, 0);
-    int indexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, buffer, 6);
-    int bufferToSmall = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, buffer, 5);
+    int indexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     c2x::deleteCAM(1);
 
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundAdd);
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundClr);
     EXPECT_EQ(ERR_HIGH_FREQ_CONTAINER_TYPE, wrongContainer);
-    EXPECT_EQ(ERR_NULL, errNullBuffer);
     EXPECT_EQ(ERR_NULL, errNull);
     EXPECT_EQ(ERR_INDEX_OUT_OF_RANGE, indexOutOfRange);
-    EXPECT_EQ(ERR_BUFFER_OVERFLOW, bufferToSmall);
 }
 
 TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunicationZone_Values)
@@ -203,12 +199,12 @@ TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunica
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 11, 12, 13, 14, 15, 16);
     int zone1[6], zone2[6], zone3[6], zonex[6];
-    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zone1, 6);
-    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, zone2, 6);
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, &zone1[0], &zone1[1], &zone1[2], &zone1[3], &zone1[4], &zone1[5]);
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, &zone2[0], &zone2[1], &zone2[2], &zone2[3], &zone2[4], &zone2[5]);
     c2x::clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(1);
-    int errIndexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zonex, 6);
+    int errIndexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, &zonex[0], &zonex[1], &zonex[2], &zonex[3], &zonex[4], &zonex[5]);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 21, 22, 23, 24, 25, 26);
-    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, zone3, 6);
+    c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, &zone3[0], &zone3[1], &zone3[2], &zone3[3], &zone3[4], &zone3[5]);
     c2x::deleteCAM(1);
 
     EXPECT_EQ(ERR_INDEX_OUT_OF_RANGE, errIndexOutOfRange);
@@ -239,7 +235,7 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
     int errNull = c2x::getCAMPublicTransportContainer(1, nullptr, nullptr, nullptr, 0);
     c2x::setCAMPublicTransportContainer(1, 0, 0, nullptr, 0);
     int errType = c2x::setCAMDangerousGoodsContainer(1, 0);
-    char buffer[255];
+    char buffer[255] = {};
     int len = 0;
     c2x::getLastErrMsg(buffer, 255, &len);
     c2x::deleteCAM(1);
@@ -247,7 +243,8 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
     ASSERT_EQ(ERR_MSG_NOT_FOUND, errMsgNotFound);
     ASSERT_EQ(ERR_NULL, errNull); 
     ASSERT_EQ(ERR_SPECIAL_VEHICLE_CONTAINER_TYPE, errType);
-    ASSERT_STREQ(buffer, "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer per CAM message. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
+    ASSERT_STREQ(buffer, "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer "
+        "per CAM message. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
 }
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)
