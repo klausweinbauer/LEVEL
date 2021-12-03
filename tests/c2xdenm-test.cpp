@@ -39,6 +39,24 @@ TEST(DENM_Coding, Encode_DENM_Message)
     c2x::deleteDENM(1, 1);
 }
 
+TEST(DENM_Coding, Error_Due_To_Invalid_Value)
+{
+    c2x::createDENM(1, 1);
+    c2x::setDENMAlacarteContainer(1, 1, 100, 100, 100);
+    uint8_t buffer[4096];
+    char errMsg[512] = {};
+    int err = c2x::encodeDENM(1, 1, buffer, 4096, nullptr);
+    c2x::getLastErrMsg(errMsg, 512, nullptr);
+    c2x::deleteDENM(1, 1);
+
+    std::stringstream ss;
+    ss << "[ERROR] DENM Encoding failed (Code=PositioningSolutionType). " 
+        << "This is probably due to an invalid value of property 'PositioningSolutionType' " 
+        << "in the message of Station '1' and sequence number '1'." << std::endl;
+    ASSERT_EQ(err, ERR_ENCODE);
+    ASSERT_STREQ(ss.str().c_str(), errMsg);
+}
+
 TEST(DENM_Coding, Decode_DENM_And_Override_Message)
 {
     int id = c2x::createDENM(1, 1);

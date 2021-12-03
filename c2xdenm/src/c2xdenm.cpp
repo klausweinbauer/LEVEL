@@ -2119,7 +2119,15 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     if (retVal.encoded == -1)
     {
         delete vectorBuffer;
-        std::cout << "[ERROR] Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
+        std::stringstream errMsgStream;
+        std::string xmlTag(retVal.failed_type->xml_tag);
+        errMsgStream 
+            << "[ERROR] DENM Encoding failed (Code=" << retVal.failed_type->name << "). " 
+            << "This is probably due to an invalid value of property '" << retVal.failed_type->xml_tag
+            << "' in the message of Station '" 
+            << stationID << "' and sequence number '" << sequenceNumber << "'." << std::endl;
+        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        std::cout << errMsgStream.str();
         return ERR_ENCODE;
     }
 
