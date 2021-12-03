@@ -4,21 +4,21 @@
 #include <c2xcommon.h>
 
 TEST(CAM_Basic, Create_And_Delete_CAM) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
     c2x::deleteCAM(id);
     ASSERT_GT(id, 0);
 }
 
 TEST(CAM_Basic, Create_CAM_With_The_Same_ID_Twice) {
-    int ret1 = c2x::createCAM(1, 1);
-    int ret2 = c2x::createCAM(1, 1);
+    int ret1 = c2x::createCAM(1);
+    int ret2 = c2x::createCAM(1);
     c2x::deleteCAM(1);
     ASSERT_EQ(ret1, 1);
     ASSERT_EQ(ret2, ERR_CAM_ALREADY_EXISTS);
 }
 
 TEST(CAM_Basic, Double_Delete_CAM) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
     int ret1 = c2x::deleteCAM(id);
     int ret2 = c2x::deleteCAM(id);
     ASSERT_EQ(0, ret1);
@@ -26,7 +26,7 @@ TEST(CAM_Basic, Double_Delete_CAM) {
 }
 
 TEST(CAM_Values, Set_And_Get_CAM_Header_Values) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
 
     int protVers, msgId;
     c2x::setCAMHeader(id, 1, 2);
@@ -38,7 +38,7 @@ TEST(CAM_Values, Set_And_Get_CAM_Header_Values) {
 }
 
 TEST(CAM_Values, Get_CAM_Header_Values_With_Nullptr_Parameters) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
 
     c2x::getCAMHeader(id, nullptr, nullptr);
 
@@ -46,7 +46,7 @@ TEST(CAM_Values, Get_CAM_Header_Values_With_Nullptr_Parameters) {
 }
 
 TEST(CAM_Values, Set_And_Get_CAM_GenerationDeltaTime_Value) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
 
     int dt;
     c2x::setCAMGenerationDeltaTime(id, 4);
@@ -57,13 +57,13 @@ TEST(CAM_Values, Set_And_Get_CAM_GenerationDeltaTime_Value) {
 }
 
 TEST(CAM_Values, Get_CAM_GenerationDeltaTime_Value_With_Nullptr_Parameter) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
     c2x::getCAMGenerationDeltaTime(id, nullptr);
     c2x::deleteCAM(id);
 }
 
 TEST(CAM_Values, Set_And_Reset_BitString) {
-    int id = c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    int id = c2x::createCAM(1);
     uint8_t buffer1[4] = { 1, 2, 3, 4 };
     uint8_t buffer2[6] = {1, 2, 3, 4, 5, 6};
     uint8_t buffer3[2] = {1, 2};
@@ -79,8 +79,43 @@ TEST(CAM_Values, Set_And_Reset_BitString) {
     c2x::deleteCAM(id);
 }
 
+TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Missing_HighFrequencyContainer_Deffinition)
+{
+    int id = c2x::createCAM(1);
+    uint8_t buffer[4096] = {};
+    char errMsg[512] = {};
+    int err = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    c2x::getLastErrMsg(errMsg, 512, nullptr);
+    c2x::deleteCAM(id);
+
+    std::stringstream ss;
+    ss << "[ERROR] No HighFrequencyContainer specified for CAM message from station '1'. " 
+        << "Add a BasicVehicleContainerHighFrequency or a RSUContainerHighFrequency block to this message." << std::endl;
+    ASSERT_EQ(err, ERR_ENCODE);
+    ASSERT_STREQ(ss.str().c_str(), errMsg);
+}
+
+
+TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Invalid_Value)
+{
+    int id = c2x::createCAM(1);
+    c2x::setCAMBasicVehicleContainerHighFrequency(1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    uint8_t buffer[4096] = {};
+    char errMsg[512] = {};
+    int err = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    c2x::getLastErrMsg(errMsg, 512, nullptr);
+    c2x::deleteCAM(id);
+
+    std::stringstream ss;
+    ss << "[ERROR] CAM Encoding failed (Code=DriveDirection). " 
+        << "This is probably due to an invalid value of property 'DriveDirection' in the message of Station '1'." << std::endl;
+    ASSERT_EQ(err, ERR_ENCODE);
+    ASSERT_STREQ(ss.str().c_str(), errMsg);
+}
+
 TEST(CAM_Coding, Encode_CAM_Message) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
+    c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
     uint8_t buffer[4096];
 
     int ret = c2x::encodeCAM(id, buffer, 4096, nullptr);
@@ -91,8 +126,9 @@ TEST(CAM_Coding, Encode_CAM_Message) {
 }
 
 TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
-    int id = c2x::createCAM(1, 1);
+    int id = c2x::createCAM(1);
     c2x::setCAMHeader(id, 1, 2);
+    c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
 
     uint8_t buffer[4096];    
     int size = c2x::encodeCAM(id, buffer, 4096, nullptr);
@@ -120,7 +156,8 @@ TEST(CAM_Network, Start_And_Stop_Receiver) {
 }
 
 TEST(CAM_Coding, Decode_New_Message) {
-    c2x::createCAM(1, 1);
+    c2x::createCAM(1);
+    c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
     uint8_t buffer[4000];
     int size;
     c2x::encodeCAM(1, buffer, 4000, &size);
@@ -155,7 +192,7 @@ TEST(CAM_HighFrequencyContainer, Check_HighFrequencyAccelerationControl_Errors)
 
 TEST(CAM_HighFrequencyContainer, Set_And_Get_HighFrequencyAccelerationControl_Values)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t accelControl[] = { 1, 2, 3, 4 }, accelControl_out[8];
     int actualSize;
     int msgNotFoundSet = c2x::setCAMBasicVehicleContainerHighFrequencyAccelerationControl(1, accelControl, 4);
@@ -174,13 +211,13 @@ TEST(CAM_RSUContainerHighFrequency, Check_RSUContainerHighFrequency_Errors)
     int msgNotFoundGet = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     int msgNotFoundClr = c2x::clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(1);
     
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
-    int wrongContainer = c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, 0, 0, 0, 0, 0);
+    c2x::createCAM(1);
+    int initContainer = c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, 0, 0, 0, 0, 0);
     c2x::deleteCAM(1);
 
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_RSU);
+    c2x::createCAM(1);
     int buffer[6];
-    int errNull = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+    int wrongType = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 0, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
     int indexOutOfRange = c2x::getCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     c2x::deleteCAM(1);
@@ -188,14 +225,14 @@ TEST(CAM_RSUContainerHighFrequency, Check_RSUContainerHighFrequency_Errors)
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundAdd);
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundGet);
     EXPECT_EQ(ERR_MSG_NOT_FOUND, msgNotFoundClr);
-    EXPECT_EQ(ERR_HIGH_FREQ_CONTAINER_TYPE, wrongContainer);
-    EXPECT_EQ(ERR_NULL, errNull);
+    EXPECT_EQ(0, initContainer);
+    EXPECT_EQ(ERR_HIGH_FREQ_CONTAINER_TYPE, wrongType);
     EXPECT_EQ(ERR_INDEX_OUT_OF_RANGE, indexOutOfRange);
 }
 
 TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunicationZone_Values)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_RSU);
+    c2x::createCAM(1);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 1, 2, 3, 4, 5, 6);
     c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(1, 11, 12, 13, 14, 15, 16);
     int zone1[6], zone2[6], zone3[6], zonex[6];
@@ -231,7 +268,7 @@ TEST(CAM_RSUContainerHighFrequency, RSUContainerHighFrequency_ProtectedCommunica
 TEST(CAM_SpecialVehicleContainer, Error_Messages) 
 {
     int errMsgNotFound = c2x::setCAMPublicTransportContainer(1, 0, 0, nullptr, 0);
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     int errNull = c2x::getCAMPublicTransportContainer(1, nullptr, nullptr, nullptr, 0);
     c2x::setCAMPublicTransportContainer(1, 0, 0, nullptr, 0);
     int errType = c2x::setCAMDangerousGoodsContainer(1, 0);
@@ -249,7 +286,7 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t ptActivation[2] = {1, 2}, ptActivation_out[2];
     c2x::setCAMPublicTransportContainer(1, 1, 2, ptActivation, 2);
     int embStatus, ptActType;
@@ -263,7 +300,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_PublicTransportContainer)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_SpecialTransportContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t specTransType[2] = {1, 2}, siren[2] = {3, 4};
     uint8_t specTransType_out[2], siren_out[2];
     c2x::setCAMSpecialTransportContainer(1, specTransType, 2, siren, 2);
@@ -278,7 +315,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_SpecialTransportContainer)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_DangerousGoodsContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     c2x::setCAMDangerousGoodsContainer(1, 7);
     int goods;
     c2x::getCAMDangerousGoodsContainer(1, &goods);
@@ -288,7 +325,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_DangerousGoodsContainer)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_RoadWorksContainerBasic)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t siren[2] = {1, 2}, clsdLaneStatus[2] = {1, 2}, siren_out[2], clsdLaneStatus_out[2];
     c2x::setCAMRoadWorksContainerBasic(1, 1, siren, 2, 2, 3, clsdLaneStatus, 2);
     int subCauseCode, innerStat, outerStat;
@@ -305,7 +342,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_RoadWorksContainerBasic)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_RescueContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t siren[2] = {1, 2}, siren_out[2];
     c2x::setCAMRescueContainer(1, siren, 2);
     c2x::getCAMRescueContainer(1, siren_out, 2);
@@ -316,7 +353,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_RescueContainer)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_EmergencyContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t siren[2] = {1, 2}, siren_out[2], emergPrio[3] = {1, 2, 3}, emergPrio_out[3];
     c2x::setCAMEmergencyContainer(1, siren, 2, 3, 4, emergPrio, 3);
     int causeCode, subCauseCode;
@@ -333,7 +370,7 @@ TEST(CAM_SpecialVehicleContainer, Set_And_Get_EmergencyContainer)
 
 TEST(CAM_SpecialVehicleContainer, Set_And_Get_SafetyCarContainer)
 {
-    c2x::createCAM(1, HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE);
+    c2x::createCAM(1);
     uint8_t siren[2] = {3, 4}, siren_out[2];
     c2x::setCAMSafetyCarContainer(1, siren, 2, 3, 4, 5, 6);
     int causeCode, subCauseCode, rule, speed;

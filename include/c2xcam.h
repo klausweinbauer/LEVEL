@@ -8,10 +8,7 @@ extern "C"
 {
 #endif
 
-#define HIGH_FREQ_CONTAINER_TYPE_BASIC_VEHICLE 1
-#define HIGH_FREQ_CONTAINER_TYPE_RSU 2
-
-int SHARED_EXPORT createCAM(int stationID, int heighFrequencyContainerType);
+int SHARED_EXPORT createCAM(int stationID);
 int SHARED_EXPORT deleteCAM(int stationID);
 
 #pragma region Setter
