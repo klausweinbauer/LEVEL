@@ -15,7 +15,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('createCAM', obj.StationID, obj.HeighFrequencyContainerType);
                 obj.printErrorCode(err);
             end 
@@ -28,7 +28,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
         function releaseImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('deleteCAM', obj.StationID);
                 obj.printErrorCode(err);
             end    
@@ -63,14 +63,16 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
             % Parametrize library extension
             libName =  strcat('c2xcam', linkLibExt);
             % Other linking parameters
-            libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
+            
             libPriority = '';
             libPreCompiled = true;
             libLinkOnly = true;
 
             % Linking command
-            buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
-            buildInfo.addIncludePaths(libPath);
+            libDLLPath = LibConfig.getDLLPath();
+            libIncludePath = LibConfig.getIncludePath();
+            buildInfo.addLinkObjects(libName,libDLLPath,libPriority,libPreCompiled,libLinkOnly);
+            buildInfo.addIncludePaths(libIncludePath);
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
