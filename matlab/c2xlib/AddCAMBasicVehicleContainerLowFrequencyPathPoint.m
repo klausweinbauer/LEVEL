@@ -83,14 +83,25 @@ classdef AddCAMBasicVehicleContainerLowFrequencyPathPoint < matlab.System & code
             % Parametrize library extension
             libName =  strcat('c2xcam', linkLibExt);
             % Other linking parameters
-            libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
+            libBasePathDefault = 'C:\Program Files (x86)\c2xlib';
+            libBasePath64 = 'C:\Program Files\c2xlib';
+            libBasePath = '';
+            if exist(libBasePath64) 
+                libBasePath = libBasePath64;
+            elseif exist(libBasePathDefault)
+                libBasePath = libBasePathDefault;
+            else 
+                error("c2x library installation not found.");
+            end
+            libPath = fullfile(libBasePath, "lib");
+            libIncludePath = fullfile(libBasePath, "include");
             libPriority = '';
             libPreCompiled = true;
             libLinkOnly = true;
 
             % Linking command
             buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
-            buildInfo.addIncludePaths(libPath);
+            buildInfo.addIncludePaths(libIncludePath);
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
     end
