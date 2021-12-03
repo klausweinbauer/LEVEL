@@ -89,20 +89,7 @@ classdef GetCAMRSUContainerHighFrequency < matlab.System & coder.ExternalDepende
         end
         
         function updateBuildInfo(buildInfo, buildContext)
-            [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
-
-            % Parametrize library extension
-            libName =  strcat('c2xcam', linkLibExt);
-            % Other linking parameters
-            libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
-            libPriority = '';
-            libPreCompiled = true;
-            libLinkOnly = true;
-
-            % Linking command
-            buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
-            buildInfo.addIncludePaths(libPath);
-            buildInfo.addIncludeFiles('c2xcommon.h');
+            LibConfig.updateBuildInfoCAM(buildInfo, buildContext);
         end
     end
 

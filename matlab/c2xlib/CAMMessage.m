@@ -58,22 +58,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
         end
         
         function updateBuildInfo(buildInfo, buildContext)
-            [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
-
-            % Parametrize library extension
-            libName =  strcat('c2xcam', linkLibExt);
-            % Other linking parameters
-            
-            libPriority = '';
-            libPreCompiled = true;
-            libLinkOnly = true;
-
-            % Linking command
-            libDLLPath = LibConfig.getDLLPath();
-            libIncludePath = LibConfig.getIncludePath();
-            buildInfo.addLinkObjects(libName,libDLLPath,libPriority,libPreCompiled,libLinkOnly);
-            buildInfo.addIncludePaths(libIncludePath);
-            buildInfo.addIncludeFiles('c2xcommon.h');
+            LibConfig.updateBuildInfoCAM(buildInfo, buildContext);
         end
     end
 end
