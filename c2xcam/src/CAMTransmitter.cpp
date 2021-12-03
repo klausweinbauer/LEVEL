@@ -74,7 +74,7 @@ void CAMTransmitter::send()
 		}
 		catch (const std::exception& ex)
 		{
-			std::cout << "[Error] CAMTransmitter::send() | " << ex.what() << std::endl;
+			std::cout << "CAMTransmitter::send() | " << ex.what() << std::endl;
 
             const int wait_time = 10000;
             #ifdef WIN32

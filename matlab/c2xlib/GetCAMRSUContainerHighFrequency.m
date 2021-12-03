@@ -16,7 +16,7 @@ classdef GetCAMRSUContainerHighFrequency < matlab.System & coder.ExternalDepende
         
         function [Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9, Zone10] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 Zone1 = int32(zeros(6, 1));
                 Zone2 = int32(zeros(6, 1));
                 Zone3 = int32(zeros(6, 1));

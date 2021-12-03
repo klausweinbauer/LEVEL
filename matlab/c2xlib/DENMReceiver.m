@@ -13,7 +13,7 @@ classdef DENMReceiver < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('startDENMReceiver', obj.Port);
             end 
         end
@@ -23,7 +23,7 @@ classdef DENMReceiver < matlab.System & coder.ExternalDependency
         
         function releaseImpl(~)  
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('stopDENMReceiver');
             end           
         end

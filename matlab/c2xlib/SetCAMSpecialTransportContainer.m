@@ -19,25 +19,15 @@ classdef SetCAMSpecialTransportContainer < matlab.System & coder.ExternalDepende
                 err = int32(0);
                 TmpSpecialTransportType = uint8(SpecialTransportType);
                 TmpLightBarSirenInUse = uint8(LightBarSirenInUse);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('setCAMSpecialTransportContainer', StationID, coder.ref(TmpSpecialTransportType), ...
                     length(TmpSpecialTransportType), coder.ref(TmpLightBarSirenInUse), length(TmpLightBarSirenInUse));
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)

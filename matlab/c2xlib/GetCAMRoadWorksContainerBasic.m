@@ -23,7 +23,7 @@ classdef GetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
                 ClosedLaneInnerhardShoulderStatus = int32(0);
                 ClosedLaneOuterhardShoulderStatus = int32(0);
                 ClosedLaneDrivingLaneStatus = uint8(zeros(obj.ClosedLaneDrivingLaneStatusSize, 1));
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMRoadWorksContainerBasic', StationID, coder.ref(RoadworksSubCauseCode), ...
                     coder.ref(LightBarSirenInUse), length(LightBarSirenInUse), coder.ref(ClosedLaneInnerhardShoulderStatus), ...
                     coder.ref(ClosedLaneOuterhardShoulderStatus), coder.ref(ClosedLaneDrivingLaneStatus), length(ClosedLaneDrivingLaneStatus));

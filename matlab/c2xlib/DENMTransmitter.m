@@ -14,14 +14,14 @@ classdef DENMTransmitter < matlab.System & coder.ExternalDependency
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('startDENMTransmitter', obj.Port);
             end 
         end
         
         function [] = stepImpl(obj, StationID, SequenceNumber, f_send) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('setDENMTransmissionFrequency', f_send);
                 coder.ceval('setDENMTransmissionSource', StationID, SequenceNumber);
             end            
@@ -29,7 +29,7 @@ classdef DENMTransmitter < matlab.System & coder.ExternalDependency
         
         function releaseImpl(~)   
             if coder.target('Rtw') || coder.target('Sfun') 
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('stopDENMTransmitter');
             end          
         end

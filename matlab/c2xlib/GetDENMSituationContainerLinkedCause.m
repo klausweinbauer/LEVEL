@@ -17,7 +17,7 @@ classdef GetDENMSituationContainerLinkedCause < matlab.System & coder.ExternalDe
             if coder.target('Rtw') || coder.target('Sfun') 
                 CauseCode = int32(0);
                 SubCauseCode = int32(0);
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('getDENMSituationContainerLinkedCause', StationID, SequenceNumber, coder.ref(CauseCode), coder.ref(SubCauseCode));
             end            
         end

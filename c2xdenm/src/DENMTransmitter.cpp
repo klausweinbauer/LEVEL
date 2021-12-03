@@ -71,7 +71,7 @@ void DENMTransmitter::send()
 		}
 		catch (const std::exception& ex)
 		{
-			std::cout << "[Error] DENMTransmitter::send() | " << ex.what() << std::endl;
+			std::cout << "DENMTransmitter::send() | " << ex.what() << std::endl;
 
 			const int wait_time = 10000;
 #ifdef WIN32

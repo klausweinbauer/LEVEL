@@ -168,7 +168,7 @@ int createCAM(int stationID) {
     if (it != databaseCAM_.end()) {
         databaseLockCAM_.unlock();
         std::stringstream errMsgStream;
-        errMsgStream << "[ERROR] CAM with Id '" << stationID << "' already exists. " 
+        errMsgStream << "CAM with Id '" << stationID << "' already exists. " 
             << "You can not have two CAMMessage Blocks with the same Id." << std::endl;
         setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_CAM_ALREADY_EXISTS;
@@ -272,7 +272,7 @@ int getBasicVehicleContainerHighFrequency(int stationID, BasicVehicleContainerHi
     else if (cam->cam.camParameters.highFrequencyContainer.present != HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) 
     {
         std::stringstream errMsgStream;
-        errMsgStream << "[ERROR] Wrong type of HighFrequencyContainer. HighFrequencyContainer of CAMMessage from station '" << stationID 
+        errMsgStream << "Wrong type of HighFrequencyContainer. HighFrequencyContainer of CAMMessage from station '" << stationID 
             << "' was already specified as 'RSUContainerHighFrequency'. You can not use multiple HighFrequencyContainers." << std::endl;
         setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_HIGH_FREQ_CONTAINER_TYPE;
@@ -630,7 +630,7 @@ int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleCo
         *container = &cam->cam.camParameters.specialVehicleContainer->choice;
     } else {
         std::stringstream errMsgStream;
-        errMsgStream << "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer per CAM message. "
+        errMsgStream << "Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer per CAM message. "
             << "Container is of type '" << toString(cam->cam.camParameters.specialVehicleContainer->present) << "' "
             << "but type '" << toString(type) << "' "
             << "is needed." << std::endl;
@@ -1540,11 +1540,11 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
         std::string xmlTag(retVal.failed_type->xml_tag);
         if (xmlTag.compare(xmlTagHighFrequencyContainerString) == 0) {
             errMsgStream
-                << "[ERROR] No HighFrequencyContainer specified for CAM message from station '" << stationID << "'. " 
+                << "No HighFrequencyContainer specified for CAM message from station '" << stationID << "'. " 
                 << "Add a BasicVehicleContainerHighFrequency or a RSUContainerHighFrequency block to this message." << std::endl;
         } else {
             errMsgStream 
-                << "[ERROR] CAM Encoding failed (Code=" << retVal.failed_type->name << "). " 
+                << "CAM Encoding failed (Code=" << retVal.failed_type->name << "). " 
                 << "This is probably due to an invalid value of property '" << retVal.failed_type->xml_tag
                 << "' in the message of Station '" << stationID << "'." << std::endl;
         }
@@ -1581,7 +1581,7 @@ int startCAMReceiver(int port)
     catch (const std::exception& ex)
     {
         return ERR_RECEIVER_START;
-        std::cout << "[ERROR] " << ex.what() << std::endl;
+        std::cout << "" << ex.what() << std::endl;
     }
     return 0;
 }
@@ -1601,7 +1601,7 @@ int startCAMTransmitter(int port)
     catch (const std::exception& ex)
     {
         return ERR_TRANSMITTER_START;
-        std::cout << "[ERROR] " << ex.what() << std::endl;
+        std::cout << "" << ex.what() << std::endl;
     }
     return 0;
 }

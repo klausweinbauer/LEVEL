@@ -18,7 +18,7 @@ classdef GetDENMSituationContainer < matlab.System & coder.ExternalDependency
                 InformationQuality = int32(0);
                 CauseCode = int32(0);
                 SubCauseCode = int32(0);
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('getDENMSituationContainer', StationID, SequenceNumber, coder.ref(InformationQuality), coder.ref(CauseCode), coder.ref(SubCauseCode));
             end            
         end

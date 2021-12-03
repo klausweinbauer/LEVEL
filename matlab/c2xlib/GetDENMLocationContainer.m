@@ -30,7 +30,7 @@ classdef GetDENMLocationContainer < matlab.System & coder.ExternalDependency
                 T9Buffer = int32(zeros(obj.TraceLength * 4, 1));
                 T10Buffer = int32(zeros(obj.TraceLength * 4, 1));
                 ActualSize = int32(0);
-                coder.cinclude('c2xdenm.h');
+                coder.cinclude(LibConfig.getDENMHeader());
                 if obj.NumberTraces > 0
                     coder.ceval('getDENMLocationContainerTrace', StationID, SequenceNumber, 0, coder.ref(T0Buffer), length(T0Buffer), coder.ref(ActualSize));
                     T0 = int32(transpose(reshape(T0Buffer, 4, obj.TraceLength)));

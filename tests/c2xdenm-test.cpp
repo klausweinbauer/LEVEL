@@ -50,7 +50,7 @@ TEST(DENM_Coding, Error_Due_To_Invalid_Value)
     c2x::deleteDENM(1, 1);
 
     std::stringstream ss;
-    ss << "[ERROR] DENM Encoding failed (Code=PositioningSolutionType). " 
+    ss << "DENM Encoding failed (Code=PositioningSolutionType). " 
         << "This is probably due to an invalid value of property 'PositioningSolutionType' " 
         << "in the message of Station '1' and sequence number '1'." << std::endl;
     ASSERT_EQ(err, ERR_ENCODE);

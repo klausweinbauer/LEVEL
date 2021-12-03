@@ -20,26 +20,16 @@ classdef SetCAMRoadWorksContainerBasic < matlab.System & coder.ExternalDependenc
                 err = int32(0);
                 TmpLightBarSirenInUse = uint8(LightBarSirenInUse);
                 TmpClosedLaneDrivingLaneStatus = uint8(ClosedLaneDrivingLaneStatus);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('setCAMRoadWorksContainerBasic', StationID, RoadworksSubCauseCode, coder.ref(TmpLightBarSirenInUse), ...
                     length(TmpLightBarSirenInUse), ClosedLaneInnerhardShoulderStatus, ClosedLaneOuterhardShoulderStatus, ...
                     coder.ref(TmpClosedLaneDrivingLaneStatus), length(TmpClosedLaneDrivingLaneStatus));
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)

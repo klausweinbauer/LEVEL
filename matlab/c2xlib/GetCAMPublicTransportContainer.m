@@ -19,7 +19,7 @@ classdef GetCAMPublicTransportContainer < matlab.System & coder.ExternalDependen
                 EmbarkationStatus = int32(0);
                 PtActivationType = int32(0);
                 PtActivationData = uint8(zeros(obj.PtActivationDataSize, 1));
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMPublicTransportContainer', StationID, coder.ref(EmbarkationStatus), ...
                     coder.ref(PtActivationType), coder.ref(PtActivationData), obj.PtActivationDataSize);
             end

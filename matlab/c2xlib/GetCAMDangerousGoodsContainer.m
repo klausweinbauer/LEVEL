@@ -18,7 +18,7 @@ classdef GetCAMDangerousGoodsContainer < matlab.System & coder.ExternalDependenc
         function [DangerousGoodsBasic] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 DangerousGoodsBasic = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMDangerousGoodsContainer', StationID, coder.ref(DangerousGoodsBasic));
             end
         end

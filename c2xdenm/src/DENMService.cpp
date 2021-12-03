@@ -58,8 +58,8 @@ int encode(asn_TYPE_descriptor_t* type, void* struct_ptr, c2x::Buffer* buffer)
     if (retVal.encoded == -1)
     {
 #ifdef DEBUG
-        std::cerr << "[ERROR] Encode failed." << std::endl;
-        std::cerr << "[ERROR] Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
+        std::cerr << "Encode failed." << std::endl;
+        std::cerr << "Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
 #endif
         return ERR_ENCODE;
     }
@@ -97,7 +97,7 @@ int encodeDENM(DENM_t* denm, void* buffer, int size)
 #ifdef DEBUG
     if (copiedBytes != required_buffer_size)
     {
-        std::cerr << "[ERROR] Copied wrong number of bytes from vector buffer to transmission buffer." << std::endl;
+        std::cerr << "Copied wrong number of bytes from vector buffer to transmission buffer." << std::endl;
         return ERR_WRONG_SIZE;
     }
 #endif

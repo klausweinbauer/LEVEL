@@ -18,25 +18,15 @@ classdef SetCAMSafetyCarContainer < matlab.System & coder.ExternalDependency
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 TmpLightBarSirenInUse = uint8(LightBarSirenInUse);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('setCAMSafetyCarContainer', StationID, coder.ref(TmpLightBarSirenInUse), length(TmpLightBarSirenInUse), ...
                     CauseCode, SubCauseCode, TrafficRule, SpeedLimit);
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)

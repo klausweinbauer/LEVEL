@@ -21,7 +21,7 @@ classdef GetCAMSafetyCarContainer < matlab.System & coder.ExternalDependency
                 SubCauseCode = int32(0);
                 TrafficRule = int32(0);
                 SpeedLimit = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMSafetyCarContainer', StationID, coder.ref(LightBarSirenInUse), length(LightBarSirenInUse), ...
                     coder.ref(CauseCode), coder.ref(SubCauseCode), coder.ref(TrafficRule), coder.ref(SpeedLimit));
             end

@@ -204,7 +204,7 @@ int startDENMReceiver(int port)
     }
     catch (const std::exception& ex)
     {
-        std::cout << "[ERROR] " << ex.what() << std::endl;
+        std::cout << "" << ex.what() << std::endl;
         return ERR_RECEIVER_START;
     }
     return 0;
@@ -224,7 +224,7 @@ int startDENMTransmitter(int port)
     }
     catch (const std::exception& ex)
     {
-        std::cout << "[ERROR] " << ex.what() << std::endl;
+        std::cout << "" << ex.what() << std::endl;
         return ERR_TRANSMITTER_START;
     }
     return 0;
@@ -2122,7 +2122,7 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
         std::stringstream errMsgStream;
         std::string xmlTag(retVal.failed_type->xml_tag);
         errMsgStream 
-            << "[ERROR] DENM Encoding failed (Code=" << retVal.failed_type->name << "). " 
+            << "DENM Encoding failed (Code=" << retVal.failed_type->name << "). " 
             << "This is probably due to an invalid value of property '" << retVal.failed_type->xml_tag
             << "' in the message of Station '" 
             << stationID << "' and sequence number '" << sequenceNumber << "'." << std::endl;

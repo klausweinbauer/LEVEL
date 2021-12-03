@@ -17,7 +17,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
                 err = int32(0);
                 coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('createCAM', obj.StationID, obj.HeighFrequencyContainerType);
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end 
         end
         
@@ -30,17 +30,8 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
                 err = int32(0);
                 coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('deleteCAM', obj.StationID);
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end    
-        end
-
-        function printErrorCode(~, err)
-            if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                error(char(MsgBytes));
-            end
         end
     end
     methods (Static)

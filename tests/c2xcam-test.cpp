@@ -89,7 +89,7 @@ TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Missing_HighFrequencyContainer_Def
     c2x::deleteCAM(id);
 
     std::stringstream ss;
-    ss << "[ERROR] No HighFrequencyContainer specified for CAM message from station '1'. " 
+    ss << "No HighFrequencyContainer specified for CAM message from station '1'. " 
         << "Add a BasicVehicleContainerHighFrequency or a RSUContainerHighFrequency block to this message." << std::endl;
     ASSERT_EQ(err, ERR_ENCODE);
     ASSERT_STREQ(ss.str().c_str(), errMsg);
@@ -107,7 +107,7 @@ TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Invalid_Value)
     c2x::deleteCAM(id);
 
     std::stringstream ss;
-    ss << "[ERROR] CAM Encoding failed (Code=DriveDirection). " 
+    ss << "CAM Encoding failed (Code=DriveDirection). " 
         << "This is probably due to an invalid value of property 'DriveDirection' in the message of Station '1'." << std::endl;
     ASSERT_EQ(err, ERR_ENCODE);
     ASSERT_STREQ(ss.str().c_str(), errMsg);
@@ -280,7 +280,7 @@ TEST(CAM_SpecialVehicleContainer, Error_Messages)
     ASSERT_EQ(ERR_MSG_NOT_FOUND, errMsgNotFound);
     ASSERT_EQ(ERR_NULL, errNull); 
     ASSERT_EQ(ERR_SPECIAL_VEHICLE_CONTAINER_TYPE, errType);
-    ASSERT_STREQ(buffer, "[ERROR] Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer "
+    ASSERT_STREQ(buffer, "Wrong type of SpecialVehicleContainer. You can only have one type of SpecialVehicleContainer "
         "per CAM message. Container is of type 'PublicTransportContainer' but type 'DangerousGoodsContainer' is needed.\n");
 }
 

@@ -19,7 +19,7 @@ classdef GetCAMSpecialTransportContainer < matlab.System & coder.ExternalDepende
             if coder.target('Rtw') || coder.target('Sfun') 
                 SpecialTransportType = uint8(zeros(obj.SpecialTransportTypeSize, 1));
                 LightBarSirenInUse = uint8(zeros(obj.LightBarSirenInUseSize, 1));
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMSpecialTransportContainer', StationID, coder.ref(SpecialTransportType), ...
                     length(SpecialTransportType), coder.ref(LightBarSirenInUse), length(LightBarSirenInUse));
             end

@@ -58,7 +58,7 @@ namespace c2x {
             }
             catch (const std::exception& ex)
             {
-                std::cout << "[Error] PacketReceiver::receive() | " << ex.what() << std::endl;
+                std::cout << "PacketReceiver::receive() | " << ex.what() << std::endl;
 
                 const int wait_time = 10000;
                 #ifdef WIN32

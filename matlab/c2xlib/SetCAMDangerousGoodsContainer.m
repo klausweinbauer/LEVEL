@@ -17,24 +17,14 @@ classdef SetCAMDangerousGoodsContainer < matlab.System & coder.ExternalDependenc
         function [] = stepImpl(obj, StationID, DangerousGoodsBasic) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 err = coder.ceval('setCAMDangerousGoodsContainer', StationID, DangerousGoodsBasic);
-                obj.printErrorCode(err);
+                LibConfig.printErrorCode(err);
             end            
         end
         
         function releaseImpl(~)            
         end
-
-        function printErrorCode(~, err)
-            if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
-                MsgLength = int32(0);
-                coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                error(char(MsgBytes));
-            end
-        end
-
     end
     methods (Static)
         function bName = getDescriptiveName(~)

@@ -21,7 +21,7 @@ classdef GetCAMEmergencyContainer < matlab.System & coder.ExternalDependency
                 EmergencyPriority = uint8(zeros(obj.EmergencyPrioritySize, 1));
                 CauseCode = int32(0);
                 SubCauseCode = int32(0);
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMEmergencyContainer', StationID, coder.ref(LightBarSirenInUse), length(LightBarSirenInUse), ...
                     coder.ref(CauseCode), coder.ref(SubCauseCode), coder.ref(EmergencyPriority), length(EmergencyPriority));
             end

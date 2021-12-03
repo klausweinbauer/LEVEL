@@ -19,7 +19,7 @@ classdef GetDENMSituationContainerEventHistory < matlab.System & coder.ExternalD
                 if obj.EventHistorySize > 0
                     LinearHistory = int32(zeros(obj.EventHistorySize * 5, 1));
                     TmpActualEventHistorySize = int32(0);
-                    coder.cinclude('c2xdenm.h');
+                    coder.cinclude(LibConfig.getDENMHeader());
                     coder.ceval('getDENMSituationContainerEventHistory', StationID, SequenceNumber, coder.ref(LinearHistory), obj.EventHistorySize * 5, coder.ref(TmpActualEventHistorySize));
                     EventHistory = transpose(reshape(LinearHistory, [5, obj.EventHistorySize]));
                     ActualEventHistorySize = TmpActualEventHistorySize / 5;       

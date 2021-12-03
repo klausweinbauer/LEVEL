@@ -17,7 +17,7 @@ classdef GetCAMRescueContainer < matlab.System & coder.ExternalDependency
         function [LightBarSirenInUse] = stepImpl(obj, StationID) 
             if coder.target('Rtw') || coder.target('Sfun') 
                 LightBarSirenInUse = uint8(zeros(obj.LightBarSirenInUseSize, 1));
-                coder.cinclude('c2xcam.h');
+                coder.cinclude(LibConfig.getCAMHeader());
                 coder.ceval('getCAMRescueContainer', StationID, coder.ref(LightBarSirenInUse), length(LightBarSirenInUse));
             end
         end
