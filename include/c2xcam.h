@@ -10,6 +10,7 @@ extern "C"
 
 int SHARED_EXPORT createCAM(int stationID);
 int SHARED_EXPORT deleteCAM(int stationID);
+int SHARED_EXPORT defineCAMHighFrequencyContainer(int stationID, int type);
 
 #pragma region Setter
 int SHARED_EXPORT setCAMHeader(int stationID, int protocolVersion, int messageID);

@@ -91,8 +91,8 @@ classdef SetCAMRSUContainerHighFrequency < matlab.System & coder.ExternalDepende
         end
 
         function validatePropertiesImpl(obj)
-            if ((obj.ProtectedCommunicationZoneNumber < 1 || obj.ProtectedCommunicationZoneNumber > 10))
-                error("Number of Zones must be between 1 and 10.");
+            if ((obj.ProtectedCommunicationZoneNumber < 0 || obj.ProtectedCommunicationZoneNumber > 10))
+                error("Number of Zones must be between 0 and 10.");
             end
         end
     end

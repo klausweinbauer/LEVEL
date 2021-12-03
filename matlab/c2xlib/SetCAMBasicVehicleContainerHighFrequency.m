@@ -1,7 +1,6 @@
 classdef SetCAMBasicVehicleContainerHighFrequency < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
-          
     end
     
     properties (Hidden)

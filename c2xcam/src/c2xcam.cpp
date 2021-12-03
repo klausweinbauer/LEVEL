@@ -202,6 +202,29 @@ int deleteCAM(int id) {
     return 0;
 }
 
+int defineCAMHighFrequencyContainer(int stationID, int type)
+{
+    databaseLockCAM_.lock();
+    CAM_t* cam = getCAM(stationID);
+    if (!cam) {
+        databaseLockCAM_.unlock();
+        return ERR_MSG_NOT_FOUND;
+    }
+
+    switch (type)
+    {
+    case 1:
+        cam->cam.camParameters.highFrequencyContainer.present = HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
+        break;
+    case 2:
+        cam->cam.camParameters.highFrequencyContainer.present = HighFrequencyContainer_PR_rsuContainerHighFrequency;
+        break;
+    default:
+        cam->cam.camParameters.highFrequencyContainer.present = HighFrequencyContainer_PR_NOTHING;
+        break;
+    }
+}
+
 #pragma region Setter
 
 int setCAMHeader(int stationID, int protocolVersion, int messageID) 

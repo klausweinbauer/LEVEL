@@ -56,47 +56,48 @@ classdef LibConfig
             buildInfo.addIncludeFiles('c2xcommon.h');
         end
 
-        function printErrorCode(~, err)
+        function printErrorCode(err)
             if (err < 0)
                 MsgBytes = uint8(zeros(255, 1));
                 MsgLength = int32(0);
                 coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                type = getErrorName(err);
+                type = LibConfig.getErrorName(err);
                 error(char(MsgBytes));
             end
         end
 
-        function getErrorName(~, err) 
+        function [name] = getErrorName(err)
+            name = '';
             if (err == -1)
-                error('ERR_MSG_NOT_FOUND')
+                name = 'ERR_MSG_NOT_FOUND';
             elseif (err == -2)
-                error('ERR_ALLOC_FAILED')
+                name = 'ERR_ALLOC_FAILED';
             elseif (err == -3)
-                error('ERR_NULL')
+                name = 'ERR_NULL';
             elseif (err == -4)
-                error('ERR_BUFFER_OVERFLOW')
+                name = 'ERR_BUFFER_OVERFLOW';
             elseif (err == -5)
-                error('ERR_ENCODE')
+                name = 'ERR_ENCODE';
             elseif (err == -6)
-                error('ERR_DECODE')
+                name = 'ERR_DECODE';
             elseif (err == -7)
-                error('ERR_RECEIVER_START')
+                name = 'ERR_RECEIVER_START';
             elseif (err == -8)
-                error('ERR_TRANSMITTER_START')
+                name = 'ERR_TRANSMITTER_START';
             elseif (err == -9)
-                error('ERR_ARG_NULL')
+                name = 'ERR_ARG_NULL';
             elseif (err == -10)
-                error('ERR_INDEX_OUT_OF_RANGE')
+                name = 'ERR_INDEX_OUT_OF_RANGE';
             elseif (err == -20)
-                error('ERR_HIGH_FREQ_CONTAINER_TYPE')
+                name = 'ERR_HIGH_FREQ_CONTAINER_TYPE';
             elseif (err == -21)
-                error('ERR_LOW_FREQ_CONTAINER_TYPE')
+                name = 'ERR_LOW_FREQ_CONTAINER_TYPE';
             elseif (err == -22)
-                error('ERR_CAM_ALREADY_EXISTS')
+                name = 'ERR_CAM_ALREADY_EXISTS';
             elseif (err == -23)
-                error('ERR_SPECIAL_VEHICLE_CONTAINER_TYPE')
+                name = 'ERR_SPECIAL_VEHICLE_CONTAINER_TYPE';
             elseif (err == -40)
-                error('ERR_DENM_ALREADY_EXISTS')
+                name = 'ERR_DENM_ALREADY_EXISTS';
             end
         end
     end

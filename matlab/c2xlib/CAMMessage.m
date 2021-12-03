@@ -2,7 +2,7 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         StationID = 0;
-        HeighFrequencyContainerType = 0;  
+        HighFrequencyContainer = 'NONE';
     end
     
     properties (Hidden)
@@ -11,12 +11,23 @@ classdef CAMMessage < matlab.System & coder.ExternalDependency
     properties (Access = protected)
     end
 
+    properties (Hidden, Constant)
+        HighFrequencyContainerSet = matlab.system.StringSet({'NONE', 'BasicVehicleContainerHighFrequency', 'RSUContainerHighFrequency'})
+    end
+
     methods (Access = protected)
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 err = int32(0);
                 coder.cinclude(LibConfig.getCAMHeader());
-                err = coder.ceval('createCAM', obj.StationID, obj.HeighFrequencyContainerType);
+                err = coder.ceval('createCAM', obj.StationID);
+                if strcmp(obj.HighFrequencyContainer, 'BasicVehicleContainerHighFrequency')
+                    coder.ceval('defineCAMHighFrequencyContainer', obj.StationID, 1);
+                elseif strcmp(obj.HighFrequencyContainer, 'RSUContainerHighFrequency')
+                    coder.ceval('defineCAMHighFrequencyContainer', obj.StationID, 2);
+                else
+                    coder.ceval('defineCAMHighFrequencyContainer', obj.StationID, 0);
+                end
                 LibConfig.printErrorCode(err);
             end 
         end
