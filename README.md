@@ -10,7 +10,7 @@ For setup on Windows and usage in Simulink you can run the precompile and ready-
 
 The easiest and fastest way is to use the installer:
 1. Download and run the [Windows installer](C2XLib-0.1.0-win64.msi)
-2. Add the following path to the compiled library to your environemtn variables. This is important, otherwise Simulink will not be able to run simulatinos when it can not find the execution engine.
+2. Add the following path to the compiled library to your environment variables. This is important, otherwise Simulink will not be able to run simulatinos when it can not find the execution engine.
 ```
 C:\Program Files\c2xlib\lib
 ```
