@@ -556,13 +556,10 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLat
     databaseLockCAM_.unlock();
 }
 
-int addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int protectedZoneType, 
-    int expiryTime, int protectedZoneLatitude, int protectedZoneLongitude, int protectedZoneRadius, int protectedZoneID)
+int getRSUContainerHighFrequency(int stationID, RSUContainerHighFrequency_t **container) 
 {
-    databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
     if (!cam) {
-        databaseLockCAM_.unlock();
         return ERR_MSG_NOT_FOUND;
     }
 
@@ -572,16 +569,32 @@ int addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
     else if (cam->cam.camParameters.highFrequencyContainer.present != 
         HighFrequencyContainer_PR_rsuContainerHighFrequency) 
     {
-        databaseLockCAM_.unlock();
+        std::stringstream errMsgStream;
+        errMsgStream << "Wrong type of HighFrequencyContainer in CAM message for station '" << stationID << "'. " 
+            << "RSUContainerHighFrequency is needed but BasicVehicleContainerHighFrequency is present." << std::endl;
+        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_HIGH_FREQ_CONTAINER_TYPE;
     }
 
-    ProtectedCommunicationZonesRSU *zonesRSU = cam->cam.camParameters.highFrequencyContainer.choice
-        .rsuContainerHighFrequency.protectedCommunicationZonesRSU;
+    *container = &cam->cam.camParameters.highFrequencyContainer.choice.rsuContainerHighFrequency;
+    return 0;
+}
+
+int addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int protectedZoneType, 
+    int expiryTime, int protectedZoneLatitude, int protectedZoneLongitude, int protectedZoneRadius, int protectedZoneID)
+{
+    databaseLockCAM_.lock();
+    RSUContainerHighFrequency_t *container;
+    int err = getRSUContainerHighFrequency(stationID, &container);
+    if (err) {
+        databaseLockCAM_.unlock();
+        return err;
+    }
+
+    ProtectedCommunicationZonesRSU *zonesRSU = container->protectedCommunicationZonesRSU;
     if (!zonesRSU) {
         zonesRSU = new ProtectedCommunicationZonesRSU();
-        cam->cam.camParameters.highFrequencyContainer.choice
-        .rsuContainerHighFrequency.protectedCommunicationZonesRSU = zonesRSU;
+        container->protectedCommunicationZonesRSU = zonesRSU;
         zonesRSU->list.free = freeProtectedCommunicationZone;
     }
     
@@ -605,24 +618,14 @@ int addCAMRSUContainerHighFrequencyProtectedCommunicationZone(int stationID, int
 int clearCAMRSUContainerHighFrequencyProtectedCommunicationZones(int stationID)
 {
     databaseLockCAM_.lock();
-    CAM_t* cam = getCAM(stationID);
-    if (!cam) {
+    RSUContainerHighFrequency_t *container;
+    int err = getRSUContainerHighFrequency(stationID, &container);
+    if (err) {
         databaseLockCAM_.unlock();
-        return ERR_MSG_NOT_FOUND;
+        return err;
     }
 
-    if (cam->cam.camParameters.highFrequencyContainer.present == HighFrequencyContainer_PR_NOTHING) {
-        cam->cam.camParameters.highFrequencyContainer.present = HighFrequencyContainer_PR_rsuContainerHighFrequency;
-    }
-    else if (cam->cam.camParameters.highFrequencyContainer.present != 
-        HighFrequencyContainer_PR_rsuContainerHighFrequency) 
-    {
-        databaseLockCAM_.unlock();
-        return ERR_HIGH_FREQ_CONTAINER_TYPE;
-    }
-
-    ProtectedCommunicationZonesRSU *zonesRSU = cam->cam.camParameters.highFrequencyContainer.choice
-        .rsuContainerHighFrequency.protectedCommunicationZonesRSU;
+    ProtectedCommunicationZonesRSU *zonesRSU = container->protectedCommunicationZonesRSU;
     if (!zonesRSU) {
         databaseLockCAM_.unlock();
         return ERR_NULL;

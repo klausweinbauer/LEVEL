@@ -62,7 +62,8 @@ classdef LibConfig
                 MsgLength = int32(0);
                 coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
                 type = LibConfig.getErrorName(err);
-                error(char(MsgBytes));
+                Msg = sprintf('[%s] %s', type, char(MsgBytes));
+                error(Msg);
             end
         end
 
