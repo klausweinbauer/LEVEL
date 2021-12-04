@@ -570,8 +570,8 @@ int getRSUContainerHighFrequency(int stationID, RSUContainerHighFrequency_t **co
         HighFrequencyContainer_PR_rsuContainerHighFrequency) 
     {
         std::stringstream errMsgStream;
-        errMsgStream << "Wrong type of HighFrequencyContainer in CAM message for station '" << stationID << "'. " 
-            << "RSUContainerHighFrequency is needed but BasicVehicleContainerHighFrequency is present." << std::endl;
+        errMsgStream << "Wrong type of HighFrequencyContainer. HighFrequencyContainer of CAMMessage from station '" << stationID 
+            << "' was already specified as 'BasicVehicleContainerHighFrequency'. You can not use multiple HighFrequencyContainers." << std::endl;
         setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
         return ERR_HIGH_FREQ_CONTAINER_TYPE;
     }
