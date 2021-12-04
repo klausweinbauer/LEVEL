@@ -16,9 +16,8 @@ classdef SetCAMRSUContainerHighFrequency < matlab.System & coder.ExternalDepende
         
         function [] = stepImpl(obj, StationID, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9, Zone10) 
             if coder.target('Rtw') || coder.target('Sfun') 
-                err = int32(0);
                 coder.cinclude(LibConfig.getCAMHeader());
-                err = coder.ceval('clearCAMRSUContainerHighFrequencyProtectedCommunicationZones', StationID);
+                coder.ceval('clearCAMRSUContainerHighFrequencyProtectedCommunicationZones', StationID);
                 if obj.ProtectedCommunicationZoneNumber > 0
                     if length(Zone1) ~= 6
                         error('Input Zone1 must be of length 6. You could use a ProtectedCommunicationZone Block as input.');
@@ -79,7 +78,6 @@ classdef SetCAMRSUContainerHighFrequency < matlab.System & coder.ExternalDepende
                     end
                     coder.ceval('addCAMRSUContainerHighFrequencyProtectedCommunicationZone', StationID, Zone10(1), Zone10(2), Zone10(3), Zone10(4), Zone10(5), Zone10(6));
                 end                
-                LibConfig.printErrorCode(err);
             end            
         end
         

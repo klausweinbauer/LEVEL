@@ -4,6 +4,7 @@ build/
 debug/
 .vs/
 slprj/
+_CPack_Packages/
 
 matlab/*.dll
 matlab/*.h

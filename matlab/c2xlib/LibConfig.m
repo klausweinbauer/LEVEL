@@ -18,6 +18,10 @@ classdef LibConfig
             path = 'C:\Program Files\c2xlib\include\c2xcam.h';
         end
 
+        function path = getDENMHeader(~)
+            path = 'C:\Program Files\c2xlib\include\c2xdenm.h';
+        end
+
         function updateBuildInfoCAM(buildInfo, buildContext)
             [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
 
