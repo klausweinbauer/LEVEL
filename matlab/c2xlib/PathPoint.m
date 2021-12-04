@@ -1,4 +1,4 @@
-classdef PathPoint < matlab.System & coder.ExternalDependency
+classdef PathPoint < matlab.System
     
     properties (Nontunable)          
     end
@@ -20,37 +20,7 @@ classdef PathPoint < matlab.System & coder.ExternalDependency
         function releaseImpl(~)            
         end
     end
-    methods (Static)
-        function bName = getDescriptiveName(~)
-            bName = 'SetCAMBasicContainer';
-        end
-        
-        function supported = isSupportedContext(buildContext)
-            myTarget = {'rtw'};
-            if  buildContext.isCodeGenTarget(myTarget)
-                supported = true;
-            else
-                error('API only supported for mex, lib, exe, dll');
-            end
-        end
-        
-        function updateBuildInfo(buildInfo, buildContext)
-            [~, linkLibExt, execLibExt, ~] = buildContext.getStdLibInfo();
 
-            % Parametrize library extension
-            libName =  strcat('c2xcam', linkLibExt);
-            % Other linking parameters
-            libPath = 'C:\Program Files\Polyspace\R2021a\extern\lib\win64\c2x';
-            libPriority = '';
-            libPreCompiled = true;
-            libLinkOnly = true;
-
-            % Linking command
-            buildInfo.addLinkObjects(libName,libPath,libPriority,libPreCompiled,libLinkOnly);
-            buildInfo.addIncludePaths(libPath);
-            buildInfo.addIncludeFiles('c2xcommon.h');
-        end
-    end
     methods (Access = protected)
         function [PathPoint] = getOutputSizeImpl(obj)
             PathPoint = [4 1];
