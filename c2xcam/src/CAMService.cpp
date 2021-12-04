@@ -77,10 +77,6 @@ int encode(asn_TYPE_descriptor_t* type, void* struct_ptr, c2x::Buffer* buffer)
 
     if (retVal.encoded == -1)
     {
-#ifdef DEBUG
-        std::cerr << "Encode failed." << std::endl;
-        std::cerr << "Code: " << retVal.failed_type->name << " " << retVal.failed_type->xml_tag << std::endl;
-#endif
         return ERR_ENCODE;
     }
     return 0;
@@ -114,13 +110,6 @@ int encodeCAM(CAM_t* cam, void* buffer, int size)
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
     size_t copiedBytes = vectorBuffer.copy(buffer, required_buffer_size);
-#ifdef DEBUG
-    if (copiedBytes != required_buffer_size)
-    {
-        std::cerr << "Copied wrong number of bytes from vector buffer to transmission buffer." << std::endl;
-        return ERR_WRONG_SIZE;
-    }
-#endif
 
     return required_buffer_size;
 }
