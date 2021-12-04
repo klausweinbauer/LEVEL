@@ -223,6 +223,8 @@ int defineCAMHighFrequencyContainer(int stationID, int type)
         cam->cam.camParameters.highFrequencyContainer.present = HighFrequencyContainer_PR_NOTHING;
         break;
     }
+
+    databaseLockCAM_.unlock();
 }
 
 #pragma region Setter
