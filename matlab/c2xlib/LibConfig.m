@@ -62,11 +62,11 @@ classdef LibConfig
 
         function printErrorCode(err)
             if (err < 0)
-                MsgBytes = uint8(zeros(255, 1));
+                MsgBytes = uint8(zeros(1, 255));
                 MsgLength = int32(0);
                 coder.ceval('getLastErrMsg', coder.ref(MsgBytes), length(MsgBytes), coder.ref(MsgLength));
-                type = LibConfig.getErrorName(err);
-                Msg = sprintf('[%s] %s', type, char(MsgBytes));
+                Type = LibConfig.getErrorName(err);
+                Msg = ['[', Type, '] ', char(MsgBytes)];
                 error(Msg);
             end
         end

@@ -18,7 +18,13 @@ classdef DENMReceiver < matlab.System & coder.ExternalDependency
             end 
         end
         
-        function stepImpl(obj)                        
+        function stepImpl(obj)
+            if coder.target('Rtw') || coder.target('Sfun')
+                err = int32(0);
+                coder.cinclude(LibConfig.getDENMHeader());
+                err = coder.ceval('getDENMReceiverError');
+                LibConfig.printErrorCode(err);   
+            end                      
         end
         
         function releaseImpl(~)  
