@@ -2,34 +2,42 @@ cmake_minimum_required(VERSION 3.7.2)
 
 project(c2xlib)
 
+option(TESTS "include test project in build" OFF)
+option(MATLAB "include matlab and simulink files on install" OFF)
+
 add_subdirectory(c2xcam)
 add_subdirectory(c2xdenm)
-add_subdirectory(testExec)
 
-if (UNIX) 
 ################################
 # GTest
 ################################
-add_subdirectory(tests)
-add_subdirectory(googletest)
-enable_testing()
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+if (UNIX AND BUILD_TEST)
+    message("[INFO] Tests enabled")
+    add_subdirectory(testExec)
+    add_subdirectory(tests)
+    add_subdirectory(googletest)
+    enable_testing()
+    include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-add_test(c2xtest tests/c2xtest)
+    add_test(c2xtest tests/c2xtest)
+else()
+    message("[INFO] Tests disabled")
 endif()
 
+message("[INFO] Install Matlab files: " ${MATLAB})
+if (MATLAB)
+    set(MATLAB_LIB_FILE_DIR matlab/c2xlib)
+    file(GLOB MATLAB_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_LIB_FILE_DIR}/*")
+    install(FILES ${MATLAB_LIB_FILES} 
+            DESTINATION ${MATLAB_LIB_FILE_DIR}
+            COMPONENT MatlabLib)
 
-set(MATLAB_LIB_FILE_DIR matlab/c2xlib)
-file(GLOB MATLAB_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_LIB_FILE_DIR}/*")
-install(FILES ${MATLAB_LIB_FILES} 
-        DESTINATION ${MATLAB_LIB_FILE_DIR}
-        COMPONENT MatlabLib)
-
-set(MATLAB_EXAMPLES_FILE_DIR matlab/examples)
-file(GLOB MATLAB_EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_EXAMPLES_FILE_DIR}/*")
-install(FILES ${MATLAB_EXAMPLE_FILES} 
-        DESTINATION ${MATLAB_EXAMPLES_FILE_DIR}
-        COMPONENT MatlabExamples)
+    set(MATLAB_EXAMPLES_FILE_DIR matlab/examples)
+    file(GLOB MATLAB_EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_EXAMPLES_FILE_DIR}/*")
+    install(FILES ${MATLAB_EXAMPLE_FILES} 
+            DESTINATION ${MATLAB_EXAMPLES_FILE_DIR}
+            COMPONENT MatlabExamples)
+endif()
 
 set(CPACK_GENERATOR WIX)
 set(CPACK_WIX_UPGRADE_GUID "03A103F9-E286-46C5-8DBE-F07E0F1A0CEF")
