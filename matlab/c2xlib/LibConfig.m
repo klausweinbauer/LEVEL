@@ -15,11 +15,11 @@ classdef LibConfig
         end
 
         function path = getCAMHeader(~)
-            path = 'C:\Program Files\c2xlib\include\c2xcam.h';
+            path = 'c2xcam.h';
         end
 
         function path = getDENMHeader(~)
-            path = 'C:\Program Files\c2xlib\include\c2xdenm.h';
+            path = 'c2xdenm.h';
         end
 
         function updateBuildInfoCAM(buildInfo, buildContext)
