@@ -21,12 +21,9 @@ classdef DENMTransmitter < matlab.System & coder.ExternalDependency
         
         function [] = stepImpl(obj, StationID, SequenceNumber, f_send) 
             if coder.target('Rtw') || coder.target('Sfun')
-                err = int32(0);
                 coder.cinclude(LibConfig.getDENMHeader());
                 coder.ceval('setDENMTransmissionFrequency', f_send);
-                coder.ceval('setDENMTransmissionSource', StationID, SequenceNumber);
-                err = coder.ceval('getDENMTransmitterError');
-                LibConfig.printErrorCode(err);
+                coder.ceval('setDENMTransmissionSource', StationID, SequenceNumber);                
             end            
         end
         

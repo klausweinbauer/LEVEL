@@ -19,12 +19,6 @@ classdef CAMReceiver < matlab.System & coder.ExternalDependency
         end
         
         function stepImpl(obj)
-            if coder.target('Rtw') || coder.target('Sfun')
-                err = int32(0);
-                coder.cinclude(LibConfig.getCAMHeader());
-                err = coder.ceval('getCAMReceiverError');
-                LibConfig.printErrorCode(err);   
-            end
         end
         
         function releaseImpl(~)  
