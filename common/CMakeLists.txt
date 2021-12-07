@@ -3,7 +3,6 @@ target_sources(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/VectorBuffer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VectorBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/Error.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/UDPSocket.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/UDPSocket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/PacketReceiver.hpp

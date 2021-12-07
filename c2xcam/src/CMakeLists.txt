@@ -1,10 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE    
-    #${CMAKE_CURRENT_SOURCE_DIR}/CAMService.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/CAMService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CAMTransmitter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CAMTransmitter.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/CAMContainer.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/CAMContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CAMReceiver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CAMReceiver.cpp
 )
