@@ -6,6 +6,7 @@
 
 #ifndef WIN32
 #include <unistd.h>
+#include <cstring>
 #endif
 
 namespace c2x {
