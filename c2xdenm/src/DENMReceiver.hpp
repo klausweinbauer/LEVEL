@@ -1,7 +1,6 @@
 #pragma once
 
 #include <PacketReceiver.hpp>
-#include <DENMContainer.hpp>
 #include <mutex>
 
 namespace c2x {

@@ -2,13 +2,15 @@
 #include <cstdio>
 #include <string.h>
 #include <sstream>
+#include <mutex>
 
 #ifdef __cplusplus
 namespace c2x {
 #endif
 
-static char* lastErrMsg = nullptr;
-static int lastErrMsgSize = 0;
+static char* last_err_msg = nullptr;
+static int last_err_msg_size = 0;
+static std::mutex err_lock; 
 
 void getErrMsg(int err, char* buffer, int size) {
     switch (err)
@@ -65,37 +67,44 @@ void getErrMsg(int err, char* buffer, int size) {
 
 void getLastErrMsg(char* buffer, int size, int* actualSize)
 {
-    if (!lastErrMsg) {
+    err_lock.lock();
+    if (!last_err_msg) {
+        err_lock.unlock();
         return;
     }
 
-    int cpySize = (std::min)(size, lastErrMsgSize);
-    memcpy(buffer, lastErrMsg, cpySize);
+    int cpySize = (std::min)(size, last_err_msg_size);
+    memcpy(buffer, last_err_msg, cpySize);
 
     if (actualSize) {
         *actualSize = cpySize;
     }
+    err_lock.unlock();
 }
 
 void setLastErrMsg(const char* buffer, int size)
 {
+    err_lock.lock();
     if (!buffer) {
+        err_lock.unlock();
         return;
     }
 
-    if (lastErrMsg) {
-        lastErrMsg = (char*)realloc(lastErrMsg, size);
+    if (last_err_msg) {
+        last_err_msg = (char*)realloc(last_err_msg, size);
     }
     else {
-        lastErrMsg = (char*)malloc(size);
+        last_err_msg = (char*)malloc(size);
     }
 
-    if (!lastErrMsg) {
+    if (!last_err_msg) {
+        err_lock.unlock();
         return;
     }
 
-    memcpy(lastErrMsg, buffer, size);
-    lastErrMsgSize = size;
+    memcpy(last_err_msg, buffer, size);
+    last_err_msg_size = size;
+    err_lock.unlock();
 }
 
 #pragma endregion

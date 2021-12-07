@@ -1,5 +1,4 @@
 #include <CAMTransmitter.hpp>
-#include <CAMService.hpp>
 #include <iostream>
 #include <UDPSocket.hpp>
 #include <c2xcommon.h>
@@ -57,11 +56,12 @@ void CAMTransmitter::send()
 		try
 		{
             CAMTransmitter::getInstance().transmit_ids_lock_.lock();
+            int *err = &CAMTransmitter::getInstance().last_error_;
+            *err = 0;
             for (int i = 0; i < CAMTransmitter::getInstance().transmit_ids_size_; i++) {
                 int len = 0;
                 int stationID = CAMTransmitter::getInstance().transmit_ids_[i];
-                c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
-                std::cout << "Send CAM message (length: " << len << " bytes) from station " << stationID << std::endl;
+               *err = c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
                 socket.sendTo(CAMTransmitter::getInstance().port_, buffer, len);
             }
             CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
@@ -108,7 +108,15 @@ int CAMTransmitter::setIDsToTransmit(int *ids, int size)
         transmit_ids_ = (int*)malloc(size * sizeof(int));
     }
     else {
-        transmit_ids_ = (int*)realloc(transmit_ids_, size * sizeof(int));
+        int* tmp_buf = (int*)realloc(transmit_ids_, size * sizeof(int));
+        if (!tmp_buf) {
+            delete transmit_ids_;
+            transmit_ids_lock_.unlock();
+            return ERR_ALLOC_FAILED;
+        }
+        else {
+            transmit_ids_ = tmp_buf;
+        }
     }
     transmit_ids_size_ = 0;
 
@@ -122,6 +130,15 @@ int CAMTransmitter::setIDsToTransmit(int *ids, int size)
 
     transmit_ids_lock_.unlock();
     return 0;
+}
+
+int CAMTransmitter::getLastError()
+{
+    int err;
+    CAMTransmitter::getInstance().transmit_ids_lock_.lock();
+    err = CAMTransmitter::getInstance().last_error_;
+    CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
+    return err;
 }
 
 };

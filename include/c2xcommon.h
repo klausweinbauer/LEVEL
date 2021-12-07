@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #ifdef _WIN32
-#ifdef shared_EXPORTS
+#ifdef SHARED_EXPORT
 #define SHARED_EXPORT __declspec(dllexport)
 #else
 #define SHARED_EXPORT __declspec(dllimport)

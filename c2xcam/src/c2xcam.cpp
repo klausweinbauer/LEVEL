@@ -44,10 +44,19 @@ void setBitString(BIT_STRING_t *bitString, uint8_t *data, int dataSize) {
 
     if (!bitString->buf) {
         bitString->buf = (uint8_t*)malloc(dataSize);
+        if (!bitString->buf) {
+            return;
+        }
     }
     else {
-        bitString->buf = (uint8_t*)realloc(bitString->buf, dataSize);
-    }
+        uint8_t* tmp_buf = (uint8_t*)realloc(bitString->buf, dataSize);
+        if (!tmp_buf) {
+            delete bitString->buf;
+            return;
+        } else {
+           bitString->buf = tmp_buf;
+        }
+    }    
     memcpy(bitString->buf, data, dataSize);
     bitString->size = dataSize;
     bitString->bits_unused = 0;
@@ -70,9 +79,19 @@ void setOctetString(OCTET_STRING_t *octetString, uint8_t *data, int dataSize) {
 
     if (!octetString->buf) {
         octetString->buf = (uint8_t*)malloc(dataSize);
+        if (!octetString->buf) {
+            return;
+        }
     }
     else {
-        octetString->buf = (uint8_t*)realloc(octetString->buf, dataSize);
+        uint8_t* tmp_buf = (uint8_t*)realloc(octetString->buf, dataSize);
+        if (!tmp_buf) {
+            delete octetString->buf;
+            return;
+        }
+        else {
+            octetString->buf = tmp_buf;
+        }
     }
     memcpy(octetString->buf, data, dataSize);
     octetString->size = dataSize;
@@ -95,9 +114,19 @@ void setTimestamp(TimestampIts_t *timestamp, int time) {
 
     if (!timestamp->buf) {
         timestamp->buf = (uint8_t*)malloc(sizeof(int));
+        if (!timestamp->buf) {
+            return;
+        }
     }
     else if (timestamp->size != 4) {
-        timestamp->buf = (uint8_t*)realloc(timestamp->buf, sizeof(int));
+        uint8_t* tmp_buf = (uint8_t*)realloc(timestamp->buf, sizeof(int));
+        if (!tmp_buf) {
+            delete timestamp->buf;
+            return;
+        }
+        else {
+            timestamp->buf = tmp_buf;
+        }
     }
     if (!timestamp->buf)
     {
@@ -170,7 +199,7 @@ int createCAM(int stationID) {
         std::stringstream errMsgStream;
         errMsgStream << "CAM with Id '" << stationID << "' already exists. " 
             << "You can not have two CAMMessage Blocks with the same Id." << std::endl;
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         return ERR_CAM_ALREADY_EXISTS;
     }
 
@@ -225,6 +254,7 @@ int defineCAMHighFrequencyContainer(int stationID, int type)
     }
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 #pragma region Setter
@@ -257,6 +287,7 @@ int setCAMGenerationDeltaTime(int stationID, int generationDeltaTime) {
     cam->cam.generationDeltaTime = generationDeltaTime;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicContainer(int stationID, int stationType, int latitude, int longitude, int confidenceMajor, 
@@ -281,6 +312,7 @@ int setCAMBasicContainer(int stationID, int stationType, int latitude, int longi
     pos->altitude.altitudeConfidence = altitudeConfidence;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getBasicVehicleContainerHighFrequency(int stationID, BasicVehicleContainerHighFrequency_t **container, bool initialize = false)
@@ -299,7 +331,7 @@ int getBasicVehicleContainerHighFrequency(int stationID, BasicVehicleContainerHi
         std::stringstream errMsgStream;
         errMsgStream << "Wrong type of HighFrequencyContainer. HighFrequencyContainer of CAMMessage from station '" << stationID 
             << "' was already specified as 'RSUContainerHighFrequency'. You can not use multiple HighFrequencyContainers." << std::endl;
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         return ERR_HIGH_FREQ_CONTAINER_TYPE;
     }
 
@@ -343,6 +375,7 @@ int setCAMBasicVehicleContainerHighFrequency(int stationID,
     hfc->yawRate.yawRateConfidence = yawRateConfidence;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, uint8_t *buffer, int bufferSize)
@@ -361,6 +394,7 @@ int setCAMBasicVehicleContainerHighFrequencyAccelerationControl(int stationID, u
     setBitString(hfc->accelerationControl, buffer, bufferSize);
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int lanePosition)
@@ -379,6 +413,7 @@ int setCAMBasicVehicleContainerHighFrequencyLanePosition(int stationID, int lane
     *hfc->lanePosition = lanePosition;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, int steeringWheelAngleValue, 
@@ -400,6 +435,7 @@ int setCAMBasicVehicleContainerHighFrequencySteeringWheelAngle(int stationID, in
         steeringWheelAngleConfidence;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyLateralAcceleration(int stationID, int lateralAccelerationValue, 
@@ -422,6 +458,7 @@ int setCAMBasicVehicleContainerHighFrequencyLateralAcceleration(int stationID, i
         lateralAccelerationConfidence;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, int verticalAccelerationValue, 
@@ -444,6 +481,7 @@ int setCAMBasicVehicleContainerHighFrequencyVerticalAcceleration(int stationID, 
         verticalAccelerationConfidence;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int performanceClass)
@@ -462,6 +500,7 @@ int setCAMBasicVehicleContainerHighFrequencyPerformanceClass(int stationID, int 
     *hfc->performanceClass = performanceClass;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, int protectedZoneLatitude, 
@@ -488,6 +527,7 @@ int setCAMBasicVehicleContainerHighFrequencyCenDsrcTollingZone(int stationID, in
     *hfc->cenDsrcTollingZone->cenDsrcTollingZoneID = cenDsrcTollingZoneID;
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 
@@ -508,6 +548,7 @@ int setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, uint
     }
     else if (cam->cam.camParameters.lowFrequencyContainer->present != 
         LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+        databaseLockCAM_.unlock();
         return ERR_LOW_FREQ_CONTAINER_TYPE;
     }
 
@@ -518,6 +559,7 @@ int setCAMBasicVehicleContainerLowFrequency(int stationID, int vehicleRole, uint
     setBitString(&lfc->exteriorLights, exteriorLights, exteriorLightsSize);
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLatitude, int deltaLongitude, int deltaAltitude, 
@@ -538,6 +580,7 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLat
     }
     else if (cam->cam.camParameters.lowFrequencyContainer->present != 
         LowFrequencyContainer_PR_basicVehicleContainerLowFrequency) {
+        databaseLockCAM_.unlock();
         return ERR_LOW_FREQ_CONTAINER_TYPE;
     }
 
@@ -554,6 +597,7 @@ int addCAMBasicVehicleContainerLowFrequencyPathPoint(int stationID, int deltaLat
     asn_sequence_add(&lfc->pathHistory.list, pp);
 
     databaseLockCAM_.unlock();
+    return 0;
 }
 
 int getRSUContainerHighFrequency(int stationID, RSUContainerHighFrequency_t **container) 
@@ -572,7 +616,7 @@ int getRSUContainerHighFrequency(int stationID, RSUContainerHighFrequency_t **co
         std::stringstream errMsgStream;
         errMsgStream << "Wrong type of HighFrequencyContainer. HighFrequencyContainer of CAMMessage from station '" << stationID 
             << "' was already specified as 'BasicVehicleContainerHighFrequency'. You can not use multiple HighFrequencyContainers." << std::endl;
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         return ERR_HIGH_FREQ_CONTAINER_TYPE;
     }
 
@@ -662,7 +706,7 @@ int getSpecialVehicleContainer(int stationID, void **container, SpecialVehicleCo
             << "Container is of type '" << toString(cam->cam.camParameters.specialVehicleContainer->present) << "' "
             << "but type '" << toString(type) << "' "
             << "is needed." << std::endl;
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         return ERR_SPECIAL_VEHICLE_CONTAINER_TYPE;
     }
     return 0;
@@ -1233,6 +1277,8 @@ int getCAMBasicVehicleContainerLowFrequency(CAM_t *cam, int *vehicleRole, uint8_
     if (actualExteriorLightsSize) {
         *actualExteriorLightsSize = lfc->exteriorLights.size;
     }
+
+    return 0;
 }
 
 int getCAMBasicVehicleContainerLowFrequency(int stationID, int *vehicleRole, uint8_t *exteriorLights, 
@@ -1283,6 +1329,8 @@ int getCAMBasicVehicleContainerLowFrequencyPathHistory(CAM_t *cam, int* pathHist
     if (actualPathHistorySize) {
         *actualPathHistorySize = lfc->pathHistory.list.count * 4;
     }
+
+    return 0;
 }
 
 int getCAMBasicVehicleContainerLowFrequencyPathHistory(int stationID, int* pathHistory, 
@@ -1359,7 +1407,9 @@ int getCAMPublicTransportContainer(int stationID, int *embarkationStatus, int *p
     if (ptActivationType && c->ptActivation) { 
         *ptActivationType = c->ptActivation->ptActivationType; 
     }
-    getOctetString(&c->ptActivation->ptActivationData, ptActivationData, ptActivationDataSize);
+    if (c->ptActivation) {
+        getOctetString(&c->ptActivation->ptActivationData, ptActivationData, ptActivationDataSize);
+    }
 
     databaseLockCAM_.unlock();
     return 0;
@@ -1576,12 +1626,12 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
                 << "This is probably due to an invalid value of property '" << retVal.failed_type->xml_tag
                 << "' in the message of Station '" << stationID << "'." << std::endl;
         }
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         std::cout << errMsgStream.str();
         return ERR_ENCODE;
     }
 
-    size_t required_buffer_size = vectorBuffer->size();
+    int required_buffer_size = (int)vectorBuffer->size();
     if (bufferSize < required_buffer_size)
     {
         delete vectorBuffer;
@@ -1589,7 +1639,7 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
     }
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
-    size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
+    int copiedBytes = (int)vectorBuffer->copy(buffer, required_buffer_size);
     if (actualBufferSize) {
         *actualBufferSize = copiedBytes;
     }
@@ -1614,6 +1664,12 @@ int startCAMReceiver(int port)
     return 0;
 }
 
+int getCAMReceiverError()
+{
+    return CAMReceiver::getInstance().getLastError();
+}
+
+
 int stopCAMReceiver()
 {
     CAMReceiver::getInstance().stop();
@@ -1632,6 +1688,11 @@ int startCAMTransmitter(int port)
         std::cout << "" << ex.what() << std::endl;
     }
     return 0;
+}
+
+int getCAMTransmitterError()
+{
+    return CAMTransmitter::getInstance().getLastError();
 }
 
 int stopCAMTransmitter()

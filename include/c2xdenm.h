@@ -4,18 +4,6 @@
 #include <stdbool.h>
 #include <c2xcommon.h>
 
-#ifdef _WIN32
-#ifdef shared_EXPORTS
-#define SHARED_EXPORT __declspec(dllexport)
-#else
-#define SHARED_EXPORT __declspec(dllimport)
-#endif
-#else
-#define SHARED_EXPORT
-#endif
-
-#define _COMMON_DENM
-
 #ifdef __cplusplus
 namespace c2x {
 extern "C"

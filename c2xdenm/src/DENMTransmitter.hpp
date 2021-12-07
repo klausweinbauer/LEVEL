@@ -3,7 +3,6 @@
 #include <DENM.h>
 #include <thread>
 #include <mutex>
-#include <DENMContainer.hpp>
 
 #define TRANSMIT_BUFFER_LEN 65535
 

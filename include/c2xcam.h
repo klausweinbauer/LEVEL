@@ -107,8 +107,10 @@ int SHARED_EXPORT decodeCAM(int* stationID, uint8_t* buffer, int bufferSize);
 
 #pragma region NetworkService
 int SHARED_EXPORT startCAMReceiver(int port);
+int SHARED_EXPORT getCAMReceiverError();
 int SHARED_EXPORT stopCAMReceiver();
 int SHARED_EXPORT startCAMTransmitter(int port);
+int SHARED_EXPORT getCAMTransmitterError();
 int SHARED_EXPORT stopCAMTransmitter();
 int SHARED_EXPORT setCAMTransmissionFrequency(double f);
 int SHARED_EXPORT setCAMIDsForTransmission(int *stationIDs_send, int size);

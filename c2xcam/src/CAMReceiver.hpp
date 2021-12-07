@@ -6,11 +6,15 @@ namespace c2x {
     class CAMReceiver : public PacketReceiver
     {
     protected:
+        int last_error_ = 0;
+
         CAMReceiver();
 
         void decodeMessage(char* buffer, int len);
 
     public:
+        int getLastError();
+
         static CAMReceiver& getInstance()
         {
             static CAMReceiver instance;

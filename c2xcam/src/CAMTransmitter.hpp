@@ -17,6 +17,7 @@ namespace c2x {
         int* transmit_ids_ = nullptr;
         int transmit_ids_size_ = 0;
         std::mutex transmit_ids_lock_;
+        int last_error_ = 0;
 
         CAMTransmitter();
 
@@ -37,5 +38,6 @@ namespace c2x {
         void setInterval(unsigned int interval_ms);
         int setIDsToTransmit(int *ids, int size);
         unsigned int getInterval();
+        int getLastError();
     };
 };

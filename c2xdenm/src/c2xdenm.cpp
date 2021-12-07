@@ -7,7 +7,9 @@
 #include <VectorBuffer.hpp>
 #include <sstream>
 
+#ifdef __cplusplus
 namespace c2x {
+#endif
 
 typedef struct ActionId {
     int stationID_ = 0;
@@ -122,10 +124,19 @@ void setBitString(BIT_STRING_t *bitString, uint8_t *data, int dataSize) {
 
     if (!bitString->buf) {
         bitString->buf = (uint8_t*)malloc(dataSize);
+        if (!bitString->buf) {
+            return;
+        }
     }
     else {
-        bitString->buf = (uint8_t*)realloc(bitString->buf, dataSize);
-    }
+        uint8_t* tmp_buf = (uint8_t*)realloc(bitString->buf, dataSize);
+        if (!tmp_buf) {
+            delete bitString->buf;
+            return;
+        } else {
+           bitString->buf = tmp_buf;
+        }
+    }    
     memcpy(bitString->buf, data, dataSize);
     bitString->size = dataSize;
     bitString->bits_unused = 0;
@@ -148,9 +159,19 @@ void setOctetString(OCTET_STRING_t *octetString, uint8_t *data, int dataSize) {
 
     if (!octetString->buf) {
         octetString->buf = (uint8_t*)malloc(dataSize);
+        if (!octetString->buf) {
+            return;
+        }
     }
     else {
-        octetString->buf = (uint8_t*)realloc(octetString->buf, dataSize);
+        uint8_t* tmp_buf = (uint8_t*)realloc(octetString->buf, dataSize);
+        if (!tmp_buf) {
+            delete octetString->buf;
+            return;
+        }
+        else {
+            octetString->buf = tmp_buf;
+        }
     }
     memcpy(octetString->buf, data, dataSize);
     octetString->size = dataSize;
@@ -173,9 +194,19 @@ void setTimestamp(TimestampIts_t *timestamp, int time) {
 
     if (!timestamp->buf) {
         timestamp->buf = (uint8_t*)malloc(sizeof(int));
+        if (!timestamp->buf) {
+            return;
+        }
     }
     else if (timestamp->size != 4) {
-        timestamp->buf = (uint8_t*)realloc(timestamp->buf, sizeof(int));
+        uint8_t* tmp_buf = (uint8_t*)realloc(timestamp->buf, sizeof(int));
+        if (!tmp_buf) {
+            delete timestamp->buf;
+            return;
+        }
+        else {
+            timestamp->buf = tmp_buf;
+        }
     }
     if (!timestamp->buf)
     {
@@ -1243,8 +1274,9 @@ int getSituationContainer(DENM_t* denm, SituationContainer **sc)
     *sc = denm->denm.situation;
     if (!*sc) {
         std::stringstream ss;
-        ss << "There is no SituationContainer present in this message. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
-        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        ss << "There is no SituationContainer present in this message. (StationID=" << denm->header.stationID 
+            << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), (int)ss.str().size());
         return ERR_NULL;
     }
     return 0;
@@ -1298,8 +1330,9 @@ int getDENMSituationContainerLinkedCause(DENM_t *denm, int *causeCode, int *subC
     CauseCode *cc = sc->linkedCause;
     if (!cc) {
         std::stringstream ss;
-        ss << "There is no LinkedCauseCode present in this SituationContainer. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
-        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        ss << "There is no LinkedCauseCode present in this SituationContainer. (StationID=" << denm->header.stationID 
+            << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), (int)ss.str().size());
         return ERR_NULL;
     }
 
@@ -1336,8 +1369,9 @@ int getDENMSituationContainerEventHistory(DENM_t *denm, int *eventHistory, int e
     EventHistory *eh = sc->eventHistory;
     if (!eh) {
         std::stringstream ss;
-        ss << "There is no EventHistory present in this SituationContainer. (StationID=" << denm->header.stationID << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
-        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        ss << "There is no EventHistory present in this SituationContainer. (StationID=" << denm->header.stationID 
+            << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
+        setLastErrMsg(ss.str().c_str(), (int)ss.str().size());
         return ERR_NULL;
     }
 
@@ -1357,6 +1391,7 @@ int getDENMSituationContainerEventHistory(DENM_t *denm, int *eventHistory, int e
     if (actualEventHistorySize) {
         *actualEventHistorySize = eh->list.count * 5;
     }
+    return 0;
 }
 
 int getDENMSituationContainerEventHistory(int stationID, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize)
@@ -1381,7 +1416,7 @@ int getLocationContainer(DENM_t* denm, LocationContainer **lc)
         std::stringstream ss;
         ss << "There is no LocationContainer present in this message. (StationID=" << denm->header.stationID 
             << ", SequenceNumber=" << denm->denm.management.actionID.sequenceNumber << ")" << std::endl;
-        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        setLastErrMsg(ss.str().c_str(), (int)ss.str().size());
         return ERR_NULL;
     }
     return 0;
@@ -1405,7 +1440,7 @@ int getDENMLocationContainerTrace(DENM_t *denm, int traceIndex, int* trace, int 
     {
         std::stringstream ss;
         ss << "Trace index '" << traceIndex << "' is out of range. Threr are only '" << lc->traces.list.count << "' traces in the message.";
-        setLastErrMsg(ss.str().c_str(), ss.str().size());
+        setLastErrMsg(ss.str().c_str(), (int)ss.str().size());
         return ERR_INDEX_OUT_OF_RANGE;
     }
 
@@ -1462,6 +1497,8 @@ int getDENMLocationContainerSpeed(DENM_t *denm, int *speedValue, int *speedConfi
     {
         *speedConfidence = lc->eventSpeed->speedConfidence;
     }
+
+    return 0;
 }
 
 int getDENMLocationContainerSpeed(int stationID, int sequenceNumber, int *speedValue, int *speedConfidence)
@@ -1501,6 +1538,7 @@ int getDENMLocationContainerHeading(DENM_t *denm, int *headingValue, int *headin
     {
         *headingConfidence = lc->eventPositionHeading->headingConfidence;
     }
+    return 0;
 }
 
 int getDENMLocationContainerHeading(int stationID, int sequenceNumber, int *headingValue, int *headingConfidence)
@@ -1536,6 +1574,7 @@ int getDENMLocationContainerRoadType(DENM_t *denm, int *roadType)
     {
         *roadType = *lc->roadType;
     }
+    return 0;
 }
 
 int getDENMLocationContainerRoadType(int stationID, int sequenceNumber, int *roadType)
@@ -2126,12 +2165,12 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
             << "This is probably due to an invalid value of property '" << retVal.failed_type->xml_tag
             << "' in the message of Station '" 
             << stationID << "' and sequence number '" << sequenceNumber << "'." << std::endl;
-        setLastErrMsg(errMsgStream.str().c_str(), errMsgStream.str().size());
+        setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
         std::cout << errMsgStream.str();
         return ERR_ENCODE;
     }
 
-    size_t required_buffer_size = vectorBuffer->size();
+    int required_buffer_size = (int)vectorBuffer->size();
     if (size < required_buffer_size)
     {
         delete vectorBuffer;
@@ -2139,7 +2178,7 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     }
 
     ((char*)buffer)[required_buffer_size + 1] = '\0';
-    size_t copiedBytes = vectorBuffer->copy(buffer, required_buffer_size);
+    int copiedBytes = (int)vectorBuffer->copy(buffer, required_buffer_size);
     if (actualSize) {
         *actualSize = copiedBytes;
     }
@@ -2187,4 +2226,6 @@ int setDENMTransmissionSource(int stationID, int sequenceNumber)
     return 0;
 }
 
+#ifdef __cplusplus
 };
+#endif

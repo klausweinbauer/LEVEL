@@ -10,10 +10,14 @@ CAMReceiver::CAMReceiver() {
 
 void CAMReceiver::decodeMessage(char* buffer, int len) 
 {
+	last_error_ = 0;
     int stationID;
-	decodeCAM(&stationID, (uint8_t*)buffer, len);
+	last_error_ = decodeCAM(&stationID, (uint8_t*)buffer, len);
+}
 
-	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationID << std::endl;
+int CAMReceiver::getLastError()
+{
+	return last_error_;
 }
 
 };
