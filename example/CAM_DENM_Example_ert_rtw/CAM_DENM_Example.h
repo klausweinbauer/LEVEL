@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CAM_DENM_Example'.
  *
- * Model version                  : 1.10
+ * Model version                  : 1.26
  * Simulink Coder version         : 9.5 (R2021a) 14-Nov-2020
- * C/C++ source code generated on : Tue Dec 28 09:40:47 2021
+ * C/C++ source code generated on : Tue Dec 28 11:19:12 2021
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-A
@@ -260,9 +260,7 @@ extern void CAM_DENM_Example_step(void);
  * Here is the system hierarchy for this model
  *
  * '<Root>' : 'CAM_DENM_Example'
- * '<S1>'   : 'CAM_DENM_Example/Subsystem'
- * '<S2>'   : 'CAM_DENM_Example/Subsystem/If Action Subsystem'
- * '<S3>'   : 'CAM_DENM_Example/Subsystem/If Action Subsystem1'
+ * '<S1>'   : 'CAM_DENM_Example/MATLAB Function'
  */
 #endif                                 /* RTW_HEADER_CAM_DENM_Example_h_ */
 

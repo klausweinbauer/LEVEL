@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CAM_DENM_Example'.
  *
- * Model version                  : 1.10
+ * Model version                  : 1.26
  * Simulink Coder version         : 9.5 (R2021a) 14-Nov-2020
- * C/C++ source code generated on : Tue Dec 28 09:40:47 2021
+ * C/C++ source code generated on : Tue Dec 28 11:19:12 2021
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-A

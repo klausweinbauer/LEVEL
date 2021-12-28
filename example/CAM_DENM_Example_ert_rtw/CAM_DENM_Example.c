@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CAM_DENM_Example'.
  *
- * Model version                  : 1.10
+ * Model version                  : 1.26
  * Simulink Coder version         : 9.5 (R2021a) 14-Nov-2020
- * C/C++ source code generated on : Tue Dec 28 09:40:47 2021
+ * C/C++ source code generated on : Tue Dec 28 11:19:12 2021
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-A
@@ -66,48 +66,6 @@ void CAM_DENM_Example_step(void)
   setCAMTransmissionFrequency(10.0);
   setCAMIDsForTransmission(&MsgLength, 1.0);
 
-  /* MATLABSystem: '<Root>/GetDENMSituationContainer' incorporates:
-   *  MATLABSystem: '<Root>/DENMMessage'
-   */
-  MsgLength = 0;
-  b_varargout_2 = 0;
-  rtb_PulseGenerator = 0;
-  getDENMSituationContainer(2.0, 1.0, &MsgLength, &b_varargout_2,
-    &rtb_PulseGenerator);
-
-  /* Outputs for IfAction SubSystem: '<S1>/If Action Subsystem' incorporates:
-   *  ActionPort: '<S2>/Action Port'
-   */
-  /* If: '<S1>/If' incorporates:
-   *  Constant: '<Root>/CurvatureCalcMode_unavailable'
-   *  Constant: '<Root>/CurvatureConf_unavailable'
-   *  Constant: '<Root>/CurvatureValue_straight'
-   *  Constant: '<Root>/DriveDirection_forward'
-   *  Constant: '<Root>/HeadingConf_within1Degree'
-   *  Constant: '<Root>/Length_30cm'
-   *  Constant: '<Root>/LongAccelConf_0.1m//ss'
-   *  Constant: '<Root>/NoTrailerPresent'
-   *  Constant: '<Root>/SpeedConf_10cm//s'
-   *  Constant: '<Root>/West'
-   *  Constant: '<Root>/Width_10cm'
-   *  Constant: '<Root>/YawRateConf_unavailable'
-   *  Constant: '<Root>/YawRateValue_unavailable'
-   *  Inport: '<S2>/In1'
-   *  MATLABSystem: '<Root>/CAMMessage'
-   *  MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency'
-   */
-  rtb_PulseGenerator = setCAMBasicVehicleContainerHighFrequency(1.0, 2700.0,
-    10.0, 40.0, 10.0, 0.0, 3.0, 0.0, 1.0, 0.0, 1.0, 0.0, 7.0, 2.0, 32767.0, 8.0);
-
-  /* End of Outputs for SubSystem: '<S1>/If Action Subsystem' */
-
-  /* MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency' */
-  if (rtb_PulseGenerator < 0) {
-    memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
-    MsgLength = 0;
-    getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
-  }
-
   /* MATLABSystem: '<Root>/SetCAMBasicVehicleContainerLowFrequency' incorporates:
    *  Constant: '<Root>/VehicleRole_default'
    *  Constant: '<Root>/daytimeRunningLightsOn'
@@ -136,6 +94,54 @@ void CAM_DENM_Example_step(void)
   }
 
   /* End of MATLABSystem: '<Root>/SetCAMHeader' */
+
+  /* MATLABSystem: '<Root>/GetDENMSituationContainer' incorporates:
+   *  MATLABSystem: '<Root>/DENMMessage'
+   */
+  MsgLength = 0;
+  b_varargout_2 = 0;
+  rtb_PulseGenerator = 0;
+  getDENMSituationContainer(2.0, 1.0, &MsgLength, &b_varargout_2,
+    &rtb_PulseGenerator);
+
+  /* MATLAB Function: '<Root>/MATLAB Function' incorporates:
+   *  Constant: '<Root>/Constant2'
+   *  MATLABSystem: '<Root>/GetDENMSituationContainer'
+   */
+  if (b_varargout_2 == 18) {
+    b_varargout_2 = 10;
+  } else {
+    b_varargout_2 = 40;
+  }
+
+  /* End of MATLAB Function: '<Root>/MATLAB Function' */
+
+  /* MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency' incorporates:
+   *  Constant: '<Root>/CurvatureCalcMode_unavailable'
+   *  Constant: '<Root>/CurvatureConf_unavailable'
+   *  Constant: '<Root>/CurvatureValue_straight'
+   *  Constant: '<Root>/DriveDirection_forward'
+   *  Constant: '<Root>/HeadingConf_within1Degree'
+   *  Constant: '<Root>/Length_30cm'
+   *  Constant: '<Root>/LongAccelConf_0.1m//ss'
+   *  Constant: '<Root>/NoTrailerPresent'
+   *  Constant: '<Root>/SpeedConf_10cm//s'
+   *  Constant: '<Root>/West'
+   *  Constant: '<Root>/Width_10cm'
+   *  Constant: '<Root>/YawRateConf_unavailable'
+   *  Constant: '<Root>/YawRateValue_unavailable'
+   *  MATLABSystem: '<Root>/CAMMessage'
+   */
+  rtb_PulseGenerator = setCAMBasicVehicleContainerHighFrequency(1.0, 2700.0,
+    10.0, (real_T)b_varargout_2, 10.0, 0.0, 3.0, 0.0, 1.0, 0.0, 1.0, 0.0, 7.0,
+    2.0, 32767.0, 8.0);
+  if (rtb_PulseGenerator < 0) {
+    memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
+    MsgLength = 0;
+    getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
+  }
+
+  /* End of MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency' */
 
   /* MATLABSystem: '<Root>/GetDENMHeader' incorporates:
    *  MATLABSystem: '<Root>/DENMMessage'
@@ -185,6 +191,14 @@ void CAM_DENM_Example_initialize(void)
     startCAMTransmitter(1997.0);
     rtDW.obj_k.isSetupComplete = true;
 
+    /* Start for MATLABSystem: '<Root>/SetCAMBasicVehicleContainerLowFrequency' */
+    rtDW.obj_i.matlabCodegenIsDeleted = false;
+    rtDW.obj_i.isSetupComplete = true;
+
+    /* Start for MATLABSystem: '<Root>/SetCAMHeader' */
+    rtDW.obj_g.matlabCodegenIsDeleted = false;
+    rtDW.obj_g.isSetupComplete = true;
+
     /* Start for MATLABSystem: '<Root>/DENMMessage' */
     rtDW.obj_h.matlabCodegenIsDeleted = false;
     rtDW.obj_h.isInitialized = 1;
@@ -206,14 +220,6 @@ void CAM_DENM_Example_initialize(void)
     /* Start for MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency' */
     rtDW.obj_hy.matlabCodegenIsDeleted = false;
     rtDW.obj_hy.isSetupComplete = true;
-
-    /* Start for MATLABSystem: '<Root>/SetCAMBasicVehicleContainerLowFrequency' */
-    rtDW.obj_i.matlabCodegenIsDeleted = false;
-    rtDW.obj_i.isSetupComplete = true;
-
-    /* Start for MATLABSystem: '<Root>/SetCAMHeader' */
-    rtDW.obj_g.matlabCodegenIsDeleted = false;
-    rtDW.obj_g.isSetupComplete = true;
 
     /* Start for MATLABSystem: '<Root>/GetDENMHeader' */
     rtDW.obj_a.matlabCodegenIsDeleted = false;
