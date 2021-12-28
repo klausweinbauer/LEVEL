@@ -1,0 +1,8 @@
+-IC:\Users\User\Documents\c2xlib\example
+-I"C:\Program Files\c2xlib\include"
+-IC:\Users\User\Documents\c2xlib\example\CAM_DENM_Example_ert_rtw
+-I"C:\Program Files\Polyspace\R2021a\extern\include"
+-I"C:\Program Files\Polyspace\R2021a\simulink\include"
+-I"C:\Program Files\Polyspace\R2021a\rtw\c\src"
+-I"C:\Program Files\Polyspace\R2021a\rtw\c\src\ext_mode\common"
+-I"C:\Program Files\Polyspace\R2021a\rtw\c\ert"
