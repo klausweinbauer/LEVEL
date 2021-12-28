@@ -31,3 +31,12 @@ codegen/
 octave-workspace
 
 *.exe
+*ert_rtw/tmwinternal
+*ert_rtw/*.mat
+*ert_rtw/*.rsp
+*ert_rtw/*.bat
+*ert_rtw/*.mk
+*ert_rtw/*.obj
+*ert_rtw/*.dmr
+*ert_rtw/*.txt
+*ert_rtw/*.tmw
