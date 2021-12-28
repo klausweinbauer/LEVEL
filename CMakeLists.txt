@@ -4,9 +4,15 @@ project(c2xlib)
 
 option(TESTS "include test project in build" OFF)
 option(MATLAB "include matlab and simulink files on install" OFF)
+option(BUILD_CLI "include cli in build" ON)
 
 add_subdirectory(c2xcam)
 add_subdirectory(c2xdenm)
+
+if (BUILD_CLI)
+    message("[INFO] Build c2xcli: " ${BUILD_CLI})
+    add_subdirectory(cli)
+endif()
 
 ################################
 # GTest
