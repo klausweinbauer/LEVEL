@@ -1,6 +1,7 @@
 .vscode/
 out/
 build/
+build*/
 debug/
 .vs/
 slprj/

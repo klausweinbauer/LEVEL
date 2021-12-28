@@ -19,6 +19,7 @@
 #include <stdio.h>              /* This ert_main.c example uses printf/fflush */
 #include "CAM_DENM_Example.h"          /* Model's header file */
 #include "rtwtypes.h"
+#include <unistd.h>
 
 /*
  * Associating rt_OneStep with a real-time clock or interrupt service routine
@@ -83,6 +84,11 @@ int_T main(int_T argc, const char *argv[])
    *
    *  rt_OneStep();
    */
+  while (1) {
+      rt_OneStep();
+      usleep(200000);
+  }
+
   printf("Warning: The simulation will run forever. "
          "Generated ERT main won't simulate model step behavior. "
          "To change this behavior select the 'MAT-file logging' option.\n");
