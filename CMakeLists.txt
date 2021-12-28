@@ -11,7 +11,7 @@ add_subdirectory(c2xdenm)
 ################################
 # GTest
 ################################
-if (UNIX AND BUILD_TEST)
+if (UNIX AND TESTS)
     message("[INFO] Tests enabled")
     add_subdirectory(testExec)
     add_subdirectory(tests)
