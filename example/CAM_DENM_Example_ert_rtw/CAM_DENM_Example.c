@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CAM_DENM_Example'.
  *
- * Model version                  : 1.9
+ * Model version                  : 1.10
  * Simulink Coder version         : 9.5 (R2021a) 14-Nov-2020
- * C/C++ source code generated on : Tue Dec 28 07:49:49 2021
+ * C/C++ source code generated on : Tue Dec 28 09:32:35 2021
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-A
@@ -23,10 +23,10 @@ DW rtDW;
 /* Model step function */
 void CAM_DENM_Example_step(void)
 {
-  real_T rtb_PulseGenerator;
   int32_T MsgLength;
   int32_T b_varargout_2;
-  int32_T err;
+  int32_T rtb_PulseGenerator;
+  uint32_T tmpExteriorLights;
   uint8_T MsgBytes[255];
 
   /* DiscretePulseGenerator: '<Root>/Pulse Generator' */
@@ -43,16 +43,16 @@ void CAM_DENM_Example_step(void)
   /* MATLABSystem: '<Root>/AddCAMBasicVehicleContainerLowFrequencyPathPoint' incorporates:
    *  MATLABSystem: '<Root>/CAMMessage'
    */
-  if (rtDW.obj_j.SampleActive && (rtb_PulseGenerator != 0.0)) {
+  if (rtDW.obj_j.SampleActive && (rtb_PulseGenerator != 0)) {
     rtDW.obj_j.SampleActive = false;
-    err = addCAMBasicVehicleContainerLowFrequencyPathPoint(1.0, 0.0, 0.0, 0.0,
-      0.0);
-    if (err < 0) {
+    rtb_PulseGenerator = addCAMBasicVehicleContainerLowFrequencyPathPoint(1.0,
+      0.0, 0.0, 0.0, 0.0);
+    if (rtb_PulseGenerator < 0) {
       memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
       MsgLength = 0;
       getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
     }
-  } else if ((!rtDW.obj_j.SampleActive) && (rtb_PulseGenerator == 0.0)) {
+  } else if ((!rtDW.obj_j.SampleActive) && (rtb_PulseGenerator == 0)) {
     rtDW.obj_j.SampleActive = true;
   }
 
@@ -62,17 +62,18 @@ void CAM_DENM_Example_step(void)
    *  Constant: '<Root>/Constant1'
    *  MATLABSystem: '<Root>/CAMMessage'
    */
-  rtb_PulseGenerator = 1.0;
+  MsgLength = 1;
   setCAMTransmissionFrequency(10.0);
-  setCAMIDsForTransmission(&rtb_PulseGenerator, 1.0);
+  setCAMIDsForTransmission(&MsgLength, 1.0);
 
   /* MATLABSystem: '<Root>/GetDENMSituationContainer' incorporates:
    *  MATLABSystem: '<Root>/DENMMessage'
    */
   MsgLength = 0;
   b_varargout_2 = 0;
-  err = 0;
-  getDENMSituationContainer(2.0, 1.0, &MsgLength, &b_varargout_2, &err);
+  rtb_PulseGenerator = 0;
+  getDENMSituationContainer(2.0, 1.0, &MsgLength, &b_varargout_2,
+    &rtb_PulseGenerator);
 
   /* Outputs for IfAction SubSystem: '<S1>/If Action Subsystem' incorporates:
    *  ActionPort: '<S2>/Action Port'
@@ -95,13 +96,13 @@ void CAM_DENM_Example_step(void)
    *  MATLABSystem: '<Root>/CAMMessage'
    *  MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency'
    */
-  err = setCAMBasicVehicleContainerHighFrequency(1.0, 2700.0, 10.0, 40.0, 10.0,
-    0.0, 3.0, 0.0, 1.0, 0.0, 1.0, 0.0, 7.0, 2.0, 32767.0, 8.0);
+  rtb_PulseGenerator = setCAMBasicVehicleContainerHighFrequency(1.0, 2700.0,
+    10.0, 40.0, 10.0, 0.0, 3.0, 0.0, 1.0, 0.0, 1.0, 0.0, 7.0, 2.0, 32767.0, 8.0);
 
   /* End of Outputs for SubSystem: '<S1>/If Action Subsystem' */
 
   /* MATLABSystem: '<Root>/SetCAMBasicVehicleContainerHighFrequency' */
-  if (err < 0) {
+  if (rtb_PulseGenerator < 0) {
     memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
     MsgLength = 0;
     getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
@@ -112,10 +113,10 @@ void CAM_DENM_Example_step(void)
    *  Constant: '<Root>/daytimeRunningLightsOn'
    *  MATLABSystem: '<Root>/CAMMessage'
    */
-  rtb_PulseGenerator = 4.0;
-  err = setCAMBasicVehicleContainerLowFrequency(1.0, 0.0, &rtb_PulseGenerator,
-    1.0);
-  if (err < 0) {
+  tmpExteriorLights = 4U;
+  rtb_PulseGenerator = setCAMBasicVehicleContainerLowFrequency(1.0, 0.0,
+    &tmpExteriorLights, 1.0);
+  if (rtb_PulseGenerator < 0) {
     memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
     MsgLength = 0;
     getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
@@ -127,8 +128,8 @@ void CAM_DENM_Example_step(void)
    *  Constant: '<Root>/Constant'
    *  MATLABSystem: '<Root>/CAMMessage'
    */
-  err = setCAMHeader(1.0, 1, 1);
-  if (err < 0) {
+  rtb_PulseGenerator = setCAMHeader(1.0, 1, 1);
+  if (rtb_PulseGenerator < 0) {
     memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
     MsgLength = 0;
     getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
@@ -141,8 +142,8 @@ void CAM_DENM_Example_step(void)
    */
   MsgLength = 0;
   b_varargout_2 = 0;
-  err = getDENMHeader(2.0, 1.0, &MsgLength, &b_varargout_2);
-  if (err < 0) {
+  rtb_PulseGenerator = getDENMHeader(2.0, 1.0, &MsgLength, &b_varargout_2);
+  if (rtb_PulseGenerator < 0) {
     memset(&MsgBytes[0], 0, 255U * sizeof(uint8_T));
     MsgLength = 0;
     getLastErrMsg(&MsgBytes[0], 255.0, &MsgLength);
