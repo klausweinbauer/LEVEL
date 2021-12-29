@@ -1561,7 +1561,7 @@ int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize)
     opt_codec_ctx.max_stack_size = 0;
     retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
 
-    if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
+    if (retVal.code != asn_dec_rval_code_e::RC_OK)
     {
         databaseLockCAM_.unlock();
         return ERR_DECODE;
@@ -1627,7 +1627,6 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
                 << "' in the message of Station '" << stationID << "'." << std::endl;
         }
         setLastErrMsg(errMsgStream.str().c_str(), (int)errMsgStream.str().size());
-        std::cout << errMsgStream.str();
         return ERR_ENCODE;
     }
 

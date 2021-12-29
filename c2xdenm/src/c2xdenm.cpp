@@ -2197,7 +2197,7 @@ int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size)
     opt_codec_ctx.max_stack_size = 0;
     retVal = xer_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
 
-    if (retVal.code == asn_dec_rval_code_e::RC_FAIL)
+    if (retVal.code != asn_dec_rval_code_e::RC_OK)
     {
         databaseLockDENM_.unlock();
         return ERR_DECODE;
