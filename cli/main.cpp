@@ -4,10 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <regex>
 
 #define BUFFER_SIZE 65535
 
 namespace po = boost::program_options;
+
+static bool use_filter = false;
+static std::string filter;
 
 void throwError(int err);
 void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr);
@@ -219,7 +223,21 @@ void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
 static void receiverCallbackCAM(int id)
 {
     static int n = 0;
-    std::cout << ++n << " | Receive CAM (StationId=" << id << ")" << std::endl << "> ";
+    std::cout << ++n << " | Receive CAM (StationId=" << id << ")";
+    if (use_filter) {
+        char buffer[BUFFER_SIZE];
+        std::cmatch cm;
+        std::stringstream re_builder;
+        re_builder << "<" << filter << ">(.*)</" << filter << ">";
+        std::regex re(re_builder.str(), std::regex_constants::icase);
+        c2x::encodeCAM(id, (uint8_t*)buffer, BUFFER_SIZE, nullptr);
+        if (std::regex_search(buffer, cm, re)) {
+            std::cout << " | " << filter << "=" << cm[1].str();
+        } else {
+            std::cout << " | '" << filter << "' is not a valid filter property";
+        }
+    }
+    std::cout << std::endl << "> ";
 }
 
 static void receiverCallbackDENM(int id, int seqNr)
@@ -275,7 +293,7 @@ void run(int argc, char** argv)
     desc_options.add_options()
         ("type,t", po::value<std::string>()->default_value("cam"), "Message type to be used. Possible values: cam, denm")
         ("message,m", po::value<std::string>()->value_name("file"), "Import message from file.")
-        ("export", po::value<std::string>()->value_name("file"), "Create and export xml skeleton for CAM or DENM.")
+        ("export", po::value<std::string>()->value_name("file")->implicit_value(""), "Create and export xml skeleton for CAM or DENM.")
         ("container,c", po::value<std::vector<std::string>>()->multitoken(), 
             "Specify which containers should be included.\n"
             "Values for CAM: (bvhf or rsuhf is required)\n"
@@ -299,6 +317,7 @@ void run(int argc, char** argv)
             "This value is overwritten when a message gets imported from a file.")
         ("seqNr", po::value<int>()->default_value(0), "Set sequence number for operations. This value is only used for"
             " DENMs and gets overwritten when a message gets imported from a file.")
+        ("filter", po::value<std::string>(), "Name of property to print from received messages.")
     ;
     po::options_description cmdline_options;
     cmdline_options.add(desc_usage).add(desc_options);
@@ -307,7 +326,7 @@ void run(int argc, char** argv)
     po::notify(vm);
 
     bool do_export = vm.count("export");
-    bool use_export_file = vm.count("export") && vm["export"].as<std::string>().size();
+    bool use_export_file = false;
     std::string export_file;
     bool is_cam;
     std::string type = vm["type"].as<std::string>();
@@ -316,6 +335,7 @@ void run(int argc, char** argv)
     int port = vm["port"].as<int>();
     double f = vm["frequency"].as<double>();
     bool import_msg = vm.count("message");
+    use_filter = vm.count("filter");
 
     // type
     if (type == "cam") {
@@ -361,14 +381,18 @@ void run(int argc, char** argv)
 
     // export
     if (do_export) {
-        if (use_export_file) {
-            export_file = vm["export"].as<std::string>();
-        }
+        export_file = vm["export"].as<std::string>();
+        use_export_file = !export_file.empty();
         if (is_cam) {
             exportCAM(use_export_file, export_file, id);
         } else { 
             exportDENM(use_export_file, export_file, id, seqNr);
         }
+    }
+
+    // filter
+    if (use_filter) {
+        filter = vm["filter"].as<std::string>();
     }
 
     // Exclusive usage
