@@ -166,17 +166,31 @@ void import(std::string file, bool is_cam, int *id, int *seqNr) {
     }
 }
 
+static void transmitterCallbackCAM(int id)
+{
+    static int n = 0;
+    std::cout << ++n << " | Send CAM (StationId=" << id << ")" << std::endl << "> ";
+}
+
+static void transmitterCallbackDENM(int id, int seqNr)
+{
+    static int n = 0;
+    std::cout << ++n << " | Send DENM (StationId=" << id << ", SequenceNr=" << seqNr << ")" << std::endl << "> ";
+}
+
 void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
     int err;
     if (is_cam) {
         err = c2x::setCAMTransmissionFrequency(f);
         int id_array[1] = {id};
         err = c2x::setCAMIDsForTransmission(id_array, 1);
+        c2x::setCAMSendCallback(transmitterCallbackCAM);
         err = c2x::startCAMTransmitter(port);
         std::cout << "[INFO] Start CAM Transmitter." << std::endl;
     } else {
         err = c2x::setDENMTransmissionFrequency(f);
         err = c2x::setDENMTransmissionSource(id, seqNr);
+        c2x::setDENMSendCallback(transmitterCallbackDENM);
         err = c2x::startDENMTransmitter(port);
         std::cout << "[INFO] Start DENM Transmitter." << std::endl;
     }
@@ -192,7 +206,7 @@ void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
         std::getline(std::cin, input);
     } while(input != "exit" && input != "stop");
 
-    std::cout << "=================================" << std::endl;
+    std::cout << std::endl << "=================================" << std::endl;
     if (is_cam) {        
         c2x::stopCAMTransmitter();
         std::cout << "[INFO] Stop CAM Transmitter." << std::endl;
@@ -202,13 +216,27 @@ void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
     }
 }
 
+static void receiverCallbackCAM(int id)
+{
+    static int n = 0;
+    std::cout << ++n << " | Receive CAM (StationId=" << id << ")" << std::endl << "> ";
+}
+
+static void receiverCallbackDENM(int id, int seqNr)
+{
+    static int n = 0;
+    std::cout << ++n << " | Receive DENM (StationId=" << id << ", SequenceNr=" << seqNr << ")" << std::endl << "> ";
+}
+
 void cliReceiver(bool is_cam, int port)
 {
     int err;
     if (is_cam) {
+        c2x::setCAMRecvCallback(receiverCallbackCAM);
         err = c2x::startCAMReceiver(port);
         std::cout << "[INFO] Start CAM Receiver." << std::endl;
     } else {
+        c2x::setDENMRecvCallback(receiverCallbackDENM);
         err = c2x::startDENMReceiver(port);
         std::cout << "[INFO] Start DENM Receiver." << std::endl;
     }
