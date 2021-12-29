@@ -13,6 +13,7 @@ namespace c2x {
         void decodeMessage(char* buffer, int len);
 
     public:
+        void (*recvCallback)(int stationId);
         int getLastError();
 
         static CAMReceiver& getInstance()

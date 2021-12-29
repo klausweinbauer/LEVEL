@@ -50,27 +50,31 @@ void CAMTransmitter::send()
 	WSASession session;
 #endif
 	UDPSocket socket;
+    CAMTransmitter* instance = &CAMTransmitter::getInstance();
 
 	char* buffer = (char*)malloc(TRANSMIT_BUFFER_LEN);
-	while (CAMTransmitter::getInstance().thread_running_)
+	while (instance->thread_running_)
 	{
 		try
 		{
-            CAMTransmitter::getInstance().transmit_ids_lock_.lock();
-            int *err = &CAMTransmitter::getInstance().last_error_;
+            instance->transmit_ids_lock_.lock();
+            int *err = &instance->last_error_;
             *err = 0;
-            for (int i = 0; i < CAMTransmitter::getInstance().transmit_ids_size_; i++) {
+            for (int i = 0; i < instance->transmit_ids_size_; i++) {
                 int len = 0;
-                int stationID = CAMTransmitter::getInstance().transmit_ids_[i];
+                int stationID = instance->transmit_ids_[i];
+                if (instance->sendCallback != nullptr) {
+                    instance->sendCallback(stationID);
+                }
                *err = c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
-                socket.sendTo(CAMTransmitter::getInstance().port_, buffer, len);
+                socket.sendTo(instance->port_, buffer, len);
             }
-            CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
+            instance->transmit_ids_lock_.unlock();
 
             #ifdef WIN32
-			Sleep(CAMTransmitter::getInstance().interval_ms_);
+			Sleep(instance->interval_ms_);
             #else
-            usleep(CAMTransmitter::getInstance().interval_ms_ * 1000);
+            usleep(instance->interval_ms_ * 1000);
             #endif
 		}
 		catch (const std::exception& ex)

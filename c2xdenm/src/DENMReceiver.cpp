@@ -14,9 +14,10 @@ void DENMReceiver::decodeMessage(char* buffer, int len)
 {
     int stationID, sequenceNumber;
 	decodeDENM(&stationID, &sequenceNumber, (uint8_t*)buffer, len);
-
-	std::cout << "Received message (length: " << len << " bytes)" << " from station " << stationID 
-        << " | Sequence Number: " << sequenceNumber << std::endl;
+    
+    if (recvCallback != nullptr) {
+        recvCallback(stationID, sequenceNumber);
+    }
 }
 
 };

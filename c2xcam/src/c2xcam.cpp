@@ -1712,6 +1712,19 @@ int setCAMIDsForTransmission(int *stationIDs_send, int numberStationIDs)
     return CAMTransmitter::getInstance().setIDsToTransmit(stationIDs_send, numberStationIDs);
 }
 
+int setCAMSendCallback(void (*func)(int stationId))
+{
+    CAMTransmitter::getInstance().sendCallback = func;
+    return 0;
+}
+
+int setCAMRecvCallback(void (*func)(int stationId))
+{
+    CAMReceiver::getInstance().recvCallback = func;
+    return 0;
+}
+
+
 #pragma endregion
 
 #ifdef __cplusplus

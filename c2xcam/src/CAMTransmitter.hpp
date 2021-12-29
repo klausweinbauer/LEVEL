@@ -30,6 +30,8 @@ namespace c2x {
             return instance;
         }
 
+        void (*sendCallback)(int stationId);
+
         CAMTransmitter(CAMTransmitter const&) = delete;
         void operator=(CAMTransmitter const&) = delete;
 

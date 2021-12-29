@@ -13,6 +13,10 @@ void CAMReceiver::decodeMessage(char* buffer, int len)
 	last_error_ = 0;
     int stationID;
 	last_error_ = decodeCAM(&stationID, (uint8_t*)buffer, len);
+
+    if (recvCallback != nullptr) {
+        recvCallback(stationID);
+    }
 }
 
 int CAMReceiver::getLastError()

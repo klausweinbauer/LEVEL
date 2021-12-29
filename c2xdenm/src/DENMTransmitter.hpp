@@ -30,6 +30,8 @@ public:
 		return instance;
 	}
 
+    void (*sendCallback)(int stationId, int sequenceNumber);
+
 	DENMTransmitter(DENMTransmitter const&) = delete;
 	void operator=(DENMTransmitter const&) = delete;
 

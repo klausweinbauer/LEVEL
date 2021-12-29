@@ -114,6 +114,9 @@ int SHARED_EXPORT getCAMTransmitterError();
 int SHARED_EXPORT stopCAMTransmitter();
 int SHARED_EXPORT setCAMTransmissionFrequency(double f);
 int SHARED_EXPORT setCAMIDsForTransmission(int *stationIDs_send, int size);
+
+int SHARED_EXPORT setCAMSendCallback(void (*func)(int stationId));
+int SHARED_EXPORT setCAMRecvCallback(void (*func)(int stationId));
 #pragma endregion
 
 #ifdef __cplusplus

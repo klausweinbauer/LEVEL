@@ -7,17 +7,19 @@ namespace c2x {
 
 class DENMReceiver : public PacketReceiver
 {
-protected:
-	DENMReceiver();
+    protected:
+        DENMReceiver();
 
-	void decodeMessage(char* buffer, int len);
+        void decodeMessage(char* buffer, int len);
 
-public:
-	static DENMReceiver& getInstance()
-	{
-		static DENMReceiver instance;
-		return instance;
-	}
-};
+    public:
+        void (*recvCallback)(int stationId, int sequenceNumber);
+
+        static DENMReceiver& getInstance()
+        {
+            static DENMReceiver instance;
+            return instance;
+        }
+    };
 
 };

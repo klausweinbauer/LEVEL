@@ -155,6 +155,24 @@ TEST(CAM_Network, Start_And_Stop_Receiver) {
     ASSERT_EQ(0, retStop2);
 }
 
+static int Test_CAM_Send_Callback_Id = 0;
+static void Test_CAM_Send_Callback(int stationId) {
+    Test_CAM_Send_Callback_Id = stationId;
+}
+
+TEST(CAM_Network, Test_CAM_Send_Callback) {
+    c2x::createCAM(7);
+    c2x::setCAMSendCallback(Test_CAM_Send_Callback);
+    int ids[1]{7};
+    c2x::setCAMIDsForTransmission(ids, 1);
+    c2x::startCAMTransmitter(1997);
+    usleep(100000);
+    c2x::stopCAMTransmitter();
+    c2x::deleteCAM(7);
+
+    ASSERT_EQ(7, Test_CAM_Send_Callback_Id);
+}
+
 TEST(CAM_Coding, Decode_New_Message) {
     c2x::createCAM(1);
     c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);

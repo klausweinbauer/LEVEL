@@ -2226,6 +2226,19 @@ int setDENMTransmissionSource(int stationID, int sequenceNumber)
     return 0;
 }
 
+int setDENMSendCallback(void (*func)(int stationId, int sequenceNumber))
+{
+    DENMTransmitter::getInstance().sendCallback = func;
+    return 0;
+}
+
+int setDENMRecvCallback(void (*func)(int stationId, int sequenceNumber))
+{
+    DENMReceiver::getInstance().recvCallback = func;
+    return 0;
+}
+
+
 #ifdef __cplusplus
 };
 #endif

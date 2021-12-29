@@ -44,29 +44,33 @@ void DENMTransmitter::send()
 	WSASession session;
 #endif
 	UDPSocket socket;
+    DENMTransmitter *instance = &DENMTransmitter::getInstance();
 
 	char* buffer = (char*)malloc(TRANSMIT_BUFFER_LEN);
-	while (DENMTransmitter::getInstance().thread_running_)
+	while (instance->thread_running_)
 	{
 		try
 		{
             int stationID, sequenceNumber, len;
-            DENMTransmitter::getInstance().src_lock_.lock();
-            stationID = DENMTransmitter::getInstance().src_stationID_;
-            sequenceNumber = DENMTransmitter::getInstance().src_sequenceNumber_;
-            DENMTransmitter::getInstance().src_lock_.unlock();
+            instance->src_lock_.lock();
+            stationID = instance->src_stationID_;
+            sequenceNumber = instance->src_sequenceNumber_;
+            instance->src_lock_.unlock();
 
+            if (instance->sendCallback != nullptr) {
+                instance->sendCallback(stationID, sequenceNumber);
+            }
             int encRet = c2x::encodeDENM(stationID, sequenceNumber, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
             
 			if (encRet > 0) 
             {
-                socket.sendTo(DENMTransmitter::getInstance().port_, buffer, len);
+                socket.sendTo(instance->port_, buffer, len);
             }
 
 #ifdef WIN32
-			Sleep(DENMTransmitter::getInstance().interval_ms_);
+			Sleep(instance->interval_ms_);
 #else
-			usleep(DENMTransmitter::getInstance().interval_ms_ * 1000);
+			usleep(instance->interval_ms_ * 1000);
 #endif
 		}
 		catch (const std::exception& ex)
