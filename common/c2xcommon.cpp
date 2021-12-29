@@ -67,6 +67,7 @@ void getErrMsg(int err, char* buffer, int size) {
 
 void getLastErrMsg(char* buffer, int size, int* actualSize)
 {
+    *actualSize = 0;
     err_lock.lock();
     if (!last_err_msg) {
         err_lock.unlock();
