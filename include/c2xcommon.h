@@ -36,7 +36,7 @@ extern "C"
 #define ERR_SPECIAL_VEHICLE_CONTAINER_TYPE -23
 #define ERR_DENM_ALREADY_EXISTS -40
 
-enum EncodingType { XER_BASIC, XER_CANONICAL, DER_BER, UNALIGNED_PER };
+enum EncodingType { XER_BASIC, XER_CANONICAL, DER_BER };
 
 void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);
 void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);

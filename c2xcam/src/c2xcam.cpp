@@ -1570,9 +1570,6 @@ int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize, EncodingType enco
     case DER_BER:
         retVal = ber_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
         break;    
-    case UNALIGNED_PER:
-        retVal = uper_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize, 0, 0);
-        break;
     default:
         std::stringstream ss;
         ss << "Invalid encoding type." << std::endl;
@@ -1636,9 +1633,6 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
     case DER_BER:
         retVal = der_encode(&asn_DEF_CAM, (void*)cam, writeCallbackCAM, NULL);
         break;    
-    case UNALIGNED_PER:
-        retVal = uper_encode(&asn_DEF_CAM, (void*)cam, writeCallbackCAM, NULL);
-        break;
     default:
         std::stringstream ss;
         ss << "Invalid encoding type." << std::endl;

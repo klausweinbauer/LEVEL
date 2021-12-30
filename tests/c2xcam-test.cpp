@@ -143,6 +143,36 @@ TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
     c2x::deleteCAM(id);
 }
 
+TEST(CAM_Coding, Test_XER_CANONICAL_encoding) {
+    int expStationId = 17, stationId;
+    c2x::createCAM(expStationId);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(expStationId, 0, 0, 0, 0, 0, 0);
+    int size = 4096;
+    uint8_t buffer[size];
+    size = c2x::encodeCAM(expStationId, buffer, size, nullptr, c2x::XER_CANONICAL);
+    int err = c2x::decodeCAM(&stationId, buffer, size, c2x::XER_CANONICAL);
+    c2x::deleteCAM(expStationId);
+
+    ASSERT_LT(0, size);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(expStationId, stationId);
+}
+
+TEST(CAM_Coding, Test_BER_DER_encoding) {
+    int expStationId = 17, stationId;
+    c2x::createCAM(expStationId);
+    c2x::addCAMRSUContainerHighFrequencyProtectedCommunicationZone(expStationId, 0, 0, 0, 0, 0, 0);
+    int size = 4096;
+    uint8_t buffer[size];
+    size = c2x::encodeCAM(expStationId, buffer, size, nullptr, c2x::DER_BER);
+    int err = c2x::decodeCAM(&stationId, buffer, size, c2x::DER_BER);
+    c2x::deleteCAM(expStationId);
+
+    ASSERT_LT(0, size);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(expStationId, stationId);
+}
+
 TEST(CAM_Network, Start_And_Stop_Receiver) {
     int retStart1 = c2x::startCAMReceiver(1997, c2x::XER_BASIC);
     int retStop1 = c2x::stopCAMReceiver();
