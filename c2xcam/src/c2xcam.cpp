@@ -1551,7 +1551,7 @@ int getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse, int lig
 
 
 #pragma region De-/En-coding
-int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize)
+int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize, EncodingType encoding)
 {
     databaseLockCAM_.lock();
 
@@ -1559,7 +1559,26 @@ int decodeCAM(int *stationID, uint8_t* buffer, int bufferSize)
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
-    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
+    switch (encoding)
+    {
+    case XER_BASIC:
+        retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
+        break;
+    case XER_CANONICAL:
+        retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
+        break;
+    case DER_BER:
+        retVal = ber_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize);
+        break;    
+    case UNALIGNED_PER:
+        retVal = uper_decode(&opt_codec_ctx, &asn_DEF_CAM, (void**)&cam, buffer, bufferSize, 0, 0);
+        break;
+    default:
+        std::stringstream ss;
+        ss << "Invalid encoding type." << std::endl;
+        c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_INVALID_ARG;
+    }
 
     if (retVal.code != asn_dec_rval_code_e::RC_OK)
     {
@@ -1594,7 +1613,7 @@ int writeCallbackCAM(const void* src, size_t size, void* application_specific_ke
     return (int)writeCallbackBufferCAM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize)
+int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize, EncodingType encoding)
 {
     databaseLockCAM_.lock();
     CAM_t* cam = getCAM(stationID);
@@ -1605,7 +1624,28 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
     writeCallbackLockCAM_.lock();
     VectorBuffer* vectorBuffer = new VectorBuffer();
     writeCallbackBufferCAM_ = vectorBuffer;
-    asn_enc_rval_t retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallbackCAM, NULL);
+    asn_enc_rval_t retVal;
+    switch (encoding)
+    {
+    case XER_BASIC:
+        retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_BASIC, writeCallbackCAM, NULL);
+        break;
+    case XER_CANONICAL:
+        retVal = xer_encode(&asn_DEF_CAM, (void*)cam, XER_F_CANONICAL, writeCallbackCAM, NULL);
+        break;
+    case DER_BER:
+        retVal = der_encode(&asn_DEF_CAM, (void*)cam, writeCallbackCAM, NULL);
+        break;    
+    case UNALIGNED_PER:
+        retVal = uper_encode(&asn_DEF_CAM, (void*)cam, writeCallbackCAM, NULL);
+        break;
+    default:
+        std::stringstream ss;
+        ss << "Invalid encoding type." << std::endl;
+        c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_INVALID_ARG;
+    }
+
     writeCallbackBufferCAM_ = nullptr;
     writeCallbackLockCAM_.unlock();
     databaseLockCAM_.unlock();
@@ -1649,10 +1689,11 @@ int encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferS
 #pragma endregion
 
 #pragma region NetworkService
-int startCAMReceiver(int port)
+int startCAMReceiver(int port, EncodingType encoding)
 {
     try
     {
+        CAMReceiver::getInstance().setEncoding(encoding);
         CAMReceiver::getInstance().start(port);
     }
     catch (const std::exception& ex)
@@ -1675,10 +1716,11 @@ int stopCAMReceiver()
     return 0;
 }
 
-int startCAMTransmitter(int port)
+int startCAMTransmitter(int port, EncodingType encoding)
 {
     try
     {
+        CAMTransmitter::getInstance().setEncoding(encoding);
         CAMTransmitter::getInstance().start(port);
     }
     catch (const std::exception& ex)

@@ -29,11 +29,14 @@ extern "C"
 #define ERR_TRANSMITTER_START -8
 #define ERR_ARG_NULL -9
 #define ERR_INDEX_OUT_OF_RANGE -10
+#define ERR_INVALID_ARG -11
 #define ERR_HIGH_FREQ_CONTAINER_TYPE -20
 #define ERR_LOW_FREQ_CONTAINER_TYPE -21
 #define ERR_CAM_ALREADY_EXISTS -22
 #define ERR_SPECIAL_VEHICLE_CONTAINER_TYPE -23
 #define ERR_DENM_ALREADY_EXISTS -40
+
+enum EncodingType { XER_BASIC, XER_CANONICAL, DER_BER, UNALIGNED_PER };
 
 void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);
 void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);

@@ -11,7 +11,7 @@
 
 namespace c2x {
 
-CAMTransmitter::CAMTransmitter()
+CAMTransmitter::CAMTransmitter() : encoding_(XER_BASIC)
 {
 	
 }
@@ -66,7 +66,7 @@ void CAMTransmitter::send()
                 if (instance->sendCallback != nullptr) {
                     instance->sendCallback(stationID);
                 }
-               *err = c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
+               *err = c2x::encodeCAM(stationID, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len, instance->encoding_);
                 socket.sendTo(instance->port_, buffer, len);
             }
             instance->transmit_ids_lock_.unlock();
@@ -144,6 +144,16 @@ int CAMTransmitter::getLastError()
     err = CAMTransmitter::getInstance().last_error_;
     CAMTransmitter::getInstance().transmit_ids_lock_.unlock();
     return err;
+}
+
+void CAMTransmitter::setEncoding(EncodingType encoding)
+{
+    encoding_ = encoding;
+}
+
+EncodingType CAMTransmitter::getEncoding()
+{
+    return encoding_;
 }
 
 };

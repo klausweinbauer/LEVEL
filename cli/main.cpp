@@ -43,7 +43,7 @@ void exportCAM(bool use_file, std::string file, int id)
 {
     uint8_t buffer[BUFFER_SIZE];
     int len;
-    int err = c2x::encodeCAM(id, buffer, BUFFER_SIZE, &len);
+    int err = c2x::encodeCAM(id, buffer, BUFFER_SIZE, &len, c2x::XER_BASIC);
     if (err < 0) {
         throwError(err);
     }
@@ -155,7 +155,7 @@ void import(std::string file, bool is_cam, int *id, int *seqNr) {
     int err;
     std::stringstream info;
     if (is_cam) {
-        err = c2x::decodeCAM(id, (uint8_t*)buffer.str().c_str(), buffer.str().size());
+        err = c2x::decodeCAM(id, (uint8_t*)buffer.str().c_str(), buffer.str().size(), c2x::XER_BASIC);
         info << "CAM Message (StationId=" << *id << ")";
     } else {
         err = c2x::decodeDENM(id, seqNr, (uint8_t*)buffer.str().c_str(), buffer.str().size());
@@ -189,7 +189,7 @@ void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
         int id_array[1] = {id};
         err = c2x::setCAMIDsForTransmission(id_array, 1);
         c2x::setCAMSendCallback(transmitterCallbackCAM);
-        err = c2x::startCAMTransmitter(port);
+        err = c2x::startCAMTransmitter(port, c2x::XER_BASIC);
         std::cout << "[INFO] Start CAM Transmitter." << std::endl;
     } else {
         err = c2x::setDENMTransmissionFrequency(f);
@@ -230,7 +230,7 @@ static void receiverCallbackCAM(int id)
         std::stringstream re_builder;
         re_builder << "<" << filter << ">(.*)</" << filter << ">";
         std::regex re(re_builder.str(), std::regex_constants::icase);
-        c2x::encodeCAM(id, (uint8_t*)buffer, BUFFER_SIZE, nullptr);
+        c2x::encodeCAM(id, (uint8_t*)buffer, BUFFER_SIZE, nullptr, c2x::XER_BASIC);
         if (std::regex_search(buffer, cm, re)) {
             std::cout << " | " << filter << "=" << cm[1].str();
         } else {
@@ -251,7 +251,7 @@ void cliReceiver(bool is_cam, int port)
     int err;
     if (is_cam) {
         c2x::setCAMRecvCallback(receiverCallbackCAM);
-        err = c2x::startCAMReceiver(port);
+        err = c2x::startCAMReceiver(port, c2x::XER_BASIC);
         std::cout << "[INFO] Start CAM Receiver." << std::endl;
     } else {
         c2x::setDENMRecvCallback(receiverCallbackDENM);

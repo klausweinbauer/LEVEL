@@ -1,12 +1,14 @@
 #pragma once
 
 #include <PacketReceiver.hpp>
+#include <c2xcommon.h>
 
 namespace c2x {
     class CAMReceiver : public PacketReceiver
     {
     protected:
         int last_error_ = 0;
+        EncodingType encoding_;
 
         CAMReceiver();
 
@@ -15,6 +17,8 @@ namespace c2x {
     public:
         void (*recvCallback)(int stationId);
         int getLastError();
+        EncodingType getEncoding();
+        void setEncoding(EncodingType encoding);
 
         static CAMReceiver& getInstance()
         {

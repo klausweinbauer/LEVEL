@@ -84,7 +84,7 @@ TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Missing_HighFrequencyContainer_Def
     int id = c2x::createCAM(1);
     uint8_t buffer[4096] = {};
     char errMsg[512] = {};
-    int err = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    int err = c2x::encodeCAM(id, buffer, 4096, nullptr, c2x::XER_BASIC);
     c2x::getLastErrMsg(errMsg, 512, nullptr);
     c2x::deleteCAM(id);
 
@@ -102,7 +102,7 @@ TEST(CAM_Coding, Encode_CAM_Failed_Because_Of_Invalid_Value)
     c2x::setCAMBasicVehicleContainerHighFrequency(1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     uint8_t buffer[4096] = {};
     char errMsg[512] = {};
-    int err = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    int err = c2x::encodeCAM(id, buffer, 4096, nullptr, c2x::XER_BASIC);
     c2x::getLastErrMsg(errMsg, 512, nullptr);
     c2x::deleteCAM(id);
 
@@ -118,7 +118,7 @@ TEST(CAM_Coding, Encode_CAM_Message) {
     c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
     uint8_t buffer[4096];
 
-    int ret = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    int ret = c2x::encodeCAM(id, buffer, 4096, nullptr, c2x::XER_BASIC);
 
     ASSERT_GT(ret, 0);
 
@@ -131,9 +131,9 @@ TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
     c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
 
     uint8_t buffer[4096];    
-    int size = c2x::encodeCAM(id, buffer, 4096, nullptr);
+    int size = c2x::encodeCAM(id, buffer, 4096, nullptr, c2x::XER_BASIC);
     int  newProtVers, newMsgId, newStatId;
-    c2x::decodeCAM(&newStatId, buffer, size);
+    c2x::decodeCAM(&newStatId, buffer, size, c2x::XER_BASIC);
     c2x::getCAMHeader(newStatId, &newProtVers, &newMsgId);
 
     ASSERT_EQ(1, newProtVers);
@@ -144,9 +144,9 @@ TEST(CAM_Coding, Decode_CAM_And_Override_Message) {
 }
 
 TEST(CAM_Network, Start_And_Stop_Receiver) {
-    int retStart1 = c2x::startCAMReceiver(1997);
+    int retStart1 = c2x::startCAMReceiver(1997, c2x::XER_BASIC);
     int retStop1 = c2x::stopCAMReceiver();
-    int retStart2 = c2x::startCAMReceiver(1997);
+    int retStart2 = c2x::startCAMReceiver(1997, c2x::XER_BASIC);
     int retStop2 = c2x::stopCAMReceiver();
     
     ASSERT_EQ(0, retStart1);
@@ -165,7 +165,7 @@ TEST(CAM_Network, Test_CAM_Send_Callback) {
     c2x::setCAMSendCallback(Test_CAM_Send_Callback);
     int ids[1]{7};
     c2x::setCAMIDsForTransmission(ids, 1);
-    c2x::startCAMTransmitter(1997);
+    c2x::startCAMTransmitter(1997, c2x::XER_BASIC);
     usleep(100000);
     c2x::stopCAMTransmitter();
     c2x::deleteCAM(7);
@@ -178,11 +178,11 @@ TEST(CAM_Coding, Decode_New_Message) {
     c2x::setCAMBasicVehicleContainerHighFrequencyLanePosition(1, 0);
     uint8_t buffer[4000];
     int size;
-    c2x::encodeCAM(1, buffer, 4000, &size);
+    c2x::encodeCAM(1, buffer, 4000, &size, c2x::XER_BASIC);
     c2x::deleteCAM(1);
 
     int id;
-    int ret = c2x::decodeCAM(&id, buffer, size);
+    int ret = c2x::decodeCAM(&id, buffer, size, c2x::XER_BASIC);
     int retDel = c2x::deleteCAM(1);
     ASSERT_EQ(1, id);
     ASSERT_EQ(0, ret);

@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <mutex>
+#include <c2xcommon.h>
 
 #define TRANSMIT_BUFFER_LEN 65535
 
@@ -18,6 +19,7 @@ namespace c2x {
         int transmit_ids_size_ = 0;
         std::mutex transmit_ids_lock_;
         int last_error_ = 0;
+        EncodingType encoding_;
 
         CAMTransmitter();
 
@@ -39,6 +41,8 @@ namespace c2x {
         void stop();
         void setInterval(unsigned int interval_ms);
         int setIDsToTransmit(int *ids, int size);
+        void setEncoding(EncodingType encoding);
+        EncodingType getEncoding();
         unsigned int getInterval();
         int getLastError();
     };
