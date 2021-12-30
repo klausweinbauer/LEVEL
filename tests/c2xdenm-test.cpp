@@ -32,7 +32,7 @@ TEST(DENM_Coding, Encode_DENM_Message)
     c2x::createDENM(1, 1);
     uint8_t buffer[4096];
 
-    int ret = c2x::encodeDENM(1, 1, buffer, 4096, nullptr);
+    int ret = c2x::encodeDENM(1, 1, buffer, 4096, nullptr, c2x::XER_BASIC);
 
     ASSERT_GT(ret, 0);
 
@@ -45,7 +45,7 @@ TEST(DENM_Coding, Error_Due_To_Invalid_Value)
     c2x::setDENMAlacarteContainer(1, 1, 100, 100, 100);
     uint8_t buffer[4096];
     char errMsg[512] = {};
-    int err = c2x::encodeDENM(1, 1, buffer, 4096, nullptr);
+    int err = c2x::encodeDENM(1, 1, buffer, 4096, nullptr, c2x::XER_BASIC);
     c2x::getLastErrMsg(errMsg, 512, nullptr);
     c2x::deleteDENM(1, 1);
 
@@ -63,9 +63,9 @@ TEST(DENM_Coding, Decode_DENM_And_Override_Message)
     c2x::setDENMHeader(1, 1, 1, 2);
 
     uint8_t buffer[4096];
-    int size = c2x::encodeDENM(1, 1, buffer, 4096, nullptr);
+    int size = c2x::encodeDENM(1, 1, buffer, 4096, nullptr, c2x::XER_BASIC);
     int newProtVers, newMsgId, newStatId, newSeqNr;
-    c2x::decodeDENM(&newStatId, &newSeqNr, buffer, size);
+    c2x::decodeDENM(&newStatId, &newSeqNr, buffer, size, c2x::XER_BASIC);
     c2x::getDENMHeader(newStatId, newSeqNr, &newProtVers, &newMsgId);
 
     ASSERT_EQ(1, newProtVers);
@@ -76,11 +76,41 @@ TEST(DENM_Coding, Decode_DENM_And_Override_Message)
     c2x::deleteDENM(1, 1);
 }
 
+TEST(DENM_Coding, Test_XER_CANONICAL_encoding) {
+    int expStationId = 17, expSeqNr = 13, stationId, seqNr;
+    c2x::createDENM(expStationId, expSeqNr);
+    int size = 4096;
+    uint8_t buffer[size];
+    size = c2x::encodeDENM(expStationId, expSeqNr, buffer, size, nullptr, c2x::XER_CANONICAL);
+    int err = c2x::decodeDENM(&stationId, &seqNr, buffer, size, c2x::XER_CANONICAL);
+    c2x::deleteDENM(expStationId, expSeqNr);
+
+    ASSERT_LT(0, size);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(expStationId, stationId);
+    ASSERT_EQ(expSeqNr, seqNr);
+}
+
+TEST(DENM_Coding, Test_BER_DER_encoding) {
+    int expStationId = 17, expSeqNr = 13, stationId, seqNr;
+    c2x::createDENM(expStationId, expSeqNr);
+    int size = 4096;
+    uint8_t buffer[size];
+    size = c2x::encodeDENM(expStationId, expSeqNr, buffer, size, nullptr, c2x::DER_BER);
+    int err = c2x::decodeDENM(&stationId, &seqNr, buffer, size, c2x::DER_BER);
+    c2x::deleteDENM(expStationId, expSeqNr);
+
+    ASSERT_LT(0, size);
+    ASSERT_EQ(0, err);
+    ASSERT_EQ(expStationId, stationId);
+    ASSERT_EQ(expSeqNr, seqNr);
+}
+
 TEST(DENM_Network, Start_And_Stop_Receiver)
 {
-    int retStart1 = c2x::startDENMReceiver(1998);
+    int retStart1 = c2x::startDENMReceiver(1998, c2x::XER_BASIC);
     int retStop1 = c2x::stopDENMReceiver();
-    int retStart2 = c2x::startDENMReceiver(1998);
+    int retStart2 = c2x::startDENMReceiver(1998, c2x::XER_BASIC);
     int retStop2 = c2x::stopDENMReceiver();
 
     ASSERT_EQ(0, retStart1);
@@ -94,11 +124,11 @@ TEST(DENM_Coding, Decode_New_Message)
     c2x::createDENM(1, 1);
     uint8_t buffer[4000];
     int size;
-    c2x::encodeDENM(1, 1, buffer, 4000, &size);
+    c2x::encodeDENM(1, 1, buffer, 4000, &size, c2x::XER_BASIC);
     c2x::deleteDENM(1, 1);
 
     int id, seqNr;
-    int ret = c2x::decodeDENM(&id, &seqNr, buffer, size);
+    int ret = c2x::decodeDENM(&id, &seqNr, buffer, size, c2x::XER_BASIC);
     int retDel = c2x::deleteDENM(1, 1);
     ASSERT_EQ(1, id);
     ASSERT_EQ(1, seqNr);

@@ -227,10 +227,11 @@ void getTimestamp(TimestampIts_t *timestamp, int *time) {
     }
 }
 
-int startDENMReceiver(int port)
+int startDENMReceiver(int port, EncodingType encoding)
 {
     try
     {
+        DENMReceiver::getInstance().setEncoding(encoding);
         DENMReceiver::getInstance().start(port);
     }
     catch (const std::exception& ex)
@@ -247,10 +248,11 @@ int stopDENMReceiver()
     return 0;
 }
 
-int startDENMTransmitter(int port)
+int startDENMTransmitter(int port, EncodingType encoding)
 {
     try
     {
+        DENMTransmitter::getInstance().setEncoding(encoding);
         DENMTransmitter::getInstance().start(port);
     }
     catch (const std::exception& ex)
@@ -2138,7 +2140,7 @@ int writeCallbackDENM(const void* src, size_t size, void* application_specific_k
     return (int)writeCallbackBufferDENM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize)
+int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize, EncodingType encoding)
 {
     databaseLockDENM_.lock();
     DENM_t* denm = getDENM(stationID, sequenceNumber);
@@ -2150,7 +2152,25 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     writeCallbackLockDENM_.lock();
     VectorBuffer* vectorBuffer = new VectorBuffer();
     writeCallbackBufferDENM_ = vectorBuffer;
-    asn_enc_rval_t retVal = xer_encode(&asn_DEF_DENM, (void*)denm, XER_F_BASIC, writeCallbackDENM, NULL);
+    asn_enc_rval_t retVal;
+    switch (encoding)
+    {
+    case XER_BASIC:
+        retVal = xer_encode(&asn_DEF_DENM, (void*)denm, XER_F_BASIC, writeCallbackDENM, NULL);
+        break;
+    case XER_CANONICAL:
+        retVal = xer_encode(&asn_DEF_DENM, (void*)denm, XER_F_CANONICAL, writeCallbackDENM, NULL);
+        break;
+    case DER_BER:
+        retVal = der_encode(&asn_DEF_DENM, (void*)denm, writeCallbackDENM, NULL);
+        break;    
+    default:
+        std::stringstream ss;
+        ss << "Invalid encoding type." << std::endl;
+        c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_INVALID_ARG;
+    }
+
     writeCallbackBufferDENM_ = nullptr;
     writeCallbackLockDENM_.unlock();
     databaseLockDENM_.unlock();
@@ -2187,7 +2207,7 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     return copiedBytes;
 }
 
-int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size)
+int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size, EncodingType encoding)
 {
     databaseLockDENM_.lock();
 
@@ -2195,7 +2215,23 @@ int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size)
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
-    retVal = xer_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
+    switch (encoding)
+    {
+    case XER_BASIC:
+        retVal = xer_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
+        break;
+    case XER_CANONICAL:
+        retVal = xer_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
+        break;
+    case DER_BER:
+        retVal = ber_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
+        break;    
+    default:
+        std::stringstream ss;
+        ss << "Invalid encoding type." << std::endl;
+        c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+        return ERR_INVALID_ARG;
+    }
 
     if (retVal.code != asn_dec_rval_code_e::RC_OK)
     {

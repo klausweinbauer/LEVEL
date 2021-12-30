@@ -3,6 +3,7 @@
 #include <DENM.h>
 #include <thread>
 #include <mutex>
+#include <c2xcommon.h>
 
 #define TRANSMIT_BUFFER_LEN 65535
 
@@ -18,6 +19,7 @@ private:
     int src_stationID_ = 0;
     int src_sequenceNumber_ = 0;
     std::mutex src_lock_;
+    EncodingType encoding_;
 
 	DENMTransmitter();
 
@@ -40,5 +42,7 @@ public:
 	void setInterval(unsigned int interval_ms);
     void setMessageSource(int stationID, int sequenceNumber);
 	unsigned int getInterval();
+    void setEncoding(EncodingType encoding);
+    EncodingType getEncoding();
 };
 };

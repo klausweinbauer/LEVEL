@@ -9,7 +9,7 @@
 
 namespace c2x {
 
-DENMTransmitter::DENMTransmitter()
+DENMTransmitter::DENMTransmitter() : encoding_(XER_BASIC)
 {
 
 }
@@ -60,7 +60,7 @@ void DENMTransmitter::send()
             if (instance->sendCallback != nullptr) {
                 instance->sendCallback(stationID, sequenceNumber);
             }
-            int encRet = c2x::encodeDENM(stationID, sequenceNumber, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len);
+            int encRet = c2x::encodeDENM(stationID, sequenceNumber, (uint8_t*)buffer, TRANSMIT_BUFFER_LEN, &len, instance->encoding_);
             
 			if (encRet > 0) 
             {
@@ -104,6 +104,16 @@ void DENMTransmitter::setMessageSource(int stationID, int sequenceNumber)
     src_stationID_ = stationID;
     src_sequenceNumber_ = sequenceNumber;
     src_lock_.unlock();
+}
+
+void DENMTransmitter::setEncoding(EncodingType encoding)
+{
+    encoding_ = encoding;
+}
+
+EncodingType DENMTransmitter::getEncoding()
+{
+    return encoding_;
 }
 
 };

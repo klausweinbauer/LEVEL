@@ -105,14 +105,14 @@ int SHARED_EXPORT getDENMStationaryVehicleContainerEnergyStorageType(int station
 #pragma endregion
 
 #pragma region De-/En-coding
-int SHARED_EXPORT encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize);
-int SHARED_EXPORT decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size);
+int SHARED_EXPORT encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize, EncodingType encoding);
+int SHARED_EXPORT decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size, EncodingType encoding);
 #pragma endregion
 
 #pragma region NetworkService
-int SHARED_EXPORT startDENMReceiver(int port);
+int SHARED_EXPORT startDENMReceiver(int port, EncodingType encoding);
 int SHARED_EXPORT stopDENMReceiver();
-int SHARED_EXPORT startDENMTransmitter(int port);
+int SHARED_EXPORT startDENMTransmitter(int port, EncodingType encoding);
 int SHARED_EXPORT stopDENMTransmitter();
 int SHARED_EXPORT setDENMTransmissionFrequency(double f);
 int SHARED_EXPORT setDENMTransmissionSource(int stationID, int sequenceNumber);

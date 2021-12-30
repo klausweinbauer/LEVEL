@@ -62,7 +62,7 @@ void exportDENM(bool use_file, std::string file, int id, int seqNr)
 {
     uint8_t buffer[BUFFER_SIZE];
     int len;
-    int err = c2x::encodeDENM(id, seqNr, buffer, BUFFER_SIZE, &len);
+    int err = c2x::encodeDENM(id, seqNr, buffer, BUFFER_SIZE, &len, c2x::XER_BASIC);
     if (err < 0) {
         throwError(err);
     } 
@@ -158,7 +158,7 @@ void import(std::string file, bool is_cam, int *id, int *seqNr) {
         err = c2x::decodeCAM(id, (uint8_t*)buffer.str().c_str(), buffer.str().size(), c2x::XER_BASIC);
         info << "CAM Message (StationId=" << *id << ")";
     } else {
-        err = c2x::decodeDENM(id, seqNr, (uint8_t*)buffer.str().c_str(), buffer.str().size());
+        err = c2x::decodeDENM(id, seqNr, (uint8_t*)buffer.str().c_str(), buffer.str().size(), c2x::XER_BASIC);
         info << "DENM Message (StationId=" << *id << ", SequenceNr=" << *seqNr << ")";
     }
 
@@ -195,7 +195,7 @@ void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr) {
         err = c2x::setDENMTransmissionFrequency(f);
         err = c2x::setDENMTransmissionSource(id, seqNr);
         c2x::setDENMSendCallback(transmitterCallbackDENM);
-        err = c2x::startDENMTransmitter(port);
+        err = c2x::startDENMTransmitter(port, c2x::XER_BASIC);
         std::cout << "[INFO] Start DENM Transmitter." << std::endl;
     }
     if (err) {
@@ -255,7 +255,7 @@ void cliReceiver(bool is_cam, int port)
         std::cout << "[INFO] Start CAM Receiver." << std::endl;
     } else {
         c2x::setDENMRecvCallback(receiverCallbackDENM);
-        err = c2x::startDENMReceiver(port);
+        err = c2x::startDENMReceiver(port, c2x::XER_BASIC);
         std::cout << "[INFO] Start DENM Receiver." << std::endl;
     }
     if (err) {
