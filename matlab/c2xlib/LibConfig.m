@@ -74,7 +74,7 @@ classdef LibConfig
         function [name] = getErrorName(err)
             name = '';
             if (err == -1)
-                name = 'ERR_MSG_NOT_FOUND';
+                name = 'ERROR';
             elseif (err == -2)
                 name = 'ERR_ALLOC_FAILED';
             elseif (err == -3)
@@ -93,6 +93,10 @@ classdef LibConfig
                 name = 'ERR_ARG_NULL';
             elseif (err == -10)
                 name = 'ERR_INDEX_OUT_OF_RANGE';
+            elseif (err == -11)
+                name = 'ERR_INVALID_ARG';
+            elseif (err == -12)
+                name = 'ERR_MSG_NOT_FOUND';
             elseif (err == -20)
                 name = 'ERR_HIGH_FREQ_CONTAINER_TYPE';
             elseif (err == -21)
