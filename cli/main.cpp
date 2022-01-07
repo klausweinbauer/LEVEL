@@ -1,17 +1,25 @@
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <c2xcam.h>
 #include <c2xdenm.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <regex>
+#include <ctime>
+#include <chrono>
 
 #define BUFFER_SIZE 65535
+#define CAM_LOG_DIR "log_cam"
+#define DENM_LOG_DIR "log_denm"
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 static bool use_filter = false;
 static std::string filter;
+static bool log_enabled = false;
+static std::string log_path;
 
 void throwError(int err);
 void cliTransmitter(bool is_cam, int port, double f, int id, int seqNr);
@@ -23,6 +31,8 @@ void initDENMContainer(std::string desc, int id, int seqNr);
 void exportCAM(bool use_file, std::string file, int id);
 void exportDENM(bool use_file, std::string file, int id, int seqNr);
 void import(std::string file, bool is_cam, int *id, int *seqNr);
+void logCAM(int id);
+void logDENM(int id, int seqNr);
 
 void throwError(int err) {
     char buffer[256];
@@ -74,6 +84,71 @@ void exportDENM(bool use_file, std::string file, int id, int seqNr)
         f.close();
     } else {
         std::cout << buffer << std::endl;
+    }
+}
+
+fs::path initLogDirectory(std::string type, std::string group) {
+    fs::path base(log_path);
+    fs::path type_dir(type);
+    fs::path group_dir(group);
+    fs::path path = base / type_dir / group_dir;
+
+    if (!fs::is_directory(path)) {
+        if (!fs::create_directories(path)) {
+            std::cout << "[ERROR] Log directory initialization failed." << std::endl; 
+        }
+    }
+
+    return path;
+}
+
+void logCAM(int id) {
+    std::stringstream grp_s;
+    grp_s << "StationID_" << id;
+    fs::path path = initLogDirectory(CAM_LOG_DIR, grp_s.str());
+
+    char buffer[BUFFER_SIZE];
+    int len;
+    int ret = c2x::encodeCAM(id, (uint8_t*)buffer, BUFFER_SIZE, &len, c2x::EncodingType::XER_BASIC);
+    if (ret < 0) {
+        throwError(ret);
+    }
+
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string now_str(ctime(&now));
+    now_str.pop_back();
+    fs::path file_name(now_str + ".txt");
+    fs::path file_path = path / file_name;
+    fs::ofstream file(file_path);
+    file << buffer;
+    file.close();
+    if (!fs::exists(file_path)) {
+        std::cout << "[ERROR] Writing log file failed." << std::endl;
+    }
+}
+
+void logDENM(int id, int seqNr) {
+    std::stringstream grp_s;
+    grp_s << "StationID_" << id << " " << "SeqNr_" << seqNr;
+    fs::path path = initLogDirectory(DENM_LOG_DIR, grp_s.str());
+
+    char buffer[BUFFER_SIZE];
+    int len;
+    int ret = c2x::encodeDENM(id, seqNr, (uint8_t*)buffer, BUFFER_SIZE, &len, c2x::EncodingType::XER_BASIC);
+    if (ret < 0) {
+        throwError(ret);
+    }
+
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string now_str(ctime(&now));
+    now_str.pop_back();
+    fs::path file_name(now_str + ".txt");
+    fs::path file_path = path / file_name;
+    fs::ofstream file(file_path);
+    file << buffer;
+    file.close();
+    if (!fs::exists(file_path)) {
+        std::cout << "[ERROR] Writing log file failed." << std::endl;
     }
 }
 
@@ -237,13 +312,37 @@ static void receiverCallbackCAM(int id)
             std::cout << " | '" << filter << "' is not a valid filter property";
         }
     }
+
+    if (log_enabled) {
+        logCAM(id);
+    }
+
     std::cout << std::endl << "> ";
 }
 
 static void receiverCallbackDENM(int id, int seqNr)
 {
     static int n = 0;
-    std::cout << ++n << " | Receive DENM (StationId=" << id << ", SequenceNr=" << seqNr << ")" << std::endl << "> ";
+    std::cout << ++n << " | Receive DENM (StationId=" << id << ", SequenceNr=" << seqNr << ")";
+    if (use_filter) {
+        char buffer[BUFFER_SIZE];
+        std::cmatch cm;
+        std::stringstream re_builder;
+        re_builder << "<" << filter << ">(.*)</" << filter << ">";
+        std::regex re(re_builder.str(), std::regex_constants::icase);
+        c2x::encodeDENM(id, seqNr, (uint8_t*)buffer, BUFFER_SIZE, nullptr, c2x::XER_BASIC);
+        if (std::regex_search(buffer, cm, re)) {
+            std::cout << " | " << filter << "=" << cm[1].str();
+        } else {
+            std::cout << " | '" << filter << "' is not a valid filter property";
+        }
+    }
+
+    if (log_enabled) {
+        logDENM(id, seqNr);
+    }
+
+    std::cout << std::endl << "> ";
 }
 
 void cliReceiver(bool is_cam, int port)
@@ -318,6 +417,7 @@ void run(int argc, char** argv)
         ("seqNr", po::value<int>()->default_value(0), "Set sequence number for operations. This value is only used for"
             " DENMs and gets overwritten when a message gets imported from a file.")
         ("filter", po::value<std::string>(), "Name of property to print from received messages.")
+        ("log", po::value<std::string>()->value_name("path"), "Set path for packet logs.")
     ;
     po::options_description cmdline_options;
     cmdline_options.add(desc_usage).add(desc_options);
@@ -336,6 +436,12 @@ void run(int argc, char** argv)
     double f = vm["frequency"].as<double>();
     bool import_msg = vm.count("message");
     use_filter = vm.count("filter");
+    log_enabled = vm.count("log");
+
+    // set log path
+    if (log_enabled) {
+        log_path = vm["log"].as<std::string>();
+    }
 
     // type
     if (type == "cam") {
