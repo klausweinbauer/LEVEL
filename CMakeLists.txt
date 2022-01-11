@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.7.2)
 
 project(c2xlib)
 
-option(TESTS "include test project in build" OFF)
-option(MATLAB "include matlab and simulink files on install" OFF)
-option(BUILD_CLI "include cli in build" ON)
+option(BUILD_TESTS "include test project in build" OFF)
+option(INSTALL_MATLAB "include matlab and simulink files on install" OFF)
+option(BUILD_CLI "include cli in build" OFF)
 
 add_subdirectory(c2xcam)
 add_subdirectory(c2xdenm)
@@ -17,7 +17,7 @@ endif()
 ################################
 # GTest
 ################################
-if (UNIX AND TESTS)
+if (TESTS)
     message("[INFO] Tests enabled")
     add_subdirectory(testExec)
     add_subdirectory(tests)

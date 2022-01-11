@@ -2,14 +2,11 @@
 
 C2XLib is a multiplatform (tested with Windows and Linux) C++ implementation for ETSI standardized communication protocols Co-operative Awareness Messages (CAM) and Decentralized Environmental Notification basic service Messages (DENM) with an Embedded Coder compatible Simulink API. These protocols are used for car to car and car to infrastructure communication. This implementation uses UDP as the transport layer and Basic-XER encoding rules, a human-readable XML encoding.
 
-## Setup
-
-
-### Windows
+## Installation
 For setup on Windows and usage in Simulink, you can run the precompile and ready-to-use Windows installer or compile the library by yourself.
 
 The easiest and fastest way is to use the installer:
-1. Download and run the [Windows installer](C2XLib-0.1.0-win64.msi)
+1. Download and run the [Windows installer](C2XLib-0.1.0-win64.msi). The installer does not really install something, it is just a convenient way of copying the files to the correct directory.
 2. Add the following path to the compiled library to your environment variables. Simulink must find the library files. Otherwise, it will not run simulations when it can not find the execution engine.
 ```
 C:\Program Files\c2xlib\lib
@@ -26,3 +23,21 @@ C:\Program Files\c2xlib\matlab\examples
 ```
 
 <!--## Matlab/Simulink Codegeneration-->
+
+## Build
+
+### Dependencies
+This project is built with CMake and has multiple targets. By default only the library is built to have minimal dependencies. The following table lists and describes the possible targets and their additional dependencies upon libraries or programms.
+
+#### Minimal requirements:
+<ul>
+    <li> CMake (at least version 3.7.2)
+    <li> C/C++ Compiler (gcc or MSVC)
+</ul>
+
+The following variables are turned off by default. To enable them add `-D<variable name>=ON` cmake command.
+| CMake Variables | Description                                                                                           | Additional Requirements                                     |
+|-----------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| BUILD_TESTS     | Enables and builds the test project.                                                                  | GoogleTest (update git submodules)                          |
+| INSTALL_MATLAB  | Includes the Matlab/Simulink library for installation.                                                | Matlab (only needed for execution)                          |
+| BUILD_CLI       | Build the c2xcli tool. Used to log, construct, send or transmit CAM and DENM packages from terminal.  | Boost Library <ul> <li>Program Options <li>Filesystem </ul> |
