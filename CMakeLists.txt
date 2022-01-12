@@ -17,7 +17,7 @@ endif()
 ################################
 # GTest
 ################################
-if (TESTS)
+if (BUILD_TESTS)
     message("[INFO] Tests enabled")
     add_subdirectory(testExec)
     add_subdirectory(tests)
@@ -30,8 +30,8 @@ else()
     message("[INFO] Tests disabled")
 endif()
 
-message("[INFO] Install Matlab files: " ${MATLAB})
-if (MATLAB)
+message("[INFO] Install Matlab files: " ${INSTALL_MATLAB})
+if (INSTALL_MATLAB)
     set(MATLAB_LIB_FILE_DIR matlab/c2xlib)
     file(GLOB MATLAB_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_LIB_FILE_DIR}/*")
     install(FILES ${MATLAB_LIB_FILES} 

@@ -2,9 +2,11 @@ classdef DENMReceiver < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         Port = 1998;  
+        EncodingType = 'DER_BER';
     end
     
-    properties (Hidden)
+    properties (Hidden, Constant)
+        EncodingTypeSet = matlab.system.StringSet({'XER_BASIC', 'XER_CANONICAL', 'DER_BER'})
     end
     
     properties (Access = protected)
@@ -14,7 +16,13 @@ classdef DENMReceiver < matlab.System & coder.ExternalDependency
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 coder.cinclude(LibConfig.getDENMHeader());
-                coder.ceval('startDENMReceiver', obj.Port);
+                encodingType = 0;
+                if strcmp(obj.EncodingType, 'XER_CANONICAL')
+                    encodingType = 1;
+                elseif strcmp(obj.EncodingType, 'DER_BER')
+                    encodingType = 2;
+                end
+                coder.ceval('startDENMReceiver', obj.Port, encodingType);
             end 
         end
         
