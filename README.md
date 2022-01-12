@@ -1,6 +1,6 @@
 # C2XLib
 
-C2XLib is a multiplatform (tested with Windows and Linux) C++ implementation for ETSI standardized communication protocols Co-operative Awareness Messages (CAM) and Decentralized Environmental Notification basic service Messages (DENM) with an Embedded Coder compatible Simulink API. These protocols are used for car to car and car to infrastructure communication. This implementation uses UDP as the transport layer and Basic-XER encoding rules, a human-readable XML encoding.
+C2XLib is a C++ implementation for ETSI standardized communication protocols Co-operative Awareness Messages (CAM) and Decentralized Environmental Notification basic service Messages (DENM) for Windows and Linux with an Embedded Coder compatible Simulink API. These protocols are used for car to car (C2C) and car to infrastructure (C2X) communication. This implementation uses UDP as the transport layer and supports multiple encoding rules.
 
 ## Installation
 For setup on Windows and usage in Simulink, you can run the precompile and ready-to-use Windows installer or compile the library by yourself.
