@@ -101,15 +101,15 @@ int SHARED_EXPORT getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSiren
 #pragma endregion
 
 #pragma region De-/En-coding
-int SHARED_EXPORT encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize, EncodingType encoding);
-int SHARED_EXPORT decodeCAM(int* stationID, uint8_t* buffer, int bufferSize, EncodingType encoding);
+int SHARED_EXPORT encodeCAM(int stationID, uint8_t* buffer, int bufferSize, int *actualBufferSize, int encoding);
+int SHARED_EXPORT decodeCAM(int* stationID, uint8_t* buffer, int bufferSize, int encoding);
 #pragma endregion
 
 #pragma region NetworkService
-int SHARED_EXPORT startCAMReceiver(int port, EncodingType encoding);
+int SHARED_EXPORT startCAMReceiver(int port, int encoding);
 int SHARED_EXPORT getCAMReceiverError();
 int SHARED_EXPORT stopCAMReceiver();
-int SHARED_EXPORT startCAMTransmitter(int port, EncodingType encoding);
+int SHARED_EXPORT startCAMTransmitter(int port, int encoding);
 int SHARED_EXPORT getCAMTransmitterError();
 int SHARED_EXPORT stopCAMTransmitter();
 int SHARED_EXPORT setCAMTransmissionFrequency(double f);
