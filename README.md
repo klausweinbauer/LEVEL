@@ -40,4 +40,4 @@ The following variables are turned off by default. To enable them add `-D<variab
 |-----------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 | BUILD_TESTS     | Enables and builds the test project.                                                                  | GoogleTest (update git submodules)                          |
 | INSTALL_MATLAB  | Includes the Matlab/Simulink library for installation.                                                | Matlab (only needed for execution)                          |
-| BUILD_CLI       | Build the c2xcli tool. Used to log, construct, send or transmit CAM and DENM packages from terminal.  | Boost Library <ul> <li>Program Options <li>Filesystem </ul> |
+| BUILD_CLI       | Build the c2xcli tool. Used to log, construct, send or transmit CAM and DENM packages from terminal.  | Boost Library <ul> <li>Program Options (version 1.62 or above)<li>Filesystem (version 1.62 or above)</ul> |
