@@ -1,9 +1,11 @@
 classdef DecodeDENM < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
+        EncodingType = 'DER_BER';
     end
     
-    properties (Hidden)
+    properties (Hidden, Constant)
+        EncodingTypeSet = matlab.system.StringSet({'XER_BASIC', 'XER_CANONICAL', 'DER_BER'})
     end
     
     properties (Access = protected)
@@ -19,7 +21,13 @@ classdef DecodeDENM < matlab.System & coder.ExternalDependency
                 StationID = int32(0);
                 SequenceNumber = int32(0);
                 coder.cinclude(LibConfig.getDENMHeader());
-                err = coder.ceval('decodeDENM', coder.ref(StationID), coder.ref(SequenceNumber), coder.ref(Buffer), BufferSize);
+                encodingType = 0;
+                if strcmp(obj.EncodingType, 'XER_CANONICAL')
+                    encodingType = 1;
+                elseif strcmp(obj.EncodingType, 'DER_BER')
+                    encodingType = 2;
+                end
+                err = coder.ceval('decodeDENM', coder.ref(StationID), coder.ref(SequenceNumber), coder.ref(Buffer), BufferSize, encodingType);
                 LibConfig.printErrorCode(err);
             end            
         end

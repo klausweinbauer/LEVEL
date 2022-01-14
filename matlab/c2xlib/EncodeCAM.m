@@ -2,9 +2,11 @@ classdef EncodeCAM < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         BufferSize = int32(65535);
+        EncodingType = 'DER_BER';
     end
     
-    properties (Hidden)
+    properties (Hidden, Constant)
+        EncodingTypeSet = matlab.system.StringSet({'XER_BASIC', 'XER_CANONICAL', 'DER_BER'})
     end
     
     properties (Access = protected)
@@ -20,7 +22,13 @@ classdef EncodeCAM < matlab.System & coder.ExternalDependency
                 Buffer = uint8(zeros(obj.BufferSize, 1));
                 ActualBufferSize = int32(0);                
                 coder.cinclude(LibConfig.getCAMHeader());
-                err = coder.ceval('encodeCAM', StationID, coder.ref(Buffer), obj.BufferSize, coder.ref(ActualBufferSize));
+                encodingType = 0;
+                if strcmp(obj.EncodingType, 'XER_CANONICAL')
+                    encodingType = 1;
+                elseif strcmp(obj.EncodingType, 'DER_BER')
+                    encodingType = 2;
+                end
+                err = coder.ceval('encodeCAM', StationID, coder.ref(Buffer), obj.BufferSize, coder.ref(ActualBufferSize), encodingType);
                 LibConfig.printErrorCode(err);
             end            
         end
