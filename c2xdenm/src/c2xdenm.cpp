@@ -227,11 +227,11 @@ void getTimestamp(TimestampIts_t *timestamp, int *time) {
     }
 }
 
-int startDENMReceiver(int port, EncodingType encoding)
+int startDENMReceiver(int port, int encoding)
 {
     try
     {
-        DENMReceiver::getInstance().setEncoding(encoding);
+        DENMReceiver::getInstance().setEncoding((EncodingType)encoding);
         DENMReceiver::getInstance().start(port);
     }
     catch (const std::exception& ex)
@@ -248,11 +248,11 @@ int stopDENMReceiver()
     return 0;
 }
 
-int startDENMTransmitter(int port, EncodingType encoding)
+int startDENMTransmitter(int port, int encoding)
 {
     try
     {
-        DENMTransmitter::getInstance().setEncoding(encoding);
+        DENMTransmitter::getInstance().setEncoding((EncodingType)encoding);
         DENMTransmitter::getInstance().start(port);
     }
     catch (const std::exception& ex)
@@ -2140,7 +2140,7 @@ int writeCallbackDENM(const void* src, size_t size, void* application_specific_k
     return (int)writeCallbackBufferDENM_->write(src, (int)size, application_specific_key);
 }
 
-int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize, EncodingType encoding)
+int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int *actualSize, int encoding)
 {
     databaseLockDENM_.lock();
     DENM_t* denm = getDENM(stationID, sequenceNumber);
@@ -2153,7 +2153,7 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     VectorBuffer* vectorBuffer = new VectorBuffer();
     writeCallbackBufferDENM_ = vectorBuffer;
     asn_enc_rval_t retVal;
-    switch (encoding)
+    switch ((EncodingType)encoding)
     {
     case XER_BASIC:
         retVal = xer_encode(&asn_DEF_DENM, (void*)denm, XER_F_BASIC, writeCallbackDENM, NULL);
@@ -2207,7 +2207,7 @@ int encodeDENM(int stationID, int sequenceNumber, uint8_t* buffer, int size, int
     return copiedBytes;
 }
 
-int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size, EncodingType encoding)
+int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size, int encoding)
 {
     databaseLockDENM_.lock();
 
@@ -2215,7 +2215,7 @@ int decodeDENM(int* stationID, int* sequenceNumber, uint8_t* buffer, int size, E
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
-    switch (encoding)
+    switch ((EncodingType)encoding)
     {
     case XER_BASIC:
         retVal = xer_decode(&opt_codec_ctx, &asn_DEF_DENM, (void**)&denm, buffer, size);
