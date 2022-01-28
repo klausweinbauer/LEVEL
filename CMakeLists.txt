@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 project(c2xlib)
 
-option(TESTS "include test project in build" OFF)
-option(MATLAB "include matlab and simulink files on install" OFF)
+option(BUILD_TESTS "include test project in build" OFF)
+option(INSTALL_MATLAB "include matlab and simulink files on install" OFF)
 option(BUILD_CLI "include cli in build" OFF)
 
 add_subdirectory(c2xcam)
@@ -19,7 +19,7 @@ endif()
 ################################
 # GTest
 ################################
-if (UNIX AND TESTS)
+if (BUILD_TESTS)
     message("[INFO] Tests enabled")
     add_subdirectory(testExec)
     add_subdirectory(tests)
@@ -32,8 +32,8 @@ else()
     message("[INFO] Tests disabled")
 endif()
 
-message("[INFO] Install Matlab files: " ${MATLAB})
-if (MATLAB)
+message("[INFO] Install Matlab files: " ${INSTALL_MATLAB})
+if (INSTALL_MATLAB)
     set(MATLAB_LIB_FILE_DIR matlab/c2xlib)
     file(GLOB MATLAB_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_LIB_FILE_DIR}/*")
     install(FILES ${MATLAB_LIB_FILES} 
@@ -41,7 +41,7 @@ if (MATLAB)
             COMPONENT MatlabLib)
 
     set(MATLAB_EXAMPLES_FILE_DIR matlab/examples)
-    file(GLOB MATLAB_EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_EXAMPLES_FILE_DIR}/*")
+    file(GLOB MATLAB_EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_EXAMPLES_FILE_DIR}/*.slx")
     install(FILES ${MATLAB_EXAMPLE_FILES} 
             DESTINATION ${MATLAB_EXAMPLES_FILE_DIR}
             COMPONENT MatlabExamples)

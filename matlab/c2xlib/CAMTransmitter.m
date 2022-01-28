@@ -3,9 +3,11 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
     
     properties (Nontunable)
         Port = 1997;
+        EncodingType = 'DER_BER';
     end
     
-    properties (Hidden)
+    properties (Hidden, Constant)
+        EncodingTypeSet = matlab.system.StringSet({'XER_BASIC', 'XER_CANONICAL', 'DER_BER'})
     end
     
     properties (Access = protected)
@@ -15,7 +17,13 @@ classdef CAMTransmitter < matlab.System & coder.ExternalDependency
         function setupImpl(obj)
             if coder.target('Rtw') || coder.target('Sfun') 
                 coder.cinclude(LibConfig.getCAMHeader());
-                coder.ceval('startCAMTransmitter', obj.Port);
+                encodingType = 0;
+                if strcmp(obj.EncodingType, 'XER_CANONICAL')
+                    encodingType = 1;
+                elseif strcmp(obj.EncodingType, 'DER_BER')
+                    encodingType = 2;
+                end
+                coder.ceval('startCAMTransmitter', obj.Port, encodingType);
             end 
         end
         
