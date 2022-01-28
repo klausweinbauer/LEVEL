@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.6.0)
 
 project(c2xdenm VERSION 1.0.0)
 

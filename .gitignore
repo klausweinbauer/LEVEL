@@ -15,3 +15,5 @@ matlab/*.lib
 *.mexw64
 
 *.original
+
+dockcross
