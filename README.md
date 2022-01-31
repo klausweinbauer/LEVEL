@@ -28,7 +28,7 @@ C:\Program Files\c2xlib\lib
 ```
 3. Open (or restart) Matlab and add the installation path to your Matlab paths.
 ```
-C:\Program Files\c2xlib
+C:\Program Files\c2xlib\matlab\c2xlib
 ```
 ![Matlab Set Path](doc/images/Matlab_Set-Path.jpg)
 
