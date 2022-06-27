@@ -1,3 +1,15 @@
+/**
+ * @file c2xdenm.h
+ * @author Klaus Weinbauer
+ * @brief C compatipel API for DENM-Service. Include this file if you want to 
+ * use DENM-Service.
+ * @version 0.1
+ * @date 2022-06-27
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #pragma once
 
 #include <stdint.h>

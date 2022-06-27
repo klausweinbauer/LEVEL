@@ -1,16 +1,29 @@
+/**
+ * @file c2xcam.h
+ * @author Klaus Weinbauer
+ * @brief C compatipel API for CAM-Service. Include this file if you want to use
+ * CAM-Service.
+ * @version 0.1
+ * @date 2022-06-27
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #pragma once
 
 #include <c2xcommon.h>
+#include <c2xcam_config.h>
 
 #ifdef __cplusplus
+/**
+ * @brief Library namespace
+ * 
+ */
 namespace c2x {
 extern "C"
 {
 #endif
-
-int SHARED_EXPORT createCAM(int stationID);
-int SHARED_EXPORT deleteCAM(int stationID);
-int SHARED_EXPORT defineCAMHighFrequencyContainer(int stationID, int type);
 
 #pragma region Setter
 int SHARED_EXPORT setCAMHeader(int stationID, int protocolVersion, int messageID);
