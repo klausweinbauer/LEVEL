@@ -1,12 +1,18 @@
 /**
  * @file c2xcam_BasicContainer.h
  * @author Klaus Weinbauer
- * @brief
+ * @brief API to set and read properties of CAMs.
  * @version 0.1
  * @date 2022-06-27
  *
  * @copyright Copyright (c) 2022
  *
+ * @details The stationID is always the id of the message where the values are
+ * set or read from. The setter and getter methods return 0 on success or an
+ * \ref c2xerror.h "error code" if something went wrong. Before using some of
+ * the (set/get)BasicVehicleContainerHighFrequency methods, make sure to
+ * configure the HighFrequencyContainer correctly with
+ * defineCAMHighFrequencyContainer().
  */
 
 #pragma once
@@ -20,12 +26,6 @@ extern "C" {
 
 #pragma region Setter
 
-/**
- * @brief Set properties for the CAM BasicContainer.
- *
- * @param stationID The Station ID of the message where to set the properties.
- * @return int Returns 0 on success or an \ref c2xerror.h "error code".
- */
 int SHARED_EXPORT setCAMBasicContainer(int stationID, int stationType,
                                        int latitude, int longitude,
                                        int confidenceMajor, int confidenceMinor,
@@ -33,15 +33,6 @@ int SHARED_EXPORT setCAMBasicContainer(int stationID, int stationType,
                                        int altitudeValue,
                                        int altitudeConfidence);
 
-/**
- * @brief Set properties for the CAM HighFrequencyContainer.
- *
- * @details Before using this method, make sure to configure the
- * HighFrequencyContainer correctly with defineCAMHighFrequencyContainer().
- *
- * @param stationID The Station ID of the message where to set the properties.
- * @return int Returns 0 on success or an \ref c2xerror.h "error code".
- */
 int SHARED_EXPORT setCAMBasicVehicleContainerHighFrequency(
     int stationID, int headingValue, int headingConfidence, int speedValue,
     int speedConfidence, int driveDirection, int vehicleLengthValue,
@@ -87,29 +78,11 @@ int SHARED_EXPORT addCAMBasicVehicleContainerLowFrequencyPathPoint(
 
 #pragma region Getter
 
-/**
- * @brief Read properties for the CAM BasicContainer.
- *
- * @details The values will be stored in the provided reference parameters.
- * You can pass in a null ptr if you don't want to read a specific property.
- *
- * @param stationID The Station ID of the message from where to read the values.
- * @return int Returns 0 on success or an \ref c2xerror.h "error code".
- */
 int SHARED_EXPORT getCAMBasicContainer(
     int stationID, int *stationType, int *latitude, int *longitude,
     int *confidenceMajor, int *confidenceMinor, int *confidenceMajorOrientation,
     int *altitudeValue, int *altitudeConfidence);
 
-/**
- * @brief Read properties for the CAM HighFrequencyContainer.
- *
- * @details Before using this method, make sure to configure the
- * HighFrequencyContainer correctly with defineCAMHighFrequencyContainer().
- *
- * @param stationID The Station ID of the message from where to read the values.
- * @return int Returns 0 on success or an \ref c2xerror.h "error code".
- */
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(
     int stationID, int *headingValue, int *headingConfidence, int *speedValue,
     int *speedConfidence, int *driveDirection, int *vehicleLengthValue,

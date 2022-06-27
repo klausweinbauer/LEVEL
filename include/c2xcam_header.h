@@ -1,7 +1,7 @@
 /**
  * @file c2xcam_header.h
  * @author Klaus Weinbauer
- * @brief Defines getter and setter API for CAM header.
+ * @brief API to set and read properties of CAMs.
  * @version 0.1
  * @date 2022-06-27
  *
