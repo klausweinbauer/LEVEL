@@ -1406,6 +1406,10 @@ int getDENMSituationContainerEventHistory(int stationID, int sequenceNumber, int
     }
 
     int ret = getDENMSituationContainerEventHistory(denm, eventHistory, eventHistorySize, actualEventHistorySize);
+    if (ret)
+    {
+        *actualEventHistorySize = 0;
+    }
 
     databaseLockDENM_.unlock();
     return ret;

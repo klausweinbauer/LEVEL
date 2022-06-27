@@ -222,7 +222,7 @@ TEST(CAM_Coding, Decode_New_Message) {
 TEST(Error_Msg, Set_And_Get_Last_Error_Message) {
     std::stringstream ss;
     ss << "Hello World" << std::endl;
-    c2x::setLastErrMsg(ss.str().c_str(), ss.str().size());
+    c2x::setLastErrMsg(ss.str().c_str(), ss.str().size() + 1);
 
     char buffer[128];
     int actualSize = 0;

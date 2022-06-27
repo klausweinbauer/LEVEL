@@ -69,7 +69,7 @@ int SHARED_EXPORT getDENMManagementContainerEventPosition(int stationID, int seq
     
 int SHARED_EXPORT getDENMSituationContainer(int stationID, int sequenceNumber, int *informationQuality, int *causeCode, int *subCauseCode);
 int SHARED_EXPORT getDENMSituationContainerLinkedCause(int stationID, int sequenceNumber, int *causeCode, int *subCauseCode);
-int SHARED_EXPORT getDENMSituationContainerEventHistory(int stationIDe, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize);
+int SHARED_EXPORT getDENMSituationContainerEventHistory(int stationID, int sequenceNumber, int *eventHistory, int eventHistorySize, int *actualEventHistorySize);
 
 int SHARED_EXPORT getDENMLocationContainerTrace(int stationID, int sequenceNumber, int traceIndex, int* trace, int traceBufferLength, int *actualTraceLength);
 int SHARED_EXPORT getDENMLocationContainerSpeed(int stationID, int sequenceNumber, int *speedValue, int *speedConfidence);

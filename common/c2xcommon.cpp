@@ -77,7 +77,7 @@ void getLastErrMsg(char* buffer, int size, int* actualSize)
     }
 
     int cpySize = (std::min)(size, last_err_msg_size);
-    memcpy(buffer, last_err_msg, cpySize);
+    strncpy(buffer, last_err_msg, cpySize);
 
     if (actualSize) {
         *actualSize = cpySize;
@@ -105,7 +105,7 @@ void setLastErrMsg(const char* buffer, int size)
         return;
     }
 
-    memcpy(last_err_msg, buffer, size);
+    strncpy(last_err_msg, buffer, size);
     last_err_msg_size = size;
     err_lock.unlock();
 }

@@ -27,7 +27,16 @@ if (BUILD_TESTS)
     enable_testing()
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-    add_test(c2xtest tests/c2xtest)
+    add_executable(c2xcam_test ./tests/c2xcam-test.cpp)
+    add_executable(c2xdenm_test ./tests/c2xdenm-test.cpp)
+
+    target_link_libraries(c2xcam_test gtest_main c2xcam)
+    target_link_libraries(c2xdenm_test gtest_main c2xdenm)
+
+    include(GoogleTest)
+
+    gtest_discover_tests(c2xcam_test)
+    gtest_discover_tests(c2xdenm_test)
 else()
     message("[INFO] Tests disabled")
 endif()
