@@ -4,15 +4,15 @@
  * @brief Standardized components and functions for c2x.
  * @version 0.1
  * @date 2022-06-27
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 
 #pragma once
 
-#include <stdint.h>
 #include <c2xerror.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 #ifdef SHARED_EXPORT
@@ -27,60 +27,59 @@
 #ifdef __cplusplus
 namespace c2x {
 
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
- * @brief Collection of supported encoding standards for message 
+ * @brief Collection of supported encoding standards for message
  * en- and decoding
- * 
+ *
  */
-enum EncodingType 
-{ 
-  XER_BASIC, 
-  /**< 
-    XML Encoding Rules according to ITU-T. 
+enum EncodingType {
+  XER_BASIC,
+  /**<
+    XML Encoding Rules according to ITU-T.
     Use this encoding to achieve better human readability.
-  */  
+  */
   XER_CANONICAL,
-  /**< 
-    XML Encoding Rules according to ITU-T. 
+  /**<
+    XML Encoding Rules according to ITU-T.
     Use this encoding to achieve better human readability.
-  */  
+  */
   DER_BER
-  /**< 
-    Basic and Distiributed Encoding Rules according to ITU-T. 
-    Use this for a compact encoding and smaller sizes for packages sent over 
+  /**<
+    Basic and Distiributed Encoding Rules according to ITU-T.
+    Use this for a compact encoding and smaller sizes for packages sent over
     the network.
-  */  
+  */
 };
 
 /**
  * @brief This function provides a general description for an error code.
- * 
- * @param err The \ref c2xerror.h "error code" for which the description should be read.
+ *
+ * @param err The \ref c2xerror.h "error code" for which the description should
+ * be read.
  * @param buffer This is the buffer where the error message is to be copied.
  * @param size The size of the buffer.
  */
-void SHARED_EXPORT getErrMsg(int err, char* buffer, int size);
+void SHARED_EXPORT getErrMsg(int err, char *buffer, int size);
 
 /**
  * @brief Provides a description for the last error.
- * 
+ *
  * @param buffer This is the buffer where the error message is to be copied.
  * @param size The size of the buffer.
  * @param actualSize Returns the actual length of the error message.
  */
-void SHARED_EXPORT getLastErrMsg(char* buffer, int size, int* actualSize);
+void SHARED_EXPORT getLastErrMsg(char *buffer, int size, int *actualSize);
 
 /**
  * @brief Function to set a detailed error message.
- * 
+ *
  * @param buffer The buffer where the error message is stored.
  * @param size The length of the error message.
  */
-void SHARED_EXPORT setLastErrMsg(const char* buffer, int size);
+void SHARED_EXPORT setLastErrMsg(const char *buffer, int size);
 
 #ifdef __cplusplus
 }
