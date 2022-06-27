@@ -17,3 +17,6 @@ matlab/*.lib
 *.original
 
 dockcross
+
+doc/html/
+doc/latex/
