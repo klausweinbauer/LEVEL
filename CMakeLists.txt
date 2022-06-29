@@ -9,7 +9,7 @@ option(INSTALL_MATLAB "include matlab and simulink files on install" OFF)
 option(BUILD_CLI "include cli in build" OFF)
 
 add_subdirectory(c2xcam)
-add_subdirectory(c2xdenm)
+#add_subdirectory(c2xdenm) // TODO
 
 if (BUILD_CLI)
     message("[INFO] Build c2xcli: " ${BUILD_CLI})
@@ -21,20 +21,33 @@ endif()
 ################################
 if (BUILD_TESTS)
     message("[INFO] Tests enabled")
-    add_subdirectory(googletest)
+
+    include(FetchContent)
+    FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        15460959cbbfa20e66ef0b5ab497367e47fc0a04 # release-1.12.0
+    )
+    FetchContent_MakeAvailable(googletest)
+
     enable_testing()
-    include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-    add_executable(c2xcam_test ./tests/c2xcam-test.cpp)
-    add_executable(c2xdenm_test ./tests/c2xdenm-test.cpp)
+    #add_subdirectory(googletest)
+    enable_testing()
+    #include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-    target_link_libraries(c2xcam_test gtest_main c2xcam)
-    target_link_libraries(c2xdenm_test gtest_main c2xdenm)
+    #add_subdirectory(tests)
 
-    include(GoogleTest)
-
-    gtest_discover_tests(c2xcam_test)
-    gtest_discover_tests(c2xdenm_test)
+    # add_executable(c2xcam_test ./tests/c2xcam-test.cpp)
+    # add_executable(c2xdenm_test ./tests/c2xdenm-test.cpp)
+    # 
+    # target_link_libraries(c2xcam_test gtest_main c2xcam)
+    # target_link_libraries(c2xdenm_test gtest_main c2xdenm)
+    # 
+    # include(GoogleTest)
+    # 
+    # gtest_discover_tests(c2xcam_test)
+    # gtest_discover_tests(c2xdenm_test)
 else()
     message("[INFO] Tests disabled")
 endif()

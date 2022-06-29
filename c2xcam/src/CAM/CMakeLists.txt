@@ -1,6 +1,6 @@
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${C2X_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_sources(${PROJECT_NAME} PRIVATE
+target_sources(${C2X_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/AccelerationConfidence.c
     ${CMAKE_CURRENT_SOURCE_DIR}/AccelerationConfidence.h
     ${CMAKE_CURRENT_SOURCE_DIR}/AccelerationControl.c

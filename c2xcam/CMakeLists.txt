@@ -8,10 +8,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER
 
 include(GenerateExportHeader)
 
-add_subdirectory(src)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../common ${CMAKE_CURRENT_BINARY_DIR}/common)
+set(C2X_TARGET_NAME ${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+add_subdirectory(src)
+
+if (BUILD_TESTS)
+	add_subdirectory(test)
+endif()
 
 if(WIN32) 
 	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
