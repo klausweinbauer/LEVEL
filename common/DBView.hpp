@@ -31,7 +31,7 @@ public:
     _entry->_lock.lock();
   }
 
-  ~DBView() { _entry->_lock.unlock(); }
+  virtual ~DBView() { _entry->_lock.unlock(); }
 
   DBView(const DBView<TID, TValue> &view) = delete;
   DBView<TID, TValue> &operator=(const DBView<TID, TValue> &view) = delete;
