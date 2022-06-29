@@ -9,7 +9,7 @@ private:
 public:
   ~Factory(){};
 
-  static IDatabase &getDatabase() {
+  static IDatabase &database() {
     static auto instance =
         std::unique_ptr<InMemoryDatabase>(new InMemoryDatabase());
     return *instance;

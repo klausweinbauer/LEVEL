@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma once
+
 #include <CAM.h>
 #include <DBView.hpp>
 #include <memory>
