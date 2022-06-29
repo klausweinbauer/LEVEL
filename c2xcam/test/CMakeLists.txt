@@ -5,11 +5,11 @@ add_executable(${C2X_TARGET_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}/InMemoryDatabaseTest.cpp
 )
 
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src ${CMAKE_CURRENT_BINARY_DIR}/src)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/CAM ${CMAKE_CURRENT_BINARY_DIR}/src/CAM)
 
 target_sources(${C2X_TARGET_NAME} PRIVATE 
-  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IDatabase.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../src/InMemoryDatabase.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/CAM.cpp
 )
 target_include_directories(${C2X_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/)
 target_include_directories(${C2X_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../common/)
