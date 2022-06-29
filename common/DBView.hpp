@@ -20,33 +20,36 @@
 #include <mutex>
 #include <string>
 
-template <typename TID, typename TValue> class DBElement;
+template <typename TValue> class DBElement;
 
-template <typename TID, typename TValue> class DBView {
+template <typename TValue> class DBView {
 private:
-  DBElement<TID, TValue> *_entry;
+  DBElement<TValue> *_entry;
+  bool _accessed;
 
 public:
-  DBView(DBElement<TID, TValue> *entry) : _entry(entry) {
-    _entry->_lock.lock();
+  DBView(DBElement<TValue> *entry) : _entry(entry), _accessed(false) {
+    _entry->lock();
   }
 
-  virtual ~DBView() { _entry->_lock.unlock(); }
+  virtual ~DBView() { _entry->unlock(_accessed); }
 
-  DBView(const DBView<TID, TValue> &view) = delete;
-  DBView<TID, TValue> &operator=(const DBView<TID, TValue> &view) = delete;
+  DBView(const DBView<TValue> &view) = delete;
+  DBView<TValue> &operator=(const DBView<TValue> &view) = delete;
 
-  DBView(DBView<TID, TValue> &&view) : _entry(nullptr) {
+  DBView(DBView<TValue> &&view) : _entry(nullptr) {
     _entry = view._entry;
     view._entry = nullptr;
   }
-  DBView<TID, TValue> &operator=(DBView<TID, TValue> &&view) {
+  DBView<TValue> &operator=(DBView<TValue> &&view) {
     if (this != &view) {
       _entry = view._entry;
       view._entry = nullptr;
     }
   }
 
-  TValue *operator->() { return _entry->_value; }
-  TID id() { return _entry->id; }
+  TValue *operator->() {
+    _accessed = true;
+    return _entry->_value;
+  }
 };

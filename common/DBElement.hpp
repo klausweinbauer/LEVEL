@@ -14,29 +14,37 @@
 #include <DBView.hpp>
 #include <mutex>
 
-template <typename TID, typename TValue> class DBView;
+template <typename TValue> class DBView;
 
-template <typename TID, typename TValue> class DBElement {
+template <typename TValue> class DBElement {
 private:
   TValue *_value;
   std::mutex _lock;
+  bool _modified;
+
+  void unlock(bool accessed) noexcept {
+    _modified = accessed | _modified;
+    _lock.unlock();
+  }
+  void lock() { _lock.lock(); }
 
 public:
-  const TID id;
-
-  DBElement(TID id, TValue *value) : id(id), _value(value) {}
+  DBElement(TValue *value) : _value(value), _modified(false) {}
 
   virtual ~DBElement() { delete _value; }
 
-  DBElement(const DBElement<TID, TValue> &view) = delete;
-  DBElement<TID, TValue> &
-  operator=(const DBElement<TID, TValue> &view) = delete;
+  DBElement(const DBElement<TValue> &view) = delete;
+  DBElement<TValue> &operator=(const DBElement<TValue> &view) = delete;
 
-  DBView<TID, TValue> getView() {
+  DBView<TValue> getView() {
 
-    DBView<TID, TValue> view(this);
+    DBView<TValue> view(this);
     return view;
   }
 
-  friend class DBView<TID, TValue>;
+  TValue *value() { return _value; }
+  bool modified() { return _modified; }
+  void clearModifiedFlag() { _modified = false; }
+
+  friend class DBView<TValue>;
 };
