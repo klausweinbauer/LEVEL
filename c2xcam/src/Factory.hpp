@@ -15,6 +15,10 @@
 
 namespace c2x::cam {
 
+/**
+ * @brief Global instance provider for dependency injection.
+ *
+ */
 class Factory {
 private:
   Factory(){};

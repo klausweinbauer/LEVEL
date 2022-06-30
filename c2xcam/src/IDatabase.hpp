@@ -7,12 +7,6 @@
  *
  * @copyright Copyright (c) 2022
  *
- * @details This class provides the interface to the data access layer. The
- * methods to access an object return a DBView<CAM_t> object, which guarantees
- * mutual exclusion for the requested object for the lifespan of the view
- * object. It is important to note that each thread may only have one open view
- * at any time because multiple views could lead to deadlocks (the database
- * raises a DBException if you try to).
  */
 #pragma once
 
@@ -22,6 +16,16 @@
 
 namespace c2x::cam {
 
+/**
+ * @brief Interface for CAM storage
+ *
+ * @details This class provides the interface to the data access layer. Methods
+ * that access an object (like get() or create()) return a \ref DBView
+ * "DBView<CAM_t>" object, which guarantees mutual exclusion for the requested
+ * object for the lifetime of the view object. It is important to note that each
+ * thread may only have one open view at any time because multiple views could
+ * lead to deadlocks (the database raises a DBException if you try to).
+ */
 class IDatabase {
 private:
 public:

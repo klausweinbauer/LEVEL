@@ -7,12 +7,6 @@
  *
  * @copyright Copyright (c) 2022
  *
- * @details This class is a straightforward database implementation to store
- * CAMs. The underlying data structure is a std::vector and, therefore, not the
- * optimal solution for fast index accessing. This could definitely be improved.
- * The reason for this basic approach is that the id for the stored object is
- * part of the object itself, making it tricky to store these objects in
- * key-value data structures.
  */
 #pragma once
 
@@ -24,6 +18,16 @@ namespace c2x::cam {
 
 class IDatabase;
 
+/**
+ * @brief Database implementation for an in-memory storage of CAMs.
+ *
+ * @details This class is a straightforward database implementation to store
+ * CAMs. The underlying data structure is a std::vector and, therefore, not the
+ * optimal solution for fast index accessing. This could definitely be improved.
+ * The reason for this basic approach is that the id for the stored object is
+ * part of the object itself, making it tricky to store these objects in
+ * key-value data structures.
+ */
 class InMemoryDatabase : public IDatabase {
 private:
   std::vector<DBElement<CAM_t> *> _database;
