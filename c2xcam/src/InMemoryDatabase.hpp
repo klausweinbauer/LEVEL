@@ -1,3 +1,19 @@
+/**
+ * @file InMemoryDatabase.hpp
+ * @author Klaus Weinbauer
+ * @brief Database implementation for an in-memory storage of CAMs.
+ * @version 0.1
+ * @date 2022-06-30
+ *
+ * @copyright Copyright (c) 2022
+ *
+ * @details This class is a straightforward database implementation to store
+ * CAMs. The underlying data structure is a std::vector and, therefore, not the
+ * optimal solution for fast index accessing. This could definitely be improved.
+ * The reason for this basic approach is that the id for the stored object is
+ * part of the object itself, making it tricky to store these objects in
+ * key-value data structures.
+ */
 #pragma once
 
 #include <IDatabase.hpp>
@@ -20,10 +36,10 @@ public:
   InMemoryDatabase();
   ~InMemoryDatabase();
 
-  virtual bool exists(long unsigned int id) override;
-  virtual DBView<CAM_t> get(long unsigned int id) override;
-  virtual DBView<CAM_t> create(long unsigned int id) override;
-  virtual void remove(long unsigned int id) override;
+  virtual bool exists(long unsigned int stationID) override;
+  virtual DBView<CAM_t> get(long unsigned int stationID) override;
+  virtual DBView<CAM_t> create(long unsigned int stationID) override;
+  virtual void remove(long unsigned int stationID) override;
   virtual size_t entryCount() override;
 };
 

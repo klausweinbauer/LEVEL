@@ -21,12 +21,12 @@ InMemoryDatabase::~InMemoryDatabase() {
   _database.clear();
 }
 
-bool InMemoryDatabase::exists(long unsigned int id) {
+bool InMemoryDatabase::exists(long unsigned int stationID) {
 
   std::lock_guard<std::mutex> guard(_lock);
 
   for (auto it = _database.begin(); it != _database.end(); it++) {
-    if ((*it)->value()->header.stationID == id) {
+    if ((*it)->value()->header.stationID == stationID) {
       return true;
     }
   }
@@ -34,13 +34,13 @@ bool InMemoryDatabase::exists(long unsigned int id) {
   return false;
 }
 
-DBView<CAM_t> InMemoryDatabase::get(long unsigned int id) {
+DBView<CAM_t> InMemoryDatabase::get(long unsigned int stationID) {
 
   std::lock_guard<std::mutex> guard(_lock);
 
   DBElement<CAM_t> *entry = nullptr;
   for (auto it = _database.begin(); it != _database.end(); it++) {
-    if ((*it)->value()->header.stationID == id) {
+    if ((*it)->value()->header.stationID == stationID) {
       entry = *it;
       break;
     }
@@ -53,18 +53,18 @@ DBView<CAM_t> InMemoryDatabase::get(long unsigned int id) {
   return entry->getView();
 }
 
-DBView<CAM_t> InMemoryDatabase::create(long unsigned int id) {
+DBView<CAM_t> InMemoryDatabase::create(long unsigned int stationID) {
 
   std::lock_guard<std::mutex> guard(_lock);
 
   for (auto it = _database.begin(); it != _database.end(); it++) {
-    if ((*it)->value()->header.stationID == id) {
+    if ((*it)->value()->header.stationID == stationID) {
       throw DBException(ERR_CAM_ALREADY_EXISTS);
     }
   }
 
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
-  cam->header.stationID = id;
+  cam->header.stationID = stationID;
   cam->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_NOTHING;
 
@@ -77,13 +77,13 @@ DBView<CAM_t> InMemoryDatabase::create(long unsigned int id) {
   return entry->getView();
 }
 
-void InMemoryDatabase::remove(long unsigned int id) {
+void InMemoryDatabase::remove(long unsigned int stationID) {
 
   std::lock_guard<std::mutex> guard(_lock);
 
   std::vector<DBElement<CAM_t> *>::iterator iterator;
   for (auto it = _database.begin(); it != _database.end(); it++) {
-    if ((*it)->value()->header.stationID == id) {
+    if ((*it)->value()->header.stationID == stationID) {
       iterator = it;
       break;
     }
