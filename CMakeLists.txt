@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.6.0)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3")
 
 project(c2xlib)
 

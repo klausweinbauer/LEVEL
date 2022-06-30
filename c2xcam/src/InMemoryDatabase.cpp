@@ -8,27 +8,35 @@ namespace c2x::cam {
 
 InMemoryDatabase::InMemoryDatabase() {}
 
-InMemoryDatabase::~InMemoryDatabase() {}
+InMemoryDatabase::~InMemoryDatabase() {
 
-bool InMemoryDatabase::exists(int id) {
+  std::lock_guard<std::mutex> guard(_lock);
 
-  _lock.lock();
+  for (auto it = _database.begin(); it != _database.end(); it++) {
+    (*it)->lock();
+    ASN_STRUCT_FREE(asn_DEF_CAM, (*it)->value());
+    (*it)->unlock();
+    delete *it;
+  }
+  _database.clear();
+}
+
+bool InMemoryDatabase::exists(long unsigned int id) {
+
+  std::lock_guard<std::mutex> guard(_lock);
 
   for (auto it = _database.begin(); it != _database.end(); it++) {
     if ((*it)->value()->header.stationID == id) {
-      _lock.unlock();
       return true;
     }
   }
 
-  _lock.unlock();
-
   return false;
 }
 
-DBView<CAM_t> InMemoryDatabase::get(int id) {
+DBView<CAM_t> InMemoryDatabase::get(long unsigned int id) {
 
-  _lock.lock();
+  std::lock_guard<std::mutex> guard(_lock);
 
   DBElement<CAM_t> *entry = nullptr;
   for (auto it = _database.begin(); it != _database.end(); it++) {
@@ -39,45 +47,41 @@ DBView<CAM_t> InMemoryDatabase::get(int id) {
   }
 
   if (!entry) {
-    _lock.unlock();
     throw DBException(ERR_MSG_NOT_FOUND);
   }
 
-  DBView<CAM_t> view = entry->getView();
-
-  _lock.unlock();
-
-  return view;
+  return entry->getView();
 }
 
-DBView<CAM_t> InMemoryDatabase::create(int id) {
+DBView<CAM_t> InMemoryDatabase::create(long unsigned int id) {
 
-  _lock.lock();
+  std::lock_guard<std::mutex> guard(_lock);
 
   for (auto it = _database.begin(); it != _database.end(); it++) {
     if ((*it)->value()->header.stationID == id) {
-      _lock.unlock();
       throw DBException(ERR_CAM_ALREADY_EXISTS);
     }
   }
 
-  CAM_t *cam = new CAM_t();
-  DBElement<CAM_t> *entry = new DBElement<CAM_t>(cam);
-  _database.push_back(entry);
-  auto view = entry->getView();
-
-  _lock.unlock();
-
-  view->header.stationID = id;
-  view->cam.camParameters.highFrequencyContainer.present =
+  CAM_t *cam = (CAM_t *)malloc(sizeof(CAM_t));
+  cam->header.stationID = id;
+  cam->cam.camParameters.lowFrequencyContainer = nullptr;
+  cam->cam.camParameters.specialVehicleContainer = nullptr;
+  cam->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_NOTHING;
 
-  return view;
+  DBElement<CAM_t> *entry = new DBElement<CAM_t>(cam);
+  entry->modifiedCallback = [this](DBElement<CAM_t> *entry) {
+    this->entryModified(entry);
+  };
+  _database.push_back(entry);
+
+  return entry->getView();
 }
 
-void InMemoryDatabase::remove(int id) {
+void InMemoryDatabase::remove(long unsigned int id) {
 
-  _lock.lock();
+  std::lock_guard<std::mutex> guard(_lock);
 
   std::vector<DBElement<CAM_t> *>::iterator iterator;
   for (auto it = _database.begin(); it != _database.end(); it++) {
@@ -88,21 +92,43 @@ void InMemoryDatabase::remove(int id) {
   }
 
   if (iterator != _database.end()) {
-    _database.erase(iterator);
+    deleteEntry(iterator);
   }
-
-  _lock.unlock();
 }
 
 size_t InMemoryDatabase::entryCount() {
 
-  _lock.lock();
+  std::lock_guard<std::mutex> guard(_lock);
+  return _database.size();
+}
 
-  size_t len = _database.size();
+void InMemoryDatabase::entryModified(DBElement<CAM_t> *entry) {
 
-  _lock.unlock();
+  std::lock_guard<std::mutex> guard(_lock);
 
-  return len;
+  bool overrideEntry = false;
+  std::vector<DBElement<CAM_t> *>::iterator iterator;
+  for (auto it = _database.begin(); it != _database.end(); it++) {
+    if ((*it)->value()->header.stationID == entry->value()->header.stationID &&
+        *it != entry) {
+      iterator = it;
+      overrideEntry = true;
+      break;
+    }
+  }
+
+  if (overrideEntry) {
+    deleteEntry(iterator);
+  }
+
+  entry->clearModifiedFlag();
+}
+
+void InMemoryDatabase::deleteEntry(
+    std::vector<DBElement<CAM_t> *>::iterator iterator) {
+  ASN_STRUCT_FREE(asn_DEF_CAM, (*iterator)->value());
+  delete *iterator;
+  _database.erase(iterator);
 }
 
 }; // namespace c2x::cam

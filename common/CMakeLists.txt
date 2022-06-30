@@ -12,3 +12,4 @@ target_sources(${C2X_TARGET_NAME} PRIVATE
 )
 
 target_include_directories(${C2X_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${C2X_TARGET_NAME} PRIVATE &{CMAKE_SOURCE_DIR}/include/)

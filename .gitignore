@@ -20,3 +20,5 @@ dockcross
 
 doc/html/
 doc/latex/
+
+valgrind-out.txt

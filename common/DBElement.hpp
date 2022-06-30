@@ -12,6 +12,7 @@
 #pragma once
 
 #include <DBView.hpp>
+#include <functional>
 #include <mutex>
 
 template <typename TValue> class DBView;
@@ -22,16 +23,12 @@ private:
   std::mutex _lock;
   bool _modified;
 
-  void unlock(bool accessed) noexcept {
-    _modified = accessed | _modified;
-    _lock.unlock();
-  }
-  void lock() { _lock.lock(); }
-
 public:
+  std::function<void(DBElement<TValue> *)> modifiedCallback;
+
   DBElement(TValue *value) : _value(value), _modified(false) {}
 
-  virtual ~DBElement() { delete _value; }
+  virtual ~DBElement() {}
 
   DBElement(const DBElement<TValue> &view) = delete;
   DBElement<TValue> &operator=(const DBElement<TValue> &view) = delete;
@@ -43,8 +40,22 @@ public:
   }
 
   TValue *value() { return _value; }
+
   bool modified() { return _modified; }
+
   void clearModifiedFlag() { _modified = false; }
+
+  void unlock() { _lock.unlock(); }
+
+  void unlock(bool accessed) {
+    _modified = accessed | _modified;
+    _lock.unlock();
+    if (_modified) {
+      modifiedCallback(this);
+    }
+  }
+
+  void lock() { _lock.lock(); }
 
   friend class DBView<TValue>;
 };

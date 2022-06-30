@@ -46,6 +46,7 @@ public:
       _entry = view._entry;
       view._entry = nullptr;
     }
+    return *this;
   }
 
   TValue *operator->() {
