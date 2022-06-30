@@ -24,7 +24,6 @@ extern "C" {
 int SHARED_EXPORT createDENM(int stationID, int sequenceNumber);
 int SHARED_EXPORT deleteDENM(int stationID, int sequenceNumber);
 
-#pragma region Setter
 int SHARED_EXPORT setDENMHeader(int stationID, int sequenceNumber,
                                 int protocolVersion, int messageID);
 
@@ -128,9 +127,7 @@ int SHARED_EXPORT setDENMStationaryVehicleContainerVehicleIdentification(
     uint8_t *vDS, int vDSSize);
 int SHARED_EXPORT setDENMStationaryVehicleContainerEnergyStorageType(
     int stationID, int sequenceNumber, int energyStorageType);
-#pragma endregion
 
-#pragma region Getter
 int SHARED_EXPORT getDENMHeader(int stationID, int sequenceNumber,
                                 int *protocolVersion, int *messageID);
 
@@ -233,16 +230,12 @@ int SHARED_EXPORT getDENMStationaryVehicleContainerVehicleIdentification(
     uint8_t *vDS, int vDSSize);
 int SHARED_EXPORT getDENMStationaryVehicleContainerEnergyStorageType(
     int stationID, int sequenceNumber, int *energyStorageType);
-#pragma endregion
 
-#pragma region De - / En - coding
 int SHARED_EXPORT encodeDENM(int stationID, int sequenceNumber, uint8_t *buffer,
                              int size, int *actualSize, int encoding);
 int SHARED_EXPORT decodeDENM(int *stationID, int *sequenceNumber,
                              uint8_t *buffer, int size, int encoding);
-#pragma endregion
 
-#pragma region NetworkService
 int SHARED_EXPORT startDENMReceiver(int port, int encoding);
 int SHARED_EXPORT stopDENMReceiver();
 int SHARED_EXPORT startDENMTransmitter(int port, int encoding);
@@ -254,7 +247,6 @@ int SHARED_EXPORT setDENMSendCallback(void (*func)(int stationId,
                                                    int sequenceNumber));
 int SHARED_EXPORT setDENMRecvCallback(void (*func)(int stationId,
                                                    int sequenceNumber));
-#pragma endregion
 
 #ifdef __cplusplus
 }

@@ -251,8 +251,6 @@ int defineCAMHighFrequencyContainer(int stationID, int type) {
   return 0;
 }
 
-#pragma region Setter
-
 int setCAMHeader(int stationID, int protocolVersion, int messageID) {
   databaseLockCAM_.lock();
   CAM_t *cam = getCAM(stationID);
@@ -955,9 +953,7 @@ int setCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse,
   databaseLockCAM_.unlock();
   return 0;
 }
-#pragma endregion
 
-#pragma region Getter
 void getCAMHeader(CAM_t *cam, int *protocolVersion, int *messageID) {
   if (protocolVersion) {
     *protocolVersion = cam->header.protocolVersion;
@@ -1648,9 +1644,7 @@ int getCAMSafetyCarContainer(int stationID, uint8_t *lightBarSirenInUse,
   databaseLockCAM_.unlock();
   return 0;
 }
-#pragma endregion
 
-#pragma region De - / En - coding
 int decodeCAM(int *stationID, uint8_t *buffer, int bufferSize, int encoding) {
   databaseLockCAM_.lock();
 
@@ -1786,9 +1780,7 @@ int encodeCAM(int stationID, uint8_t *buffer, int bufferSize,
 
   return copiedBytes;
 }
-#pragma endregion
 
-#pragma region NetworkService
 int startCAMReceiver(int port, int encoding) {
   try {
     CAMReceiver::getInstance().setEncoding((EncodingType)encoding);
@@ -1847,8 +1839,6 @@ int setCAMRecvCallback(void (*func)(int stationId)) {
   CAMReceiver::getInstance().recvCallback = func;
   return 0;
 }
-
-#pragma endregion
 
 #ifdef __cplusplus
 };

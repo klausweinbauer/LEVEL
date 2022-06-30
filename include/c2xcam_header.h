@@ -18,8 +18,6 @@ namespace c2x {
 extern "C" {
 #endif
 
-#pragma region Setter
-
 /**
  * @brief Set CAM header properties.
  *
@@ -40,10 +38,6 @@ int SHARED_EXPORT setCAMHeader(int stationID, int protocolVersion,
  */
 int SHARED_EXPORT setCAMGenerationDeltaTime(int stationID,
                                             int generationDeltaTime);
-
-#pragma endregion
-
-#pragma region Getter
 
 /**
  * @brief Get CAM header properties.
@@ -66,8 +60,6 @@ int SHARED_EXPORT getCAMHeader(int stationID, int *protocolVersion,
  */
 int SHARED_EXPORT getCAMGenerationDeltaTime(int stationID,
                                             int *generationDeltaTime);
-
-#pragma endregion
 
 #ifdef __cplusplus
 }

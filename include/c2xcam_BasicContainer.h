@@ -24,8 +24,6 @@ namespace c2x {
 extern "C" {
 #endif
 
-#pragma region Setter
-
 int SHARED_EXPORT setCAMBasicContainer(int stationID, int stationType,
                                        int latitude, int longitude,
                                        int confidenceMajor, int confidenceMinor,
@@ -74,10 +72,6 @@ int SHARED_EXPORT addCAMBasicVehicleContainerLowFrequencyPathPoint(
     int stationID, int deltaLatitude, int deltaLongitude, int deltaAltitude,
     int deltaTime);
 
-#pragma endregion
-
-#pragma region Getter
-
 int SHARED_EXPORT getCAMBasicContainer(
     int stationID, int *stationType, int *latitude, int *longitude,
     int *confidenceMajor, int *confidenceMinor, int *confidenceMajorOrientation,
@@ -123,8 +117,6 @@ int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequency(
 int SHARED_EXPORT getCAMBasicVehicleContainerLowFrequencyPathHistory(
     int stationID, int *pathHistory, int pathHistorySize,
     int *actualPathHistorySize);
-
-#pragma endregion
 
 #ifdef __cplusplus
 }

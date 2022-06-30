@@ -26,8 +26,6 @@ namespace c2x {
 extern "C" {
 #endif
 
-#pragma region Setter
-
 int SHARED_EXPORT addCAMRSUContainerHighFrequencyProtectedCommunicationZone(
     int stationID, int protectedZoneType, int expiryTime,
     int protectedZoneLatitude, int protectedZoneLongitude,
@@ -74,10 +72,6 @@ int SHARED_EXPORT setCAMSafetyCarContainer(int stationID,
                                            int causeCode, int subCauseCode,
                                            int trafficRule, int speedLimit);
 
-#pragma endregion
-
-#pragma region Getter
-
 int SHARED_EXPORT getCAMRSUContainerHighFrequencyProtectedCommunicationZone(
     int stationID, int index, int *protectedZoneType, int *expiryTime,
     int *protectedZoneLatitude, int *protectedZoneLongitude,
@@ -121,19 +115,11 @@ int SHARED_EXPORT getCAMSafetyCarContainer(int stationID,
                                            int *causeCode, int *subCauseCode,
                                            int *trafficRule, int *speedLimit);
 
-#pragma endregion
-
-#pragma region De - / En - coding
-
 int SHARED_EXPORT encodeCAM(int stationID, uint8_t *buffer, int bufferSize,
                             int *actualBufferSize, int encoding);
 
 int SHARED_EXPORT decodeCAM(int *stationID, uint8_t *buffer, int bufferSize,
                             int encoding);
-
-#pragma endregion
-
-#pragma region NetworkService
 
 int SHARED_EXPORT startCAMReceiver(int port, int encoding);
 int SHARED_EXPORT getCAMReceiverError();
@@ -146,8 +132,6 @@ int SHARED_EXPORT setCAMIDsForTransmission(int *stationIDs_send, int size);
 
 int SHARED_EXPORT setCAMSendCallback(void (*func)(int stationId));
 int SHARED_EXPORT setCAMRecvCallback(void (*func)(int stationId));
-
-#pragma endregion
 
 #ifdef __cplusplus
 }

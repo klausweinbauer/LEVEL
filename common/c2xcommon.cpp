@@ -107,8 +107,6 @@ void setLastErrMsg(const char *buffer, int size) {
   err_lock.unlock();
 }
 
-#pragma endregion
-
 #ifdef __cplusplus
 };
 #endif
