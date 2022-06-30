@@ -63,10 +63,8 @@ DBView<CAM_t> InMemoryDatabase::create(long unsigned int id) {
     }
   }
 
-  CAM_t *cam = (CAM_t *)malloc(sizeof(CAM_t));
+  CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = id;
-  cam->cam.camParameters.lowFrequencyContainer = nullptr;
-  cam->cam.camParameters.specialVehicleContainer = nullptr;
   cam->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_NOTHING;
 

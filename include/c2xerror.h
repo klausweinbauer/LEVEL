@@ -93,6 +93,12 @@ extern "C" {
 #define ERR_MSG_NOT_FOUND -12
 
 /**
+ * @brief Service detected an invalid operation
+ *
+ */
+#define ERR_INVALID_OPERATION -13
+
+/**
  * @brief Invalid type for high frequency container
  *
  */

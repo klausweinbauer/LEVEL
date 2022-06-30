@@ -9,14 +9,6 @@ option(BUILD_TESTS "include test project in build" OFF)
 option(INSTALL_MATLAB "include matlab and simulink files on install" OFF)
 option(BUILD_CLI "include cli in build" OFF)
 
-add_subdirectory(c2xcam)
-#add_subdirectory(c2xdenm) // TODO
-
-if (BUILD_CLI)
-    message("[INFO] Build c2xcli: " ${BUILD_CLI})
-    add_subdirectory(cli)
-endif()
-
 ################################
 # GTest
 ################################
@@ -30,11 +22,11 @@ if (BUILD_TESTS)
     GIT_TAG        15460959cbbfa20e66ef0b5ab497367e47fc0a04 # release-1.12.0
     )
     FetchContent_MakeAvailable(googletest)
+    include(GoogleTest)
 
     enable_testing()
 
     #add_subdirectory(googletest)
-    enable_testing()
     #include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
     #add_subdirectory(tests)
@@ -51,6 +43,14 @@ if (BUILD_TESTS)
     # gtest_discover_tests(c2xdenm_test)
 else()
     message("[INFO] Tests disabled")
+endif()
+
+add_subdirectory(c2xcam)
+#add_subdirectory(c2xdenm) // TODO
+
+if (BUILD_CLI)
+    message("[INFO] Build c2xcli: " ${BUILD_CLI})
+    add_subdirectory(cli)
 endif()
 
 message("[INFO] Install Matlab files: " ${INSTALL_MATLAB})

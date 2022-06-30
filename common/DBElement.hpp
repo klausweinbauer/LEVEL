@@ -15,6 +15,8 @@
 #include <functional>
 #include <mutex>
 
+namespace c2x {
+
 template <typename TValue> class DBView;
 
 template <typename TValue> class DBElement {
@@ -59,3 +61,5 @@ public:
 
   friend class DBView<TValue>;
 };
+
+}; // namespace c2x
