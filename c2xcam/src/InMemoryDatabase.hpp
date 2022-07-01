@@ -40,6 +40,9 @@ public:
   InMemoryDatabase();
   ~InMemoryDatabase();
 
+  InMemoryDatabase(const InMemoryDatabase &other) = delete;
+  InMemoryDatabase &operator=(const InMemoryDatabase &other) = delete;
+
   virtual bool exists(long unsigned int stationID) override;
   virtual DBView<CAMData> get(long unsigned int stationID) override;
   virtual DBView<CAMData> create(long unsigned int stationID) override;
