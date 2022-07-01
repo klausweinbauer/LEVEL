@@ -10,6 +10,9 @@ target_sources(${C2X_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/IEncoder.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Encoder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Encoder.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/INetworkInterface.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/UDPNetworkAccessLayer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/UDPNetworkAccessLayer.cpp
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../common ${CMAKE_CURRENT_BINARY_DIR}/common)

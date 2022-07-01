@@ -9,36 +9,35 @@
 #endif
 
 namespace c2x {
-    
+
 #ifdef _WIN32
-    class WSASession
-    {
-    public:
-        WSASession();
-        ~WSASession();
-    private:
-        WSAData data_;
-    };
+class WSASession {
+public:
+  WSASession();
+  ~WSASession();
+
+private:
+  WSAData data_;
+};
 #endif
 
-    class UDPSocket
-    {
-    private:
-        bool recv_fail_;
-        #ifdef _WIN32
-        SOCKET sock_;
-        #else
-        int sock_;
-        #endif
+class UDPSocket {
+private:
+  bool _recvFail;
 
-    public:
-        UDPSocket();
-        ~UDPSocket();
+#ifdef _WIN32
+  SOCKET _sock;
+#else
+  int _sock;
+#endif
 
-        void sendTo(unsigned short port, const char* buffer, int len, int flags = 0);
-        //void SendTo(sockaddr_in& address, const char* buffer, int len, int flags = 0);
-        int recvFrom(char* buffer, int len, sockaddr_in* from_addr, int flags = 0);
-        void bindSocket(unsigned short port);
-        void close();
-    };
+public:
+  UDPSocket();
+  ~UDPSocket();
+
+  void sendTo(unsigned short port, const char *buffer, int len, int flags = 0);
+  int recvFrom(char *buffer, int len, sockaddr_in *from_addr, int flags = 0);
+  void bindSocket(unsigned short port);
+  void close();
 };
+}; // namespace c2x

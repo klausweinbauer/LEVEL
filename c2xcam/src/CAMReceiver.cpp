@@ -1,37 +1,25 @@
-#include <CAMReceiver.hpp>
 #include <CAM.h>
-#include <iostream>
+#include <CAMReceiver.hpp>
 #include <c2xcam.h>
+#include <iostream>
 
 namespace c2x {
-CAMReceiver::CAMReceiver() : encoding_(XER_BASIC) {
+CAMReceiver::CAMReceiver() : PacketReceiver(0) {}
 
+void CAMReceiver::decodeMessage(char *buffer, int len) {
+  last_error_ = 0;
+  int stationID;
+  last_error_ = decodeCAM(&stationID, (uint8_t *)buffer, len, encoding_);
+
+  if (recvCallback != nullptr) {
+    recvCallback(stationID);
+  }
 }
 
-void CAMReceiver::decodeMessage(char* buffer, int len) 
-{
-	last_error_ = 0;
-    int stationID;
-	last_error_ = decodeCAM(&stationID, (uint8_t*)buffer, len, encoding_);
+int CAMReceiver::getLastError() { return last_error_; }
 
-    if (recvCallback != nullptr) {
-        recvCallback(stationID);
-    }
-}
+EncodingType CAMReceiver::getEncoding() { return encoding_; }
 
-int CAMReceiver::getLastError()
-{
-	return last_error_;
-}
+void CAMReceiver::setEncoding(EncodingType encoding) { encoding_ = encoding; }
 
-EncodingType CAMReceiver::getEncoding()
-{
-    return encoding_;
-}
-
-void CAMReceiver::setEncoding(EncodingType encoding)
-{
-    encoding_ = encoding;
-}
-
-};
+}; // namespace c2x

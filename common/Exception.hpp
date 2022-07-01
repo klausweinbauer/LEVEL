@@ -51,7 +51,7 @@ public:
   /**
    * @brief Returns a general description for an error code.
    *
-   * @param errCode Error code
+   * @param errCode \ref c2xerror.h "Error code"
    * @return const char* Description for the error code.
    */
   static const char *errMsg(int errCode) {

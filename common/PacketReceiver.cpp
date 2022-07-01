@@ -1,90 +1,64 @@
 #include <PacketReceiver.hpp>
-#include <iostream>
 
 #ifndef WIN32
 #include <unistd.h>
 #endif
 
 namespace c2x {
-    static UDPSocket* socket_;
 
-    PacketReceiver::PacketReceiver()
-    {
+PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
+  _recvThread = std::thread(receive, this);
+}
 
+PacketReceiver::~PacketReceiver() {
+  _threadRunning = false;
+  _socket.close();
+  _recvThread.join();
+}
+
+void PacketReceiver::receive(PacketReceiver *receiver) {
+
+#ifdef WIN32
+  WSASession session;
+#endif
+
+  receiver->_threadRunning = true;
+  receiver->_socket.bindSocket(receiver->_port);
+
+  int bufferSize = 65535;
+  char *buffer = (char *)malloc(bufferSize);
+
+  while (receiver->_threadRunning) {
+
+    try {
+      sockaddr_in from_addr;
+      int len = receiver->_socket.recvFrom(buffer, bufferSize, &from_addr);
+      if (len <= 0) {
+        continue;
+      }
+
+      if (receiver->recvPacketCallback) {
+        receiver->recvPacketCallback(buffer, len);
+      }
+
+    } catch (const std::exception &e) {
+      std::stringstream errMsg;
+      errMsg << "Receiving message failed (" << e.what() << ")." << std::endl;
+      Exception libException(ERR, errMsg.str().c_str());
+
+      if (receiver->errCallback) {
+        receiver->errCallback(libException);
+      }
+
+#ifdef WIN32
+      Sleep(receiver->_errSleepTime);
+#else
+      usleep(receiver->_errSleepTime * 1000);
+#endif
     }
+  }
 
-    PacketReceiver::~PacketReceiver()
-    {
-        
-    }
+  free(buffer);
+}
 
-    void PacketReceiver::start(unsigned short port)
-    {
-        if (thread_running_)
-        {
-            return;
-        }
-
-        port_ = port;
-
-        thread_running_ = true;
-
-        receiving_thread_ = std::thread(receive, this);
-    }
-
-    void PacketReceiver::receive(void* arg)
-    {
-        PacketReceiver* receiver = ((PacketReceiver*)arg);
-
-    #ifdef WIN32
-        WSASession session;
-    #endif
-        socket_ = new UDPSocket();
-        socket_->bindSocket(receiver->port_);
-
-        char* buffer = (char*)malloc(RECEIVE_BUFFER_LEN);
-        while (receiver->thread_running_)
-        {
-            try
-            {
-                sockaddr_in from_addr;
-                int len = socket_->recvFrom(buffer, RECEIVE_BUFFER_LEN, &from_addr);
-                if (len <= 0)
-                {
-                    continue;
-                }
-                
-                receiver->decodeMessage(buffer, len);
-            }
-            catch (const std::exception& ex)
-            {
-                std::cout << "PacketReceiver::receive() | " << ex.what() << std::endl;
-
-                const int wait_time = 10000;
-                #ifdef WIN32
-                Sleep(wait_time);
-                #else
-                usleep(wait_time * 1000);
-                #endif
-            }
-        }
-        free(buffer);
-    }
-
-    void PacketReceiver::stop()
-    {
-        if (!thread_running_)
-        {
-            return;
-        }
-
-        thread_running_ = false;
-        if (socket_ != nullptr) 
-        {
-            socket_->close();
-            delete socket_;
-            socket_ = nullptr;
-        }
-        receiving_thread_.join();
-    }
-};
+}; // namespace c2x

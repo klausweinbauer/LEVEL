@@ -1,30 +1,31 @@
 #pragma once
 
-#include <thread>
+#include <Exception.hpp>
 #include <UDPSocket.hpp>
-
-#define RECEIVE_BUFFER_LEN 65535
+#include <functional>
+#include <thread>
 
 namespace c2x {
-    class PacketReceiver
-    {
-    private:
-        bool thread_running_ = false;
-        unsigned short port_ = 0;
-        std::thread receiving_thread_;
+class PacketReceiver {
 
-        static void receive(void* obj);
+private:
+  const int _errSleepTime = 10000;
+  bool _threadRunning = false;
+  unsigned short _port = 0;
+  std::thread _recvThread;
+  UDPSocket _socket;
 
-    protected:
-        PacketReceiver();
-        virtual void decodeMessage(char* buffer, int len) = 0;
+  static void receive(PacketReceiver *receiver);
 
-    public:
-        virtual ~PacketReceiver();
-        PacketReceiver(PacketReceiver const&) = delete;
-        void operator=(PacketReceiver const&) = delete;
+public:
+  std::function<void(char *, int)> recvPacketCallback;
+  std::function<void(Exception)> errCallback;
 
-        void start(unsigned short port);
-        void stop();
-    };
+  PacketReceiver(unsigned short port);
+  virtual ~PacketReceiver();
+
+  PacketReceiver(PacketReceiver const &) = delete;
+  void operator=(PacketReceiver const &) = delete;
 };
+
+}; // namespace c2x

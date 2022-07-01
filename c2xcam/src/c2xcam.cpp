@@ -1784,7 +1784,7 @@ int encodeCAM(int stationID, uint8_t *buffer, int bufferSize,
 int startCAMReceiver(int port, int encoding) {
   try {
     CAMReceiver::getInstance().setEncoding((EncodingType)encoding);
-    CAMReceiver::getInstance().start(port);
+    // CAMReceiver::getInstance().start(port);
   } catch (const std::exception &ex) {
     return ERR_RECEIVER_START;
     std::cout << "" << ex.what() << std::endl;
@@ -1795,7 +1795,7 @@ int startCAMReceiver(int port, int encoding) {
 int getCAMReceiverError() { return CAMReceiver::getInstance().getLastError(); }
 
 int stopCAMReceiver() {
-  CAMReceiver::getInstance().stop();
+  // CAMReceiver::getInstance().stop();
   return 0;
 }
 

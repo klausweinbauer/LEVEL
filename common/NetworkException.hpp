@@ -19,14 +19,14 @@ namespace c2x {
  * @brief General exception for errors while sending or receiving messages.
  *
  */
-class NetworkException : Exception {
+class NetworkException : public Exception {
 
 public:
   NetworkException(int errCode)
       : Exception(errCode, "General network exception."){};
   NetworkException(int errCode, std::string errMsg)
       : Exception(errCode, errMsg){};
-  ~NetworkException();
+  ~NetworkException(){};
 };
 
 } // namespace c2x
