@@ -3,12 +3,14 @@ set(C2X_TARGET_NAME c2xcam_UnitTest)
 
 add_executable(${C2X_TARGET_NAME} 
   ${CMAKE_CURRENT_SOURCE_DIR}/DatabaseTests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/EncoderTests.cpp
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/CAM ${CMAKE_CURRENT_BINARY_DIR}/src/CAM)
 
 target_sources(${C2X_TARGET_NAME} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/../src/InMemoryDatabase.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/Encoder.cpp
 )
 
 target_include_directories(${C2X_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/)

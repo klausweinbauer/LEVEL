@@ -27,7 +27,7 @@ namespace c2x::cam {
  * lead to deadlocks (the database raises a DBException if you try to).
  */
 class IDatabase {
-private:
+
 public:
   virtual ~IDatabase(){};
 

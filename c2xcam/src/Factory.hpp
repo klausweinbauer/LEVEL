@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <Encoder.hpp>
 #include <InMemoryDatabase.hpp>
 
 namespace c2x::cam {
@@ -27,8 +28,12 @@ public:
   ~Factory(){};
 
   static IDatabase &database() {
-    static auto instance =
-        std::unique_ptr<InMemoryDatabase>(new InMemoryDatabase());
+    static auto instance = std::unique_ptr<IDatabase>(new InMemoryDatabase());
+    return *instance;
+  }
+
+  static IEncoder &encoder() {
+    static auto instance = std::unique_ptr<IEncoder>(new Encoder());
     return *instance;
   }
 };

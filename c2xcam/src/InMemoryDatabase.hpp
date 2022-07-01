@@ -16,8 +16,6 @@
 
 namespace c2x::cam {
 
-class IDatabase;
-
 /**
  * @brief Database implementation for an in-memory storage of CAMs.
  *
