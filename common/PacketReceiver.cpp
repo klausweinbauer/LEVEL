@@ -8,6 +8,9 @@ namespace c2x {
 
 PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
   _recvThread = std::thread(receive, this);
+  while (!_threadRunning) {
+    usleep(1);
+  }
 }
 
 PacketReceiver::~PacketReceiver() {

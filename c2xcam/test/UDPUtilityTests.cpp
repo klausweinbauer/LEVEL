@@ -16,16 +16,22 @@ TEST(UDPUtilityTests, Test_Open_Multiple_Sockets) {
 
 TEST(UDPUtilityTests, Test_Correct_Bound_Socket_Management) {
 
-  {
-    UDPSocket socket;
-    socket.bindSocket(5999);
-  }
-  {
-    UDPSocket socket;
-    socket.bindSocket(5999);
+  bool exceptionRaised = false;
+
+  try {
+    {
+      UDPSocket socket;
+      socket.bindSocket(5999);
+    }
+    {
+      UDPSocket socket;
+      socket.bindSocket(5999);
+    }
+  } catch (const std::exception &e) {
+    exceptionRaised = true;
   }
 
-  ASSERT_TRUE(true); // If we get here, everything is fine
+  ASSERT_FALSE(exceptionRaised);
 }
 
 TEST(UDPUtilityTests, Test_Exception_On_Multiple_Binds) {
@@ -41,4 +47,37 @@ TEST(UDPUtilityTests, Test_Exception_On_Multiple_Binds) {
   }
 
   ASSERT_EQ(ERR, errCode);
+}
+
+TEST(UDPUtilityTests, Test_Packet_Receiver_Instantiation_And_Cleanup) {
+
+  bool exceptionRaised = false;
+
+  try {
+    { PacketReceiver receiver(5999); }
+    { PacketReceiver receiver(5999); }
+  } catch (const std::exception &e) {
+    exceptionRaised = true;
+  }
+
+  ASSERT_FALSE(exceptionRaised);
+}
+
+static int testSendAndReceiveDataLen = 0;
+void recvPacket(char *buffer, int len) { testSendAndReceiveDataLen = len; }
+
+TEST(UDPUtilityTests, Test_Send_And_Receive_Data) {
+
+  unsigned short port = 5999;
+  std::string msg = "Hello Receiver!";
+  UDPSocket sender;
+  PacketReceiver receiver(port);
+  receiver.recvPacketCallback = recvPacket;
+  sender.sendTo(port, msg.c_str(), msg.length() + 1);
+
+  while (!testSendAndReceiveDataLen) {
+    usleep(1);
+  }
+
+  ASSERT_EQ(msg.length() + 1, testSendAndReceiveDataLen);
 }
