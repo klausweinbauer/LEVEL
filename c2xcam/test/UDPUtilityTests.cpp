@@ -64,7 +64,9 @@ TEST(UDPUtilityTests, Test_Packet_Receiver_Instantiation_And_Cleanup) {
 }
 
 static int testSendAndReceiveDataLen = 0;
-void recvPacket(char *buffer, int len) { testSendAndReceiveDataLen = len; }
+void recvPacket(const char *buffer, int len) {
+  testSendAndReceiveDataLen = len;
+}
 
 TEST(UDPUtilityTests, Test_Send_And_Receive_Data) {
 

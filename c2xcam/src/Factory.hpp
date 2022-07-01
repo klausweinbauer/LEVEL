@@ -13,6 +13,7 @@
 
 #include <Encoder.hpp>
 #include <InMemoryDatabase.hpp>
+#include <UDPNetworkAccessLayer.hpp>
 
 namespace c2x::cam {
 
@@ -34,6 +35,13 @@ public:
 
   static IEncoder &encoder() {
     static auto instance = std::unique_ptr<IEncoder>(new Encoder());
+    return *instance;
+  }
+
+  static INetworkInterface &networkAL() {
+    // TODO Make port configurable
+    static auto instance =
+        std::unique_ptr<INetworkInterface>(new UDPNetworkAccessLayer(5999));
     return *instance;
   }
 };

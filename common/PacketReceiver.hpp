@@ -18,8 +18,8 @@ private:
   static void receive(PacketReceiver *receiver);
 
 public:
-  std::function<void(char *, int)> recvPacketCallback;
-  std::function<void(Exception)> errCallback;
+  std::function<void(const char *, int)> recvPacketCallback;
+  std::function<void(const Exception &)> errCallback;
 
   PacketReceiver(unsigned short port);
   virtual ~PacketReceiver();
