@@ -29,7 +29,7 @@ TEST(Test_IDatabase, Test_Create_Entry) {
 
   auto entry = db->create(id);
 
-  ASSERT_EQ(id, entry->header.stationID);
+  ASSERT_EQ(id, entry->cam()->header.stationID);
 }
 
 TEST(Test_IDatabase, Test_Create_Duplicate_Entry) {
@@ -57,7 +57,7 @@ TEST(Test_IDatabase, Test_Create_And_Get) {
   db->create(id);
   auto view = db->get(id);
 
-  ASSERT_EQ(id, view->header.stationID);
+  ASSERT_EQ(id, view->cam()->header.stationID);
 }
 
 TEST(Test_IDatabase, Test_Create_And_Delete) {
@@ -76,13 +76,13 @@ TEST(Test_IDatabase, Test_Modify_Id) {
   auto db = getDBInstance();
   auto id1 = getRandId();
   auto id2 = getRandId();
-  CAM_t *cam1, *cam2;
+  CAMData *cam1, *cam2;
 
   db->create(id1);
   {
     auto view = db->get(id1);
     cam1 = *view;
-    view->header.stationID = id2;
+    view->cam()->header.stationID = id2;
   }
   auto view = db->get(id2);
   cam2 = *view;
@@ -110,7 +110,7 @@ TEST(Test_IDatabase, Test_Override_Entry_By_Modifying_StationID) {
   db->create(id2);
   {
     auto view = db->get(id1);
-    view->header.stationID = id2;
+    view->cam()->header.stationID = id2;
   }
 
   ASSERT_FALSE(db->exists(id1));
@@ -177,7 +177,7 @@ void incMessageId(std::shared_ptr<IDatabase> db, long unsigned int id,
   for (int i = 0; i < incCount; i++) {
     {
       auto view = db->get(id);
-      view->header.messageID++;
+      view->cam()->header.messageID++;
     }
   }
 }
@@ -200,7 +200,7 @@ TEST(Test_IDatabase, Test_For_Race_Condition_In_DB_Access) {
     threads[i].join();
   }
 
-  int finalCount = db->get(id)->header.messageID;
+  int finalCount = db->get(id)->cam()->header.messageID;
 
   ASSERT_EQ(nrThreads * incPerThread, finalCount);
 }

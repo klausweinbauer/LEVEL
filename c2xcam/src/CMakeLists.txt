@@ -6,6 +6,7 @@ target_sources(${C2X_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/IDatabase.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/InMemoryDatabase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/InMemoryDatabase.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CAMData.hpp
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../common ${CMAKE_CURRENT_BINARY_DIR}/common)

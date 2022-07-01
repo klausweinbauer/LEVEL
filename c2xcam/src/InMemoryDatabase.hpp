@@ -30,19 +30,19 @@ class IDatabase;
  */
 class InMemoryDatabase : public IDatabase {
 private:
-  std::vector<DBElement<CAM_t> *> _database;
+  std::vector<DBElement<CAMData> *> _database;
   std::mutex _lock;
 
-  void entryModified(DBElement<CAM_t> *entry);
-  void deleteEntry(std::vector<DBElement<CAM_t> *>::iterator iterator);
+  void entryModified(DBElement<CAMData> *entry);
+  void deleteEntry(std::vector<DBElement<CAMData> *>::iterator iterator);
 
 public:
   InMemoryDatabase();
   ~InMemoryDatabase();
 
   virtual bool exists(long unsigned int stationID) override;
-  virtual DBView<CAM_t> get(long unsigned int stationID) override;
-  virtual DBView<CAM_t> create(long unsigned int stationID) override;
+  virtual DBView<CAMData> get(long unsigned int stationID) override;
+  virtual DBView<CAMData> create(long unsigned int stationID) override;
   virtual void remove(long unsigned int stationID) override;
   virtual size_t entryCount() override;
 };

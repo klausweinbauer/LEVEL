@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <CAM.h>
+#include <CAMData.hpp>
 #include <DBView.hpp>
 #include <memory>
 
@@ -21,7 +21,7 @@ namespace c2x::cam {
  *
  * @details This class provides the interface to the data access layer. Methods
  * that access an object (like get() or create()) return a \ref DBView
- * "DBView<CAM_t>" object, which guarantees mutual exclusion for the requested
+ * "DBView<CAMData>" object, which guarantees mutual exclusion for the requested
  * object for the lifetime of the view object. It is important to note that each
  * thread may only have one open view at any time because multiple views could
  * lead to deadlocks (the database raises a DBException if you try to).
@@ -47,21 +47,21 @@ public:
    * @brief Get a stored CAM by its stationID.
    *
    * @param stationID StationId of CAM.
-   * @return DBView<CAM_t> Returns requested CAM object. DBView wrapper ensures
-   * mutual exclusion for the CAM object. Use the -> operator to access the
-   * actual data.
+   * @return DBView<CAMData> Returns requested CAM object. DBView wrapper
+   * ensures mutual exclusion for the CAM object. Use the -> operator to access
+   * the actual data.
    */
-  virtual DBView<CAM_t> get(long unsigned int stationID) = 0;
+  virtual DBView<CAMData> get(long unsigned int stationID) = 0;
 
   /**
    * @brief Create a new CAM with stationID.
    *
    * @param stationID StationID of new CAM.
-   * @return DBView<CAM_t> Returns newly created CAM object. DBView wrapper
+   * @return DBView<CAMData> Returns newly created CAM object. DBView wrapper
    * ensures mutual exclusion for the CAM object. Use the -> operator to access
    * the actual data.
    */
-  virtual DBView<CAM_t> create(long unsigned int stationID) = 0;
+  virtual DBView<CAMData> create(long unsigned int stationID) = 0;
 
   /**
    * @brief Delete the CAM with the provided stationID.
