@@ -13,6 +13,7 @@ static int last_err_msg_size = 0;
 static std::mutex err_lock;
 
 void getErrMsg(int err, char *buffer, int size) {
+  // TODO Replace with Exception
   switch (err) {
   case ERR_MSG_NOT_FOUND:
     snprintf(buffer, size, "Message was not found.");

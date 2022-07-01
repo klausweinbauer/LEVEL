@@ -43,7 +43,7 @@ TEST(Test_IDatabase, Test_Create_Duplicate_Entry) {
   try {
     db->create(id);
   } catch (const DBException &e) {
-    errorCode = e.getErrorCode();
+    errorCode = e.getErrCode();
   }
 
   ASSERT_EQ(ERR_CAM_ALREADY_EXISTS, errorCode);
@@ -130,7 +130,7 @@ TEST(Test_IDatabase, Test_Exception_When_Opening_Same_View_Multiple_Timest) {
   try {
     auto view2 = db->get(id);
   } catch (const DBException &e) {
-    errorCode = e.getErrorCode();
+    errorCode = e.getErrCode();
   }
 
   ASSERT_EQ(ERR_INVALID_OPERATION, errorCode);
@@ -150,7 +150,7 @@ TEST(Test_IDatabase, Test_Exception_When_Opening_Different_Views_Concurrently) {
   try {
     auto view2 = db->get(id2);
   } catch (const DBException &e) {
-    errorCode = e.getErrorCode();
+    errorCode = e.getErrCode();
   }
 
   ASSERT_EQ(ERR_INVALID_OPERATION, errorCode);

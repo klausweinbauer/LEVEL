@@ -1,6 +1,17 @@
+/**
+ * @file DBException.hpp
+ * @author Klaus Weinbauer
+ * @brief General exception for errors during database operations.
+ * @version 0.1
+ * @date 2022-07-01
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #pragma once
 
-#include <c2xcommon.h>
+#include <Exception.hpp>
 #include <exception>
 #include <sstream>
 #include <string>
@@ -8,28 +19,17 @@
 #define DB_EXCEPTION_BUFFER_LEN 256
 
 namespace c2x {
-class DBException : public std::exception {
-private:
-  int _errorCode;
-  std::string _msg;
+
+/**
+ * @brief General exception for errors during database operations.
+ *
+ */
+class DBException : public Exception {
 
 public:
-  DBException(int errorCode) : _errorCode(errorCode){};
-  DBException(int errorCode, std::string msg)
-      : _errorCode(errorCode), _msg(msg){};
-  ~DBException(){};
-
-  int getErrorCode() const { return _errorCode; }
-  std::string getErrorMessage() const { return _msg; }
-  const char *what() const noexcept override {
-    if (_msg.size() > 0) {
-      return _msg.c_str();
-    } else {
-      std::stringstream ss;
-      ss << "DBException (error code " << _errorCode << ")" << std::endl;
-      return ss.str().c_str();
-    }
-  }
+  DBException(int errCode)
+      : Exception(errCode, "General database exception."){};
+  DBException(int errCode, std::string errMsg) : Exception(errCode, errMsg){};
 };
 
 } // namespace c2x
