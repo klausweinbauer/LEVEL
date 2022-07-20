@@ -8,6 +8,11 @@ project(level VERSION 0.1.0)
 option(BUILD_TESTS "include tests in build" ON)
 option(COVERAGE "include code coverage target in build" OFF)
 
+if(WIN32)
+    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
+
 ################################
 # LEVEL 
 ################################
