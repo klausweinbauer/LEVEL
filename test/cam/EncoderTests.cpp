@@ -13,11 +13,11 @@ std::shared_ptr<IEncoder> getEncoder() {
   return std::shared_ptr<IEncoder>(new Encoder());
 }
 
-TEST(CAM_EncoderTests, Test_Factory_Function) {
+TEST(CAM_Encoder, Test_Factory_Function) {
   ASSERT_NE(nullptr, &Factory::encoder());
 }
 
-TEST(CAM_EncoderTests, Test_CAM_encoding_BER) {
+TEST(CAM_Encoder, Test_CAM_encoding_BER) {
   auto encoder = getEncoder();
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -44,7 +44,7 @@ TEST(CAM_EncoderTests, Test_CAM_encoding_BER) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_EncoderTests, Test_CAM_encoding_XER_CANONICAL) {
+TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
   auto encoder = getEncoder();
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -72,7 +72,7 @@ TEST(CAM_EncoderTests, Test_CAM_encoding_XER_CANONICAL) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_EncoderTests, Test_CAM_encoding_XER_BASIC) {
+TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
   auto encoder = getEncoder();
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -99,7 +99,26 @@ TEST(CAM_EncoderTests, Test_CAM_encoding_XER_BASIC) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_EncoderTests, Test_Encode_With_Nullptr) {
+TEST(CAM_Encoder, Test_Encode_With_Invalid_Type) {
+  auto encoder = getEncoder();
+  CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
+  int bufferLen = 4096;
+  uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
+  int errCode;
+
+  try {
+    encoder->encode(cam, buffer, bufferLen, EncodingType(-1));
+  } catch (const Exception &e) {
+    errCode = e.getErrCode();
+  }
+
+  ASSERT_EQ(ERR_INVALID_ARG, errCode);
+
+  free(buffer);
+  ASN_STRUCT_FREE(asn_DEF_CAM, cam);
+}
+
+TEST(CAM_Encoder, Test_Encode_With_Nullptr) {
   auto encoder = getEncoder();
   int errCode = 0;
   auto buffer = new uint8_t[32];
@@ -115,7 +134,7 @@ TEST(CAM_EncoderTests, Test_Encode_With_Nullptr) {
   delete[] buffer;
 }
 
-TEST(CAM_EncoderTests, Test_Encode_Invalid_CAM) {
+TEST(CAM_Encoder, Test_Encode_Invalid_CAM) {
   auto encoder = getEncoder();
   int errCode = 0;
   int bufferLen = 4096;
@@ -134,7 +153,7 @@ TEST(CAM_EncoderTests, Test_Encode_Invalid_CAM) {
   free(buffer);
 }
 
-TEST(CAM_EncoderTests, Test_Encode_With_Too_Small_Buffer) {
+TEST(CAM_Encoder, Test_Encode_With_Too_Small_Buffer) {
   auto encoder = getEncoder();
   int errCode = 0;
   int bufferLen = 32;
@@ -155,7 +174,7 @@ TEST(CAM_EncoderTests, Test_Encode_With_Too_Small_Buffer) {
   free(buffer);
 }
 
-TEST(CAM_EncoderTests, Test_Decode_With_Nullptr) {
+TEST(CAM_Encoder, Test_Decode_With_Nullptr) {
   auto encoder = getEncoder();
   int errCode = 0;
 
@@ -168,7 +187,7 @@ TEST(CAM_EncoderTests, Test_Decode_With_Nullptr) {
   ASSERT_EQ(ERR_ARG_NULL, errCode);
 }
 
-TEST(CAM_EncoderTests, Test_Decode_With_Empty_Buffer) {
+TEST(CAM_Encoder, Test_Decode_With_Empty_Buffer) {
   auto encoder = getEncoder();
   int errCode = 0;
   auto buffer = new uint8_t[0];
@@ -184,7 +203,7 @@ TEST(CAM_EncoderTests, Test_Decode_With_Empty_Buffer) {
   delete[] buffer;
 }
 
-TEST(CAM_EncoderTests, Test_Decode_With_Invalid_Data) {
+TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
   auto encoder = getEncoder();
   int errCode = 0;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
@@ -205,6 +224,56 @@ TEST(CAM_EncoderTests, Test_Decode_With_Invalid_Data) {
   }
 
   ASSERT_EQ(ERR_DECODE, errCode);
+
+  free(buffer);
+  ASN_STRUCT_FREE(asn_DEF_CAM, cam);
+}
+
+TEST(CAM_Encoder, Test_Decode_With_Invalid_Type) {
+  auto encoder = getEncoder();
+  int errCode = 0;
+  CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
+  cam->cam.camParameters.highFrequencyContainer.present =
+      HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
+  int bufferLen = 4096;
+  uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
+  int len = encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
+
+  try {
+    encoder->decode(buffer, len, EncodingType(-1));
+  } catch (const Exception &e) {
+    errCode = e.getErrCode();
+  }
+
+  ASSERT_EQ(ERR_INVALID_ARG, errCode);
+
+  free(buffer);
+  ASN_STRUCT_FREE(asn_DEF_CAM, cam);
+}
+
+TEST(CAM_Encoder, Test_Encode_Property_Failed) {
+  auto encoder = getEncoder();
+  int errCode = 0;
+  std::string errMsg;
+  CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
+  cam->cam.camParameters.highFrequencyContainer.present =
+      HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
+  auto lfc =
+      (LowFrequencyContainer_t *)calloc(1, sizeof(LowFrequencyContainer_t));
+  cam->cam.camParameters.lowFrequencyContainer = lfc;
+  lfc->choice.basicVehicleContainerLowFrequency.vehicleRole = 99;
+  int bufferLen = 4096;
+  uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
+
+  try {
+    encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
+  } catch (const Exception &e) {
+    errCode = e.getErrCode();
+    errMsg.assign(e.getErrMsg());
+  }
+
+  ASSERT_EQ(ERR_ENCODE, errCode);
+  ASSERT_THAT(errMsg, ::testing::HasSubstr("LowFrequencyContainer"));
 
   free(buffer);
   ASN_STRUCT_FREE(asn_DEF_CAM, cam);

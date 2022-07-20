@@ -12,7 +12,7 @@ using namespace level::cam;
 static CAM_t *testSendAndReceiveMessage_cam = nullptr;
 static void recvPacket(CAM_t *cam) { testSendAndReceiveMessage_cam = cam; }
 
-TEST(CAM_NetworkAccessLayerTests, Test_Send_And_Receive_Message) {
+TEST(CAM_NetworkAccessLayer, Test_Send_And_Receive_Message) {
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   auto id = 97;
   cam->header.stationID = id;

@@ -126,7 +126,7 @@ CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen,
     throw Exception(ERR_DECODE, "Decoding of CAM failed.");
   }
 
-    return cam;
+  return cam;
 }
 
 } // namespace level::cam

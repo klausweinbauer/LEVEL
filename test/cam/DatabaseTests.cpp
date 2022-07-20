@@ -17,12 +17,12 @@ std::shared_ptr<IDatabase> getDBInstance() {
   return std::shared_ptr<IDatabase>(new InMemoryDatabase());
 }
 
-TEST(CAM_DatabaseTests, Test_Factory_Function) {
+TEST(CAM_Database, Test_Factory_Function) {
 
   ASSERT_EQ(0, Factory::db().entryCount());
 }
 
-TEST(CAM_DatabaseTests, Test_Create_Entry) {
+TEST(CAM_Database, Test_Create_Entry) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -32,7 +32,22 @@ TEST(CAM_DatabaseTests, Test_Create_Entry) {
   ASSERT_EQ(id, entry->cam()->header.stationID);
 }
 
-TEST(CAM_DatabaseTests, Test_Create_Duplicate_Entry) {
+TEST(CAM_Database, Test_Get_Not_Existing_Entry) {
+
+  auto db = getDBInstance();
+  auto id = getRandId();
+  int errCode;
+
+  try {
+    db->get(id);
+  } catch (const Exception &e) {
+    errCode = e.getErrCode();
+  }
+
+  ASSERT_EQ(ERR_MSG_NOT_FOUND, errCode);
+}
+
+TEST(CAM_Database, Test_Create_Duplicate_Entry) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -49,7 +64,7 @@ TEST(CAM_DatabaseTests, Test_Create_Duplicate_Entry) {
   ASSERT_EQ(ERR_CAM_ALREADY_EXISTS, errorCode);
 }
 
-TEST(CAM_DatabaseTests, Test_Create_And_Get) {
+TEST(CAM_Database, Test_Create_And_Get) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -60,7 +75,7 @@ TEST(CAM_DatabaseTests, Test_Create_And_Get) {
   ASSERT_EQ(id, view->cam()->header.stationID);
 }
 
-TEST(CAM_DatabaseTests, Test_Create_And_Delete) {
+TEST(CAM_Database, Test_Create_And_Delete) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -71,7 +86,7 @@ TEST(CAM_DatabaseTests, Test_Create_And_Delete) {
   ASSERT_EQ(0, db->entryCount());
 }
 
-TEST(CAM_DatabaseTests, Test_Modify_Id) {
+TEST(CAM_Database, Test_Modify_Id) {
 
   auto db = getDBInstance();
   auto id1 = getRandId();
@@ -90,7 +105,7 @@ TEST(CAM_DatabaseTests, Test_Modify_Id) {
   ASSERT_EQ(cam1, cam2);
 }
 
-TEST(CAM_DatabaseTests, Test_Exists_Method) {
+TEST(CAM_Database, Test_Exists_Method) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -100,7 +115,7 @@ TEST(CAM_DatabaseTests, Test_Exists_Method) {
   ASSERT_TRUE(db->exists(id));
 }
 
-TEST(CAM_DatabaseTests, Test_Override_Entry_By_Modifying_StationID) {
+TEST(CAM_Database, Test_Override_Entry_By_Modifying_StationID) {
 
   auto db = getDBInstance();
   auto id1 = getRandId();
@@ -118,7 +133,7 @@ TEST(CAM_DatabaseTests, Test_Override_Entry_By_Modifying_StationID) {
   ASSERT_EQ(1, db->entryCount());
 }
 
-TEST(CAM_DatabaseTests, Test_Exception_When_Opening_Same_View_Multiple_Timest) {
+TEST(CAM_Database, Test_Exception_When_Opening_Same_View_Multiple_Timest) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -136,8 +151,7 @@ TEST(CAM_DatabaseTests, Test_Exception_When_Opening_Same_View_Multiple_Timest) {
   ASSERT_EQ(ERR_INVALID_OPERATION, errorCode);
 }
 
-TEST(CAM_DatabaseTests,
-     Test_Exception_When_Opening_Different_Views_Concurrently) {
+TEST(CAM_Database, Test_Exception_When_Opening_Different_Views_Concurrently) {
 
   auto db = getDBInstance();
   auto id1 = getRandId();
@@ -157,7 +171,7 @@ TEST(CAM_DatabaseTests,
   ASSERT_EQ(ERR_INVALID_OPERATION, errorCode);
 }
 
-TEST(CAM_DatabaseTests, Test_Get_Multiple_Views) {
+TEST(CAM_Database, Test_Get_Multiple_Views) {
 
   auto db = getDBInstance();
   auto id = getRandId();
@@ -183,7 +197,7 @@ void incMessageId(std::shared_ptr<IDatabase> db, long unsigned int id,
   }
 }
 
-TEST(CAM_DatabaseTests, Test_For_Race_Condition_In_DB_Access) {
+TEST(CAM_Database, Test_For_Race_Condition_In_DB_Access) {
 
   int nrThreads = 10;
   int incPerThread = 10000;
