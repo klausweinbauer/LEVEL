@@ -11,10 +11,11 @@
  *
  */
 namespace level {
+
 extern "C" {
 #endif
 
-const SHARED_EXPORT char* getVersion();
+SHARED_EXPORT const char* getVersion();
 
 #ifdef __cplusplus
 }

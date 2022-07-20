@@ -9,5 +9,5 @@ const char* getVersion() {
 }
 
 #ifdef __cplusplus
-};
+}
 #endif

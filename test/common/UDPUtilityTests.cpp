@@ -3,6 +3,9 @@
 #include <UDPSocket.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
 using namespace level;
 
@@ -78,7 +81,7 @@ TEST(Common_UDPUtility, Test_Send_And_Receive_Data) {
   sender.sendTo(port, msg.c_str(), msg.length() + 1);
 
   while (!testSendAndReceiveDataLen) {
-    usleep(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   ASSERT_EQ(msg.length() + 1, testSendAndReceiveDataLen);
