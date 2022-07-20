@@ -1,13 +1,33 @@
-cmake_minimum_required(VERSION 3.6.0)
+cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3")
 
-project(c2xlib)
+project(level VERSION 0.1.0)
 
-option(BUILD_TESTS "include test project in build" OFF)
-option(INSTALL_MATLAB "include matlab and simulink files on install" OFF)
-option(BUILD_CLI "include cli in build" OFF)
+option(BUILD_TESTS "include tests in build" ON)
+
+################################
+# LEVEL 
+################################
+
+add_library(${PROJECT_NAME} SHARED src/level.cpp)
+set(LEVEL_TARGET_NAME ${PROJECT_NAME})
+
+set_target_properties(${LEVEL_TARGET_NAME} PROPERTIES PUBLIC_HEADER 
+	"${CMAKE_CURRENT_SOURCE_DIR}/../include/level.h")
+
+include(GenerateExportHeader)
+
+add_subdirectory(src)
+
+if(WIN32) 
+	target_link_libraries(${LEVEL_TARGET_NAME} wsock32 ws2_32)
+elseif(UNIX)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    target_link_libraries(${LEVEL_TARGET_NAME} PRIVATE Threads::Threads)
+endif()
 
 ################################
 # GTest
@@ -26,78 +46,7 @@ if (BUILD_TESTS)
 
     enable_testing()
 
-    #add_subdirectory(googletest)
-    #include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
-    #add_subdirectory(tests)
-
-    # add_executable(c2xcam_test ./tests/c2xcam-test.cpp)
-    # add_executable(c2xdenm_test ./tests/c2xdenm-test.cpp)
-    # 
-    # target_link_libraries(c2xcam_test gtest_main c2xcam)
-    # target_link_libraries(c2xdenm_test gtest_main c2xdenm)
-    # 
-    # include(GoogleTest)
-    # 
-    # gtest_discover_tests(c2xcam_test)
-    # gtest_discover_tests(c2xdenm_test)
+    add_subdirectory(test)
 else()
     message("[INFO] Tests disabled")
 endif()
-
-add_subdirectory(c2xcam)
-#add_subdirectory(c2xdenm) // TODO
-
-if (BUILD_CLI)
-    message("[INFO] Build c2xcli: " ${BUILD_CLI})
-    add_subdirectory(cli)
-endif()
-
-message("[INFO] Install Matlab files: " ${INSTALL_MATLAB})
-if (INSTALL_MATLAB)
-    set(MATLAB_LIB_FILE_DIR matlab/c2xlib)
-    file(GLOB MATLAB_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_LIB_FILE_DIR}/*")
-    install(FILES ${MATLAB_LIB_FILES} 
-            DESTINATION ${MATLAB_LIB_FILE_DIR}
-            COMPONENT MatlabLib)
-
-    set(MATLAB_EXAMPLES_FILE_DIR matlab/examples)
-    file(GLOB MATLAB_EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${MATLAB_EXAMPLES_FILE_DIR}/*.slx")
-    install(FILES ${MATLAB_EXAMPLE_FILES} 
-            DESTINATION ${MATLAB_EXAMPLES_FILE_DIR}
-            COMPONENT MatlabExamples)
-endif()
-
-set(CPACK_GENERATOR WIX)
-set(CPACK_WIX_UPGRADE_GUID "03A103F9-E286-46C5-8DBE-F07E0F1A0CEF")
-set(CPACK_PACKAGE_NAME "C2XLib")
-set(CPACK_PACKAGE_VENDOR "Klaus Weinbauer")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A C++ and Matlab library for c2x communication based on CAM and DENM protocolls over UDP.")
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "c2xlib")
-
-set(CPACK_COMPONENTS_ALL CppCAMLib CppDENMLib MatlabLib MatlabExamples)
-set(CPACK_COMPONENT_CPPCAMLIB_DISPLAY_NAME "CAM")
-set(CPACK_COMPONENT_CPPDENMLIB_DISPLAY_NAME "DENM")
-set(CPACK_COMPONENT_MATLABLIB_DISPLAY_NAME "Matlab Library")
-set(CPACK_COMPONENT_MATLABEXAMPLES_DISPLAY_NAME "Matlab Examples")
-
-set(CPACK_COMPONENT_CPPCAMLIB_DESCRIPTION "Library for sending and receiving CAM messages over UDP.")
-set(CPACK_COMPONENT_CPPDENMLIB_DESCRIPTION "Library for sending and receiving DENM messages over UDP.")
-set(CPACK_COMPONENT_MATLABLIB_DESCRIPTION "Contains Simulink blocks to access the underlying C++ libraries.")
-set(CPACK_COMPONENT_MATLABEXAMPLES_DESCRIPTION "Adds some examples for the usage of the Simulink blocks.")
-
-set(CPACK_COMPONENT_MATLABEXAMPLES_DEPENDS MatlabLib)
-set(CPACK_COMPONENT_MATLABLIB_DEPENDS CppCAMLib CppDENMLib)
-
-set(CPACK_COMPONENT_CPPCAMLIB_GROUP "CppLib")
-set(CPACK_COMPONENT_CPPDENMLIB_GROUP "CppLib")
-set(CPACK_COMPONENT_GROUP_CPPLIB_DISPLAY_NAME "C++ Libraries")
-set(CPACK_COMPONENT_GROUP_CPPLIB_DESCRIPTION "Includes C++ Libraries for CAM and DENM messageing service over UDP.")
-
-set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-
-include(CPack)
