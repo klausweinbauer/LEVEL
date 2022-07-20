@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 project(level VERSION 0.1.0)
 
 option(BUILD_TESTS "include tests in build" ON)
-option(COVERAGE "include code coverage target in build" ON)
+option(COVERAGE "include code coverage target in build" OFF)
 
 ################################
 # LEVEL 
