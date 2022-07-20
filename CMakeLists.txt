@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 
 project(level VERSION 0.1.0)
 
@@ -38,9 +39,9 @@ if (BUILD_TESTS)
 
     include(FetchContent)
     FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG        15460959cbbfa20e66ef0b5ab497367e47fc0a04 # release-1.12.0
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        15460959cbbfa20e66ef0b5ab497367e47fc0a04 # release-1.12.0
     )
     FetchContent_MakeAvailable(googletest)
     include(GoogleTest)
@@ -91,7 +92,6 @@ endif()
 function(append_coverage_compiler_flags)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
     message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
 endfunction() # append_coverage_compiler_flags
 
@@ -158,24 +158,8 @@ function(setup_target_for_coverage_gcovr_html)
     # Running gcovr
     set(GCOVR_HTML_CMD
         ${GCOVR_PATH} --html ${Coverage_NAME}/index.html --html-details -r ${CMAKE_SOURCE_DIR} ${GCOVR_ADDITIONAL_ARGS}
-        ${GCOVR_EXCLUDE_ARGS} --object-directory=${CMAKE_BINARY_DIR}
+        ${GCOVR_EXCLUDE_ARGS} --object-directory=${CMAKE_BINARY_DIR} --print-summary
     )
-
-    if(CODE_COVERAGE_VERBOSE)
-        message(STATUS "Executed command report")
-
-        message(STATUS "Command to run tests: ")
-        string(REPLACE ";" " " GCOVR_HTML_EXEC_TESTS_CMD_SPACED "${GCOVR_HTML_EXEC_TESTS_CMD}")
-        message(STATUS "${GCOVR_HTML_EXEC_TESTS_CMD_SPACED}")
-
-        message(STATUS "Command to create a folder: ")
-        string(REPLACE ";" " " GCOVR_HTML_FOLDER_CMD_SPACED "${GCOVR_HTML_FOLDER_CMD}")
-        message(STATUS "${GCOVR_HTML_FOLDER_CMD_SPACED}")
-
-        message(STATUS "Command to generate gcovr HTML coverage data: ")
-        string(REPLACE ";" " " GCOVR_HTML_CMD_SPACED "${GCOVR_HTML_CMD}")
-        message(STATUS "${GCOVR_HTML_CMD_SPACED}")
-    endif()
 
     add_custom_target(${Coverage_NAME}
         COMMAND ${GCOVR_HTML_EXEC_TESTS_CMD}
@@ -197,10 +181,86 @@ function(setup_target_for_coverage_gcovr_html)
 
 endfunction() # setup_target_for_coverage_gcovr_html
 
-# ===== Modified import END =====
-
 if (COVERAGE)
     message("[INFO] Code coverage enabled")
+
+    include(CMakeParseArguments)
+
+    # Check prereqs
+    find_program( GCOV_PATH gcov )
+    find_program( LCOV_PATH  NAMES lcov lcov.bat lcov.exe lcov.perl)
+    find_program( FASTCOV_PATH NAMES fastcov fastcov.py )
+    find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
+    find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
+    find_program( CPPFILT_PATH NAMES c++filt )
+
+    if(NOT GCOV_PATH)
+        message(FATAL_ERROR "gcov not found! Aborting...")
+    endif() # NOT GCOV_PATH
+
+    get_property(LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+    list(GET LANGUAGES 0 LANG)
+
+    if("${CMAKE_${LANG}_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+        if("${CMAKE_${LANG}_COMPILER_VERSION}" VERSION_LESS 3)
+            message(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
+        endif()
+    elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
+        if("${CMAKE_Fortran_COMPILER_ID}" MATCHES "[Ff]lang")
+            # Do nothing; exit conditional without error if true
+        elseif("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
+            # Do nothing; exit conditional without error if true
+        else()
+            message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
+        endif()
+    endif()
+
+    set(COVERAGE_COMPILER_FLAGS "-g -fprofile-arcs -ftest-coverage"
+        CACHE INTERNAL "")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+        include(CheckCXXCompilerFlag)
+        check_cxx_compiler_flag(-fprofile-abs-path HAVE_fprofile_abs_path)
+        if(HAVE_fprofile_abs_path)
+            set(COVERAGE_COMPILER_FLAGS "${COVERAGE_COMPILER_FLAGS} -fprofile-abs-path")
+        endif()
+    endif()
+
+    set(CMAKE_Fortran_FLAGS_COVERAGE
+        ${COVERAGE_COMPILER_FLAGS}
+        CACHE STRING "Flags used by the Fortran compiler during coverage builds."
+        FORCE )
+    set(CMAKE_CXX_FLAGS_COVERAGE
+        ${COVERAGE_COMPILER_FLAGS}
+        CACHE STRING "Flags used by the C++ compiler during coverage builds."
+        FORCE )
+    set(CMAKE_C_FLAGS_COVERAGE
+        ${COVERAGE_COMPILER_FLAGS}
+        CACHE STRING "Flags used by the C compiler during coverage builds."
+        FORCE )
+    set(CMAKE_EXE_LINKER_FLAGS_COVERAGE
+        ""
+        CACHE STRING "Flags used for linking binaries during coverage builds."
+        FORCE )
+    set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE
+        ""
+        CACHE STRING "Flags used by the shared libraries linker during coverage builds."
+        FORCE )
+    mark_as_advanced(
+        CMAKE_Fortran_FLAGS_COVERAGE
+        CMAKE_CXX_FLAGS_COVERAGE
+        CMAKE_C_FLAGS_COVERAGE
+        CMAKE_EXE_LINKER_FLAGS_COVERAGE
+        CMAKE_SHARED_LINKER_FLAGS_COVERAGE )
+
+    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG))
+        message(WARNING "Code coverage results with an optimised (non-Debug) build may be misleading")
+    endif() # NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG)
+
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+        link_libraries(gcov)
+    endif()
+
     append_coverage_compiler_flags()
     setup_target_for_coverage_gcovr_html(
             NAME LEVEL_Coverage
@@ -209,3 +269,5 @@ if (COVERAGE)
 else()
     message("[INFO] Code coverage disabled")
 endif()
+
+# ===== Modified import END =====
