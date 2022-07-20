@@ -4,14 +4,14 @@
  * @brief Error codes used in LEVEL.
  * @version 0.1
  * @date 2022-07-20
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 #pragma once
 
 #ifdef __cplusplus
-namespace c2x {
+namespace level {
 
 extern "C" {
 #endif

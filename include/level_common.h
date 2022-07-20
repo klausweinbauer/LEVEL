@@ -4,9 +4,9 @@
  * @brief Standardized components and functions for LEVEL.
  * @version 0.1
  * @date 2022-07-20
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 #pragma once
 
@@ -55,8 +55,8 @@ enum EncodingType {
 /**
  * @brief This function provides a general description for an error code.
  *
- * @param err The \ref c2xerror.h "error code" for which the description should
- * be read.
+ * @param err The \ref level_error.h "error code" for which the description
+ * should be read.
  * @param buffer This is the buffer where the error message is to be copied.
  * @param size The size of the buffer.
  */
