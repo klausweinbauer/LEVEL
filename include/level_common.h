@@ -60,7 +60,7 @@ enum EncodingType {
  * @param buffer This is the buffer where the error message is to be copied.
  * @param size The size of the buffer.
  */
-//void SHARED_EXPORT getErrMsg(int err, char *buffer, int size);
+void SHARED_EXPORT getErrMsg(int err, char *buffer, int size);
 
 /**
  * @brief Provides a description for the last error.
@@ -69,7 +69,7 @@ enum EncodingType {
  * @param size The size of the buffer.
  * @param actualSize Returns the actual length of the error message.
  */
-//void SHARED_EXPORT getLastErrMsg(char *buffer, int size, int *actualSize);
+void SHARED_EXPORT getLastErrMsg(char *buffer, int size, int *actualSize);
 
 /**
  * @brief Function to set a detailed error message.
@@ -77,7 +77,7 @@ enum EncodingType {
  * @param buffer The buffer where the error message is stored.
  * @param size The length of the error message.
  */
-//void SHARED_EXPORT setLastErrMsg(const char *buffer, int size);
+void SHARED_EXPORT setLastErrMsg(const char *buffer, int size);
 
 #ifdef __cplusplus
 }

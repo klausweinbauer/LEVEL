@@ -1,0 +1,5 @@
+target_sources(${LEVEL_TARGET_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/CAMFactory.hpp
+)
+
+target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
