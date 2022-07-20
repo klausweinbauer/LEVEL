@@ -3,7 +3,8 @@
 #include <UDPNetworkAccessLayer.hpp>
 #include <UDPSocket.hpp>
 
-namespace level::cam {
+namespace level {
+  namespace cam {
 
 UDPNetworkAccessLayer::UDPNetworkAccessLayer()
     : UDPNetworkAccessLayer(UDP_DEFAULT_PORT) {}
@@ -55,4 +56,5 @@ void UDPNetworkAccessLayer::setEncoding(EncodingType encoding) {
   _encoding = encoding;
 }
 
+} 
 } // namespace level::cam

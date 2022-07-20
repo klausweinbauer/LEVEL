@@ -14,7 +14,8 @@
 #include <CAM.h>
 #include <level_common.h>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 /**
  * @brief Message encoder interface.
@@ -49,4 +50,5 @@ public:
                         EncodingType encoding = EncodingType::DER_BER) = 0;
 };
 
+}
 } // namespace level::cam

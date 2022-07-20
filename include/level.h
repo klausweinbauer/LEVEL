@@ -14,7 +14,7 @@ namespace level {
 extern "C" {
 #endif
 
-const char* SHARED_EXPORT getVersion();
+const SHARED_EXPORT char* getVersion();
 
 #ifdef __cplusplus
 }

@@ -1,15 +1,15 @@
 #include <PacketReceiver.hpp>
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
+#include <iostream>
+#include <chrono>
+#include <thread>
 
 namespace level {
 
 PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
   _recvThread = std::thread(receive, this);
   while (!_threadRunning) {
-    usleep(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 

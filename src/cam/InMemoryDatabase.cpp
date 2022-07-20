@@ -4,7 +4,8 @@
 #include <level_error.h>
 #include <sstream>
 
-namespace level::cam {
+namespace level {
+  namespace cam {
 
 InMemoryDatabase::InMemoryDatabase() {}
 
@@ -131,4 +132,5 @@ void InMemoryDatabase::deleteEntry(
   _database.erase(iterator);
 }
 
-}; // namespace level::cam
+}
+}// namespace level::cam

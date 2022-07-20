@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 
 project(level VERSION 0.1.0)
 
@@ -183,6 +182,8 @@ endfunction() # setup_target_for_coverage_gcovr_html
 
 if (COVERAGE)
     message("[INFO] Code coverage enabled")
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 
     include(CMakeParseArguments)
 

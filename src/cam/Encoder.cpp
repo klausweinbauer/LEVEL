@@ -2,7 +2,8 @@
 #include <Exception.hpp>
 #include <vector>
 
-namespace level::cam {
+namespace level {
+  namespace cam {
 
 Encoder::Encoder() {}
 
@@ -129,4 +130,5 @@ CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen,
   return cam;
 }
 
+} 
 } // namespace level::cam
