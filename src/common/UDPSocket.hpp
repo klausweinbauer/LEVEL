@@ -38,7 +38,7 @@ public:
   ~UDPSocket();
 
   void sendTo(unsigned short port, const char *buffer, int len, int flags = 0);
-  int recvFrom(char *buffer, int len, sockaddr_in *from_addr, int flags = 0);
+  int recvFrom(char *buffer, int len, int flags = 0);
   void bindSocket(unsigned short port);
   void close();
 };

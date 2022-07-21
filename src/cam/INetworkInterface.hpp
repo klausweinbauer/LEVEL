@@ -26,15 +26,6 @@ public:
   virtual ~INetworkInterface(){};
 
   /**
-   * @brief @details Use \ref EncodingType "XER" encoding to achieve better
-   * human readability and \ref EncodingType "DER_BER" for a compact encoding,
-   * lower bandwidth usage, and higher performance.
-   *
-   * @param encoding Type of encoding.
-   */
-  virtual void setEncoding(EncodingType encoding) = 0;
-
-  /**
    * @brief Encode and send the given message.
    *
    * @param cam Message to send.

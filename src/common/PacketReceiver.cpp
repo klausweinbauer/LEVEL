@@ -4,7 +4,6 @@
 #include <iostream>
 #include <thread>
 
-
 namespace level {
 
 PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
@@ -31,8 +30,7 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
     receiver->_threadRunning = true;
 
     try {
-      sockaddr_in from_addr;
-      int len = receiver->_socket.recvFrom(buffer, bufferSize, &from_addr);
+      int len = receiver->_socket.recvFrom(buffer, bufferSize);
       if (len <= 0) {
         continue;
       }

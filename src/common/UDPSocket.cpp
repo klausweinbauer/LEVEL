@@ -80,8 +80,7 @@ void UDPSocket::sendTo(unsigned short port, const char *buffer, int len,
   }
 }
 
-int UDPSocket::recvFrom(char *buffer, int len, sockaddr_in *from_addr,
-                        int flags) {
+int UDPSocket::recvFrom(char *buffer, int len, int flags) {
   _enableRecvException = true;
   int ret = recvfrom(_sock, buffer, len, flags, nullptr, nullptr);
   if (ret < 0) {

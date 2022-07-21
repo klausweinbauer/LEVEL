@@ -5,8 +5,6 @@
 #include <UDPSocket.hpp>
 #include <mutex>
 
-#define UDP_DEFAULT_PORT 5899
-
 namespace level {
 namespace cam {
 
@@ -22,7 +20,6 @@ private:
   void recvFailed(const Exception &ex);
 
 public:
-  UDPNetworkAccessLayer();
   UDPNetworkAccessLayer(unsigned short port,
                         EncodingType encoding = EncodingType::DER_BER);
   virtual ~UDPNetworkAccessLayer();
@@ -31,7 +28,6 @@ public:
   UDPNetworkAccessLayer &operator=(const UDPNetworkAccessLayer &other) = delete;
 
   virtual void send(const CAM_t *cam) override;
-  virtual void setEncoding(EncodingType encoding) override;
 };
 
 } // namespace cam

@@ -6,9 +6,6 @@
 namespace level {
 namespace cam {
 
-UDPNetworkAccessLayer::UDPNetworkAccessLayer()
-    : UDPNetworkAccessLayer(UDP_DEFAULT_PORT) {}
-
 UDPNetworkAccessLayer::UDPNetworkAccessLayer(unsigned short port,
                                              EncodingType encoding)
     : _port(port), _receiver(port), _encoding(encoding) {
@@ -25,16 +22,8 @@ void UDPNetworkAccessLayer::send(const CAM_t *cam) {
   int bufferSize = 65535;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferSize);
 
-  try {
-    int len = Factory::encoder().encode(cam, buffer, bufferSize, _encoding);
-    _transSocket.sendTo(_port, (char *)buffer, len);
-  } catch (const Exception &e) {
-    throw e;
-  } catch (const std::exception &e) {
-    std::stringstream errMsg;
-    errMsg << "Sending CAM failed (" << e.what() << ")." << std::endl;
-    throw NetworkException(ERR, errMsg.str().c_str());
-  }
+  int len = Factory::encoder().encode(cam, buffer, bufferSize, _encoding);
+  _transSocket.sendTo(_port, (char *)buffer, len);
 
   free(buffer);
 }
@@ -46,10 +35,6 @@ void UDPNetworkAccessLayer::recvPacket(const char *buffer, int len) {
 
 void UDPNetworkAccessLayer::recvFailed(const Exception &ex) {
   recvFailedCallback(ex);
-}
-
-void UDPNetworkAccessLayer::setEncoding(EncodingType encoding) {
-  _encoding = encoding;
 }
 
 } // namespace cam
