@@ -9,10 +9,10 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 #include <unistd.h>
-
 #endif
 
 namespace level {
+
 #ifdef _WIN32
 WSASession::WSASession() {
   int ret = WSAStartup(MAKEWORD(2, 2), &data_);
@@ -24,46 +24,43 @@ WSASession::WSASession() {
 WSASession::~WSASession() { WSACleanup(); }
 #endif
 
+UDPSocket::UDPSocket() : _enableRecvException(true) {
+  _sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
 #ifdef _WIN32
-UDPSocket::UDPSocket() : _recvFail(false) {
-  _sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (_sock == INVALID_SOCKET)
-    throw std::system_error(WSAGetLastError(), std::system_category(),
-                            "Error opening socket");
-  int trueflag = 1;
-  int res = setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, (char *)&trueflag,
-                       sizeof trueflag);
-  if (res < 0)
-    throw std::system_error(WSAGetLastError(), std::system_category(),
-                            "Error set broadcast options");
-}
+  if (_sock == INVALID_SOCKET) {
 #else
-UDPSocket::UDPSocket() : _recvFail(false) {
-  _sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (_sock < 0) {
-    std::stringstream errMsg;
+#endif
+     std::stringstream errMsg;
     errMsg << "Opening UDP socket failed. Error message: " << strerror(errno)
            << std::endl;
     throw NetworkException(ERR, errMsg.str().c_str());
   }
 
   int trueflag = 1;
-  if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, &trueflag, sizeof(trueflag)) <
-      0) {
+  int res = setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, (char *)&trueflag,
+                       sizeof trueflag);
+  if (res < 0) {
+#ifdef _WIN32
+    closesocket(_sock); 
+#else
     ::close(_sock);
+#endif
     std::stringstream errMsg;
     errMsg << "Setting UDP socket options failed. Error message: "
            << strerror(errno) << std::endl;
     throw NetworkException(ERR, errMsg.str().c_str());
   }
 }
-#endif
 
+UDPSocket::~UDPSocket() { 
 #ifdef _WIN32
-UDPSocket::~UDPSocket() { closesocket(_sock); }
+  closesocket(_sock); 
 #else
-UDPSocket::~UDPSocket() { ::close(_sock); }
+  ::close(_sock);
 #endif
+}
 
 void UDPSocket::sendTo(unsigned short port, const char *buffer, int len,
                        int flags) {
@@ -72,40 +69,27 @@ void UDPSocket::sendTo(unsigned short port, const char *buffer, int len,
   add.sin_addr.s_addr = inet_addr("255.255.255.255");
   add.sin_port = htons(port);
 
-#ifdef _WIN32
-  int ret = sendto(_sock, buffer, len, flags,
-                   reinterpret_cast<SOCKADDR *>(&add), sizeof(add));
-  if (ret < 0) {
-    throw std::system_error(WSAGetLastError(), std::system_category(),
-                            "sendto failed");
-  }
-#else
   int ret = sendto(_sock, buffer, len, flags,
                    reinterpret_cast<sockaddr *>(&add), sizeof(add));
+
   if (ret < 0) {
     std::stringstream errMsg;
     errMsg << "Sending UDP packet failed. Error message: " << strerror(errno)
            << std::endl;
     throw NetworkException(ERR, errMsg.str().c_str());
   }
-#endif
 }
 
 int UDPSocket::recvFrom(char *buffer, int len, sockaddr_in *from_addr,
                         int flags) {
-  _recvFail = false;
+  _enableRecvException = true;
   int ret = recvfrom(_sock, buffer, len, flags, nullptr, nullptr);
   if (ret < 0) {
-    if (!_recvFail) {
-#ifdef _WIN32
-      throw std::system_error(WSAGetLastError(), std::system_category(),
-                              "recvfrom failed");
-#else
+    if (_enableRecvException) {
       std::stringstream errMsg;
       errMsg << "Receiving UDP packet failed. Error message: "
              << strerror(errno) << std::endl;
       throw NetworkException(ERR, errMsg.str().c_str());
-#endif
     }
   } else {
     // make the buffer zero terminated
@@ -116,9 +100,10 @@ int UDPSocket::recvFrom(char *buffer, int len, sockaddr_in *from_addr,
 }
 
 void UDPSocket::close() {
-#ifdef WIN32
-  _recvFail = true;
-  shutdown(_sock, SD_BOTH);
+  _enableRecvException = false;
+#ifdef _WIN32
+  // shutdown(_sock, SD_BOTH) did not work
+  closesocket(_sock);
 #else
   shutdown(_sock, SHUT_RDWR);
 #endif
@@ -132,18 +117,15 @@ void UDPSocket::bindSocket(unsigned short port) {
 
 #ifdef _WIN32
   int ret = bind(_sock, reinterpret_cast<SOCKADDR *>(&add), sizeof(add));
-  if (ret < 0) {
-    throw std::system_error(WSAGetLastError(), std::system_category(),
-                            "Bind failed");
-  }
 #else
   int ret = bind(_sock, reinterpret_cast<sockaddr *>(&add), sizeof(add));
+#endif
+
   if (ret < 0) {
     std::stringstream errMsg;
     errMsg << "Binding to UDP socket failed. Error message: " << strerror(errno)
            << std::endl;
     throw NetworkException(ERR, errMsg.str().c_str());
   }
-#endif
 }
 }; // namespace level

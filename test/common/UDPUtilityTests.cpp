@@ -30,7 +30,7 @@ TEST(Common_UDPUtility, Test_Correct_Bound_Socket_Management) {
       UDPSocket socket;
       socket.bindSocket(5999);
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception) {
     exceptionRaised = true;
   }
 

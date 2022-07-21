@@ -22,7 +22,7 @@ namespace level {
  * @brief Base exception class for all exceptions used in this library.
  *
  */
-class Exception : std::exception {
+class Exception : public std::exception {
 private:
   int _errCode;
   std::string _errMsg;

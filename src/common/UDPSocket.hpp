@@ -22,11 +22,13 @@ private:
 #endif
 
 class UDPSocket {
+
 private:
-  bool _recvFail;
+  bool _enableRecvException;
 
 #ifdef _WIN32
   SOCKET _sock;
+  WSASession _session;
 #else
   int _sock;
 #endif

@@ -22,10 +22,6 @@ UDPNetworkAccessLayer::~UDPNetworkAccessLayer() {}
 
 void UDPNetworkAccessLayer::send(const CAM_t *cam) {
 
-#ifdef WIN32
-  WSASession session;
-#endif
-
   int bufferSize = 65535;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferSize);
 
