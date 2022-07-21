@@ -13,8 +13,7 @@
 using namespace level;
 using namespace level::cam;
 
-using ::testing::_;
-using ::testing::Throw;
+using namespace ::testing;
 
 static CAM_t *testSendAndReceiveMessage_cam = nullptr;
 static void recvPacket(CAM_t *cam) { testSendAndReceiveMessage_cam = cam; }

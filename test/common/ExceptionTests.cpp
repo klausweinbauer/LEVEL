@@ -4,12 +4,26 @@
 
 using namespace level;
 
-const char* defaultErrorMsg = "Unknown error code.";
+const char *defaultErrorMsg = "Unknown error code.";
 
 TEST(Common_Exception, Test_Error_Message_For_Unknown_Error) {
   std::string msg(Exception::errMsg(1));
   ASSERT_GT(msg.length(), 0);
   ASSERT_FALSE(msg.rfind(defaultErrorMsg, 0));
+}
+
+TEST(Common_Exception, Test_Get_Default_Error_Message) {
+  Exception ex(ERR);
+  ASSERT_EQ(Exception::errMsg(ERR), ex.getErrMsg());
+}
+
+TEST(Common_Exception, Test_Get_Exception_Description) {
+  std::string expMsg(
+      "General exception from LEVEL. For more information on what went wrong "
+      "use methods getErrCode() or getErrMsg().");
+  Exception ex;
+  std::string msg(ex.what());
+  ASSERT_EQ(expMsg, msg);
 }
 
 TEST(Common_Exception, Test_Error_Message_ERR) {
