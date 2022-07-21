@@ -13,7 +13,8 @@
 
 #include <Encoder.hpp>
 #include <InMemoryDatabase.hpp>
-#include <UDPNetworkAccessLayer.hpp>
+#include <SocketBasedNAC.hpp>
+#include <UDPSocket.hpp>
 
 namespace level {
 namespace cam {
@@ -41,9 +42,13 @@ public:
 
   static INetworkInterface &networkAL() {
     // TODO Make port configurable
-    static auto instance =
-        std::unique_ptr<INetworkInterface>(new UDPNetworkAccessLayer(5999));
+    static auto instance = std::unique_ptr<INetworkInterface>(
+        new SocketBasedNAC(socket(), socket()));
     return *instance;
+  }
+
+  static std::shared_ptr<ISocket> socket() {
+    return std::shared_ptr<ISocket>(new UDPSocket(5999));
   }
 };
 

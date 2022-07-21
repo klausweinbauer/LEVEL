@@ -6,7 +6,8 @@
 
 namespace level {
 
-PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
+PacketReceiver::PacketReceiver(std::shared_ptr<ISocket> socket)
+    : _socket(socket) {
   _recvThread = std::thread(receive, this);
   while (!_threadRunning) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -15,13 +16,13 @@ PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
 
 PacketReceiver::~PacketReceiver() {
   _threadRunning = false;
-  _socket.close();
+  _socket->close();
   _recvThread.join();
 }
 
 void PacketReceiver::receive(PacketReceiver *receiver) {
 
-  receiver->_socket.bindSocket(receiver->_port);
+  receiver->_socket->bindSocket();
 
   int bufferSize = 65535;
   char *buffer = (char *)malloc(bufferSize);
@@ -30,7 +31,7 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
     receiver->_threadRunning = true;
 
     try {
-      int len = receiver->_socket.recvFrom(buffer, bufferSize);
+      int len = receiver->_socket->recvFrom(buffer, bufferSize);
       if (len <= 0) {
         continue;
       }
