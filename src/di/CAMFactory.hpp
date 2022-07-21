@@ -16,7 +16,7 @@
 #include <UDPNetworkAccessLayer.hpp>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 /**
  * @brief Global instance provider for dependency injection.
@@ -47,5 +47,5 @@ public:
   }
 };
 
-}
-} // namespace level::cam
+} // namespace cam
+} // namespace level

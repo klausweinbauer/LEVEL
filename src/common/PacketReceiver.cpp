@@ -1,8 +1,9 @@
 #include <PacketReceiver.hpp>
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
+
 
 namespace level {
 
@@ -49,7 +50,8 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
         receiver->errCallback(libException);
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(receiver->_errSleepTime));
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(receiver->_errSleepTime));
     }
   } while (receiver->_threadRunning);
 

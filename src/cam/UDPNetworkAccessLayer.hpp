@@ -8,7 +8,7 @@
 #define UDP_DEFAULT_PORT 5899
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 class UDPNetworkAccessLayer : public INetworkInterface {
 private:
@@ -34,5 +34,5 @@ public:
   virtual void setEncoding(EncodingType encoding) override;
 };
 
-} 
-}// namespace level::cam
+} // namespace cam
+} // namespace level

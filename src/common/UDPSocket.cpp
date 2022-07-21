@@ -32,7 +32,7 @@ UDPSocket::UDPSocket() : _enableRecvException(true) {
 #else
   if (_sock < 0) {
 #endif
-     std::stringstream errMsg;
+    std::stringstream errMsg;
     errMsg << "Opening UDP socket failed. Error message: " << strerror(errno)
            << std::endl;
     throw NetworkException(ERR, errMsg.str().c_str());
@@ -43,7 +43,7 @@ UDPSocket::UDPSocket() : _enableRecvException(true) {
                        sizeof trueflag);
   if (res < 0) {
 #ifdef _WIN32
-    closesocket(_sock); 
+    closesocket(_sock);
 #else
     ::close(_sock);
 #endif
@@ -54,9 +54,9 @@ UDPSocket::UDPSocket() : _enableRecvException(true) {
   }
 }
 
-UDPSocket::~UDPSocket() { 
+UDPSocket::~UDPSocket() {
 #ifdef _WIN32
-  closesocket(_sock); 
+  closesocket(_sock);
 #else
   ::close(_sock);
 #endif

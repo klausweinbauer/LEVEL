@@ -33,5 +33,5 @@ public:
                         EncodingType encoding = EncodingType::DER_BER) override;
 };
 
-} 
-} // namespace level::cam
+} // namespace cam
+} // namespace level

@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 Encoder::Encoder() {}
 
@@ -130,5 +130,5 @@ CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen,
   return cam;
 }
 
-} 
-} // namespace level::cam
+} // namespace cam
+} // namespace level

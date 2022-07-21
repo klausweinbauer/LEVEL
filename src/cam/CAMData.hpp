@@ -14,7 +14,7 @@
 #include <CAM.h>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 struct CAMMetadata {
   long _pHeadingValue;
@@ -63,5 +63,5 @@ public:
   CAMMetadata data() { return _mData; }
 };
 
-}
-} // namespace level::cam
+} // namespace cam
+} // namespace level

@@ -3,10 +3,10 @@
 #include <NetworkException.hpp>
 #include <PacketReceiver.hpp>
 #include <UDPSocket.hpp>
+#include <chrono>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <iostream>
-#include <chrono>
 #include <thread>
 
 using namespace level;

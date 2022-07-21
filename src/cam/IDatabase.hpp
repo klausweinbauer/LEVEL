@@ -15,7 +15,7 @@
 #include <memory>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 /**
  * @brief Interface for CAM storage
@@ -82,5 +82,5 @@ public:
   virtual size_t entryCount() = 0;
 };
 
-}; 
-}// namespace level::cam
+}; // namespace cam
+} // namespace level

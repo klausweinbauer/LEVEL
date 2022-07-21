@@ -5,7 +5,7 @@
 #include <sstream>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 InMemoryDatabase::InMemoryDatabase() {}
 
@@ -132,5 +132,5 @@ void InMemoryDatabase::deleteEntry(
   _database.erase(iterator);
 }
 
-}
-}// namespace level::cam
+} // namespace cam
+} // namespace level

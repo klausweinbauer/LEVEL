@@ -50,5 +50,5 @@ public:
                         EncodingType encoding = EncodingType::DER_BER) = 0;
 };
 
-}
-} // namespace level::cam
+} // namespace cam
+} // namespace level

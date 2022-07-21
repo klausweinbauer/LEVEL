@@ -15,7 +15,7 @@
 #include <level_common.h>
 
 namespace level {
-  namespace cam {
+namespace cam {
 
 /**
  * @brief Interface for sending and receiving CAMs.
@@ -55,5 +55,5 @@ public:
   std::function<void(const Exception &)> recvFailedCallback;
 };
 
-} 
-} // namespace level::cam
+} // namespace cam
+} // namespace level
