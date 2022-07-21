@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -O0")
+
+if (UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -O0")
+endif()
 
 project(level VERSION 0.1.0)
 
@@ -54,8 +57,6 @@ if (BUILD_TESTS)
     enable_testing()
 
     add_subdirectory(test)
-    
-    target_compile_definitions( LEVEL_Test PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY )
 else()
     message("[INFO] Tests disabled")
 endif()
