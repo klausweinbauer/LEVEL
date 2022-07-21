@@ -59,15 +59,17 @@ public:
   }
 
   virtual ~DBView() {
-    _entry->unlock(_accessed);
+    if (_entry) {
+      _entry->unlock(_accessed);
 
-    std::lock_guard<std::mutex> guard(_threadListLock);
-    auto id = std::this_thread::get_id();
-    auto it = std::find(_threadList.begin(), _threadList.end(), id);
+      std::lock_guard<std::mutex> guard(_threadListLock);
+      auto id = std::this_thread::get_id();
+      auto it = std::find(_threadList.begin(), _threadList.end(), id);
 
-    assert(it != _threadList.end());
+      assert(it != _threadList.end());
 
-    _threadList.erase(it);
+      _threadList.erase(it);
+    }
   }
 
   DBView(const DBView<TValue> &view) = delete;
