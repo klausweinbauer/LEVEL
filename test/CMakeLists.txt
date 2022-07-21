@@ -12,14 +12,12 @@ add_subdirectory(common)
 add_subdirectory(cam)
 add_subdirectory(denm)
 
-target_link_libraries(${LEVEL_TARGET_NAME} gtest_main gmock_main level)
-
 if(WIN32) 
-	target_link_libraries(${LEVEL_TARGET_NAME} wsock32 ws2_32)
+	target_link_libraries(${LEVEL_TARGET_NAME} gtest_main gmock_main level wsock32 ws2_32)
 elseif(UNIX)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
-  target_link_libraries(${LEVEL_TARGET_NAME} PRIVATE Threads::Threads)
+  target_link_libraries(${LEVEL_TARGET_NAME} PRIVATE gtest_main gmock_main level Threads::Threads)
 endif()
 
 gtest_discover_tests(${LEVEL_TARGET_NAME})
