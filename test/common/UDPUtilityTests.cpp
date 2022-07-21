@@ -13,7 +13,7 @@ std::shared_ptr<ISocket> socket(int port = 5999) {
   return std::shared_ptr<ISocket>(new UDPSocket(port));
 }
 
-TEST(Common_UDPUtility, Test_Open_Multiple_Sockets) {
+TEST(Common_UDPSocket, Test_Open_Multiple_Sockets) {
 
   UDPSocket socket1(5999);
   UDPSocket socket2(5999);
@@ -21,7 +21,7 @@ TEST(Common_UDPUtility, Test_Open_Multiple_Sockets) {
   ASSERT_NE(&socket1, &socket2);
 }
 
-TEST(Common_UDPUtility, Test_Correct_Bound_Socket_Management) {
+TEST(Common_UDPSocket, Test_Correct_Bound_Socket_Management) {
 
   bool exceptionRaised = false;
 
@@ -41,7 +41,7 @@ TEST(Common_UDPUtility, Test_Correct_Bound_Socket_Management) {
   ASSERT_FALSE(exceptionRaised);
 }
 
-TEST(Common_UDPUtility, Test_Exception_On_Multiple_Binds) {
+TEST(Common_UDPSocket, Test_Exception_On_Multiple_Binds) {
 
   int errCode = 0;
   UDPSocket socket(5999);
@@ -56,7 +56,21 @@ TEST(Common_UDPUtility, Test_Exception_On_Multiple_Binds) {
   ASSERT_EQ(ERR, errCode);
 }
 
-TEST(Common_UDPUtility, Test_Packet_Receiver_Instantiation_And_Cleanup) {
+TEST(Common_UDPSocket, Test_Send_Null_Ptr) {
+
+  int errCode = 0;
+  UDPSocket socket(5999);
+
+  try {
+    socket.sendTo(nullptr, 0, 99);
+  } catch (const NetworkException &e) {
+    errCode = e.getErrCode();
+  }
+
+  ASSERT_EQ(ERR, errCode);
+}
+
+TEST(Common_PacketReceiver, Test_Packet_Receiver_Instantiation_And_Cleanup) {
 
   bool exceptionRaised = false;
 
@@ -75,7 +89,7 @@ void recvPacket(const char *buffer, int len) {
   testSendAndReceiveDataLen = len;
 }
 
-TEST(Common_UDPUtility, Test_Send_And_Receive_Data) {
+TEST(Common_PacketReceiver, Test_Send_And_Receive_Data) {
 
   unsigned short port = 5999;
   std::string msg = "Hello Receiver!";

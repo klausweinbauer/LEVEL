@@ -54,6 +54,8 @@ if (BUILD_TESTS)
     enable_testing()
 
     add_subdirectory(test)
+    
+    target_compile_definitions( LEVEL_Test PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY )
 else()
     message("[INFO] Tests disabled")
 endif()
