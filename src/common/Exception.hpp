@@ -56,64 +56,46 @@ public:
    * @return const char* Description for the error code.
    */
   static const char *errMsg(int errCode) {
-    std::stringstream ss;
-
     switch (errCode) {
+    case ERR:
+      return "General error code.";
     case ERR_MSG_NOT_FOUND:
-      ss << "Message was not found." << std::endl;
-      break;
+      return "Message was not found.";
     case ERR_ALLOC_FAILED:
-      ss << "Memory allocation failed." << std::endl;
-      break;
+      return "Memory allocation failed.";
     case ERR_NULL:
-      ss << "Null pointer." << std::endl;
-      break;
+      return "Null pointer.";
     case ERR_BUFFER_OVERFLOW:
-      ss << "Buffer is too small." << std::endl;
-      break;
+      return "Buffer is too small.";
     case ERR_ENCODE:
-      ss << "Encoding failed." << std::endl;
-      break;
+      return "Encoding failed.";
     case ERR_DECODE:
-      ss << "Decoding failed." << std::endl;
-      break;
+      return "Decoding failed.";
     case ERR_RECEIVER_START:
-      ss << "Starting the receiver failed." << std::endl;
-      break;
+      return "Starting the receiver failed.";
     case ERR_TRANSMITTER_START:
-      ss << "Starting the transmitter failed." << std::endl;
-      break;
+      return "Starting the transmitter failed.";
     case ERR_ARG_NULL:
-      ss << "Argument was null." << std::endl;
-      break;
+      return "Argument was null.";
     case ERR_INDEX_OUT_OF_RANGE:
-      ss << "Index is out of range." << std::endl;
-      break;
+      return "Index is out of range.";
+    case ERR_INVALID_ARG:
+      return "Provided argument is invalid.";
     case ERR_INVALID_OPERATION:
-      ss << "Detected an invalid operation." << std::endl;
-      break;
+      return "Detected an invalid operation.";
     case ERR_HIGH_FREQ_CONTAINER_TYPE:
-      ss << "Wrong Type of HighFrequencyContainer." << std::endl;
-      break;
+      return "Wrong Type of HighFrequencyContainer.";
     case ERR_LOW_FREQ_CONTAINER_TYPE:
-      ss << "Wrong Type of LowFrequencyContainer." << std::endl;
-      break;
+      return "Wrong Type of LowFrequencyContainer.";
     case ERR_CAM_ALREADY_EXISTS:
-      ss << "A CAM with this ID already exists." << std::endl;
-      break;
+      return "A CAM with this ID already exists.";
     case ERR_SPECIAL_VEHICLE_CONTAINER_TYPE:
-      ss << "Wrong Type of SpecialVehicleContainer." << std::endl;
-      break;
+      return "Wrong Type of SpecialVehicleContainer.";
     case ERR_DENM_ALREADY_EXISTS:
-      ss << "A DENM with this ID and SequenceNumber already exists."
-         << std::endl;
-      break;
+      return "A DENM with this ID and SequenceNumber already exists.";
     default:
-      ss << "Unknown error code '" << errCode << "'." << std::endl;
-      break;
+      return "Unknown error code.";
     }
-
-    return ss.str().c_str();
   }
 };
 
