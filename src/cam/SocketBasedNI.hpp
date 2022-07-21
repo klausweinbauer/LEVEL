@@ -8,7 +8,7 @@
 namespace level {
 namespace cam {
 
-class SocketBasedNAC : public INetworkInterface {
+class SocketBasedNI : public INetworkInterface {
 private:
   std::shared_ptr<ISocket> _sendSocket;
   PacketReceiver _receiver;
@@ -19,13 +19,15 @@ private:
   void recvFailed(const Exception &ex);
 
 public:
-  SocketBasedNAC(std::shared_ptr<ISocket> sendSocket,
-                 std::shared_ptr<ISocket> recvSocket,
-                 std::shared_ptr<IEncoder> encoder);
-  virtual ~SocketBasedNAC();
+  SocketBasedNI(
+      std::shared_ptr<ISocket> sendSocket, std::shared_ptr<ISocket> recvSocket,
+      std::shared_ptr<IEncoder> encoder,
+      std::function<void(CAM_t *)> recvCallback = nullptr,
+      std::function<void(const Exception &)> recvFailedCallback = nullptr);
+  virtual ~SocketBasedNI();
 
-  SocketBasedNAC(const SocketBasedNAC &other) = delete;
-  SocketBasedNAC &operator=(const SocketBasedNAC &other) = delete;
+  SocketBasedNI(const SocketBasedNI &other) = delete;
+  SocketBasedNI &operator=(const SocketBasedNI &other) = delete;
 
   virtual void send(const CAM_t *cam) override;
 };

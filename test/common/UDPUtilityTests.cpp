@@ -82,6 +82,7 @@ TEST(Common_UDPUtility, Test_Send_And_Receive_Data) {
   UDPSocket sender(port);
   PacketReceiver receiver(socket(port));
   receiver.recvPacketCallback = recvPacket;
+  receiver.start();
   sender.sendTo(msg.c_str(), msg.length() + 1);
 
   while (!testSendAndReceiveDataLen) {

@@ -7,17 +7,21 @@
 namespace level {
 
 PacketReceiver::PacketReceiver(std::shared_ptr<ISocket> socket)
-    : _socket(socket) {
+    : _socket(socket) {}
+
+PacketReceiver::~PacketReceiver() {
+  if (_threadRunning) {
+    _threadRunning = false;
+    _socket->close();
+    _recvThread.join();
+  }
+}
+
+void PacketReceiver::start() {
   _recvThread = std::thread(receive, this);
   while (!_threadRunning) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
-}
-
-PacketReceiver::~PacketReceiver() {
-  _threadRunning = false;
-  _socket->close();
-  _recvThread.join();
 }
 
 void PacketReceiver::receive(PacketReceiver *receiver) {
@@ -40,17 +44,10 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
         receiver->recvPacketCallback(buffer, len);
       }
 
-    } catch (const std::exception &e) {
-      std::stringstream errMsg;
-      errMsg << "Receiving message failed (" << e.what() << ")." << std::endl;
-      Exception libException(ERR, errMsg.str().c_str());
-
+    } catch (const Exception &e) {
       if (receiver->errCallback) {
-        receiver->errCallback(libException);
+        receiver->errCallback(e);
       }
-
-      std::this_thread::sleep_for(
-          std::chrono::milliseconds(receiver->_errSleepTime));
     }
   } while (receiver->_threadRunning);
 

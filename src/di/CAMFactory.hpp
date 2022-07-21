@@ -13,7 +13,7 @@
 
 #include <Encoder.hpp>
 #include <InMemoryDatabase.hpp>
-#include <SocketBasedNAC.hpp>
+#include <SocketBasedNI.hpp>
 #include <UDPSocket.hpp>
 #include <level_config.h>
 
@@ -47,7 +47,7 @@ public:
   static std::shared_ptr<INetworkInterface> &networkAL() {
     // singelton
     static auto instance = std::shared_ptr<INetworkInterface>(
-        new SocketBasedNAC(socket(), socket(), encoder()));
+        new SocketBasedNI(socket(), socket(), encoder()));
     return instance;
   }
 

@@ -22,6 +22,7 @@ namespace level {
 class NetworkException : public Exception {
 
 public:
+  NetworkException() : Exception(){};
   NetworkException(int errCode)
       : Exception(errCode, "General network exception."){};
   NetworkException(int errCode, std::string errMsg)

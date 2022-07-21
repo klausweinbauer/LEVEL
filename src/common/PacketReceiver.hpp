@@ -9,7 +9,6 @@ namespace level {
 class PacketReceiver {
 
 private:
-  const int _errSleepTime = 10000;
   bool _threadRunning = false;
   std::thread _recvThread;
   std::shared_ptr<ISocket> _socket;
@@ -22,6 +21,8 @@ public:
 
   PacketReceiver(std::shared_ptr<ISocket> socket);
   virtual ~PacketReceiver();
+
+  void start();
 
   PacketReceiver(PacketReceiver const &) = delete;
   void operator=(PacketReceiver const &) = delete;
