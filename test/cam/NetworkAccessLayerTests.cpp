@@ -3,8 +3,11 @@
 #include <NetworkException.hpp>
 #include <PacketReceiver.hpp>
 #include <UDPSocket.hpp>
+#include <chrono>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <thread>
 
 using namespace level;
 using namespace level::cam;
@@ -23,7 +26,7 @@ TEST(CAM_NetworkAccessLayer, Test_Send_And_Receive_Message) {
   Factory::networkAL().send(cam);
 
   while (!testSendAndReceiveMessage_cam) {
-    usleep(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   ASSERT_EQ(id, testSendAndReceiveMessage_cam->header.stationID);

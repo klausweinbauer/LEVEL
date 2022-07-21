@@ -4,10 +4,8 @@
 namespace level {
 #endif
 
-const char* getVersion() {
-  return "0.1.0";
-}
+const char *getVersion() { return "0.1.0"; }
 
 #ifdef __cplusplus
-};
+}
 #endif

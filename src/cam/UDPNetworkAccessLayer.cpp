@@ -3,7 +3,8 @@
 #include <UDPNetworkAccessLayer.hpp>
 #include <UDPSocket.hpp>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 UDPNetworkAccessLayer::UDPNetworkAccessLayer()
     : UDPNetworkAccessLayer(UDP_DEFAULT_PORT) {}
@@ -20,10 +21,6 @@ UDPNetworkAccessLayer::UDPNetworkAccessLayer(unsigned short port,
 UDPNetworkAccessLayer::~UDPNetworkAccessLayer() {}
 
 void UDPNetworkAccessLayer::send(const CAM_t *cam) {
-
-#ifdef WIN32
-  WSASession session;
-#endif
 
   int bufferSize = 65535;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferSize);
@@ -55,4 +52,5 @@ void UDPNetworkAccessLayer::setEncoding(EncodingType encoding) {
   _encoding = encoding;
 }
 
-} // namespace level::cam
+} // namespace cam
+} // namespace level

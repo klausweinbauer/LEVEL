@@ -1,15 +1,16 @@
 #include <PacketReceiver.hpp>
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
+#include <chrono>
+#include <iostream>
+#include <thread>
+
 
 namespace level {
 
 PacketReceiver::PacketReceiver(unsigned short port) : _port(port), _socket() {
   _recvThread = std::thread(receive, this);
   while (!_threadRunning) {
-    usleep(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
@@ -21,17 +22,13 @@ PacketReceiver::~PacketReceiver() {
 
 void PacketReceiver::receive(PacketReceiver *receiver) {
 
-#ifdef WIN32
-  WSASession session;
-#endif
-
-  receiver->_threadRunning = true;
   receiver->_socket.bindSocket(receiver->_port);
 
   int bufferSize = 65535;
   char *buffer = (char *)malloc(bufferSize);
 
-  while (receiver->_threadRunning) {
+  do {
+    receiver->_threadRunning = true;
 
     try {
       sockaddr_in from_addr;
@@ -53,13 +50,10 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
         receiver->errCallback(libException);
       }
 
-#ifdef WIN32
-      Sleep(receiver->_errSleepTime);
-#else
-      usleep(receiver->_errSleepTime * 1000);
-#endif
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(receiver->_errSleepTime));
     }
-  }
+  } while (receiver->_threadRunning);
 
   free(buffer);
 }

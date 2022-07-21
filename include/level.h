@@ -1,8 +1,8 @@
 #pragma once
 
 #include <level_cam.h>
-#include <level_denm.h>
 #include <level_common.h>
+#include <level_denm.h>
 #include <level_error.h>
 
 #ifdef __cplusplus
@@ -11,10 +11,11 @@
  *
  */
 namespace level {
+
 extern "C" {
 #endif
 
-const char* SHARED_EXPORT getVersion();
+SHARED_EXPORT const char *getVersion();
 
 #ifdef __cplusplus
 }

@@ -15,7 +15,8 @@
 #include <InMemoryDatabase.hpp>
 #include <UDPNetworkAccessLayer.hpp>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 /**
  * @brief Global instance provider for dependency injection.
@@ -46,4 +47,5 @@ public:
   }
 };
 
-}; // namespace level::cam
+} // namespace cam
+} // namespace level

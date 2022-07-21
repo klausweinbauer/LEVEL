@@ -14,7 +14,8 @@
 #include <mutex>
 #include <vector>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 /**
  * @brief Database implementation for an in-memory storage of CAMs.
@@ -48,4 +49,5 @@ public:
   virtual size_t entryCount() override;
 };
 
-} // namespace level::cam
+} // namespace cam
+} // namespace level

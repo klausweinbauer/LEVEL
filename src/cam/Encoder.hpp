@@ -13,7 +13,8 @@
 
 #include <IEncoder.hpp>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 /**
  * @brief Methods for encoding and decoding messages.
@@ -32,4 +33,5 @@ public:
                         EncodingType encoding = EncodingType::DER_BER) override;
 };
 
-} // namespace level::cam
+} // namespace cam
+} // namespace level

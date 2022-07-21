@@ -13,10 +13,8 @@
 #include <stdint.h>
 
 #ifdef _WIN32
-#ifdef SHARED_EXPORT
+#ifndef SHARED_EXPORT
 #define SHARED_EXPORT __declspec(dllexport)
-#else
-#define SHARED_EXPORT __declspec(dllimport)
 #endif
 #else
 #define SHARED_EXPORT

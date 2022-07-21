@@ -14,7 +14,8 @@
 #include <DBView.hpp>
 #include <memory>
 
-namespace level::cam {
+namespace level {
+namespace cam {
 
 /**
  * @brief Interface for CAM storage
@@ -81,4 +82,5 @@ public:
   virtual size_t entryCount() = 0;
 };
 
-}; // namespace level::cam
+}; // namespace cam
+} // namespace level

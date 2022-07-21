@@ -1,15 +1,19 @@
 #pragma once
 
 #ifdef __cplusplus
+namespace level {
+
 /**
- * @brief Library namespace
+ * @brief CAM namespace
  *
  */
-namespace level::cam {
+namespace cam {
+
 extern "C" {
 #endif
 
 #ifdef __cplusplus
+}
 }
 };
 #endif

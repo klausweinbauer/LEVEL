@@ -199,7 +199,7 @@ void incMessageId(std::shared_ptr<IDatabase> db, long unsigned int id,
 
 TEST(CAM_Database, Test_For_Race_Condition_In_DB_Access) {
 
-  int nrThreads = 10;
+  const int nrThreads = 10;
   int incPerThread = 10000;
   auto db = getDBInstance();
   auto id = getRandId();
