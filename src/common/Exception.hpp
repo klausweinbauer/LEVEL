@@ -28,6 +28,7 @@ private:
   std::string _errMsg;
 
 public:
+  Exception() : Exception(ERR) {}
   Exception(int errCode) : _errCode(errCode){};
   Exception(int errCode, std::string errMsg)
       : _errCode(errCode), _errMsg(errMsg){};

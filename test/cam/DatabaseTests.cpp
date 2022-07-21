@@ -19,7 +19,7 @@ std::shared_ptr<IDatabase> getDBInstance() {
 
 TEST(CAM_Database, Test_Factory_Function) {
 
-  ASSERT_EQ(0, Factory::db().entryCount());
+  ASSERT_EQ(0, Factory::db()->entryCount());
 }
 
 TEST(CAM_Database, Test_Create_Entry) {

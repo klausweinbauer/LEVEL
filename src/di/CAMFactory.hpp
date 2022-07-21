@@ -13,7 +13,9 @@
 
 #include <Encoder.hpp>
 #include <InMemoryDatabase.hpp>
-#include <UDPNetworkAccessLayer.hpp>
+#include <SocketBasedNI.hpp>
+#include <UDPSocket.hpp>
+#include <level_config.h>
 
 namespace level {
 namespace cam {
@@ -29,21 +31,29 @@ private:
 public:
   ~Factory(){};
 
-  static IDatabase &db() {
-    static auto instance = std::unique_ptr<IDatabase>(new InMemoryDatabase());
-    return *instance;
+  static std::shared_ptr<IDatabase> db() {
+    // singelton
+    static auto instance = std::shared_ptr<IDatabase>(new InMemoryDatabase());
+    return instance;
   }
 
-  static IEncoder &encoder() {
-    static auto instance = std::unique_ptr<IEncoder>(new Encoder());
-    return *instance;
-  }
-
-  static INetworkInterface &networkAL() {
-    // TODO Make port configurable
+  static std::shared_ptr<IEncoder> &encoder() {
+    // singelton
     static auto instance =
-        std::unique_ptr<INetworkInterface>(new UDPNetworkAccessLayer(5999));
-    return *instance;
+        std::shared_ptr<IEncoder>(new Encoder(level::config::encoding));
+    return instance;
+  }
+
+  static std::shared_ptr<INetworkInterface> &networkAL() {
+    // singelton
+    static auto instance = std::shared_ptr<INetworkInterface>(
+        new SocketBasedNI(socket(), socket(), encoder()));
+    return instance;
+  }
+
+  static std::shared_ptr<ISocket> socket() {
+    // transient
+    return std::shared_ptr<ISocket>(new UDPSocket(level::config::port));
   }
 };
 

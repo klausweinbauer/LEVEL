@@ -2,6 +2,7 @@
 
 #include <level_cam.h>
 #include <level_common.h>
+#include <level_config.h>
 #include <level_denm.h>
 #include <level_error.h>
 

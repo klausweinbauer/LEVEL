@@ -9,10 +9,14 @@
 
 using namespace level;
 
+std::shared_ptr<ISocket> socket(int port = 5999) {
+  return std::shared_ptr<ISocket>(new UDPSocket(port));
+}
+
 TEST(Common_UDPUtility, Test_Open_Multiple_Sockets) {
 
-  UDPSocket socket1;
-  UDPSocket socket2;
+  UDPSocket socket1(5999);
+  UDPSocket socket2(5999);
 
   ASSERT_NE(&socket1, &socket2);
 }
@@ -23,12 +27,12 @@ TEST(Common_UDPUtility, Test_Correct_Bound_Socket_Management) {
 
   try {
     {
-      UDPSocket socket;
-      socket.bindSocket(5999);
+      UDPSocket socket(5999);
+      socket.bindSocket();
     }
     {
-      UDPSocket socket;
-      socket.bindSocket(5999);
+      UDPSocket socket(5999);
+      socket.bindSocket();
     }
   } catch (const std::exception &) {
     exceptionRaised = true;
@@ -40,11 +44,11 @@ TEST(Common_UDPUtility, Test_Correct_Bound_Socket_Management) {
 TEST(Common_UDPUtility, Test_Exception_On_Multiple_Binds) {
 
   int errCode = 0;
-  UDPSocket socket;
-  socket.bindSocket(5999);
+  UDPSocket socket(5999);
+  socket.bindSocket();
 
   try {
-    socket.bindSocket(5999);
+    socket.bindSocket();
   } catch (const NetworkException &e) {
     errCode = e.getErrCode();
   }
@@ -57,8 +61,8 @@ TEST(Common_UDPUtility, Test_Packet_Receiver_Instantiation_And_Cleanup) {
   bool exceptionRaised = false;
 
   try {
-    { PacketReceiver receiver(5999); }
-    { PacketReceiver receiver(5999); }
+    { PacketReceiver receiver(socket(5999)); }
+    { PacketReceiver receiver(socket(5999)); }
   } catch (const std::exception &e) {
     exceptionRaised = true;
   }
@@ -75,10 +79,11 @@ TEST(Common_UDPUtility, Test_Send_And_Receive_Data) {
 
   unsigned short port = 5999;
   std::string msg = "Hello Receiver!";
-  UDPSocket sender;
-  PacketReceiver receiver(port);
+  UDPSocket sender(port);
+  PacketReceiver receiver(socket(port));
   receiver.recvPacketCallback = recvPacket;
-  sender.sendTo(port, msg.c_str(), msg.length() + 1);
+  receiver.start();
+  sender.sendTo(msg.c_str(), msg.length() + 1);
 
   while (!testSendAndReceiveDataLen) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
