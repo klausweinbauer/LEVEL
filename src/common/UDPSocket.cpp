@@ -24,7 +24,8 @@ WSASession::WSASession() {
 WSASession::~WSASession() { WSACleanup(); }
 #endif
 
-UDPSocket::UDPSocket() : _enableRecvException(true) {
+UDPSocket::UDPSocket(unsigned short port)
+    : _port(port), _enableRecvException(true) {
   _sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 #ifdef _WIN32
@@ -62,12 +63,11 @@ UDPSocket::~UDPSocket() {
 #endif
 }
 
-void UDPSocket::sendTo(unsigned short port, const char *buffer, int len,
-                       int flags) {
+void UDPSocket::sendTo(const char *buffer, int len, int flags) {
   sockaddr_in add{};
   add.sin_family = AF_INET;
   add.sin_addr.s_addr = inet_addr("255.255.255.255");
-  add.sin_port = htons(port);
+  add.sin_port = htons(_port);
 
   int ret = sendto(_sock, buffer, len, flags,
                    reinterpret_cast<sockaddr *>(&add), sizeof(add));
@@ -80,8 +80,7 @@ void UDPSocket::sendTo(unsigned short port, const char *buffer, int len,
   }
 }
 
-int UDPSocket::recvFrom(char *buffer, int len, sockaddr_in *from_addr,
-                        int flags) {
+int UDPSocket::recvFrom(char *buffer, int len, int flags) {
   _enableRecvException = true;
   int ret = recvfrom(_sock, buffer, len, flags, nullptr, nullptr);
   if (ret < 0) {
@@ -109,11 +108,11 @@ void UDPSocket::close() {
 #endif
 }
 
-void UDPSocket::bindSocket(unsigned short port) {
+void UDPSocket::bindSocket() {
   sockaddr_in add{};
   add.sin_family = AF_INET;
   add.sin_addr.s_addr = htonl(INADDR_ANY);
-  add.sin_port = htons(port);
+  add.sin_port = htons(_port);
 
 #ifdef _WIN32
   int ret = bind(_sock, reinterpret_cast<SOCKADDR *>(&add), sizeof(add));

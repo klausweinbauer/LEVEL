@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ISocket.hpp>
 #include <string>
 
 #ifdef _WIN32
@@ -21,9 +22,10 @@ private:
 };
 #endif
 
-class UDPSocket {
+class UDPSocket : public ISocket {
 
 private:
+  unsigned short _port;
   bool _enableRecvException;
 
 #ifdef _WIN32
@@ -34,12 +36,12 @@ private:
 #endif
 
 public:
-  UDPSocket();
+  UDPSocket(unsigned short port);
   ~UDPSocket();
 
-  void sendTo(unsigned short port, const char *buffer, int len, int flags = 0);
-  int recvFrom(char *buffer, int len, sockaddr_in *from_addr, int flags = 0);
-  void bindSocket(unsigned short port);
-  void close();
+  virtual void sendTo(const char *buffer, int len, int flags = 0) override;
+  virtual int recvFrom(char *buffer, int len, int flags = 0) override;
+  virtual void bindSocket() override;
+  virtual void close() override;
 };
 }; // namespace level
