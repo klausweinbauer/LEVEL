@@ -5,7 +5,7 @@
 namespace level {
 namespace cam {
 
-Encoder::Encoder() {}
+Encoder::Encoder(EncodingType encoding) : _encoding(encoding) {}
 
 Encoder::~Encoder() {}
 
@@ -22,8 +22,7 @@ static int writeCallback(const void *src, size_t size,
   return 0;
 }
 
-int Encoder::encode(const CAM_t *cam, uint8_t *buffer, int bufferLen,
-                    EncodingType encoding) {
+int Encoder::encode(const CAM_t *cam, uint8_t *buffer, int bufferLen) {
 
   if (!cam) {
     throw Exception(ERR_ARG_NULL,
@@ -33,7 +32,7 @@ int Encoder::encode(const CAM_t *cam, uint8_t *buffer, int bufferLen,
   std::vector<uint8_t> dynamicBuffer;
   asn_enc_rval_t retVal;
 
-  switch (encoding) {
+  switch (_encoding) {
   case XER_BASIC:
     retVal = xer_encode(&asn_DEF_CAM, (void *)cam, XER_F_BASIC, writeCallback,
                         (void *)&dynamicBuffer);
@@ -87,8 +86,7 @@ int Encoder::encode(const CAM_t *cam, uint8_t *buffer, int bufferLen,
   return requiredBufferSize;
 }
 
-CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen,
-                       EncodingType encoding) {
+CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen) {
 
   if (!buffer) {
     throw Exception(ERR_ARG_NULL,
@@ -105,7 +103,7 @@ CAM_t *Encoder::decode(const uint8_t *buffer, int bufferLen,
   asn_codec_ctx_t opt_codec_ctx{};
   opt_codec_ctx.max_stack_size = 0;
 
-  switch (encoding) {
+  switch (_encoding) {
   case XER_BASIC:
     retVal = xer_decode(&opt_codec_ctx, &asn_DEF_CAM, (void **)&cam, buffer,
                         bufferLen);

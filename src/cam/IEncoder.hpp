@@ -27,27 +27,23 @@ public:
   virtual ~IEncoder(){};
 
   /**
-   * @brief Encode a CAM according to the EncodingType standard.
+   * @brief Encode a CAM.
    *
    * @param cam Message to encode.
    * @param buffer Buffer where the encoded message is to be written.
    * @param bufferLen Length of the provided buffer.
-   * @param encoding Type of encoding.
    * @return int Returns the length of the encoded message.
    */
-  virtual int encode(const CAM_t *cam, uint8_t *buffer, int bufferLen,
-                     EncodingType encoding = EncodingType::DER_BER) = 0;
+  virtual int encode(const CAM_t *cam, uint8_t *buffer, int bufferLen) = 0;
 
   /**
-   * @brief Decode a CAM according to the EncodingType standard.
+   * @brief Decode a CAM.
    *
    * @param buffer Buffer that contains the encoded message.
    * @param bufferLen Length of the encoded message.
-   * @param encoding Type of encoding.
    * @return CAM_t* Returns a newly allocated CAM.
    */
-  virtual CAM_t *decode(const uint8_t *buffer, int bufferLen,
-                        EncodingType encoding = EncodingType::DER_BER) = 0;
+  virtual CAM_t *decode(const uint8_t *buffer, int bufferLen) = 0;
 };
 
 } // namespace cam

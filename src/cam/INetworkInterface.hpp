@@ -12,6 +12,7 @@
 #pragma once
 
 #include <CAM.h>
+#include <functional>
 #include <level_common.h>
 
 namespace level {

@@ -15,6 +15,7 @@
 #include <InMemoryDatabase.hpp>
 #include <SocketBasedNAC.hpp>
 #include <UDPSocket.hpp>
+#include <level_config.h>
 
 namespace level {
 namespace cam {
@@ -30,25 +31,29 @@ private:
 public:
   ~Factory(){};
 
-  static IDatabase &db() {
-    static auto instance = std::unique_ptr<IDatabase>(new InMemoryDatabase());
-    return *instance;
+  static std::shared_ptr<IDatabase> db() {
+    // singelton
+    static auto instance = std::shared_ptr<IDatabase>(new InMemoryDatabase());
+    return instance;
   }
 
-  static IEncoder &encoder() {
-    static auto instance = std::unique_ptr<IEncoder>(new Encoder());
-    return *instance;
+  static std::shared_ptr<IEncoder> &encoder() {
+    // singelton
+    static auto instance =
+        std::shared_ptr<IEncoder>(new Encoder(level::config::encoding));
+    return instance;
   }
 
-  static INetworkInterface &networkAL() {
-    // TODO Make port configurable
-    static auto instance = std::unique_ptr<INetworkInterface>(
-        new SocketBasedNAC(socket(), socket()));
-    return *instance;
+  static std::shared_ptr<INetworkInterface> &networkAL() {
+    // singelton
+    static auto instance = std::shared_ptr<INetworkInterface>(
+        new SocketBasedNAC(socket(), socket(), encoder()));
+    return instance;
   }
 
   static std::shared_ptr<ISocket> socket() {
-    return std::shared_ptr<ISocket>(new UDPSocket(5999));
+    // transient
+    return std::shared_ptr<ISocket>(new UDPSocket(level::config::port));
   }
 };
 

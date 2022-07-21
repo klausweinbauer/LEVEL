@@ -22,15 +22,15 @@ namespace cam {
  */
 class Encoder : public IEncoder {
 private:
+  EncodingType _encoding;
+
 public:
-  Encoder();
+  Encoder(EncodingType encoding = EncodingType::DER_BER);
   ~Encoder();
 
-  virtual int encode(const CAM_t *cam, uint8_t *buffer, int bufferLen,
-                     EncodingType encoding = EncodingType::DER_BER) override;
+  virtual int encode(const CAM_t *cam, uint8_t *buffer, int bufferLen) override;
 
-  virtual CAM_t *decode(const uint8_t *buffer, int bufferLen,
-                        EncodingType encoding = EncodingType::DER_BER) override;
+  virtual CAM_t *decode(const uint8_t *buffer, int bufferLen) override;
 };
 
 } // namespace cam

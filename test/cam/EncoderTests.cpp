@@ -9,8 +9,9 @@
 using namespace level;
 using namespace level::cam;
 
-std::shared_ptr<IEncoder> getEncoder() {
-  return std::shared_ptr<IEncoder>(new Encoder());
+std::shared_ptr<IEncoder>
+getEncoder(EncodingType encoding = EncodingType::DER_BER) {
+  return std::shared_ptr<IEncoder>(new Encoder(encoding));
 }
 
 TEST(CAM_Encoder, Test_Factory_Function) {
@@ -18,7 +19,7 @@ TEST(CAM_Encoder, Test_Factory_Function) {
 }
 
 TEST(CAM_Encoder, Test_CAM_encoding_BER) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType::DER_BER);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
   cam->cam.camParameters.highFrequencyContainer.present =
@@ -28,8 +29,8 @@ TEST(CAM_Encoder, Test_CAM_encoding_BER) {
   int bufferLen = 4096;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
 
-  int len = encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
-  CAM_t *camDecode = encoder->decode(buffer, len, EncodingType::DER_BER);
+  int len = encoder->encode(cam, buffer, bufferLen);
+  CAM_t *camDecode = encoder->decode(buffer, len);
 
   ASSERT_LT(0, len);
   ASSERT_GT(1024, len);
@@ -45,7 +46,7 @@ TEST(CAM_Encoder, Test_CAM_encoding_BER) {
 }
 
 TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType::XER_CANONICAL);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
   cam->cam.camParameters.highFrequencyContainer.present =
@@ -55,9 +56,8 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
   int bufferLen = 4096;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
 
-  int len =
-      encoder->encode(cam, buffer, bufferLen, EncodingType::XER_CANONICAL);
-  CAM_t *camDecode = encoder->decode(buffer, len, EncodingType::XER_CANONICAL);
+  int len = encoder->encode(cam, buffer, bufferLen);
+  CAM_t *camDecode = encoder->decode(buffer, len);
 
   ASSERT_LT(0, len);
   ASSERT_GT(2096, len);
@@ -73,7 +73,7 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
 }
 
 TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType::XER_BASIC);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
   cam->cam.camParameters.highFrequencyContainer.present =
@@ -83,8 +83,8 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
   int bufferLen = 4096;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
 
-  int len = encoder->encode(cam, buffer, bufferLen, EncodingType::XER_BASIC);
-  CAM_t *camDecode = encoder->decode(buffer, len, EncodingType::XER_BASIC);
+  int len = encoder->encode(cam, buffer, bufferLen);
+  CAM_t *camDecode = encoder->decode(buffer, len);
 
   ASSERT_LT(0, len);
   ASSERT_GT(4096, len);
@@ -100,14 +100,14 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
 }
 
 TEST(CAM_Encoder, Test_Encode_With_Invalid_Type) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType(-1));
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   int bufferLen = 4096;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
   int errCode;
 
   try {
-    encoder->encode(cam, buffer, bufferLen, EncodingType(-1));
+    encoder->encode(cam, buffer, bufferLen);
   } catch (const Exception &e) {
     errCode = e.getErrCode();
   }
@@ -204,7 +204,7 @@ TEST(CAM_Encoder, Test_Decode_With_Empty_Buffer) {
 }
 
 TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType::DER_BER);
   int errCode = 0;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->cam.camParameters.highFrequencyContainer.present =
@@ -212,13 +212,13 @@ TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
   int bufferLen = 128;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
 
-  int len = encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
+  int len = encoder->encode(cam, buffer, bufferLen);
   for (size_t i = 16; i < 32; i++) {
     buffer[i] = 0;
   }
 
   try {
-    encoder->decode(buffer, len, EncodingType::DER_BER);
+    encoder->decode(buffer, len);
   } catch (const Exception &e) {
     errCode = e.getErrCode();
   }
@@ -230,17 +230,16 @@ TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
 }
 
 TEST(CAM_Encoder, Test_Decode_With_Invalid_Type) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType(-1));
   int errCode = 0;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
   int bufferLen = 4096;
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
-  int len = encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
 
   try {
-    encoder->decode(buffer, len, EncodingType(-1));
+    encoder->decode(buffer, bufferLen);
   } catch (const Exception &e) {
     errCode = e.getErrCode();
   }
@@ -252,7 +251,7 @@ TEST(CAM_Encoder, Test_Decode_With_Invalid_Type) {
 }
 
 TEST(CAM_Encoder, Test_Encode_Property_Failed) {
-  auto encoder = getEncoder();
+  auto encoder = getEncoder(EncodingType::DER_BER);
   int errCode = 0;
   std::string errMsg;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
@@ -266,7 +265,7 @@ TEST(CAM_Encoder, Test_Encode_Property_Failed) {
   uint8_t *buffer = (uint8_t *)calloc(1, bufferLen);
 
   try {
-    encoder->encode(cam, buffer, bufferLen, EncodingType::DER_BER);
+    encoder->encode(cam, buffer, bufferLen);
   } catch (const Exception &e) {
     errCode = e.getErrCode();
     errMsg.assign(e.getErrMsg());
