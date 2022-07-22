@@ -62,7 +62,7 @@ TEST(Common_UDPSocket, Test_Send_Null_Ptr) {
   UDPSocket socket(5999);
 
   try {
-    socket.sendTo(nullptr, 0, 99);
+    socket.send(nullptr, 0, 99);
   } catch (const NetworkException &e) {
     errCode = e.getErrCode();
   }
@@ -97,7 +97,7 @@ TEST(Common_PacketReceiver, Test_Send_And_Receive_Data) {
   PacketReceiver receiver(socket(port));
   receiver.recvPacketCallback = recvPacket;
   receiver.start();
-  sender.sendTo(msg.c_str(), msg.length() + 1);
+  sender.send(msg.c_str(), msg.length() + 1);
 
   while (!testSendAndReceiveDataLen) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));

@@ -27,6 +27,7 @@ class UDPSocket : public ISocket {
 private:
   unsigned short _port;
   bool _enableRecvException;
+  bool _isBound;
 
 #ifdef _WIN32
   SOCKET _sock;
@@ -39,9 +40,9 @@ public:
   UDPSocket(unsigned short port);
   ~UDPSocket();
 
-  virtual void sendTo(const char *buffer, int len, int flags = 0) override;
-  virtual int recvFrom(char *buffer, int len, int flags = 0) override;
-  virtual void bindSocket() override;
+  virtual void send(const char *buffer, int len, int flags = 0) override;
+  virtual int recv(char *buffer, int len, int flags = 0) override;
+  virtual void bindSocket();
   virtual void close() override;
 };
 }; // namespace level

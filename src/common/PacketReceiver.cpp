@@ -26,8 +26,6 @@ void PacketReceiver::start() {
 
 void PacketReceiver::receive(PacketReceiver *receiver) {
 
-  receiver->_socket->bindSocket();
-
   int bufferSize = 65535;
   char *buffer = (char *)malloc(bufferSize);
 
@@ -35,7 +33,7 @@ void PacketReceiver::receive(PacketReceiver *receiver) {
     receiver->_threadRunning = true;
 
     try {
-      int len = receiver->_socket->recvFrom(buffer, bufferSize);
+      int len = receiver->_socket->recv(buffer, bufferSize);
       if (len <= 0) {
         continue;
       }
