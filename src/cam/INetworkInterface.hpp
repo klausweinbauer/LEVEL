@@ -12,6 +12,7 @@
 #pragma once
 
 #include <CAM.h>
+#include <Exception.hpp>
 #include <functional>
 #include <level_common.h>
 

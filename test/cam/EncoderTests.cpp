@@ -1,5 +1,5 @@
 #include <CAM.h>
-#include <CAMFactory.hpp>
+#include <CAMServiceProvider.hpp>
 #include <Encoder.hpp>
 #include <Exception.hpp>
 #include <IEncoder.hpp>
@@ -12,10 +12,6 @@ using namespace level::cam;
 std::shared_ptr<IEncoder>
 getEncoder(EncodingType encoding = EncodingType::DER_BER) {
   return std::shared_ptr<IEncoder>(new Encoder(encoding));
-}
-
-TEST(CAM_Encoder, Test_Factory_Function) {
-  ASSERT_NE(nullptr, &Factory::encoder());
 }
 
 TEST(CAM_Encoder, Test_CAM_encoding_BER) {

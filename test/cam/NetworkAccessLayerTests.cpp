@@ -1,5 +1,5 @@
 #include <CAM.h>
-#include <CAMFactory.hpp>
+#include <CAMServiceProvider.hpp>
 #include <Mocks.hpp>
 #include <NetworkException.hpp>
 #include <PacketReceiver.hpp>
@@ -26,8 +26,8 @@ TEST(CAM_NetworkAccessLayer, Test_Send_And_Receive_Message) {
   cam->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_basicVehicleContainerHighFrequency;
 
-  Factory::networkAL()->recvCallback = recvPacket;
-  Factory::networkAL()->send(cam);
+  di::network()->recvCallback = recvPacket;
+  di::network()->send(cam);
 
   while (!testSendAndReceiveMessage_cam) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
