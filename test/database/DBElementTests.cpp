@@ -8,7 +8,7 @@ struct Helper {
   int _value;
 };
 
-TEST(Common_DBElement, Test_Element_Get_View) {
+TEST(Database_DBElement, Test_Element_Get_View) {
   int x = rand();
   DBElement<int> element(&x);
   DBView<int> view = element.getView();
@@ -16,7 +16,7 @@ TEST(Common_DBElement, Test_Element_Get_View) {
   ASSERT_EQ(x, *view);
 }
 
-TEST(Common_DBElement, Test_Modify_Element_By_Ref) {
+TEST(Database_DBElement, Test_Modify_Element_By_Ref) {
   int xBase = rand();
   int x = xBase;
   DBElement<int> element(&x);
@@ -26,7 +26,7 @@ TEST(Common_DBElement, Test_Modify_Element_By_Ref) {
   ASSERT_EQ(xBase + 1, *view);
 }
 
-TEST(Common_DBElement, Test_Modify_Element_By_Arrow) {
+TEST(Database_DBElement, Test_Modify_Element_By_Arrow) {
   int xBase = rand();
   Helper x;
   x._value = xBase;
@@ -37,7 +37,7 @@ TEST(Common_DBElement, Test_Modify_Element_By_Arrow) {
   ASSERT_EQ(xBase + 1, view->_value);
 }
 
-TEST(Common_DBElement, Test_Modification_Status_By_Ref) {
+TEST(Database_DBElement, Test_Modification_Status_By_Ref) {
   int x = rand();
   DBElement<int> element(&x);
   DBView<int> view = element.getView();
@@ -46,7 +46,7 @@ TEST(Common_DBElement, Test_Modification_Status_By_Ref) {
   ASSERT_TRUE(view.accessed());
 }
 
-TEST(Common_DBElement, Test_Modification_Status_By_Arrow) {
+TEST(Database_DBElement, Test_Modification_Status_By_Arrow) {
   Helper x;
   DBElement<Helper> element(&x);
   DBView<Helper> view = element.getView();
@@ -55,14 +55,14 @@ TEST(Common_DBElement, Test_Modification_Status_By_Arrow) {
   ASSERT_TRUE(view.accessed());
 }
 
-TEST(Common_DBElement, Test_Get_Concurrent_Views) {
+TEST(Database_DBElement, Test_Get_Concurrent_Views) {
   int x;
   DBElement<int> element(&x);
   { DBView<int> view = element.getView(); }
   { DBView<int> view = element.getView(); }
 }
 
-TEST(Common_DBElement, Test_Modification_Callback) {
+TEST(Database_DBElement, Test_Modification_Callback) {
   int xBase = rand();
   int x = xBase;
   int valueInCallback;
@@ -81,7 +81,7 @@ TEST(Common_DBElement, Test_Modification_Callback) {
   ASSERT_EQ(valueInCallback, xBase + 1);
 }
 
-TEST(Common_DBElement, Test_No_Modification_Callback_Without_Access) {
+TEST(Database_DBElement, Test_No_Modification_Callback_Without_Access) {
   int x = rand();
   bool callbackReached = false;
   DBElement<int> element(&x);
@@ -93,7 +93,7 @@ TEST(Common_DBElement, Test_No_Modification_Callback_Without_Access) {
   ASSERT_FALSE(callbackReached);
 }
 
-TEST(Common_DBElement, Test_Modified_Flag_After_Callback) {
+TEST(Database_DBElement, Test_Modified_Flag_After_Callback) {
   int x = rand();
   bool modifiedInCallback = false;
   bool modifiedAfterCallback = true;
@@ -111,7 +111,7 @@ TEST(Common_DBElement, Test_Modified_Flag_After_Callback) {
   ASSERT_FALSE(modifiedAfterCallback);
 }
 
-TEST(Common_DBElement, Test_Modified_Flag_Without_Callback) {
+TEST(Database_DBElement, Test_Modified_Flag_Without_Callback) {
   int x = rand();
   DBElement<int> element(&x);
   {
@@ -122,7 +122,7 @@ TEST(Common_DBElement, Test_Modified_Flag_Without_Callback) {
   ASSERT_TRUE(element.modified());
 }
 
-TEST(Common_DBElement, Test_Clear_Modified_Flag) {
+TEST(Database_DBElement, Test_Clear_Modified_Flag) {
   int x = rand();
   DBElement<int> element(&x);
   {
@@ -134,7 +134,7 @@ TEST(Common_DBElement, Test_Clear_Modified_Flag) {
   ASSERT_FALSE(element.modified());
 }
 
-TEST(Common_DBElement, Test_Fail_On_Open_Multiple_Views) {
+TEST(Database_DBElement, Test_Fail_On_Open_Multiple_Views) {
   int x = rand();
   DBElement<int> element(&x);
   DBView<int> view = element.getView();
