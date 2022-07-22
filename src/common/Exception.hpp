@@ -55,7 +55,8 @@ public:
 
   virtual const char *what() const noexcept override {
     return "General exception from LEVEL. For more information on what went "
-           "wrong use methods getErrCode() or getErrMsg().";
+           "wrong use members getErrCode() and getErrMsg() or global "
+           "getLastErrMsg() function.";
   }
 
   /**

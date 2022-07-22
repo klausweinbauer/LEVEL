@@ -38,7 +38,7 @@ CAMWrapper::CAMWrapper(const CAMWrapper &other) : _cam(nullptr) {
 
   if (retValEncode.encoded == -1) {
     std::stringstream errMsgStream;
-    errMsgStream << "CAM Encoding failed (Code="
+    errMsgStream << "Copying CAM failed during encoding (Code="
                  << retValEncode.failed_type->name << "). "
                  << "This is probably due to an invalid value of property '"
                  << retValEncode.failed_type->xml_tag << "'." << std::endl;
@@ -57,7 +57,7 @@ CAMWrapper::CAMWrapper(const CAMWrapper &other) : _cam(nullptr) {
 
   if (retValDecode.code != asn_dec_rval_code_e::RC_OK) {
     ASN_STRUCT_FREE(asn_DEF_CAM, _cam);
-    throw Exception(ERR_DECODE, "Decoding of CAM failed.");
+    throw Exception(ERR_DECODE, "Copying CAM failed during decoding.");
   }
 }
 

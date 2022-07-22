@@ -35,8 +35,9 @@ TEST(Common_Exception, Test_Get_Default_Error_Message) {
 
 TEST(Common_Exception, Test_Get_Exception_Description) {
   std::string expMsg(
-      "General exception from LEVEL. For more information on what went wrong "
-      "use methods getErrCode() or getErrMsg().");
+      "General exception from LEVEL. For more information on what went "
+      "wrong use members getErrCode() and getErrMsg() or global "
+      "getLastErrMsg() function.");
   Exception ex;
   std::string msg(ex.what());
   ASSERT_EQ(expMsg, msg);
