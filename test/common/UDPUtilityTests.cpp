@@ -58,11 +58,32 @@ TEST(Common_UDPSocket, Test_Exception_On_Multiple_Binds) {
 
 TEST(Common_UDPSocket, Test_Send_Null_Ptr) {
 
+  UDPSocket socket(5999);
+
+  socket.send(nullptr, 0);
+}
+
+TEST(Common_UDPSocket, Test_Send_Failed) {
+
   int errCode = 0;
   UDPSocket socket(5999);
 
   try {
     socket.send(nullptr, 0, 99);
+  } catch (const NetworkException &e) {
+    errCode = e.getErrCode();
+  }
+
+  ASSERT_EQ(ERR, errCode);
+}
+
+TEST(Common_UDPSocket, Test_Receive_Failed) {
+
+  int errCode = 0;
+  UDPSocket socket(5999);
+
+  try {
+    socket.recv(nullptr, 0, 99);
   } catch (const NetworkException &e) {
     errCode = e.getErrCode();
   }
