@@ -52,8 +52,8 @@ TEST(CAM_SocketBasedNAL, Test_Error_Callback) {
   auto sSock = std::shared_ptr<MSocket>(new MSocket());
   auto rSock = std::shared_ptr<MSocket>(new MSocket());
 
-  EXPECT_CALL(*rSock, recvFrom(_, _, _))
-      .WillRepeatedly(Throw(NetworkException()));
+  EXPECT_CALL(*rSock, recv(_, _, _)).WillRepeatedly(Throw(NetworkException()));
+  EXPECT_CALL(*rSock, close()); // only used to make valgrind happy
 
   SocketBasedNI nal(sSock, rSock, nullptr, nullptr,
                     Test_Error_Callback_errCallback);
