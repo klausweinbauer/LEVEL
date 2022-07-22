@@ -45,8 +45,8 @@ CAMWrapper::CAMWrapper(const CAMWrapper &other) : _cam(nullptr) {
     throw Exception(ERR_ENCODE, errMsgStream.str());
   }
 
-  size_t bufferLen = dynamicBuffer.size();
-  uint8_t buffer[bufferLen];
+  const size_t bufferLen = dynamicBuffer.size();
+  uint8_t* buffer = (uint8_t*)calloc(bufferLen, sizeof(uint8_t));
   std::copy(dynamicBuffer.begin(), dynamicBuffer.end(), buffer);
 
   asn_dec_rval_t retValDecode;
@@ -54,6 +54,8 @@ CAMWrapper::CAMWrapper(const CAMWrapper &other) : _cam(nullptr) {
   opt_codec_ctx.max_stack_size = 0;
   retValDecode = ber_decode(&opt_codec_ctx, &asn_DEF_CAM, (void **)&_cam,
                             buffer, bufferLen);
+
+  free(buffer);
 
   if (retValDecode.code != asn_dec_rval_code_e::RC_OK) {
     ASN_STRUCT_FREE(asn_DEF_CAM, _cam);

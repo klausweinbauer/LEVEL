@@ -75,9 +75,11 @@ public:
   DBView(const DBView<TValue> &view) = delete;
   DBView<TValue> &operator=(const DBView<TValue> &view) = delete;
 
-  DBView(DBView<TValue> &&view) : _entry(nullptr) {
+  DBView(DBView<TValue> &&view) : _entry(nullptr), _accessed(false) {
     _entry = view._entry;
+    _accessed = view._accessed;
     view._entry = nullptr;
+    view._accessed = false;
   }
   DBView<TValue> &operator=(DBView<TValue> &&view) {
     if (this != std::addressof(view)) {
