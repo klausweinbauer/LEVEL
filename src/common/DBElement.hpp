@@ -52,8 +52,9 @@ public:
   void unlock(bool accessed) {
     _modified = accessed | _modified;
     _lock.unlock();
-    if (_modified) {
+    if (_modified && modifiedCallback) {
       modifiedCallback(this);
+      _modified = false;
     }
   }
 

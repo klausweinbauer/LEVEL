@@ -80,19 +80,26 @@ public:
     view._entry = nullptr;
   }
   DBView<TValue> &operator=(DBView<TValue> &&view) {
-    if (this != &view) {
+    if (this != std::addressof(view)) {
       _entry = view._entry;
       view._entry = nullptr;
     }
     return *this;
   }
 
+  bool accessed() { return _accessed; }
+
   TValue *operator->() {
     _accessed = true;
     return _entry->_value;
   }
 
-  TValue *operator*() { return _entry->_value; }
+  TValue operator*() { return *_entry->_value; }
+
+  TValue *operator&() {
+    _accessed = true;
+    return _entry->_value;
+  }
 };
 
 template <typename TValue>
