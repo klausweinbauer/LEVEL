@@ -6,6 +6,22 @@ using namespace level;
 
 const char *defaultErrorMsg = "Unknown error code.";
 
+TEST(Common_Exception, Test_Set_Last_Error_Message) {
+  std::string expMsg("Test error message.");
+
+  try {
+    throw Exception(ERR, expMsg);
+  } catch (const std::exception &) {
+  }
+
+  char buffer[256];
+  int size;
+  getLastErrMsg(buffer, 256, &size);
+  std::string msg(buffer);
+
+  ASSERT_EQ(0, expMsg.compare(msg));
+}
+
 TEST(Common_Exception, Test_Error_Message_For_Unknown_Error) {
   std::string msg(Exception::errMsg(1));
   ASSERT_GT(msg.length(), 0);

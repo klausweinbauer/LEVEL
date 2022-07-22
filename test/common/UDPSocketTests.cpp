@@ -9,14 +9,12 @@
 
 using namespace level;
 
-std::shared_ptr<ISocket> socket(int port = 5999) {
-  return std::shared_ptr<ISocket>(new UDPSocket(port));
-}
+static int port = 40100;
 
 TEST(Common_UDPSocket, Test_Open_Multiple_Sockets) {
 
-  UDPSocket socket1(5999);
-  UDPSocket socket2(5999);
+  UDPSocket socket1(port);
+  UDPSocket socket2(port);
 
   ASSERT_NE(&socket1, &socket2);
 }
@@ -24,14 +22,15 @@ TEST(Common_UDPSocket, Test_Open_Multiple_Sockets) {
 TEST(Common_UDPSocket, Test_Correct_Bound_Socket_Management) {
 
   bool exceptionRaised = false;
+  port++;
 
   try {
     {
-      UDPSocket socket(5999);
+      UDPSocket socket(port);
       socket.bindSocket();
     }
     {
-      UDPSocket socket(5999);
+      UDPSocket socket(port);
       socket.bindSocket();
     }
   } catch (const std::exception &) {
@@ -44,7 +43,8 @@ TEST(Common_UDPSocket, Test_Correct_Bound_Socket_Management) {
 TEST(Common_UDPSocket, Test_Exception_On_Multiple_Binds) {
 
   int errCode = 0;
-  UDPSocket socket(5999);
+  port++;
+  UDPSocket socket(port);
   socket.bindSocket();
 
   try {
@@ -58,7 +58,8 @@ TEST(Common_UDPSocket, Test_Exception_On_Multiple_Binds) {
 
 TEST(Common_UDPSocket, Test_Send_Null_Ptr) {
 
-  UDPSocket socket(5999);
+  port++;
+  UDPSocket socket(port);
 
   socket.send(nullptr, 0);
 }
@@ -66,7 +67,8 @@ TEST(Common_UDPSocket, Test_Send_Null_Ptr) {
 TEST(Common_UDPSocket, Test_Send_Failed) {
 
   int errCode = 0;
-  UDPSocket socket(5999);
+  port++;
+  UDPSocket socket(port);
 
   try {
     socket.send(nullptr, 0, 99);
@@ -80,7 +82,8 @@ TEST(Common_UDPSocket, Test_Send_Failed) {
 TEST(Common_UDPSocket, Test_Receive_Failed) {
 
   int errCode = 0;
-  UDPSocket socket(5999);
+  port++;
+  UDPSocket socket(port);
 
   try {
     socket.recv(nullptr, 0, 99);
@@ -89,40 +92,4 @@ TEST(Common_UDPSocket, Test_Receive_Failed) {
   }
 
   ASSERT_EQ(ERR, errCode);
-}
-
-TEST(Common_PacketReceiver, Test_Packet_Receiver_Instantiation_And_Cleanup) {
-
-  bool exceptionRaised = false;
-
-  try {
-    { PacketReceiver receiver(socket(5999)); }
-    { PacketReceiver receiver(socket(5999)); }
-  } catch (const std::exception &e) {
-    exceptionRaised = true;
-  }
-
-  ASSERT_FALSE(exceptionRaised);
-}
-
-static int testSendAndReceiveDataLen = 0;
-void recvPacket(const char *buffer, int len) {
-  testSendAndReceiveDataLen = len;
-}
-
-TEST(Common_PacketReceiver, Test_Send_And_Receive_Data) {
-
-  unsigned short port = 5999;
-  std::string msg = "Hello Receiver!";
-  UDPSocket sender(port);
-  PacketReceiver receiver(socket(port));
-  receiver.recvPacketCallback = recvPacket;
-  receiver.start();
-  sender.send(msg.c_str(), msg.length() + 1);
-
-  while (!testSendAndReceiveDataLen) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
-
-  ASSERT_EQ(msg.length() + 1, testSendAndReceiveDataLen);
 }

@@ -12,6 +12,7 @@
 #pragma once
 
 #include <exception>
+#include <level_common.h>
 #include <level_error.h>
 #include <sstream>
 #include <string>
@@ -27,11 +28,19 @@ private:
   int _errCode;
   std::string _errMsg;
 
+  void setLastErrorMessage() {
+    if (_errMsg.size() > 0) {
+      setLastErrMsg(_errMsg.c_str(), _errMsg.size() + 1);
+    }
+  }
+
 public:
   Exception() : Exception(ERR) {}
-  Exception(int errCode) : _errCode(errCode){};
+  Exception(int errCode) : _errCode(errCode) { setLastErrorMessage(); };
   Exception(int errCode, std::string errMsg)
-      : _errCode(errCode), _errMsg(errMsg){};
+      : _errCode(errCode), _errMsg(errMsg) {
+    setLastErrorMessage();
+  };
   virtual ~Exception(){};
 
   virtual int getErrCode() const { return _errCode; }
