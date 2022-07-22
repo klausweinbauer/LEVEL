@@ -1,5 +1,6 @@
 add_subdirectory(common)
 add_subdirectory(msg)
+add_subdirectory(database)
 add_subdirectory(cam)
 add_subdirectory(denm)
 add_subdirectory(di)

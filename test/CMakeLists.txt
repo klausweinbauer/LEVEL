@@ -9,6 +9,7 @@ target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_D
 add_subdirectory(${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 add_subdirectory(common)
+add_subdirectory(database)
 add_subdirectory(cam)
 add_subdirectory(denm)
 
