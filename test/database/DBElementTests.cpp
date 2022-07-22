@@ -37,6 +37,18 @@ TEST(Database_DBElement, Test_Modify_Element_By_Arrow) {
   ASSERT_EQ(xBase + 1, view->_value);
 }
 
+TEST(Database_DBElement, Test_Modify_Read_Only_Element) {
+  Helper x;
+  DBElement<Helper> element(&x);
+  DBView<Helper> view = element.getView();
+  view->_value = 1;
+  Helper y = *view;
+  y._value = 2;
+
+  ASSERT_EQ(1, view->_value);
+  ASSERT_EQ(2, y._value);
+}
+
 TEST(Database_DBElement, Test_Modification_Status_By_Ref) {
   int x = rand();
   DBElement<int> element(&x);
@@ -148,3 +160,34 @@ TEST(Database_DBElement, Test_Fail_On_Open_Multiple_Views) {
 
   ASSERT_TRUE(threwException);
 }
+
+#ifndef ENA_SINGLE_VIEW
+TEST(Database_DBElement, Test_Open_Multiple_Views) {
+  int x1 = rand();
+  int x2 = rand();
+  DBElement<int> element1(&x1);
+  DBElement<int> element2(&x2);
+  DBView<int> view1 = element1.getView();
+  DBView<int> view2 = element2.getView();
+
+  ASSERT_EQ(x1, *view1);
+  ASSERT_EQ(x2, *view2);
+}
+
+TEST(Database_DBElement, Test_Move_Assignment_For_View) {
+  int x1 = rand();
+  int x2 = rand();
+  DBElement<int> element1(&x1);
+  DBElement<int> element2(&x2);
+  DBView<int> view2 = element1.getView();
+  {
+    DBView<int> tmpView = element2.getView();
+    view2 = std::move(tmpView);
+  }
+  DBView<int> view1 = element1.getView();
+  *&view2 += 1;
+
+  ASSERT_EQ(x1, *view1);
+  ASSERT_EQ(x2, *view2);
+}
+#endif

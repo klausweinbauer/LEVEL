@@ -24,6 +24,7 @@ private:
   TValue *_value;
   std::mutex _lock;
   bool _modified;
+  std::thread::id _threadId;
 
 public:
   std::function<void(DBElement<TValue> *)> modifiedCallback;
@@ -51,14 +52,24 @@ public:
 
   void unlock(bool accessed) {
     _modified = accessed | _modified;
-    _lock.unlock();
     if (_modified && modifiedCallback) {
       modifiedCallback(this);
       _modified = false;
     }
+    _threadId = std::thread::id();
+    _lock.unlock();
   }
 
-  void lock() { _lock.lock(); }
+  void lock() {
+    if (_threadId == std::this_thread::get_id()) {
+      std::string msg("This thread already owns the lock for this database "
+                      "entry. You may only open one view per entry.");
+      throw DBException(ERR_INVALID_OPERATION, msg);
+    }
+
+    _lock.lock();
+    _threadId = std::this_thread::get_id();
+  }
 
   friend class DBView<TValue>;
 };

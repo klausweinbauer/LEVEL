@@ -24,6 +24,11 @@
 #include <thread>
 #include <vector>
 
+// ENA_SINGLE_VIEW enables restriction for a single open view for a thread
+// at any given time. Use this to prevent deadlocks caused by opening multiple
+// views.
+//#define ENA_SINGLE_VIEW
+
 namespace level {
 
 template <typename TValue> class DBElement;
@@ -33,6 +38,7 @@ private:
   DBElement<TValue> *_entry;
   bool _accessed;
 
+#ifdef ENA_SINGLE_VIEW
   static std::mutex _threadListLock;
   static std::vector<std::thread::id> _threadList;
 
@@ -51,17 +57,20 @@ private:
 
     _threadList.push_back(id);
   }
+#endif
 
 public:
   DBView(DBElement<TValue> *entry) : _entry(entry), _accessed(false) {
+#ifdef ENA_SINGLE_VIEW
     isAllowedToOpen();
+#endif
     _entry->lock();
   }
 
   virtual ~DBView() {
     if (_entry) {
       _entry->unlock(_accessed);
-
+#ifdef ENA_SINGLE_VIEW
       std::lock_guard<std::mutex> guard(_threadListLock);
       auto id = std::this_thread::get_id();
       auto it = std::find(_threadList.begin(), _threadList.end(), id);
@@ -69,6 +78,7 @@ public:
       assert(it != _threadList.end());
 
       _threadList.erase(it);
+#endif
     }
   }
 
@@ -76,15 +86,11 @@ public:
   DBView<TValue> &operator=(const DBView<TValue> &view) = delete;
 
   DBView(DBView<TValue> &&view) : _entry(nullptr), _accessed(false) {
-    _entry = view._entry;
-    _accessed = view._accessed;
-    view._entry = nullptr;
-    view._accessed = false;
+    swap(*this, view);
   }
   DBView<TValue> &operator=(DBView<TValue> &&view) {
     if (this != std::addressof(view)) {
-      _entry = view._entry;
-      view._entry = nullptr;
+      swap(*this, view);
     }
     return *this;
   }
@@ -102,11 +108,20 @@ public:
     _accessed = true;
     return _entry->_value;
   }
+
+  friend void swap(DBView<TValue> &first, DBView<TValue> &second) {
+    using std::swap;
+    swap(first._accessed, second._accessed);
+    swap(first._entry, second._entry);
+  }
 };
 
+#ifdef ENA_SINGLE_VIEW
 template <typename TValue>
 std::vector<std::thread::id> DBView<TValue>::_threadList;
 
 template <typename TValue> std::mutex DBView<TValue>::_threadListLock;
+
+#endif
 
 }; // namespace level
