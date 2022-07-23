@@ -9,6 +9,7 @@ using namespace level;
 
 using ::testing::_;
 using ::testing::Eq;
+using ::testing::Invoke;
 using ::testing::Ref;
 using ::testing::Return;
 using ::testing::Throw;
@@ -276,6 +277,61 @@ TEST(Database_Database, Test_Indexer_Throws_Exception_In_Remove) {
     threwException = false;
     ASSERT_EQ(0, res);
   } catch (const std::exception &e) {
+  }
+
+  ASSERT_FALSE(threwException);
+}
+
+static int Test_Notify_Indexer_On_Value_Update_value = 0;
+static void
+Test_Notify_Indexer_On_Value_Update_saveValueUpdate(const int *const entry) {
+  Test_Notify_Indexer_On_Value_Update_value = *entry;
+}
+
+TEST(Database_Database, Test_Notify_Indexer_On_Value_Update) {
+  int queryType = rand();
+  Database<int> db;
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  db.addIndexer(indexer);
+  Query query(queryType);
+  int *entry = new int(rand());
+  int baseValue = *entry;
+  db.insert(entry);
+  std::vector<unsigned int> indexerReturn = {0};
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(_)).WillRepeatedly(Return(indexerReturn));
+  EXPECT_CALL(*indexer, valueChanged(_))
+      .WillOnce(Invoke(Test_Notify_Indexer_On_Value_Update_saveValueUpdate));
+
+  {
+    auto view = db.get(query);
+    *&(view[0]) += 1;
+  }
+
+  ASSERT_EQ(baseValue + 1, Test_Notify_Indexer_On_Value_Update_value);
+}
+
+TEST(Database_Database, Test_Indexer_Throws_Exception_On_Value_Update) {
+  int queryType = rand();
+  Database<int> db;
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  db.addIndexer(indexer);
+  Query query(queryType);
+  int *entry = new int(rand());
+  db.insert(entry);
+  std::vector<unsigned int> indexerReturn = {0};
+  bool threwException = false;
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(_)).WillRepeatedly(Return(indexerReturn));
+  EXPECT_CALL(*indexer, valueChanged(_)).WillOnce(Throw(std::exception()));
+
+  try {
+    auto view = db.get(query);
+    *&(view[0]) += 1;
+  } catch (const std::exception &) {
+    threwException = true;
   }
 
   ASSERT_FALSE(threwException);

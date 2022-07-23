@@ -12,5 +12,6 @@ public:
   virtual int getQueryType() const = 0;
 
   virtual std::vector<unsigned int> getIndexList(const IQuery &query) = 0;
+  virtual void valueChanged(const T *const entry) = 0;
 };
 } // namespace level

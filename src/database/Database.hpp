@@ -58,6 +58,16 @@ private:
     return index;
   }
 
+  void handleModifiedCallback(DBElement<T> *element) {
+    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+      try {
+        indexer->valueChanged(element->value());
+      } catch (const std::exception &) {
+        // Ignore indexer exceptions
+      }
+    }
+  }
+
 public:
   Database() {}
 
@@ -108,6 +118,9 @@ public:
     _ptrMap.insert(ptrEntry);
 
     DBElement<T> *element = new DBElement<T>(entry);
+    element->modifiedCallback = [this](DBElement<T> *elmt) {
+      handleModifiedCallback(elmt);
+    };
     // Assign view before adding to data to guarantee first use for creator
     DBView<T> view = element->getView();
     _data[index] = element;
