@@ -16,7 +16,6 @@
 #pragma once
 
 #include <DBElement.hpp>
-#include <DBElementStatus.hpp>
 #include <DBException.hpp>
 #include <algorithm>
 #include <assert.h>
@@ -31,48 +30,40 @@ template <typename T> class DBElement;
 
 template <typename T> class DBView {
 private:
-  DBElement<T> *_element;
-  DBElementStatus *_status;
+  std::shared_ptr<DBElement<T>> _element;
 
 public:
   /**
    * @brief Construct a new DBView object
    *
    * @details Construction is blocked until the element is safely acquired. Once
-   * this object goes out of scope, it releases the locked element.
+   * this object goes out of scope, it releases the locked element. As long as
+   * this object is valid, the data can be accessed by * or -> operators.
    *
    * @param element Element to acquire.
-   * @param status Reference to the database status for this element and view.
-   * After successful construction, the view owns this resource.
    */
-  DBView(DBElement<T> *element, DBElementStatus *status)
-      : _element(element), _status(status) {
-    if (element == nullptr) {
+  DBView(std::shared_ptr<DBElement<T>> element) : _element(element) {
+    if (!element) {
       throw Exception(ERR, "Parameter 'element' may not be null.");
     }
-    if (status == nullptr) {
-      throw Exception(ERR, "Parameter 'status' may not be null.");
-    }
+
     _element->lock();
   }
 
   virtual ~DBView() {
-    if (_element == nullptr) {
+    if (!_element) {
       return;
     }
 
-    if (!_status->_deleted) {
-      _element->unlock();
-    }
-    delete _status;
+    _element->unlock();
   }
 
   DBView(const DBView<T> &view) = delete;
+
   DBView<T> &operator=(const DBView<T> &view) = delete;
 
-  DBView(DBView<T> &&view) : _element(nullptr), _status(nullptr) {
-    swap(*this, view);
-  }
+  DBView(DBView<T> &&view) : _element(nullptr) { swap(*this, view); }
+
   DBView<T> &operator=(DBView<T> &&view) {
     if (this != std::addressof(view)) {
       swap(*this, view);
@@ -80,13 +71,42 @@ public:
     return *this;
   }
 
-  T &operator->() {}
+  T *operator->() {
+    if (!isValid()) {
+      throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
+    }
+    return &_element->data();
+  }
 
-  T &operator*() {}
+  T &operator*() {
+    if (!isValid()) {
+      throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
+    }
+    return _element->data();
+  }
+
+  /**
+   * @brief Delete the corresponding element in the database.
+   *
+   */
+  void remove() {
+    _element->clear();
+    _element = nullptr;
+  }
+
+  /**
+   * @brief Check if this view is still valid.
+   *
+   * @details For example, the view is no longer valid if the element has been
+   * removed.
+   *
+   * @return true If the view is valid and the database element can be accessed.
+   * @return false You are not allowed to access the database element any more.
+   */
+  bool isValid() const { return _element != nullptr; }
 
   friend void swap(DBView<T> &first, DBView<T> &second) {
     using std::swap;
-    swap(first._status, second._status);
     swap(first._element, second._element);
   }
 };

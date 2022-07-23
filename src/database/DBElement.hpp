@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <DBElementStatus.hpp>
 #include <DBView.hpp>
 #include <functional>
 #include <mutex>
@@ -22,15 +21,13 @@ namespace level {
 template <typename T> class DBElement {
 private:
   T *_data;
-  DBElementStatus *_status;
   const std::mutex _lock;
   std::thread::id _threadId;
   const unsigned int _index;
 
 public:
   DBElement(unsigned int index)
-      : _data(nullptr), _status(nullptr), _threadId(std::thread::id()),
-        _index(index) {}
+      : _data(nullptr), _threadId(std::thread::id()), _index(index) {}
 
   virtual ~DBElement() {}
 
@@ -45,11 +42,10 @@ public:
   virtual T &data() const {}
   virtual void setData(T *data) {}
 
-  virtual DBElementStatus *status() const {}
-  virtual void setStatus(DBElementStatus *status) {}
-
   virtual void unlock() {}
   virtual void lock() {}
+
+  virtual void clear() {}
 
   virtual const std::thread::id &holdingThread() const {}
 
