@@ -1,5 +1,6 @@
 #pragma once
 
+#include <DBElement.hpp>
 #include <IIndexer.hpp>
 #include <IQuery.hpp>
 #include <ISocket.hpp>
@@ -27,4 +28,19 @@ public:
               (override));
   MOCK_METHOD(void, valueChanged, (const T *const entry, unsigned int index),
               (override));
+};
+
+template <typename T> class MDBElement : public DBElement<T> {
+public:
+  MDBElement() : DBElement<T>(0){};
+
+  MOCK_METHOD(DBView<T>, getView, (), (override));
+  MOCK_METHOD(T &, data, (), (override, const));
+  MOCK_METHOD(void, setData, (T * data), (override));
+  MOCK_METHOD(DBElementStatus *, status, (), (override, const));
+  MOCK_METHOD(void, setStatus, (DBElementStatus * status), (override));
+  MOCK_METHOD(void, unlock, (), (override));
+  MOCK_METHOD(void, lock, (), (override));
+  MOCK_METHOD(const std::thread::id &, holdingThread, (), (override, const));
+  MOCK_METHOD(unsigned int, getIndex, (), (override, const));
 };

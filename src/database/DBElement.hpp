@@ -14,72 +14,49 @@
 #include <DBView.hpp>
 #include <functional>
 #include <mutex>
+#include <thread>
 
 namespace level {
 
-template <typename TValue> class DBView;
+struct DBElementStatus {
+  bool _deleted = false;
+};
 
-template <typename TValue> class DBElement {
+template <typename T> class DBElement {
 private:
-  TValue *_value;
-  std::mutex _lock;
-  bool _modified;
+  T *_data;
+  DBElementStatus *_status;
+  const std::mutex _lock;
   std::thread::id _threadId;
-  unsigned int _index;
+  const unsigned int _index;
 
 public:
-  std::function<void(DBElement<TValue> *)> modifiedCallback;
+  DBElement(unsigned int index)
+      : _data(nullptr), _status(nullptr), _threadId(std::thread::id()),
+        _index(index) {}
 
-  DBElement(TValue *value, unsigned int index = 0)
-      : _value(value), _modified(false), _index(index) {}
+  virtual ~DBElement() {}
 
-  virtual ~DBElement() { delete _value; }
+  DBElement(const DBElement<T> &element) = delete;
+  DBElement<T> &operator=(const DBElement<T> &element) = delete;
 
-  DBElement(const DBElement<TValue> &view) = delete;
-  DBElement<TValue> &operator=(const DBElement<TValue> &view) = delete;
+  DBElement(DBElement<T> &&element) = delete;
+  DBElement<T> &operator=(DBElement<T> &&element) = delete;
 
-  DBView<TValue> getView() {
+  virtual DBView<T> getView() {}
 
-    DBView<TValue> view(this);
-    return view;
-  }
+  virtual T &data() const {}
+  virtual void setData(T *data) {}
 
-  TValue *value() { return _value; }
+  virtual DBElementStatus *status() const {}
+  virtual void setStatus(DBElementStatus *status) {}
 
-  bool modified() { return _modified; }
+  virtual void unlock() {}
+  virtual void lock() {}
 
-  void setIndex(unsigned int index) { _index = index; }
+  virtual const std::thread::id &holdingThread() const {}
 
-  unsigned int getIndex() { return _index; }
-
-  void clearModifiedFlag() { _modified = false; }
-
-  const std::thread::id &holdingThread() const { return _threadId; }
-
-  void unlock() { _lock.unlock(); }
-
-  void unlock(bool accessed) {
-    _modified = accessed | _modified;
-    if (_modified && modifiedCallback) {
-      modifiedCallback(this);
-      _modified = false;
-    }
-    _threadId = std::thread::id();
-    _lock.unlock();
-  }
-
-  void lock() {
-    if (_threadId == std::this_thread::get_id()) {
-      std::string msg("This thread already owns the lock for this database "
-                      "entry. You may only open one view per entry.");
-      throw DBException(ERR_INVALID_OPERATION, msg);
-    }
-
-    _lock.lock();
-    _threadId = std::this_thread::get_id();
-  }
-
-  friend class DBView<TValue>;
+  virtual unsigned int getIndex() const {}
 };
 
 }; // namespace level
