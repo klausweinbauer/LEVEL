@@ -16,6 +16,7 @@
 #pragma once
 
 #include <DBElement.hpp>
+#include <DBElementStatus.hpp>
 #include <DBException.hpp>
 #include <algorithm>
 #include <assert.h>
@@ -27,7 +28,6 @@
 namespace level {
 
 template <typename T> class DBElement;
-struct DBElementStatus;
 
 template <typename T> class DBView {
 private:
@@ -38,7 +38,8 @@ public:
   /**
    * @brief Construct a new DBView object
    *
-   * @details Construction blocks until the element is safely acquired.
+   * @details Construction is blocked until the element is safely acquired. Once
+   * this object goes out of scope, it releases the locked element.
    *
    * @param element Element to acquire.
    * @param status Reference to the database status for this element and view.
@@ -56,6 +57,10 @@ public:
   }
 
   virtual ~DBView() {
+    if (_element == nullptr) {
+      return;
+    }
+
     if (!_status->_deleted) {
       _element->unlock();
     }

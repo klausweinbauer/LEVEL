@@ -11,16 +11,13 @@
 
 #pragma once
 
+#include <DBElementStatus.hpp>
 #include <DBView.hpp>
 #include <functional>
 #include <mutex>
 #include <thread>
 
 namespace level {
-
-struct DBElementStatus {
-  bool _deleted = false;
-};
 
 template <typename T> class DBElement {
 private:
