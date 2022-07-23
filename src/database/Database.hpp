@@ -4,6 +4,7 @@
 #include <IDatabase.hpp>
 #include <IIndexer.hpp>
 #include <mutex>
+#include <unordered_map>
 
 namespace level {
 
@@ -13,14 +14,22 @@ private:
   unsigned int _size = 0;
   std::mutex _lock;
   std::vector<std::shared_ptr<IIndexer<T>>> _indexer;
+  std::unordered_map<T *, unsigned int> _ptrMap;
+  std::vector<unsigned int> _emptyIndexList;
 
   std::vector<unsigned int> getIndexList(const IQuery &query) {
     std::vector<unsigned int> indexList;
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
       if (indexer->getQueryType() == query.getQueryType()) {
-        auto tmpIndexList = indexer->getIndexList(query);
-        for (unsigned int i : tmpIndexList) {
-          indexList.push_back(i);
+        try {
+          auto tmpIndexList = indexer->getIndexList(query);
+          for (unsigned int i : tmpIndexList) {
+            if (i < _size) {
+              indexList.push_back(i);
+            }
+          }
+        } catch (const std::exception &) {
+          // Ignore indexer exceptions
         }
       }
     }
@@ -32,10 +41,21 @@ private:
     return indexList;
   }
 
-  static void deleteEntry(DBElement<T> *entry) {
-    entry->lock();
-    entry->unlock(false);
-    delete entry;
+  unsigned int getAvailableIndex() {
+    unsigned int index;
+    if (_size == 0) {
+      index = 0;
+      _size = 1;
+      _data = (DBElement<T> **)malloc(sizeof(DBElement<T> *) * _size);
+    } else if (_emptyIndexList.size() > 0) {
+      index = _emptyIndexList.back();
+      _emptyIndexList.pop_back();
+    } else {
+      index = _size;
+      _size += 1;
+      _data = (DBElement<T> **)realloc(_data, sizeof(DBElement<T> *) * _size);
+    }
+    return index;
   }
 
 public:
@@ -50,6 +70,7 @@ public:
     free(_data);
 
     _indexer.clear();
+    _ptrMap.clear();
   }
 
   Database(const Database &) = delete;
@@ -62,7 +83,10 @@ public:
 
   virtual int count() {
     std::lock_guard<std::mutex> guard(_lock);
-    return _size;
+    int size = _size - _emptyIndexList.size();
+    assert(size == (int)_ptrMap.size() &&
+           "Fatal Error! Invalid database state reached.");
+    return size;
   }
 
   virtual DBView<T> insert(T *entry) {
@@ -70,18 +94,23 @@ public:
       throw DBException(ERR_ARG_NULL);
     }
 
-    DBElement<T> *element = new DBElement<T>(entry);
-    DBView<T> view = element->getView();
-
     std::lock_guard<std::mutex> guard(_lock);
-    if (_size == 0) {
-      _size = 1;
-      _data = (DBElement<T> **)malloc(sizeof(DBElement<T> *) * _size);
-    } else {
-      _size += 1;
-      _data = (DBElement<T> **)realloc(_data, sizeof(DBElement<T> *) * _size);
+    if (_ptrMap.find(entry) != _ptrMap.end()) {
+      std::stringstream ss;
+      ss << "Object (" << entry << ") is already stored in the database."
+         << std::endl;
+      throw DBException(ERR_INVALID_ARG, ss.str());
     }
-    _data[_size - 1] = element;
+
+    unsigned int index = getAvailableIndex();
+
+    std::pair<T *, unsigned int> ptrEntry(entry, index);
+    _ptrMap.insert(ptrEntry);
+
+    DBElement<T> *element = new DBElement<T>(entry);
+    // Assign view before adding to data to guarantee first use for creator
+    DBView<T> view = element->getView();
+    _data[index] = element;
 
     return view;
   }
@@ -100,13 +129,21 @@ public:
   }
 
   virtual int remove(const IQuery &query) {
-    /*std::lock_guard<std::mutex> guard(_lock);
+    std::lock_guard<std::mutex> guard(_lock);
 
     auto indexList = getIndexList(query);
 
     for (unsigned int i : indexList) {
       auto elmt = _data[i];
-    }*/
+      _data[i] = nullptr;
+      _emptyIndexList.push_back(i);
+      _ptrMap.erase(elmt->value());
+      elmt->lock();
+      elmt->unlock(false);
+      delete elmt;
+    }
+
+    return indexList.size();
   }
 
 }; // namespace level

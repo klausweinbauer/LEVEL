@@ -11,14 +11,15 @@ using ::testing::_;
 using ::testing::Eq;
 using ::testing::Ref;
 using ::testing::Return;
+using ::testing::Throw;
 
 TEST(Database_Database, Test_Create) {
   Database<int> db;
-  int x = rand();
+  int *x = new int(rand());
 
-  auto view = db.insert(&x);
+  auto view = db.insert(x);
 
-  ASSERT_EQ(x, *view);
+  ASSERT_EQ(*x, *view);
 }
 
 TEST(Database_Database, Test_Count_Empty_Database) {
@@ -28,10 +29,25 @@ TEST(Database_Database, Test_Count_Empty_Database) {
 
 TEST(Database_Database, Test_Count) {
   Database<int> db;
-  int x = rand();
-  db.insert(&x);
-  db.insert(&x);
+  int *x1 = new int(rand());
+  int *x2 = new int(rand());
+  db.insert(x1);
+  db.insert(x2);
   ASSERT_EQ(2, db.count());
+}
+
+TEST(Database_Database, Test_Error_On_Duplicate_Insert) {
+  Database<int> db;
+  int *x = new int(rand());
+  db.insert(x);
+  bool threwException = false;
+  try {
+    db.insert(x);
+  } catch (const DBException &e) {
+    threwException = true;
+  }
+
+  ASSERT_TRUE(threwException);
 }
 
 TEST(Database_Database, Test_Insert_Nullptr) {
@@ -78,8 +94,8 @@ TEST(Database_Database, Test_Get_Return_Value) {
   Database<int> db;
   db.addIndexer(indexer);
   Query query(queryType);
-  int entry = rand();
-  db.insert(&entry);
+  int *entry = new int(rand());
+  db.insert(entry);
   std::vector<unsigned int> indexerReturn = {0};
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
@@ -89,7 +105,7 @@ TEST(Database_Database, Test_Get_Return_Value) {
   auto ret = db.get(query);
 
   ASSERT_EQ(1, ret.size());
-  ASSERT_EQ(entry, *ret[0]);
+  ASSERT_EQ(*entry, *ret[0]);
 }
 
 TEST(Database_Database,
@@ -101,8 +117,8 @@ TEST(Database_Database,
   db.addIndexer(indexer);
   db.addIndexer(indexer);
   Query query(queryType);
-  int entry = rand();
-  db.insert(&entry);
+  int *entry = new int(rand());
+  db.insert(entry);
   std::vector<unsigned int> indexerReturn = {0};
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
@@ -112,7 +128,7 @@ TEST(Database_Database,
   auto ret = db.get(query);
 
   ASSERT_EQ(1, ret.size());
-  ASSERT_EQ(entry, *ret[0]);
+  ASSERT_EQ(*entry, *ret[0]);
 }
 
 TEST(Database_Database, Test_Get_Multiple_Results) {
@@ -121,10 +137,10 @@ TEST(Database_Database, Test_Get_Multiple_Results) {
   Database<int> db;
   db.addIndexer(indexer);
   Query query(queryType);
-  int entry1 = rand();
-  int entry2 = rand();
-  db.insert(&entry1);
-  db.insert(&entry2);
+  int *entry1 = new int(rand());
+  int *entry2 = new int(rand());
+  db.insert(entry1);
+  db.insert(entry2);
   std::vector<unsigned int> indexerReturn = {0, 1};
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
@@ -134,8 +150,8 @@ TEST(Database_Database, Test_Get_Multiple_Results) {
   auto ret = db.get(query);
 
   ASSERT_EQ(2, ret.size());
-  ASSERT_EQ(entry1, *ret[0]);
-  ASSERT_EQ(entry2, *ret[1]);
+  ASSERT_EQ(*entry1, *ret[0]);
+  ASSERT_EQ(*entry2, *ret[1]);
 }
 
 TEST(Database_Database,
@@ -147,10 +163,10 @@ TEST(Database_Database,
   db.addIndexer(indexer);
   db.addIndexer(indexer);
   Query query(queryType);
-  int entry1 = rand();
-  int entry2 = rand();
-  db.insert(&entry1);
-  db.insert(&entry2);
+  int *entry1 = new int(rand());
+  int *entry2 = new int(rand());
+  db.insert(entry1);
+  db.insert(entry2);
   std::vector<unsigned int> indexerReturn = {0, 1};
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
@@ -160,22 +176,107 @@ TEST(Database_Database,
   auto ret = db.get(query);
 
   ASSERT_EQ(2, ret.size());
-  ASSERT_EQ(entry1, *ret[0]);
-  ASSERT_EQ(entry2, *ret[1]);
+  ASSERT_EQ(*entry1, *ret[0]);
+  ASSERT_EQ(*entry2, *ret[1]);
 }
 
-/*TEST(Database_Database, Test_Delete_Entry) {
+TEST(Database_Database, Test_Indexer_Returns_Invalid_Index) {
+  int queryType = rand();
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  Database<int> db;
+  db.addIndexer(indexer);
+  Query query(queryType);
+  std::vector<unsigned int> indexerReturn = {1};
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(Ref(query)))
+      .WillRepeatedly(Return(indexerReturn));
+
+  auto ret = db.get(query);
+
+  ASSERT_EQ(0, ret.size());
+}
+
+TEST(Database_Database, Test_Delete_Entry) {
   int queryType = rand();
   Database<int> db;
   std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
   db.addIndexer(indexer);
   Query query(queryType);
+  int *entry = new int(rand());
+  db.insert(entry);
   std::vector<unsigned int> indexerReturn = {0};
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
   EXPECT_CALL(*indexer, getIndexList(_)).WillOnce(Return(indexerReturn));
 
-  db.remove(query);
+  int ret = db.remove(query);
 
+  ASSERT_EQ(1, ret);
   ASSERT_EQ(0, db.count());
-}*/
+}
+
+TEST(Database_Database, Test_Reuse_Of_Deleted_Index) {
+  int queryType = rand();
+  Database<int> db;
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  db.addIndexer(indexer);
+  Query query(queryType);
+  int *entry1 = new int(rand());
+  int *entry2 = new int(rand());
+  db.insert(entry1);
+  std::vector<unsigned int> indexerReturn = {0};
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(_)).WillRepeatedly(Return(indexerReturn));
+
+  db.remove(query);
+  auto view = db.insert(entry2);
+
+  ASSERT_EQ(1, db.count());
+  ASSERT_EQ(*entry2, *view);
+}
+
+TEST(Database_Database, Test_Indexer_Throws_Exception_In_Get) {
+  int queryType = rand();
+  Database<int> db;
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  db.addIndexer(indexer);
+  Query query(queryType);
+  bool threwException = true;
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillRepeatedly(Throw(std::exception()));
+
+  try {
+    auto res = db.get(query);
+    threwException = false;
+    ASSERT_EQ(0, res.size());
+  } catch (const std::exception &e) {
+  }
+
+  ASSERT_FALSE(threwException);
+}
+
+TEST(Database_Database, Test_Indexer_Throws_Exception_In_Remove) {
+  int queryType = rand();
+  Database<int> db;
+  std::shared_ptr<MIndexer<int>> indexer(new MIndexer<int>());
+  db.addIndexer(indexer);
+  Query query(queryType);
+  bool threwException = true;
+
+  EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillRepeatedly(Throw(std::exception()));
+
+  try {
+    auto res = db.remove(query);
+    threwException = false;
+    ASSERT_EQ(0, res);
+  } catch (const std::exception &e) {
+  }
+
+  ASSERT_FALSE(threwException);
+}

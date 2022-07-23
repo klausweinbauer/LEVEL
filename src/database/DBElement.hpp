@@ -31,7 +31,7 @@ public:
 
   DBElement(TValue *value) : _value(value), _modified(false) {}
 
-  virtual ~DBElement() {}
+  virtual ~DBElement() { delete _value; }
 
   DBElement(const DBElement<TValue> &view) = delete;
   DBElement<TValue> &operator=(const DBElement<TValue> &view) = delete;

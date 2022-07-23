@@ -9,17 +9,17 @@ struct Helper {
 };
 
 TEST(Database_DBElement, Test_Element_Get_View) {
-  int x = rand();
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   DBView<int> view = element.getView();
 
-  ASSERT_EQ(x, *view);
+  ASSERT_EQ(*x, *view);
 }
 
 TEST(Database_DBElement, Test_Modify_Element_By_Ref) {
-  int xBase = rand();
-  int x = xBase;
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  int xBase = *x;
+  DBElement<int> element(x);
   DBView<int> view = element.getView();
   *&view += 1;
 
@@ -27,10 +27,10 @@ TEST(Database_DBElement, Test_Modify_Element_By_Ref) {
 }
 
 TEST(Database_DBElement, Test_Modify_Element_By_Arrow) {
+  Helper *x = new Helper();
   int xBase = rand();
-  Helper x;
-  x._value = xBase;
-  DBElement<Helper> element(&x);
+  x->_value = xBase;
+  DBElement<Helper> element(x);
   DBView<Helper> view = element.getView();
   view->_value += 1;
 
@@ -38,8 +38,8 @@ TEST(Database_DBElement, Test_Modify_Element_By_Arrow) {
 }
 
 TEST(Database_DBElement, Test_Modify_Read_Only_Element) {
-  Helper x;
-  DBElement<Helper> element(&x);
+  Helper *x = new Helper();
+  DBElement<Helper> element(x);
   DBView<Helper> view = element.getView();
   view->_value = 1;
   Helper y = *view;
@@ -50,8 +50,8 @@ TEST(Database_DBElement, Test_Modify_Read_Only_Element) {
 }
 
 TEST(Database_DBElement, Test_Modification_Status_By_Ref) {
-  int x = rand();
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   DBView<int> view = element.getView();
   &view;
 
@@ -59,8 +59,8 @@ TEST(Database_DBElement, Test_Modification_Status_By_Ref) {
 }
 
 TEST(Database_DBElement, Test_Modification_Status_By_Arrow) {
-  Helper x;
-  DBElement<Helper> element(&x);
+  Helper *x = new Helper();
+  DBElement<Helper> element(x);
   DBView<Helper> view = element.getView();
   view->_value;
 
@@ -68,18 +68,18 @@ TEST(Database_DBElement, Test_Modification_Status_By_Arrow) {
 }
 
 TEST(Database_DBElement, Test_Get_Concurrent_Views) {
-  int x;
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   { DBView<int> view = element.getView(); }
   { DBView<int> view = element.getView(); }
 }
 
 TEST(Database_DBElement, Test_Modification_Callback) {
-  int xBase = rand();
-  int x = xBase;
+  int *x = new int(rand());
+  int xBase = *x;
   int valueInCallback;
   bool callbackReached = false;
-  DBElement<int> element(&x);
+  DBElement<int> element(x);
   element.modifiedCallback = [&](DBElement<int> *elmt) {
     valueInCallback = *elmt->value();
     callbackReached = true;
@@ -94,9 +94,9 @@ TEST(Database_DBElement, Test_Modification_Callback) {
 }
 
 TEST(Database_DBElement, Test_No_Modification_Callback_Without_Access) {
-  int x = rand();
+  int *x = new int(rand());
   bool callbackReached = false;
-  DBElement<int> element(&x);
+  DBElement<int> element(x);
   element.modifiedCallback = [&](DBElement<int> *elmt) {
     callbackReached = true;
   };
@@ -106,10 +106,10 @@ TEST(Database_DBElement, Test_No_Modification_Callback_Without_Access) {
 }
 
 TEST(Database_DBElement, Test_Modified_Flag_After_Callback) {
-  int x = rand();
+  int *x = new int(rand());
   bool modifiedInCallback = false;
   bool modifiedAfterCallback = true;
-  DBElement<int> element(&x);
+  DBElement<int> element(x);
   element.modifiedCallback = [&](DBElement<int> *elmt) {
     modifiedInCallback = elmt->modified();
   };
@@ -124,8 +124,8 @@ TEST(Database_DBElement, Test_Modified_Flag_After_Callback) {
 }
 
 TEST(Database_DBElement, Test_Modified_Flag_Without_Callback) {
-  int x = rand();
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   {
     DBView<int> view = element.getView();
     &view;
@@ -135,8 +135,8 @@ TEST(Database_DBElement, Test_Modified_Flag_Without_Callback) {
 }
 
 TEST(Database_DBElement, Test_Clear_Modified_Flag) {
-  int x = rand();
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   {
     DBView<int> view = element.getView();
     &view;
@@ -147,8 +147,8 @@ TEST(Database_DBElement, Test_Clear_Modified_Flag) {
 }
 
 TEST(Database_DBElement, Test_Fail_On_Open_Multiple_Views) {
-  int x = rand();
-  DBElement<int> element(&x);
+  int *x = new int(rand());
+  DBElement<int> element(x);
   DBView<int> view = element.getView();
   bool threwException = false;
 
@@ -163,22 +163,22 @@ TEST(Database_DBElement, Test_Fail_On_Open_Multiple_Views) {
 
 #ifndef ENA_SINGLE_VIEW
 TEST(Database_DBElement, Test_Open_Multiple_Views) {
-  int x1 = rand();
-  int x2 = rand();
-  DBElement<int> element1(&x1);
-  DBElement<int> element2(&x2);
+  int *x1 = new int(rand());
+  int *x2 = new int(rand());
+  DBElement<int> element1(x1);
+  DBElement<int> element2(x2);
   DBView<int> view1 = element1.getView();
   DBView<int> view2 = element2.getView();
 
-  ASSERT_EQ(x1, *view1);
-  ASSERT_EQ(x2, *view2);
+  ASSERT_EQ(*x1, *view1);
+  ASSERT_EQ(*x2, *view2);
 }
 
 TEST(Database_DBElement, Test_Move_Assignment_For_View) {
-  int x1 = rand();
-  int x2 = rand();
-  DBElement<int> element1(&x1);
-  DBElement<int> element2(&x2);
+  int *x1 = new int(rand());
+  int *x2 = new int(rand());
+  DBElement<int> element1(x1);
+  DBElement<int> element2(x2);
   DBView<int> view2 = element1.getView();
   {
     DBView<int> tmpView = element2.getView();
@@ -187,7 +187,14 @@ TEST(Database_DBElement, Test_Move_Assignment_For_View) {
   DBView<int> view1 = element1.getView();
   *&view2 += 1;
 
-  ASSERT_EQ(x1, *view1);
-  ASSERT_EQ(x2, *view2);
+  ASSERT_EQ(*x1, *view1);
+  ASSERT_EQ(*x2, *view2);
 }
 #endif
+
+TEST(Database_DBElement, Test_Correct_Destruction) {
+  Helper *helper = new Helper();
+  { DBElement<Helper> element(helper); }
+
+  // Should not leak memory (valgrind test)
+}
