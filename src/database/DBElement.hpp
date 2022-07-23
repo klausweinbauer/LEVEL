@@ -25,11 +25,13 @@ private:
   std::mutex _lock;
   bool _modified;
   std::thread::id _threadId;
+  unsigned int _index;
 
 public:
   std::function<void(DBElement<TValue> *)> modifiedCallback;
 
-  DBElement(TValue *value) : _value(value), _modified(false) {}
+  DBElement(TValue *value, unsigned int index = 0)
+      : _value(value), _modified(false), _index(index) {}
 
   virtual ~DBElement() { delete _value; }
 
@@ -45,6 +47,10 @@ public:
   TValue *value() { return _value; }
 
   bool modified() { return _modified; }
+
+  void setIndex(unsigned int index) { _index = index; }
+
+  unsigned int getIndex() { return _index; }
 
   void clearModifiedFlag() { _modified = false; }
 

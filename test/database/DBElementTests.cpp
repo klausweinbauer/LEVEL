@@ -198,3 +198,20 @@ TEST(Database_DBElement, Test_Correct_Destruction) {
 
   // Should not leak memory (valgrind test)
 }
+
+TEST(Database_DBElement, Test_Set_And_Get_Index) {
+  DBElement<int> element(new int(rand()));
+  int index = rand();
+  element.setIndex(index);
+
+  ASSERT_EQ(index, element.getIndex());
+}
+
+TEST(Database_DBElement, Test_Reset_Index) {
+  DBElement<int> element(new int(rand()));
+  int index = rand();
+  element.setIndex(rand());
+  element.setIndex(index);
+
+  ASSERT_EQ(index, element.getIndex());
+}

@@ -12,6 +12,7 @@ template <typename T> class Database : public IDatabase<T> {
 private:
   DBElement<T> **_data = nullptr;
   unsigned int _size = 0;
+  // DBElement lock must be the inner lock; _lock should be acquired first
   std::mutex _lock;
   std::vector<std::shared_ptr<IIndexer<T>>> _indexer;
   std::unordered_map<T *, unsigned int> _ptrMap;
@@ -64,11 +65,9 @@ private:
            "Fatal Error! Element lock must be released after handling the "
            "modification callback.");
 
-    std::lock_guard<std::mutex> guard(_lock);
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
       try {
-        indexer->valueChanged(element->value(),
-                              _ptrMap.find(element->value())->second);
+        indexer->valueChanged(element->value(), element->getIndex());
       } catch (const std::exception &) {
         // Ignore indexer exceptions
       }
@@ -79,13 +78,13 @@ public:
   Database() {}
 
   virtual ~Database() {
-    std::vector<DBElement<T> *> elementsToDelete;
+    std::lock_guard<std::mutex> guard(_lock);
 
-    // First remove all elements so they can not be aquired again
-    _lock.lock();
     for (unsigned int i = 0; i < _size; i++) {
       if (_data[i] != nullptr) {
-        elementsToDelete.push_back(_data[i]);
+        _data[i]->lock();
+        _data[i]->unlock();
+        delete _data[i];
         _data[i] = nullptr;
       }
     }
@@ -93,15 +92,6 @@ public:
     free(_data);
     _indexer.clear();
     _ptrMap.clear();
-
-    _lock.unlock();
-
-    // Wait for elements to return to the database and delete them
-    for (DBElement<T> *elmt : elementsToDelete) {
-      elmt->lock();
-      elmt->unlock();
-      delete elmt;
-    }
   }
 
   Database(const Database &) = delete;
@@ -138,7 +128,7 @@ public:
     std::pair<T *, unsigned int> ptrEntry(entry, index);
     _ptrMap.insert(ptrEntry);
 
-    DBElement<T> *element = new DBElement<T>(entry);
+    DBElement<T> *element = new DBElement<T>(entry, index);
     element->modifiedCallback = [this](DBElement<T> *elmt) {
       handleModifiedCallback(elmt);
     };
