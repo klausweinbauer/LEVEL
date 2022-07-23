@@ -48,6 +48,8 @@ public:
 
   void clearModifiedFlag() { _modified = false; }
 
+  const std::thread::id &holdingThread() const { return _threadId; }
+
   void unlock() { _lock.unlock(); }
 
   void unlock(bool accessed) {

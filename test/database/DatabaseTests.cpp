@@ -284,7 +284,8 @@ TEST(Database_Database, Test_Indexer_Throws_Exception_In_Remove) {
 
 static int Test_Notify_Indexer_On_Value_Update_value = 0;
 static void
-Test_Notify_Indexer_On_Value_Update_saveValueUpdate(const int *const entry) {
+Test_Notify_Indexer_On_Value_Update_saveValueUpdate(const int *const entry,
+                                                    unsigned int index) {
   Test_Notify_Indexer_On_Value_Update_value = *entry;
 }
 
@@ -301,7 +302,7 @@ TEST(Database_Database, Test_Notify_Indexer_On_Value_Update) {
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
   EXPECT_CALL(*indexer, getIndexList(_)).WillRepeatedly(Return(indexerReturn));
-  EXPECT_CALL(*indexer, valueChanged(_))
+  EXPECT_CALL(*indexer, valueChanged(_, 0))
       .WillOnce(Invoke(Test_Notify_Indexer_On_Value_Update_saveValueUpdate));
 
   {
@@ -325,7 +326,7 @@ TEST(Database_Database, Test_Indexer_Throws_Exception_On_Value_Update) {
 
   EXPECT_CALL(*indexer, getQueryType()).WillRepeatedly(Return(queryType));
   EXPECT_CALL(*indexer, getIndexList(_)).WillRepeatedly(Return(indexerReturn));
-  EXPECT_CALL(*indexer, valueChanged(_)).WillOnce(Throw(std::exception()));
+  EXPECT_CALL(*indexer, valueChanged(_, _)).WillOnce(Throw(std::exception()));
 
   try {
     auto view = db.get(query);

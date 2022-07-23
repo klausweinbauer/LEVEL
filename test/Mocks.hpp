@@ -25,5 +25,6 @@ public:
   MOCK_METHOD(int, getQueryType, (), (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getIndexList, (const IQuery &query),
               (override));
-  MOCK_METHOD(void, valueChanged, (const T *const entry), (override));
+  MOCK_METHOD(void, valueChanged, (const T *const entry, unsigned int index),
+              (override));
 };

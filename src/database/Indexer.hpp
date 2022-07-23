@@ -18,6 +18,6 @@ public:
     return std::vector<unsigned int>();
   };
 
-  virtual void valueChanged(const T *const entry) {}
+  virtual void valueChanged(const T *const entry, unsigned int index) {}
 };
 } // namespace level

@@ -59,9 +59,16 @@ private:
   }
 
   void handleModifiedCallback(DBElement<T> *element) {
+    // This thread still holds the element lock
+    assert(element->holdingThread() == std::this_thread::get_id() &&
+           "Fatal Error! Element lock must be released after handling the "
+           "modification callback.");
+
+    std::lock_guard<std::mutex> guard(_lock);
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
       try {
-        indexer->valueChanged(element->value());
+        indexer->valueChanged(element->value(),
+                              _ptrMap.find(element->value())->second);
       } catch (const std::exception &) {
         // Ignore indexer exceptions
       }
@@ -72,15 +79,29 @@ public:
   Database() {}
 
   virtual ~Database() {
-    std::lock_guard<std::mutex> guard(_lock);
-    for (unsigned int i = 0; i < _size; i++) {
-      delete _data[i];
-      _data[i] = nullptr;
-    }
-    free(_data);
+    std::vector<DBElement<T> *> elementsToDelete;
 
+    // First remove all elements so they can not be aquired again
+    _lock.lock();
+    for (unsigned int i = 0; i < _size; i++) {
+      if (_data[i] != nullptr) {
+        elementsToDelete.push_back(_data[i]);
+        _data[i] = nullptr;
+      }
+    }
+
+    free(_data);
     _indexer.clear();
     _ptrMap.clear();
+
+    _lock.unlock();
+
+    // Wait for elements to return to the database and delete them
+    for (DBElement<T> *elmt : elementsToDelete) {
+      elmt->lock();
+      elmt->unlock();
+      delete elmt;
+    }
   }
 
   Database(const Database &) = delete;
