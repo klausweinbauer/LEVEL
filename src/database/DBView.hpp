@@ -1,7 +1,7 @@
 /**
  * @file DBView.hpp
  * @author Klaus Weinbauer
- * @brief Manages a transaction with a database element
+ * @brief Manages a transaction with a database element.
  * @version 0.1
  * @date 2022-06-28
  *
@@ -28,10 +28,20 @@ namespace level {
 
 template <typename T> class DBElement;
 
+/**
+ * @brief Data access container for database entries.
+ *
+ * @tparam T Type of data to store in database.
+ */
 template <typename T> class DBView {
 private:
-  std::shared_ptr<DBElement<T>> _element;
+  DBElement<T> *_element;
 
+  /**
+   * @brief Throws exception if state is invalid.
+   *
+   * @throw DBException when state is invalid.
+   */
   void guaranteeValidity() const {
     if (!isValid()) {
       throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
@@ -40,17 +50,18 @@ private:
 
 public:
   /**
-   * @brief Construct a new DBView object
+   * @brief Construct a new DBView object. Construction is blocked until the
+   * element is safely acquired. Once this object goes out of scope, it releases
+   * the locked element. As long as this object is valid, the data can be
+   * accessed by * or -> operators.
    *
-   * @details Construction is blocked until the element is safely acquired. Once
-   * this object goes out of scope, it releases the locked element. As long as
-   * this object is valid, the data can be accessed by * or -> operators.
+   * @throw Exception when argument element is null.
    *
    * @param element Element to acquire.
    */
-  DBView(std::shared_ptr<DBElement<T>> element) : _element(element) {
+  DBView(DBElement<T> *element) : _element(element) {
     if (!element) {
-      throw Exception(ERR, "Parameter 'element' may not be null.");
+      throw Exception(ERR_ARG_NULL, "Parameter 'element' may not be null.");
     }
 
     _element->lock();
@@ -77,11 +88,25 @@ public:
     return *this;
   }
 
+  /**
+   * @brief Data access operator.
+   *
+   * @throw DBException when state is invalid.
+   *
+   * @return T* Data object.
+   */
   T *operator->() {
     guaranteeValidity();
     return &_element->data();
   }
 
+  /**
+   * @brief Data access operator.
+   *
+   * @throw DBException when state is invalid.
+   *
+   * @return T&
+   */
   T &operator*() {
     guaranteeValidity();
     return _element->data();
@@ -96,14 +121,13 @@ public:
       return;
     }
     _element->clear();
+    _element->unlock();
     _element = nullptr;
   }
 
   /**
-   * @brief Check if this view is still valid.
-   *
-   * @details For example, the view is no longer valid if the element has been
-   * removed.
+   * @brief Check if this view is still valid. For example, the view is no
+   * longer valid if the element has been removed.
    *
    * @return true If the view is valid and the database element can be accessed.
    * @return false You are not allowed to access the database element any more.
@@ -112,6 +136,8 @@ public:
 
   /**
    * @brief Get the index of the database element.
+   *
+   * @throw DBException when state is invalid.
    *
    * @return unsigned int Element index.
    */

@@ -1,3 +1,14 @@
+/**
+ * @file Database.hpp
+ * @author Klaus Weinbauer
+ * @brief A dynamic, thread- and memory-safe implementation for the IDatabase
+ * interface.
+ * @version 0.1
+ * @date 2022-07-24
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #pragma once
 
 #include <DBElement.hpp>
@@ -8,24 +19,79 @@
 
 namespace level {
 
+/**
+ * @brief A dynamic, thread- and memory-safe implementation for the IDatabase
+ * interface.
+ *
+ * @tparam T Datatype to store in the database.
+ */
 template <typename T> class Database : public IDatabase<T> {
 private:
-  DBElement<T> **_data = nullptr;
-  unsigned int _size = 0;
-  // DBElement lock must be the inner lock; _lock should be acquired first
-  std::mutex _lock;
+  unsigned int _size;
+  DBElement<T> **_data;
+  std::mutex _dataLock;
   std::vector<std::shared_ptr<IIndexer<T>>> _indexer;
-  std::unordered_map<T *, unsigned int> _ptrMap;
-  std::vector<unsigned int> _emptyIndexList;
+  std::mutex _indexerLock;
+  std::vector<unsigned int> _freeIndices;
+  std::mutex _freeIndicesLock;
 
-  std::vector<unsigned int> getIndexList(const IQuery &query) {
+  /**
+   * @brief Get a free element. The returned element is not locked. This is safe
+   * because only the database knows about the element at this time.
+   *
+   * @return DBElement<T>*
+   */
+  DBElement<T> *getFreeElement() {
+    std::scoped_lock lock(_dataLock, _freeIndicesLock);
+    unsigned int index;
+    if (_freeIndices.size() > 0) {
+      index = _freeIndices.back();
+      _freeIndices.pop_back();
+    } else {
+      index = _size;
+      _size += 1;
+      _data = (DBElement<T> **)realloc(_data, _size * sizeof(DBElement<T> *));
+      _data[index] = new DBElement<T>(index, this);
+    }
+    return _data[index];
+  }
+
+  /**
+   * @brief Get element by index
+   *
+   * @throw DBException if index does not exist.
+   *
+   * @param index Index of the element.
+   * @return DBElement<T>* Entry object.
+   */
+  DBElement<T> *getElement(unsigned int index) {
+    std::lock_guard<std::mutex> guard(_dataLock);
+
+    if (index >= _size) {
+      throw DBException(ERR_INDEX_OUT_OF_RANGE,
+                        "Element with this index does not exist.");
+    }
+
+    return _data[index];
+  }
+
+  /**
+   * @brief Convert a query into a list of ascending ordered unique indices
+   * pointing to the corresponding elements resolved by the registered indexer.
+   * REQUIRES _indexerLock AND _dataLock WHEN CALLED.
+   *
+   * @param query The query to convert.
+   * @return std::vector<unsigned int> Ascending ordered unique index list.
+   */
+  std::vector<unsigned int> getIndexListUnlocked(const IQuery &query) {
     std::vector<unsigned int> indexList;
+
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
       if (indexer->getQueryType() == query.getQueryType()) {
         try {
           auto tmpIndexList = indexer->getIndexList(query);
           for (unsigned int i : tmpIndexList) {
-            if (i < _size) {
+            if (i < _size && _data[i]->hasData()) {
               indexList.push_back(i);
             }
           }
@@ -42,134 +108,157 @@ private:
     return indexList;
   }
 
-  unsigned int getAvailableIndex() {
-    unsigned int index;
-    if (_size == 0) {
-      index = 0;
-      _size = 1;
-      _data = (DBElement<T> **)malloc(sizeof(DBElement<T> *) * _size);
-    } else if (_emptyIndexList.size() > 0) {
-      index = _emptyIndexList.back();
-      _emptyIndexList.pop_back();
-    } else {
-      index = _size;
-      _size += 1;
-      _data = (DBElement<T> **)realloc(_data, sizeof(DBElement<T> *) * _size);
-    }
-    return index;
-  }
-
-  void handleModifiedCallback(DBElement<T> *element) {
-    // This thread still holds the element lock
-    assert(element->holdingThread() == std::this_thread::get_id() &&
-           "Fatal Error! Element lock must be released after handling the "
-           "modification callback.");
-
-    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
-      try {
-        indexer->valueChanged(element->value(), element->getIndex());
-      } catch (const std::exception &) {
-        // Ignore indexer exceptions
-      }
-    }
-  }
-
 public:
-  Database() {}
+  Database()
+      : _size(0), _data((DBElement<T> **)calloc(0, sizeof(DBElement<T> *))) {}
 
   virtual ~Database() {
-    std::lock_guard<std::mutex> guard(_lock);
-
     for (unsigned int i = 0; i < _size; i++) {
-      if (_data[i] != nullptr) {
-        _data[i]->lock();
-        _data[i]->unlock();
-        delete _data[i];
-        _data[i] = nullptr;
-      }
+      delete _data[i];
+      _data[i] = nullptr;
     }
 
     free(_data);
-    _indexer.clear();
-    _ptrMap.clear();
   }
 
   Database(const Database &) = delete;
   Database &operator=(const Database &) = delete;
 
-  virtual void addIndexer(std::shared_ptr<IIndexer<T>> indexer) {
-    std::lock_guard<std::mutex> guard(_lock);
+  virtual void addIndexer(std::shared_ptr<IIndexer<T>> indexer) override {
+    std::lock_guard<std::mutex> guard(_indexerLock);
     _indexer.push_back(indexer);
   }
 
-  virtual int count() {
-    std::lock_guard<std::mutex> guard(_lock);
-    int size = _size - _emptyIndexList.size();
-    assert(size == (int)_ptrMap.size() &&
-           "Fatal Error! Invalid database state reached.");
-    return size;
+  /**
+   * @brief Returns the number of elements in the database. The returned value
+   * is not guaranteed to be still valid when read.
+   *
+   * @return unsigned int Probably the number of elements in the database.
+   */
+  virtual unsigned int count() override {
+    std::scoped_lock lock(_dataLock, _freeIndicesLock);
+    return _size - _freeIndices.size();
   }
 
-  virtual DBView<T> insert(T *entry) {
-    if (entry == nullptr) {
-      throw DBException(ERR_ARG_NULL);
+  /**
+   * @brief Insert a new element by value. The inserted type must implement a
+   * copy constructor.
+   *
+   * @param entry
+   * @return DBView<T>
+   */
+  virtual DBView<T> insert(T entry) override {
+    return insert(std::make_unique<T>(entry));
+  }
+
+  /**
+   * @brief Insert a new element by reference. The caller transfers ownership of
+   * the entry to the database.
+   *
+   * @param entry
+   * @return DBView<T>
+   */
+  virtual DBView<T> insert(std::unique_ptr<T> entry) override {
+    DBElement<T> *element = getFreeElement();
+    element->setData(std::move(entry));
+    _indexerLock.lock();
+    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+      try {
+        indexer->addData(element->data(), element->index());
+      } catch (const std::exception &) {
+        // Ignore indexer exception
+      }
     }
-
-    std::lock_guard<std::mutex> guard(_lock);
-    if (_ptrMap.find(entry) != _ptrMap.end()) {
-      std::stringstream ss;
-      ss << "Object (" << entry << ") is already stored in the database."
-         << std::endl;
-      throw DBException(ERR_INVALID_ARG, ss.str());
-    }
-
-    unsigned int index = getAvailableIndex();
-
-    std::pair<T *, unsigned int> ptrEntry(entry, index);
-    _ptrMap.insert(ptrEntry);
-
-    DBElement<T> *element = new DBElement<T>(entry, index);
-    element->modifiedCallback = [this](DBElement<T> *elmt) {
-      handleModifiedCallback(elmt);
-    };
-    // Assign view before adding to data to guarantee first use for creator
-    DBView<T> view = element->getView();
-    _data[index] = element;
-
+    _indexerLock.unlock();
+    DBView<T> view(element);
     return view;
   }
 
-  virtual std::vector<DBView<T>> get(const IQuery &query) {
-    std::lock_guard<std::mutex> guard(_lock);
-
-    auto indexList = getIndexList(query);
-
+  /**
+   * @brief Get views on elements based on a query.
+   *
+   * @param query Query to select data objects.
+   * @return std::vector<DBView<T>> Vector of views on the selected entries.
+   */
+  virtual std::vector<DBView<T>> get(const IQuery &query) override {
     std::vector<DBView<T>> views;
-    for (unsigned int i : indexList) {
-      views.push_back(_data[i]->getView());
+
+    std::scoped_lock lock(_indexerLock, _dataLock);
+    auto indexList = getIndexListUnlocked(query);
+
+    for (unsigned int index : indexList) {
+      views.push_back(DBView<T>(_data[index]));
     }
 
     return views;
   }
 
-  virtual int remove(const IQuery &query) {
-    std::lock_guard<std::mutex> guard(_lock);
-
-    auto indexList = getIndexList(query);
-
-    for (unsigned int i : indexList) {
-      auto elmt = _data[i];
-      _data[i] = nullptr;
-      _emptyIndexList.push_back(i);
-      _ptrMap.erase(elmt->value());
-      elmt->lock();
-      elmt->unlock(false);
-      delete elmt;
-    }
-
-    return indexList.size();
+  /**
+   * @brief Deletes a database entry by a view.
+   *
+   * @param view A view of the entry to delete.
+   * @return true Successfully deleted the entry.
+   * @return false Failed to delete the entry.
+   */
+  virtual bool remove(DBView<T> &view) override {
+    view.remove();
+    return true;
   }
 
-}; // namespace level
+  /**
+   * @brief Deletes a database entry by a view.
+   *
+   * @param view A view of the entry to delete.
+   * @return true Successfully deleted the entry.
+   * @return false Failed to delete the entry.
+   */
+  virtual bool remove(DBView<T> &&view) override {
+    view.remove();
+    return true;
+  }
+
+  /**
+   * @brief Deletes a database entry by its index. If the caller does not hold
+   * the entry, this call will block until it safely acquired the element for
+   * deletion.
+   *
+   * @throw DBException if index does not point to a valid entry.
+   *
+   * @param index The index of the entry to delete.
+   * @return true Successfully deleted the entry.
+   * @return false Failed to delete the entry.
+   */
+  virtual bool remove(unsigned int index) override {
+    DBElement<T> *element = getElement(index);
+    if (!element->hasData()) {
+      throw DBException(ERR_INDEX_OUT_OF_RANGE,
+                        "Element with this index does not exist.");
+    }
+
+    bool lockAcquired = false;
+    if (element->holdingThread() != std::this_thread::get_id()) {
+      element->lock();
+      lockAcquired = true;
+    }
+    _indexerLock.lock();
+    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+      try {
+        indexer->removeData(element->data(), element->index());
+      } catch (const std::exception &) {
+        // Ignore indexer exception
+      }
+    }
+    _indexerLock.unlock();
+    element->setData(nullptr);
+    if (lockAcquired) {
+      element->unlock();
+    }
+
+    std::lock_guard<std::mutex> freeIndicesGuard(_freeIndicesLock);
+    _freeIndices.push_back(element->index());
+
+    return true;
+  }
+};
 
 } // namespace level

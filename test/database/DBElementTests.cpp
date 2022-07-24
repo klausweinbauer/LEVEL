@@ -58,7 +58,7 @@ TEST(DBElement, Clear) {
 TEST(DBElement, Call_To_Database_On_Clear) {
   auto db = std::make_shared<NiceMock<MDatabase<int>>>();
   unsigned int index = (unsigned int)rand();
-  DBElement<int> element(index, db);
+  DBElement<int> element(index, db.get());
   EXPECT_CALL(*db, remove(index)).Times(1);
   element.clear();
 }
@@ -67,4 +67,15 @@ TEST(DBElement, Ignore_Call_To_Database_On_Clear_If_Not_Initialized) {
   unsigned int index = (unsigned int)rand();
   DBElement<int> element(index, nullptr);
   ASSERT_NO_THROW(element.clear());
+}
+
+TEST(DBElement, Has_Data_Assigned) {
+  DBElement<int> element;
+  element.setData(std::make_unique<int>(rand()));
+  ASSERT_TRUE(element.hasData());
+}
+
+TEST(DBElement, Has_No_Data_Assigned) {
+  DBElement<int> element;
+  ASSERT_FALSE(element.hasData());
 }

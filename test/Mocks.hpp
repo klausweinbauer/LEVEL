@@ -10,6 +10,13 @@
 
 using namespace level;
 
+struct Dummy {
+  int _value;
+
+  Dummy() {}
+  Dummy(int value) : _value(value) {}
+};
+
 class MSocket : public ISocket {
 public:
   MOCK_METHOD(void, send, (const char *buffer, int len, int flags), (override));
@@ -27,7 +34,8 @@ public:
   MOCK_METHOD(int, getQueryType, (), (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getIndexList, (const IQuery &query),
               (override));
-  MOCK_METHOD(void, valueChanged, (const T *const entry, unsigned int index),
+  MOCK_METHOD(void, addData, (const T &entry, unsigned int index), (override));
+  MOCK_METHOD(void, removeData, (const T &entry, unsigned int index),
               (override));
 };
 
@@ -46,10 +54,11 @@ template <typename T> class MDatabase : public IDatabase<T> {
 public:
   MOCK_METHOD(void, addIndexer, (std::shared_ptr<IIndexer<T>> indexer),
               (override));
-  MOCK_METHOD(int, count, (), (override));
+  MOCK_METHOD(unsigned int, count, (), (override));
   MOCK_METHOD(DBView<T>, insert, (T), (override));
   MOCK_METHOD(DBView<T>, insert, (std::unique_ptr<T>), (override));
   MOCK_METHOD(std::vector<DBView<T>>, get, (const IQuery &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
-  MOCK_METHOD(bool, remove, (int), (override));
+  MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
+  MOCK_METHOD(bool, remove, (unsigned int), (override));
 };
