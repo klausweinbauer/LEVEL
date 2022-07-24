@@ -12,6 +12,7 @@
 #pragma once
 
 #include <DBView.hpp>
+#include <IDatabase.hpp>
 #include <functional>
 #include <mutex>
 #include <thread>
@@ -24,10 +25,16 @@ private:
   std::mutex _lock;
   std::thread::id _threadId;
   const unsigned int _index;
+  const std::shared_ptr<IDatabase<T>> _database;
 
 public:
-  DBElement(unsigned int index)
-      : _data(nullptr), _threadId(std::thread::id()), _index(index) {}
+  std::function<void(const DBElement<T> &)> clearCallback;
+
+  DBElement() : DBElement<T>(0, nullptr) {}
+
+  DBElement(unsigned int index, std::shared_ptr<IDatabase<T>> database)
+      : _data(nullptr), _threadId(std::thread::id()), _index(index),
+        _database(database) {}
 
   virtual ~DBElement() {}
 
@@ -79,7 +86,12 @@ public:
    * @brief Delete data associated with this element.
    *
    */
-  virtual void clear() { _data = nullptr; }
+  virtual void clear() {
+    if (_database) {
+      _database->remove(_index);
+    }
+    _data = nullptr;
+  }
 
   /**
    * @brief Returns the id for the thread which currently holds the lock. If the

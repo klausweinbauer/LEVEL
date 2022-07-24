@@ -48,28 +48,28 @@ TEST(DBView, Call_Clear_On_DBElement_During_Delete) {
 }
 
 TEST(DBView, Move_Construction) {
-  auto element = std::make_shared<DBElement<int>>(0);
+  auto element = std::make_shared<DBElement<int>>();
   DBView<int> view1(element);
   DBView<int> view2(std::move(view1));
   ASSERT_FALSE(view1.isValid());
 }
 
 TEST(DBView, Move_Assignment) {
-  auto element1 = std::make_shared<DBElement<int>>(0);
-  auto element2 = std::make_shared<DBElement<int>>(0);
+  auto element1 = std::make_shared<DBElement<int>>();
+  auto element2 = std::make_shared<DBElement<int>>();
   DBView<int> view1(element1);
   DBView<int> view2(element2);
   view2 = std::move(view1);
 }
 
 TEST(DBView, Check_Valid_State) {
-  auto element = std::make_shared<DBElement<int>>(0);
+  auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element);
   ASSERT_TRUE(view.isValid());
 }
 
 TEST(DBView, Check_Valid_State_After_Delete) {
-  auto element = std::make_shared<DBElement<int>>(0);
+  auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element);
   view.remove();
   ASSERT_FALSE(view.isValid());
@@ -110,15 +110,37 @@ TEST(DBView, Modify_By_Arrow_Reference) {
 }
 
 TEST(DBView, Throw_Exception_When_Deref_Invalid) {
-  auto element = std::make_shared<DBElement<int>>(0);
+  auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element);
   view.remove();
   ASSERT_THROW(*view, DBException);
 }
 
 TEST(DBView, Throw_Exception_When_Deref_Invalid_By_Arrow) {
-  auto element = std::make_shared<DBElement<DBViewTestHelper>>(0);
+  auto element = std::make_shared<DBElement<DBViewTestHelper>>();
   DBView<DBViewTestHelper> view(element);
   view.remove();
   ASSERT_THROW(view->_value, DBException);
+}
+
+TEST(DBView, Get_Index) {
+  auto element = std::make_shared<MDBElement<int>>();
+  DBView<int> view(element);
+  unsigned int index = (unsigned int)rand();
+  EXPECT_CALL(*element, index()).WillOnce(Return(index));
+  EXPECT_EQ(index, view.index());
+}
+
+TEST(DBView, Get_Index_Throws_Exception_When_View_Is_Invalid) {
+  auto element = std::make_shared<MDBElement<int>>();
+  DBView<int> view(element);
+  view.remove();
+  EXPECT_THROW(view.index(), DBException);
+}
+
+TEST(DBView, Double_Remove_Call) {
+  auto element = std::make_shared<MDBElement<int>>();
+  DBView<int> view(element);
+  view.remove();
+  ASSERT_NO_THROW(view.remove());
 }

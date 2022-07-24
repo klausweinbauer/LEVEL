@@ -32,6 +32,12 @@ template <typename T> class DBView {
 private:
   std::shared_ptr<DBElement<T>> _element;
 
+  void guaranteeValidity() const {
+    if (!isValid()) {
+      throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
+    }
+  }
+
 public:
   /**
    * @brief Construct a new DBView object
@@ -72,16 +78,12 @@ public:
   }
 
   T *operator->() {
-    if (!isValid()) {
-      throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
-    }
+    guaranteeValidity();
     return &_element->data();
   }
 
   T &operator*() {
-    if (!isValid()) {
-      throw DBException(ERR_INVALID_OPERATION, "DBView is not valid anymore.");
-    }
+    guaranteeValidity();
     return _element->data();
   }
 
@@ -90,6 +92,9 @@ public:
    *
    */
   void remove() {
+    if (!_element) {
+      return;
+    }
     _element->clear();
     _element = nullptr;
   }
@@ -104,6 +109,16 @@ public:
    * @return false You are not allowed to access the database element any more.
    */
   bool isValid() const { return _element != nullptr; }
+
+  /**
+   * @brief Get the index of the database element.
+   *
+   * @return unsigned int Element index.
+   */
+  unsigned int index() const {
+    guaranteeValidity();
+    return _element->index();
+  }
 
   friend void swap(DBView<T> &first, DBView<T> &second) {
     using std::swap;
