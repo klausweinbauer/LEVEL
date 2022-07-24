@@ -2,7 +2,10 @@ set(LEVEL_TARGET_NAME LEVEL_Integration_Tests)
 
 add_executable(${LEVEL_TARGET_NAME})
 
-target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${LEVEL_TARGET_NAME} PRIVATE 
+  ${CMAKE_CURRENT_SOURCE_DIR},
+  ${CMAKE_CURRENT_SOURCE_DIR}/../mocks
+)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src)
 
