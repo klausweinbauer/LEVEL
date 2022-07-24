@@ -26,12 +26,11 @@ public:
 
 class MQuery : public IQuery {
 public:
-  MOCK_METHOD(int, getQueryType, (), (override, const));
 };
 
 template <typename T> class MIndexer : public IIndexer<T> {
 public:
-  MOCK_METHOD(int, getQueryType, (), (override, const));
+  MOCK_METHOD(bool, supportsQuery, (const IQuery &query), (override));
   MOCK_METHOD(std::vector<unsigned int>, getIndexList, (const IQuery &query),
               (override));
   MOCK_METHOD(void, addData, (const T &entry, unsigned int index), (override));

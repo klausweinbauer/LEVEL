@@ -87,7 +87,7 @@ private:
     std::vector<unsigned int> indexList;
 
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
-      if (indexer->getQueryType() == query.getQueryType()) {
+      if (indexer->supportsQuery(query)) {
         try {
           auto tmpIndexList = indexer->getIndexList(query);
           for (unsigned int i : tmpIndexList) {

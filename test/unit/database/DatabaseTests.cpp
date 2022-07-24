@@ -11,6 +11,13 @@ using ::testing::Ref;
 using ::testing::Return;
 using ::testing::Throw;
 
+template <typename T>
+std::shared_ptr<NiceMock<MIndexer<T>>> Database_getIndexer() {
+  auto indexer = std::make_shared<NiceMock<MIndexer<T>>>();
+  ON_CALL(*indexer, supportsQuery(_)).WillByDefault(Return(true));
+  return indexer;
+}
+
 TEST(Database, Default_Count) {
   Database<int> db;
   ASSERT_EQ(0, db.count());
@@ -34,7 +41,7 @@ TEST(Database, Insert_By_Reference) {
 
 TEST(Database, Call_Add_Value_On_Indexer_During_Insert) {
   Database<int> db;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, addData(value, 0)).Times(1);
@@ -43,7 +50,7 @@ TEST(Database, Call_Add_Value_On_Indexer_During_Insert) {
 
 TEST(Database, Ignore_Exception_In_Add_Value_By_Indexer) {
   Database<int> db;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   EXPECT_CALL(*indexer, addData(_, 0)).WillOnce(Throw(std::exception()));
   EXPECT_NO_THROW(db.insert(rand()));
@@ -100,7 +107,7 @@ TEST(Database, Remove_By_View) {
 
 TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {
   Database<int> db;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, removeData(value, 0)).Times(1);
@@ -110,7 +117,7 @@ TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {
 TEST(Database,
      Call_Remove_Value_On_Indexer_During_Deletion_When_Invoked_On_View) {
   Database<int> db;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, removeData(value, 0)).Times(1);
@@ -120,7 +127,7 @@ TEST(Database,
 
 TEST(Database, Ignore_Exception_In_Remove_Value_By_Indexer) {
   Database<int> db;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   EXPECT_CALL(*indexer, removeData(_, 0)).WillOnce(Throw(std::exception()));
   EXPECT_NO_THROW(db.remove(db.insert(rand())));
@@ -136,7 +143,7 @@ TEST(Database, Get_Nothing) {
 TEST(Database, Call_To_Get_On_Indexer_During_Get) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Ref(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
@@ -146,9 +153,9 @@ TEST(Database, Call_To_Get_On_Indexer_During_Get) {
 TEST(Database, Call_Only_Matching_Indexer_During_Get) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
-  EXPECT_CALL(query, getQueryType()).WillOnce(Return(1));
+  EXPECT_CALL(*indexer, supportsQuery(Ref(query))).WillOnce(Return(false));
   EXPECT_CALL(*indexer, getIndexList(Ref(query))).Times(0);
   db.get(query);
 }
@@ -156,7 +163,7 @@ TEST(Database, Call_Only_Matching_Indexer_During_Get) {
 TEST(Database, Ignore_Exception_In_Get_By_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Ref(query)))
       .WillOnce(Throw(std::exception()));
@@ -166,7 +173,7 @@ TEST(Database, Ignore_Exception_In_Get_By_Indexer) {
 TEST(Database, Get_Selected_View_By_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value = rand();
   db.insert(value);
@@ -180,7 +187,7 @@ TEST(Database, Get_Selected_View_By_Indexer) {
 TEST(Database, Get_Only_One_View_For_Multiple_Same_Indices_By_One_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value = rand();
   db.insert(value);
@@ -194,8 +201,8 @@ TEST(Database,
      Get_Only_One_View_For_Multiple_Same_Indices_By_Multiple_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer1 = std::make_shared<NiceMock<MIndexer<int>>>();
-  auto indexer2 = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer1 = Database_getIndexer<int>();
+  auto indexer2 = Database_getIndexer<int>();
   db.addIndexer(indexer1);
   db.addIndexer(indexer2);
   db.insert(rand());
@@ -210,7 +217,7 @@ TEST(Database,
 TEST(Database, Ignore_Invalid_Indices_Returned_By_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Ref(query)))
       .WillOnce(Return(std::vector<unsigned int>({0, 1, 2})));
@@ -221,7 +228,7 @@ TEST(Database, Ignore_Invalid_Indices_Returned_By_Indexer) {
 TEST(Database, Ignore_Empty_Indices_Returned_By_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   db.remove(db.insert(rand()));
   EXPECT_CALL(*indexer, getIndexList(Ref(query)))
@@ -233,7 +240,7 @@ TEST(Database, Ignore_Empty_Indices_Returned_By_Indexer) {
 TEST(Database, Return_Views_In_Correct_Order_If_Switched_By_Indexer) {
   Database<int> db;
   NiceMock<MQuery> query;
-  auto indexer = std::make_shared<NiceMock<MIndexer<int>>>();
+  auto indexer = Database_getIndexer<int>();
   db.addIndexer(indexer);
   int value1 = rand(), value2 = rand();
   db.insert(value1);

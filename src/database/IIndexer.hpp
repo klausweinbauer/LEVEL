@@ -5,14 +5,14 @@
 
 namespace level {
 
-template <typename T> class IIndexer {
+template <typename TData> class IIndexer {
 public:
   virtual ~IIndexer() {}
 
-  virtual int getQueryType() const = 0;
+  virtual bool supportsQuery(const IQuery &query) = 0;
 
   virtual std::vector<unsigned int> getIndexList(const IQuery &query) = 0;
-  virtual void addData(const T &entry, unsigned int index) = 0;
-  virtual void removeData(const T &entry, unsigned int index) = 0;
+  virtual void addData(const TData &entry, unsigned int index) = 0;
+  virtual void removeData(const TData &entry, unsigned int index) = 0;
 };
 } // namespace level
