@@ -9,4 +9,7 @@ target_sources(${LEVEL_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/IQuery.hpp
 )
 
+add_subdirectory(indexer)
+add_subdirectory(queries)
+
 target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
