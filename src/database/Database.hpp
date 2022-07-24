@@ -83,7 +83,8 @@ private:
    * @param query The query to convert.
    * @return std::vector<unsigned int> Ascending ordered unique index list.
    */
-  std::vector<unsigned int> getIndexListUnlocked(const IQuery &query) {
+  std::vector<unsigned int>
+  getIndexListUnlocked(std::shared_ptr<IQuery> query) {
     std::vector<unsigned int> indexList;
 
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
@@ -180,7 +181,7 @@ public:
    * @param query Query to select data objects.
    * @return std::vector<DBView<T>> Vector of views on the selected entries.
    */
-  virtual std::vector<DBView<T>> get(const IQuery &query) override {
+  virtual std::vector<DBView<T>> get(std::shared_ptr<IQuery> query) override {
     std::vector<DBView<T>> views;
 
     std::scoped_lock lock(_indexerLock, _dataLock);

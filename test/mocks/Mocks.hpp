@@ -30,18 +30,17 @@ public:
 
 template <typename T> class MIndexer : public IIndexer<T> {
 public:
-  MOCK_METHOD(bool, supportsQuery, (const IQuery &query), (override));
-  MOCK_METHOD(std::vector<unsigned int>, getIndexList, (const IQuery &query),
-              (override));
-  MOCK_METHOD(void, addData, (const T &entry, unsigned int index), (override));
-  MOCK_METHOD(void, removeData, (const T &entry, unsigned int index),
-              (override));
+  MOCK_METHOD(bool, supportsQuery, (std::shared_ptr<IQuery>));
+  MOCK_METHOD(std::vector<unsigned int>, getIndexList,
+              (std::shared_ptr<IQuery>));
+  MOCK_METHOD(void, addData, (const T &, unsigned int), (override));
+  MOCK_METHOD(void, removeData, (const T &, unsigned int), (override));
 };
 
 template <typename T> class MDBElement : public DBElement<T> {
 public:
   MOCK_METHOD(T &, data, (), (override, const));
-  MOCK_METHOD(void, setData, (std::unique_ptr<T> data), (override));
+  MOCK_METHOD(void, setData, (std::unique_ptr<T>), (override));
   MOCK_METHOD(void, unlock, (), (override));
   MOCK_METHOD(void, lock, (), (override));
   MOCK_METHOD(void, clear, (), (override));
@@ -51,12 +50,12 @@ public:
 
 template <typename T> class MDatabase : public IDatabase<T> {
 public:
-  MOCK_METHOD(void, addIndexer, (std::shared_ptr<IIndexer<T>> indexer),
-              (override));
+  MOCK_METHOD(void, addIndexer, (std::shared_ptr<IIndexer<T>>), (override));
   MOCK_METHOD(unsigned int, count, (), (override));
   MOCK_METHOD(DBView<T>, insert, (T), (override));
   MOCK_METHOD(DBView<T>, insert, (std::unique_ptr<T>), (override));
-  MOCK_METHOD(std::vector<DBView<T>>, get, (const IQuery &), (override));
+  MOCK_METHOD(std::vector<DBView<T>>, get, (std::shared_ptr<IQuery>),
+              (override));
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
   MOCK_METHOD(bool, remove, (unsigned int), (override));
