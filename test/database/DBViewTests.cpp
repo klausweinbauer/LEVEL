@@ -11,13 +11,6 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnPointee;
 
-// DBView(DBElement<T> *element, DBElementStatus *status)
-// virtual ~DBView()
-// DBView(DBView<T> &&view) : _element(nullptr), _status(nullptr)
-// DBView<T> &operator=(DBView<T> &&view)
-// T &operator->()
-// T &operator*()
-
 struct DBViewTestHelper {
   int _value;
 };
@@ -27,19 +20,19 @@ TEST(DBView, Initialize_With_Element_Nullptr) {
 }
 
 TEST(DBView, Lock_Element_During_Construction) {
-  auto element = std::make_shared<MDBElement<int>>();
+  auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, lock()).Times(1);
   DBView<int> view(element);
 }
 
 TEST(DBView, Unlock_Element_At_End_Of_Life) {
-  auto element = std::make_shared<MDBElement<int>>();
+  auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, unlock()).Times(1);
   { DBView<int> view(element); }
 }
 
 TEST(DBView, Do_Not_Unlock_Element_At_End_Of_Life_When_Deleted) {
-  auto element = std::make_shared<MDBElement<int>>();
+  auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, unlock()).Times(0);
   {
     DBView<int> view(element);
@@ -48,7 +41,7 @@ TEST(DBView, Do_Not_Unlock_Element_At_End_Of_Life_When_Deleted) {
 }
 
 TEST(DBView, Call_Clear_On_DBElement_During_Delete) {
-  auto element = std::make_shared<MDBElement<int>>();
+  auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, clear()).Times(1);
   DBView<int> view(element);
   view.remove();

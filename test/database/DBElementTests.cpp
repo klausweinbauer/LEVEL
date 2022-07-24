@@ -4,214 +4,49 @@
 
 using namespace level;
 
-struct Helper {
+struct DBElementTestHelper {
   int _value;
+
+  DBElementTestHelper() {}
+  DBElementTestHelper(int value) : _value(value) {}
 };
 
-TEST(Database_DBElement, Test_Element_Get_View) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  DBView<int> view = element.getView();
-
-  ASSERT_EQ(*x, *view);
+TEST(DBElement, Correct_Index_Initialization) {
+  unsigned int index = (unsigned int)rand();
+  DBElement<int> element(index);
+  ASSERT_EQ(index, element.index());
 }
 
-TEST(Database_DBElement, Test_Modify_Element_By_Ref) {
-  int *x = new int(rand());
-  int xBase = *x;
-  DBElement<int> element(x);
-  DBView<int> view = element.getView();
-  *&view += 1;
-
-  ASSERT_EQ(xBase + 1, *view);
+TEST(DBElement, Set_Holding_Thread_Id_After_Lock) {
+  DBElement<int> element(0);
+  element.lock();
+  ASSERT_EQ(std::this_thread::get_id(), element.holdingThread());
 }
 
-TEST(Database_DBElement, Test_Modify_Element_By_Arrow) {
-  Helper *x = new Helper();
-  int xBase = rand();
-  x->_value = xBase;
-  DBElement<Helper> element(x);
-  DBView<Helper> view = element.getView();
-  view->_value += 1;
-
-  ASSERT_EQ(xBase + 1, view->_value);
+TEST(DBElement, Reset_Holding_Thread_Id_After_Unlock) {
+  DBElement<int> element(0);
+  element.lock();
+  element.unlock();
+  ASSERT_EQ(std::thread::id(), element.holdingThread());
 }
 
-TEST(Database_DBElement, Test_Modify_Read_Only_Element) {
-  Helper *x = new Helper();
-  DBElement<Helper> element(x);
-  DBView<Helper> view = element.getView();
-  view->_value = 1;
-  Helper y = *view;
-  y._value = 2;
-
-  ASSERT_EQ(1, view->_value);
-  ASSERT_EQ(2, y._value);
+TEST(DBElement, Set_And_Get_Data) {
+  DBElement<DBElementTestHelper> element(0);
+  int value = rand();
+  element.setData(std::move(std::make_unique<DBElementTestHelper>(value)));
+  element.data();
+  ASSERT_EQ(value, element.data()._value);
 }
 
-TEST(Database_DBElement, Test_Modification_Status_By_Ref) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  DBView<int> view = element.getView();
-  &view;
-
-  ASSERT_TRUE(view.accessed());
+TEST(DBElement, Throw_Exception_On_Data_When_Not_Set) {
+  DBElement<DBElementTestHelper> element(0);
+  ASSERT_THROW(element.data()._value = rand(), DBException);
 }
 
-TEST(Database_DBElement, Test_Modification_Status_By_Arrow) {
-  Helper *x = new Helper();
-  DBElement<Helper> element(x);
-  DBView<Helper> view = element.getView();
-  view->_value;
-
-  ASSERT_TRUE(view.accessed());
-}
-
-TEST(Database_DBElement, Test_Get_Concurrent_Views) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  { DBView<int> view = element.getView(); }
-  { DBView<int> view = element.getView(); }
-}
-
-TEST(Database_DBElement, Test_Modification_Callback) {
-  int *x = new int(rand());
-  int xBase = *x;
-  int valueInCallback;
-  bool callbackReached = false;
-  DBElement<int> element(x);
-  element.modifiedCallback = [&](DBElement<int> *elmt) {
-    valueInCallback = *elmt->value();
-    callbackReached = true;
-  };
-  {
-    DBView<int> view = element.getView();
-    *&view += 1;
-  }
-
-  ASSERT_TRUE(callbackReached);
-  ASSERT_EQ(valueInCallback, xBase + 1);
-}
-
-TEST(Database_DBElement, Test_No_Modification_Callback_Without_Access) {
-  int *x = new int(rand());
-  bool callbackReached = false;
-  DBElement<int> element(x);
-  element.modifiedCallback = [&](DBElement<int> *elmt) {
-    callbackReached = true;
-  };
-  { DBView<int> view = element.getView(); }
-
-  ASSERT_FALSE(callbackReached);
-}
-
-TEST(Database_DBElement, Test_Modified_Flag_After_Callback) {
-  int *x = new int(rand());
-  bool modifiedInCallback = false;
-  bool modifiedAfterCallback = true;
-  DBElement<int> element(x);
-  element.modifiedCallback = [&](DBElement<int> *elmt) {
-    modifiedInCallback = elmt->modified();
-  };
-  {
-    DBView<int> view = element.getView();
-    &view;
-  }
-  modifiedAfterCallback = element.modified();
-
-  ASSERT_TRUE(modifiedInCallback);
-  ASSERT_FALSE(modifiedAfterCallback);
-}
-
-TEST(Database_DBElement, Test_Modified_Flag_Without_Callback) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  {
-    DBView<int> view = element.getView();
-    &view;
-  }
-
-  ASSERT_TRUE(element.modified());
-}
-
-TEST(Database_DBElement, Test_Clear_Modified_Flag) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  {
-    DBView<int> view = element.getView();
-    &view;
-  }
-  element.clearModifiedFlag();
-
-  ASSERT_FALSE(element.modified());
-}
-
-TEST(Database_DBElement, Test_Fail_On_Open_Multiple_Views) {
-  int *x = new int(rand());
-  DBElement<int> element(x);
-  DBView<int> view = element.getView();
-  bool threwException = false;
-
-  try {
-    view = element.getView();
-  } catch (const DBException &) {
-    threwException = true;
-  }
-
-  ASSERT_TRUE(threwException);
-}
-
-#ifndef ENA_SINGLE_VIEW
-TEST(Database_DBElement, Test_Open_Multiple_Views) {
-  int *x1 = new int(rand());
-  int *x2 = new int(rand());
-  DBElement<int> element1(x1);
-  DBElement<int> element2(x2);
-  DBView<int> view1 = element1.getView();
-  DBView<int> view2 = element2.getView();
-
-  ASSERT_EQ(*x1, *view1);
-  ASSERT_EQ(*x2, *view2);
-}
-
-TEST(Database_DBElement, Test_Move_Assignment_For_View) {
-  int *x1 = new int(rand());
-  int *x2 = new int(rand());
-  DBElement<int> element1(x1);
-  DBElement<int> element2(x2);
-  DBView<int> view2 = element1.getView();
-  {
-    DBView<int> tmpView = element2.getView();
-    view2 = std::move(tmpView);
-  }
-  DBView<int> view1 = element1.getView();
-  *&view2 += 1;
-
-  ASSERT_EQ(*x1, *view1);
-  ASSERT_EQ(*x2, *view2);
-}
-#endif
-
-TEST(Database_DBElement, Test_Correct_Destruction) {
-  Helper *helper = new Helper();
-  { DBElement<Helper> element(helper); }
-
-  // Should not leak memory (valgrind test)
-}
-
-TEST(Database_DBElement, Test_Set_And_Get_Index) {
-  DBElement<int> element(new int(rand()));
-  int index = rand();
-  element.setIndex(index);
-
-  ASSERT_EQ(index, element.getIndex());
-}
-
-TEST(Database_DBElement, Test_Reset_Index) {
-  DBElement<int> element(new int(rand()));
-  int index = rand();
-  element.setIndex(rand());
-  element.setIndex(index);
-
-  ASSERT_EQ(index, element.getIndex());
+TEST(DBElement, Clear) {
+  DBElement<DBElementTestHelper> element(0);
+  int value = rand();
+  element.setData(std::move(std::make_unique<DBElementTestHelper>(value)));
+  element.clear();
+  ASSERT_THROW(element.data(), DBException);
 }
