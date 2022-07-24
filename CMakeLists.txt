@@ -272,7 +272,7 @@ if (COVERAGE)
     append_coverage_compiler_flags()
     setup_target_for_coverage_gcovr_html(
             NAME LEVEL_Coverage
-            EXECUTABLE LEVEL_Test
+            EXECUTABLE LEVEL_Unit_Tests
             EXCLUDE "${CMAKE_SOURCE_DIR}/src/msg/*" "${CMAKE_SOURCE_DIR}/build/*" "${CMAKE_SOURCE_DIR}/test/*")
 else()
     message("[INFO] Code coverage disabled")
