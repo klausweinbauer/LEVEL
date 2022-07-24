@@ -5,6 +5,7 @@ target_sources(${LEVEL_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/DBView.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/IDatabase.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/IIndexer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Indexer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/IQuery.hpp
 )
 

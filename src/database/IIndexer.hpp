@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IQuery.hpp>
+#include <memory>
 #include <vector>
 
 namespace level {
