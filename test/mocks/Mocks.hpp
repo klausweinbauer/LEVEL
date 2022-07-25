@@ -53,7 +53,7 @@ public:
 
 template <typename T> class MDatabase : public IDatabase<T> {
 public:
-  MOCK_METHOD(void, addIndexer, (std::shared_ptr<IIndexer<T>>), (override));
+  MOCK_METHOD(void, addIndexer, (std::unique_ptr<IIndexer<T>>), (override));
   MOCK_METHOD(unsigned int, count, (), (override));
   MOCK_METHOD(DBView<T>, insert, (T), (override));
   MOCK_METHOD(DBView<T>, insert, (std::unique_ptr<T>), (override));

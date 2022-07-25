@@ -10,7 +10,7 @@ template <typename T> class IDatabase {
 public:
   virtual ~IDatabase() {}
 
-  virtual void addIndexer(std::shared_ptr<IIndexer<T>> indexer) = 0;
+  virtual void addIndexer(std::unique_ptr<IIndexer<T>> indexer) = 0;
   virtual unsigned int count() = 0;
   virtual DBView<T> insert(T entry) = 0;
   virtual DBView<T> insert(std::unique_ptr<T> entry) = 0;

@@ -14,8 +14,8 @@ using ::testing::SaveArg;
 using ::testing::Throw;
 
 template <typename T>
-std::shared_ptr<NiceMock<MIndexer<T>>> Database_getIndexer() {
-  auto indexer = std::make_shared<NiceMock<MIndexer<T>>>();
+std::unique_ptr<NiceMock<MIndexer<T>>> Database_getIndexer() {
+  auto indexer = std::make_unique<NiceMock<MIndexer<T>>>();
   ON_CALL(*indexer, supportsQuery(_)).WillByDefault(Return(true));
   return indexer;
 }
@@ -26,14 +26,16 @@ std::shared_ptr<NiceMock<MQuery>> Database_getQuery() {
 
 template <typename T> DBView<T> insertAndGet(Database<T> &db, T value) {
   auto query = Database_getQuery();
-  auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
-  unsigned int index;
-  EXPECT_CALL(*indexer, addData(_, _)).WillRepeatedly(SaveArg<1>(&index));
+  auto indexer1 = Database_getIndexer<int>();
+  auto indexer2 = Database_getIndexer<int>();
+  unsigned int index = 1234;
+  EXPECT_CALL(*indexer1, addData(_, _)).WillRepeatedly(SaveArg<1>(&index));
+  db.addIndexer(std::move(indexer1));
   db.insert(value);
-  EXPECT_CALL(*indexer, getIndexList(_))
+  EXPECT_CALL(*indexer2, getIndexList(_))
       .WillOnce(Return(std::vector<unsigned int>({index})))
       .WillRepeatedly(Return(std::vector<unsigned int>()));
+  db.addIndexer(std::move(indexer2));
   return std::move(db.get(query)[0]);
 }
 
@@ -61,17 +63,17 @@ TEST(Database, Insert_By_Reference) {
 TEST(Database, Call_Add_Value_On_Indexer_During_Insert) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, addData(value, 0)).Times(1);
+  db.addIndexer(std::move(indexer));
   db.insert(value);
 }
 
 TEST(Database, Ignore_Exception_In_Add_Value_By_Indexer) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, addData(_, 0)).WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
   EXPECT_NO_THROW(db.insert(rand()));
 }
 
@@ -127,9 +129,9 @@ TEST(Database, Remove_By_View) {
 TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, removeData(value, 0)).Times(1);
+  db.addIndexer(std::move(indexer));
   db.remove(db.insert(value));
 }
 
@@ -137,9 +139,9 @@ TEST(Database,
      Call_Remove_Value_On_Indexer_During_Deletion_When_Invoked_On_View) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   int value = rand();
   EXPECT_CALL(*indexer, removeData(value, 0)).Times(1);
+  db.addIndexer(std::move(indexer));
   auto view = db.insert(value);
   EXPECT_NO_THROW(view.remove());
 }
@@ -147,8 +149,8 @@ TEST(Database,
 TEST(Database, Ignore_Exception_In_Remove_Value_By_Indexer) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, removeData(_, 0)).WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
   EXPECT_NO_THROW(db.remove(db.insert(rand())));
 }
 
@@ -163,9 +165,9 @@ TEST(Database, Call_To_Get_On_Indexer_During_Get) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
+  db.addIndexer(std::move(indexer));
   db.get(query);
 }
 
@@ -173,9 +175,9 @@ TEST(Database, Call_Only_Matching_Indexer_During_Get) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, supportsQuery(Eq(query))).WillOnce(Return(false));
   EXPECT_CALL(*indexer, getIndexList(Eq(query))).Times(0);
+  db.addIndexer(std::move(indexer));
   db.get(query);
 }
 
@@ -183,9 +185,9 @@ TEST(Database, Ignore_Exception_In_Get_By_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
   EXPECT_NO_THROW(db.get(query));
 }
 
@@ -193,11 +195,11 @@ TEST(Database, Get_Selected_View_By_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
-  int value = rand();
-  db.insert(value);
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
+  db.addIndexer(std::move(indexer));
+  int value = rand();
+  db.insert(value);
   auto result = db.get(query);
   ASSERT_EQ(1, result.size());
   ASSERT_EQ(value, *result[0]);
@@ -207,11 +209,11 @@ TEST(Database, Get_Only_One_View_For_Multiple_Same_Indices_By_One_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
-  int value = rand();
-  db.insert(value);
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0, 0})));
+  db.addIndexer(std::move(indexer));
+  int value = rand();
+  db.insert(value);
   auto result = db.get(query);
   ASSERT_EQ(1, result.size());
 }
@@ -222,13 +224,13 @@ TEST(Database,
   auto query = Database_getQuery();
   auto indexer1 = Database_getIndexer<int>();
   auto indexer2 = Database_getIndexer<int>();
-  db.addIndexer(indexer1);
-  db.addIndexer(indexer2);
-  db.insert(rand());
   EXPECT_CALL(*indexer1, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
   EXPECT_CALL(*indexer2, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
+  db.addIndexer(std::move(indexer1));
+  db.addIndexer(std::move(indexer2));
+  db.insert(rand());
   auto result = db.get(query);
   ASSERT_EQ(1, result.size());
 }
@@ -237,9 +239,9 @@ TEST(Database, Ignore_Invalid_Indices_Returned_By_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0, 1, 2})));
+  db.addIndexer(std::move(indexer));
   auto result = db.get(query);
   ASSERT_EQ(0, result.size());
 }
@@ -248,10 +250,10 @@ TEST(Database, Ignore_Empty_Indices_Returned_By_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
-  db.remove(db.insert(rand()));
   EXPECT_CALL(*indexer, getIndexList(Eq(query)))
       .WillOnce(Return(std::vector<unsigned int>({0})));
+  db.addIndexer(std::move(indexer));
+  db.remove(db.insert(rand()));
   auto result = db.get(query);
   ASSERT_EQ(0, result.size());
 }
@@ -260,12 +262,12 @@ TEST(Database, Return_Views_In_Correct_Order_If_Switched_By_Indexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
-  db.addIndexer(indexer);
+  EXPECT_CALL(*indexer, getIndexList(Eq(query)))
+      .WillOnce(Return(std::vector<unsigned int>({1, 0})));
+  db.addIndexer(std::move(indexer));
   int value1 = rand(), value2 = rand();
   db.insert(value1);
   db.insert(value2);
-  EXPECT_CALL(*indexer, getIndexList(Eq(query)))
-      .WillOnce(Return(std::vector<unsigned int>({1, 0})));
   auto result = db.get(query);
   ASSERT_EQ(2, result.size());
   ASSERT_EQ(value1, *result[0]);
@@ -284,12 +286,14 @@ TEST(Database, Insert_And_Get) {
 
 TEST(Database, Call_Update_Data_On_Indexer_After_View_Scope_Ends) {
   Database<int> db;
-  auto indexer = Database_getIndexer<int>();
+  auto indexer1 = Database_getIndexer<int>();
+  auto indexer2 = Database_getIndexer<int>();
   auto query = Database_getQuery();
-  db.addIndexer(indexer);
-  db.insert(rand());
-  EXPECT_CALL(*indexer, getIndexList(_))
+  EXPECT_CALL(*indexer1, getIndexList(_))
       .WillOnce(Return(std::vector<unsigned int>({0})));
-  EXPECT_CALL(*indexer, updateData(_, 0)).Times(1);
+  db.addIndexer(std::move(indexer1));
+  db.insert(rand());
+  EXPECT_CALL(*indexer2, updateData(_, 0)).Times(1);
+  db.addIndexer(std::move(indexer2));
   db.get(query);
 }

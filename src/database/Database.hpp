@@ -30,7 +30,7 @@ private:
   unsigned int _size;
   DBElement<T> **_data;
   std::mutex _dataLock;
-  std::vector<std::shared_ptr<IIndexer<T>>> _indexer;
+  std::vector<std::unique_ptr<IIndexer<T>>> _indexer;
   std::mutex _indexerLock;
   std::vector<unsigned int> _freeIndices;
   std::mutex _freeIndicesLock;
@@ -87,7 +87,7 @@ private:
   getIndexListUnlocked(std::shared_ptr<IQuery> query) {
     std::vector<unsigned int> indexList;
 
-    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+    for (auto &&indexer : _indexer) {
       if (indexer->supportsQuery(query)) {
         try {
           auto tmpIndexList = indexer->getIndexList(query);
@@ -112,7 +112,7 @@ private:
   void updateIndexer(const DBElement<T> *const element) {
     std::lock_guard<std::mutex> guard(_indexerLock);
 
-    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+    for (auto &&indexer : _indexer) {
       indexer->updateData(element->data(), element->index());
     }
   }
@@ -133,9 +133,9 @@ public:
   Database(const Database &) = delete;
   Database &operator=(const Database &) = delete;
 
-  virtual void addIndexer(std::shared_ptr<IIndexer<T>> indexer) override {
+  virtual void addIndexer(std::unique_ptr<IIndexer<T>> indexer) override {
     std::lock_guard<std::mutex> guard(_indexerLock);
-    _indexer.push_back(indexer);
+    _indexer.push_back(std::move(indexer));
   }
 
   /**
@@ -175,7 +175,7 @@ public:
     };
 
     _indexerLock.lock();
-    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+    for (auto &&indexer : _indexer) {
       try {
         indexer->addData(element->data(), element->index());
       } catch (const std::exception &) {
@@ -255,7 +255,7 @@ public:
       lockAcquired = true;
     }
     _indexerLock.lock();
-    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+    for (auto &&indexer : _indexer) {
       try {
         indexer->removeData(element->data(), element->index());
       } catch (const std::exception &) {

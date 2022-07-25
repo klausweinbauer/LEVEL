@@ -81,6 +81,13 @@ TEST(Indexer, Default_AddData) {
   ASSERT_NO_THROW(baseIndexer->addData(value, 0));
 }
 
+TEST(Indexer, Default_UpdateData) {
+  auto indexer = IndexerTest_getIndexer<int>();
+  auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
+  int value = rand();
+  ASSERT_NO_THROW(baseIndexer->updateData(value, 0));
+}
+
 TEST(Indexer, Default_RemoveData) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
