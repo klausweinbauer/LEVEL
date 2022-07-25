@@ -109,6 +109,14 @@ private:
     return indexList;
   }
 
+  void updateIndexer(const DBElement<T> *const element) {
+    std::lock_guard<std::mutex> guard(_indexerLock);
+
+    for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
+      indexer->updateData(element->data(), element->index());
+    }
+  }
+
 public:
   Database()
       : _size(0), _data((DBElement<T> **)calloc(0, sizeof(DBElement<T> *))) {}
@@ -162,6 +170,10 @@ public:
   virtual DBView<T> insert(std::unique_ptr<T> entry) override {
     DBElement<T> *element = getFreeElement();
     element->setData(std::move(entry));
+    element->dataChanged = [this](const DBElement<T> *const element) {
+      this->updateIndexer(element);
+    };
+
     _indexerLock.lock();
     for (std::shared_ptr<IIndexer<T>> indexer : _indexer) {
       try {
@@ -171,6 +183,7 @@ public:
       }
     }
     _indexerLock.unlock();
+
     DBView<T> view(element);
     return view;
   }

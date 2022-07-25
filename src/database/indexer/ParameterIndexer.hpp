@@ -23,6 +23,7 @@ class ParameterIndexer : public Indexer<TData, IQRYParameter> {
 
 private:
   std::unordered_map<TParameter, std::set<unsigned int>> _map;
+  std::unordered_map<unsigned int, TParameter> _reverseLookup;
 
 public:
   ParameterIndexer() {}
@@ -68,18 +69,37 @@ public:
   }
 
   virtual void addData(const TData &entry, unsigned int index) {
-    TParameter key = getValue(entry);
-    auto result = _map[key].insert(index);
-    if (!result.second) {
-      throw Exception(
-          ERR, "Entry with this index already exists in parameter indexer.");
+    if (_reverseLookup.count(index)) {
+      std::stringstream ss;
+      ss << "Entry with index '" << index << "' already exists." << std::endl;
+      throw Exception(ERR, ss.str());
     }
+
+    TParameter key = getValue(entry);
+    _map[key].insert(index);
+    _reverseLookup[index] = key;
+  }
+
+  virtual void updateData(const TData &entry, unsigned int index) {
+    if (!_reverseLookup.count(index)) {
+      std::stringstream ss;
+      ss << "There is no entry to update with index '" << index << "'."
+         << std::endl;
+      throw Exception(ERR, ss.str());
+    }
+
+    TParameter oldKey = _reverseLookup[index];
+    TParameter newKey = getValue(entry);
+    _map[oldKey].erase(_map[oldKey].find(index));
+    _map[newKey].insert(index);
+    _reverseLookup[index] = newKey;
   }
 
   virtual void removeData(const TData &entry, unsigned int index) {
     TParameter key = getValue(entry);
     if (_map.count(key)) {
       _map[key].erase(_map[key].find(index));
+      _reverseLookup.erase(index);
     }
   }
 };

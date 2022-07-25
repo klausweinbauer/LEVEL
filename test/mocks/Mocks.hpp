@@ -36,6 +36,7 @@ public:
   MOCK_METHOD(std::vector<unsigned int>, getIndexList,
               (std::shared_ptr<IQuery>));
   MOCK_METHOD(void, addData, (const T &, unsigned int), (override));
+  MOCK_METHOD(void, updateData, (const T &, unsigned int), (override));
   MOCK_METHOD(void, removeData, (const T &, unsigned int), (override));
 };
 

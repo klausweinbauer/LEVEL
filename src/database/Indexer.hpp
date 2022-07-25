@@ -31,6 +31,8 @@ public:
 
   virtual void addData(const TData &entry, unsigned int index) {}
 
+  virtual void updateData(const TData &entry, unsigned int index) {}
+
   virtual void removeData(const TData &entry, unsigned int index) {}
 };
 

@@ -7,6 +7,7 @@ using namespace level;
 
 using ::testing::_;
 using ::testing::NiceMock;
+using ::testing::SaveArg;
 
 struct DBElementTestHelper {
   int _value;
@@ -78,4 +79,40 @@ TEST(DBElement, Has_Data_Assigned) {
 TEST(DBElement, Has_No_Data_Assigned) {
   DBElement<int> element;
   ASSERT_FALSE(element.hasData());
+}
+
+template <typename T> class DBElement_MDataChanged {
+public:
+  DBElement_MDataChanged() {}
+
+  MOCK_METHOD(void, dataChanged, (const DBElement<T> *const));
+};
+
+TEST(DBElement, Call_Data_Modified_When_Unlocked) {
+  DBElement<int> element;
+  element.setData(std::make_unique<int>(rand()));
+  DBElement_MDataChanged<int> callback;
+  element.dataChanged = [&callback](const DBElement<int> *const e) {
+    callback.dataChanged(e);
+  };
+  EXPECT_CALL(callback, dataChanged(&element)).Times(1);
+  element.unlock();
+}
+
+TEST(DBElement, Do_Not_Call_Data_Modified_When_Unlocked_And_Data_Is_Null) {
+  DBElement<int> element;
+  DBElement_MDataChanged<int> callback;
+  element.dataChanged = [&callback](const DBElement<int> *const e) {
+    callback.dataChanged(e);
+  };
+  EXPECT_CALL(callback, dataChanged(&element)).Times(0);
+  element.unlock();
+}
+
+TEST(DBElement, Do_Not_Call_Data_Modified_When_Not_Set) {
+  DBElement<int> element;
+  element.setData(std::make_unique<int>(rand()));
+  DBElement_MDataChanged<int> callback;
+  EXPECT_CALL(callback, dataChanged(&element)).Times(0);
+  ASSERT_NO_THROW(element.unlock());
 }

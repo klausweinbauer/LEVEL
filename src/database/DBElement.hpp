@@ -48,6 +48,8 @@ public:
   DBElement(DBElement<T> &&element) = delete;
   DBElement<T> &operator=(DBElement<T> &&element) = delete;
 
+  std::function<void(const DBElement<T> *const)> dataChanged;
+
   /**
    * @brief Get the Data object.
    *
@@ -82,9 +84,12 @@ public:
    *
    */
   virtual void unlock() {
-    // Invalidation of possibly stored pointers by the user.
     if (_data) {
+      // Invalidation of possibly stored pointers by the user.
       _data = std::make_unique<T>(*_data);
+      if (dataChanged) {
+        dataChanged(this);
+      }
     }
 
     _threadId = std::thread::id();

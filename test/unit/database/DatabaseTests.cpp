@@ -10,6 +10,7 @@ using ::testing::Eq;
 using ::testing::NiceMock;
 using ::testing::Ref;
 using ::testing::Return;
+using ::testing::SaveArg;
 using ::testing::Throw;
 
 template <typename T>
@@ -21,6 +22,19 @@ std::shared_ptr<NiceMock<MIndexer<T>>> Database_getIndexer() {
 
 std::shared_ptr<NiceMock<MQuery>> Database_getQuery() {
   return std::make_shared<NiceMock<MQuery>>();
+}
+
+template <typename T> DBView<T> insertAndGet(Database<T> &db, T value) {
+  auto query = Database_getQuery();
+  auto indexer = Database_getIndexer<int>();
+  db.addIndexer(indexer);
+  unsigned int index;
+  EXPECT_CALL(*indexer, addData(_, _)).WillRepeatedly(SaveArg<1>(&index));
+  db.insert(value);
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({index})))
+      .WillRepeatedly(Return(std::vector<unsigned int>()));
+  return std::move(db.get(query)[0]);
 }
 
 TEST(Database, Default_Count) {
@@ -256,4 +270,26 @@ TEST(Database, Return_Views_In_Correct_Order_If_Switched_By_Indexer) {
   ASSERT_EQ(2, result.size());
   ASSERT_EQ(value1, *result[0]);
   ASSERT_EQ(value2, *result[1]);
+}
+
+TEST(Database, Insert_And_Get) {
+  Database<int> db;
+  int data1 = rand();
+  int data2 = rand();
+  auto view1 = insertAndGet<int>(db, data1);
+  auto view2 = insertAndGet<int>(db, data2);
+  ASSERT_EQ(data1, *view1);
+  ASSERT_EQ(data2, *view2);
+}
+
+TEST(Database, Call_Update_Data_On_Indexer_After_View_Scope_Ends) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  db.addIndexer(indexer);
+  db.insert(rand());
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({0})));
+  EXPECT_CALL(*indexer, updateData(_, 0)).Times(1);
+  db.get(query);
 }

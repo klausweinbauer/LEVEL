@@ -251,6 +251,38 @@ TEST(Indexer, ParameterIndexer_Query_After_Entry_Is_Removed) {
   ASSERT_EQ(0, result.size());
 }
 
+TEST(Indexer, ParameterIndexer_Update_When_Parameter_Changed_Value) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto index = rand();
+  Indexer_Data data("data1", rand(), rand());
+  indexer->addData(data, index);
+  data._p = {rand(), rand()};
+  auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
+  indexer->updateData(data, index);
+  auto result = indexer->getIndexList(qry);
+  ASSERT_EQ(1, result.size());
+  ASSERT_EQ(index, result[0]);
+}
+
+TEST(Indexer, ParameterIndexer_Can_Not_Find_Old_Entry_After_Update) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto index = rand();
+  Indexer_Data data1("data1", rand(), rand());
+  Indexer_Data data2("data1", rand(), rand());
+  indexer->addData(data1, index);
+  indexer->updateData(data2, index);
+  auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data1._p);
+  auto result = indexer->getIndexList(qry);
+  ASSERT_EQ(0, result.size());
+}
+
+TEST(Indexer, ParameterIndexer_Throw_When_Update_Not_Existing_Value) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  Indexer_Data data("data1", rand(), rand());
+  auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
+  ASSERT_THROW(indexer->updateData(data, rand()), Exception);
+}
+
 TEST(Indexer, IDXIndex_Get_Index_List) {
   auto index = (unsigned int)(rand() % 10000) + 100;
   auto len = rand() % 100;
