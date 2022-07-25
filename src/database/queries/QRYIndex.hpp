@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IQuery.hpp>
+#include <memory>
 
 namespace level {
 
@@ -167,8 +168,9 @@ public:
    * @param length Number of indices for this query. Use negative values for
    * previous indices to startIndex.
    */
-  static QRYIndex byRange(unsigned int startIndex, int length) {
-    return QRYIndex(startIndex, length);
+  static std::shared_ptr<QRYIndex> byRange(unsigned int startIndex,
+                                           int length) {
+    return std::make_shared<QRYIndex>(startIndex, length);
   }
 
   /**
@@ -177,8 +179,9 @@ public:
    * @param firstIndex First index (inclusive).
    * @param lastIndex Last index (exclusive).
    */
-  static QRYIndex byRange(unsigned int firstIndex, unsigned int lastIndex) {
-    return QRYIndex(firstIndex, lastIndex);
+  static std::shared_ptr<QRYIndex> byRange(unsigned int firstIndex,
+                                           unsigned int lastIndex) {
+    return std::make_shared<QRYIndex>(firstIndex, lastIndex);
   }
 
   /**
@@ -186,7 +189,9 @@ public:
    *
    * @param index Single index to query.
    */
-  static QRYIndex byIndex(unsigned int index) { return QRYIndex(index); }
+  static std::shared_ptr<QRYIndex> byIndex(unsigned int index) {
+    return std::make_shared<QRYIndex>(index);
+  }
 };
 
 } // namespace level

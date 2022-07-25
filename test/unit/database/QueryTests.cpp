@@ -122,8 +122,8 @@ TEST(Query, QRYIndex_By_Range) {
   unsigned int index2 = index1 + (rand() % 100);
   auto qry = QRYIndex::byRange(index1, index2);
   QRYIndex expQry(index1, index2);
-  ASSERT_EQ(expQry.firstIndex(), qry.firstIndex());
-  ASSERT_EQ(expQry.lastIndex(), qry.lastIndex());
+  ASSERT_EQ(expQry.firstIndex(), qry->firstIndex());
+  ASSERT_EQ(expQry.lastIndex(), qry->lastIndex());
 }
 
 TEST(Query, QRYIndex_By_Range_With_Length) {
@@ -131,15 +131,15 @@ TEST(Query, QRYIndex_By_Range_With_Length) {
   int len = rand() % 100;
   auto qry = QRYIndex::byRange(index, len);
   QRYIndex expQry(index, len);
-  ASSERT_EQ(expQry.firstIndex(), qry.firstIndex());
-  ASSERT_EQ(expQry.lastIndex(), qry.lastIndex());
+  ASSERT_EQ(expQry.firstIndex(), qry->firstIndex());
+  ASSERT_EQ(expQry.lastIndex(), qry->lastIndex());
 }
 
 TEST(Query, QRYIndex_By_Index) {
   unsigned int index = (unsigned int)(rand() % 1000) + 100;
   auto qry = QRYIndex::byIndex(index);
-  ASSERT_EQ(index, qry.firstIndex());
-  ASSERT_EQ(index + 1, qry.lastIndex());
+  ASSERT_EQ(index, qry->firstIndex());
+  ASSERT_EQ(index + 1, qry->lastIndex());
 }
 
 struct QueryTest_Parameter {

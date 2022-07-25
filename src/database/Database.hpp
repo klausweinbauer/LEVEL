@@ -195,13 +195,20 @@ public:
    * @return std::vector<DBView<T>> Vector of views on the selected entries.
    */
   virtual std::vector<DBView<T>> get(std::shared_ptr<IQuery> query) override {
+    std::vector<DBElement<T> *> elements;
+
+    {
+      std::scoped_lock lock(_indexerLock, _dataLock);
+      auto indexList = getIndexListUnlocked(query);
+
+      for (unsigned int index : indexList) {
+        elements.push_back(_data[index]);
+      }
+    }
+
     std::vector<DBView<T>> views;
-
-    std::scoped_lock lock(_indexerLock, _dataLock);
-    auto indexList = getIndexListUnlocked(query);
-
-    for (unsigned int index : indexList) {
-      views.push_back(DBView<T>(_data[index]));
+    for (DBElement<T> *element : elements) {
+      views.push_back(DBView<T>(element));
     }
 
     return views;
