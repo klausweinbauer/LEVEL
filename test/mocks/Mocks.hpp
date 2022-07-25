@@ -66,6 +66,8 @@ public:
 template <typename TData, typename TParameter>
 class MParameterIndexer : public ParameterIndexer<TData, TParameter> {
 public:
+  MParameterIndexer() {}
+
   MOCK_METHOD(TParameter, getValue, (const TData &), (override));
   MOCK_METHOD(std::vector<unsigned int>, getByParameter,
               (std::shared_ptr<QRYParameterValue<TParameter>>), (override));

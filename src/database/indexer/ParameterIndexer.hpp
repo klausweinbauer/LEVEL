@@ -2,17 +2,37 @@
 
 #include <Indexer.hpp>
 #include <QRYParameterValue.hpp>
+#include <set>
 #include <unordered_map>
 
 namespace level {
 
+/**
+ * @brief Indexer to lookup database entries by specific parameter values in
+ * O(1).
+ *
+ * @tparam TData Type of database entry.
+ * @tparam TParameter Type of parameter used by queries to retrieve database
+ * entries. This type must implement a copy constructor, assignment operator
+ * (operator=), equality operator (operator==) and a hash function (struct
+ * std::hash<TParameter>). Have a look at
+ * https://en.cppreference.com/w/cpp/utility/hash for a good starting point.
+ */
 template <typename TData, typename TParameter>
 class ParameterIndexer : public Indexer<TData, IQRYParameterValue> {
 
 private:
-  // std::unordered_map<TParameter, std::vector<unsigned int>> _map;
+  std::unordered_map<TParameter, std::set<unsigned int>> _map;
 
 public:
+  ParameterIndexer() {}
+
+  /**
+   * @brief Should return the parameter derived from the data element.
+   *
+   * @param entry
+   * @return TParameter Parameter from data object.
+   */
   virtual TParameter getValue(const TData &entry) = 0;
 
   virtual bool supportsQuery(std::shared_ptr<IQuery> query) override {
@@ -37,16 +57,32 @@ public:
 
   virtual std::vector<unsigned int>
   getByParameter(std::shared_ptr<QRYParameterValue<TParameter>> query) {
-    // return _map[query->value()];
+    TParameter key = query->value();
+    if (_map.count(key)) {
+      std::set<unsigned int> set = _map[key];
+      std::vector<unsigned int> indices(set.size());
+      std::copy(set.begin(), set.end(), indices.begin());
+      return indices;
+    } else {
+      return std::vector<unsigned int>();
+    }
   }
 
   virtual void addData(const TData &entry, unsigned int index) {
-    /*TParameter value = getValue(entry);
-    std::pair<TParameter, std::vector<unsigned int>> mapEntry(value, index);
-    _map.insert(mapEntry);*/
+    TParameter key = getValue(entry);
+    auto result = _map[key].insert(index);
+    if (!result.second) {
+      throw Exception(
+          ERR, "Entry with this index already exists in parameter indexer.");
+    }
   }
 
-  virtual void removeData(const TData &entry, unsigned int index) {}
+  virtual void removeData(const TData &entry, unsigned int index) {
+    TParameter key = getValue(entry);
+    if (_map.count(key)) {
+      _map[key].erase(_map[key].find(index));
+    }
+  }
 };
 
 } // namespace level
