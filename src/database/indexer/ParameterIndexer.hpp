@@ -102,6 +102,14 @@ public:
       _reverseLookup.erase(index);
     }
   }
+
+  virtual bool isValid(const TData &entry, unsigned int index) {
+    TParameter key = getValue(entry);
+    if (_reverseLookup.count(index)) {
+      return _reverseLookup[index] == key;
+    }
+    return false;
+  }
 };
 
 } // namespace level
