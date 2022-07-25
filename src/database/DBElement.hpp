@@ -22,7 +22,8 @@ namespace level {
 /**
  * @brief Container class for data entry in database.
  *
- * @tparam T Type of data to store in database.
+ * @tparam T Type of data to store in database. This type must implement a copy
+ * constructor.
  */
 template <typename T> class DBElement {
 private:
@@ -81,6 +82,11 @@ public:
    *
    */
   virtual void unlock() {
+    // Invalidation of possibly stored pointers by the user.
+    if (_data) {
+      _data = std::make_unique<T>(*_data);
+    }
+
     _threadId = std::thread::id();
     _lock.unlock();
   }
