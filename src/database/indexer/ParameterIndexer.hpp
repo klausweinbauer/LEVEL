@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Indexer.hpp>
-#include <QRYParameterValue.hpp>
+#include <QRYParameter.hpp>
 #include <set>
 #include <unordered_map>
 
@@ -19,7 +19,7 @@ namespace level {
  * https://en.cppreference.com/w/cpp/utility/hash for a good starting point.
  */
 template <typename TData, typename TParameter>
-class ParameterIndexer : public Indexer<TData, IQRYParameterValue> {
+class ParameterIndexer : public Indexer<TData, IQRYParameter> {
 
 private:
   std::unordered_map<TParameter, std::set<unsigned int>> _map;
@@ -36,27 +36,26 @@ public:
   virtual TParameter getValue(const TData &entry) = 0;
 
   virtual bool supportsQuery(std::shared_ptr<IQuery> query) override {
-    bool supportsQuery =
-        Indexer<TData, IQRYParameterValue>::supportsQuery(query);
+    bool supportsQuery = Indexer<TData, IQRYParameter>::supportsQuery(query);
     bool supportsParameter =
-        dynamic_cast<QRYParameterValue<TParameter> *>(query.get());
+        dynamic_cast<QRYParameter<TParameter> *>(query.get());
     return supportsQuery && supportsParameter;
   };
 
   virtual std::vector<unsigned int>
-  getIndexList(std::shared_ptr<IQRYParameterValue> query) override {
+  getIndexList(std::shared_ptr<IQRYParameter> query) override {
     if (!supportsQuery(query)) {
       throw Exception(ERR_INVALID_ARG,
                       "This query is not supported by parameter indexer.");
     }
 
-    std::shared_ptr<QRYParameterValue<TParameter>> parameterQuery =
-        std::static_pointer_cast<QRYParameterValue<TParameter>>(query);
+    std::shared_ptr<QRYParameter<TParameter>> parameterQuery =
+        std::static_pointer_cast<QRYParameter<TParameter>>(query);
     return getByParameter(parameterQuery);
   }
 
   virtual std::vector<unsigned int>
-  getByParameter(std::shared_ptr<QRYParameterValue<TParameter>> query) {
+  getByParameter(std::shared_ptr<QRYParameter<TParameter>> query) {
     TParameter key = query->value();
     if (_map.count(key)) {
       std::set<unsigned int> set = _map[key];

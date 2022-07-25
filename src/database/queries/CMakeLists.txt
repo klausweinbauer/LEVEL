@@ -1,7 +1,7 @@
 target_sources(${LEVEL_TARGET_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/QRYIndex.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/IQRYParameterValue.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/QRYParameterValue.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/IQRYParameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/QRYParameter.hpp
 )
 
 target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

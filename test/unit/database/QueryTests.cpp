@@ -1,6 +1,6 @@
 #include <Exception.hpp>
 #include <QRYIndex.hpp>
-#include <QRYParameterValue.hpp>
+#include <QRYParameter.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -145,17 +145,35 @@ TEST(Query, QRYIndex_By_Index) {
 struct QueryTest_Parameter {
   int _x;
   int _y;
+
+  QueryTest_Parameter() : _x(0), _y(0) {}
+  QueryTest_Parameter(int x, int y) : _x(x), _y(y) {}
 };
 
-TEST(Query, QRYParameterValue_Default_Constructor) {
-  QRYParameterValue<QueryTest_Parameter> qry;
+TEST(Query, QRYParameter_Default_Constructor) {
+  QRYParameter<QueryTest_Parameter> qry;
   ASSERT_EQ(0, qry.value()._x);
   ASSERT_EQ(0, qry.value()._y);
 }
 
-TEST(Query, QRYParameterValue_Constructor) {
-  QueryTest_Parameter param = {rand(), rand()};
-  QRYParameterValue<QueryTest_Parameter> qry(param);
+TEST(Query, QRYParameter_Constructor) {
+  QueryTest_Parameter param(rand(), rand());
+  QRYParameter<QueryTest_Parameter> qry(param);
+  ASSERT_EQ(param._x, qry.value()._x);
+  ASSERT_EQ(param._y, qry.value()._y);
+}
+
+TEST(Query, QRYParameter_Set_Value) {
+  QueryTest_Parameter param(rand(), rand());
+  QRYParameter<QueryTest_Parameter> qry;
+  qry.setValue(param);
+  ASSERT_EQ(param._x, qry.value()._x);
+  ASSERT_EQ(param._y, qry.value()._y);
+}
+
+TEST(Query, QRYParameter_By_Value) {
+  QueryTest_Parameter param(rand(), rand());
+  auto qry = QRYParameter<QueryTest_Parameter>::byValue(param);
   ASSERT_EQ(param._x, qry.value()._x);
   ASSERT_EQ(param._y, qry.value()._y);
 }

@@ -3,7 +3,7 @@
 #include <DBElement.hpp>
 #include <IDatabase.hpp>
 #include <IIndexer.hpp>
-#include <IQRYParameterValue.hpp>
+#include <IQRYParameter.hpp>
 #include <IQuery.hpp>
 #include <ISocket.hpp>
 #include <ParameterIndexer.hpp>
@@ -70,5 +70,5 @@ public:
 
   MOCK_METHOD(TParameter, getValue, (const TData &), (override));
   MOCK_METHOD(std::vector<unsigned int>, getByParameter,
-              (std::shared_ptr<QRYParameterValue<TParameter>>), (override));
+              (std::shared_ptr<QRYParameter<TParameter>>), (override));
 };

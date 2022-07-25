@@ -4,7 +4,7 @@
 
 namespace level {
 
-class IQRYParameterValue : public IQuery {
+class IQRYParameter : public IQuery {
 public:
 };
 
