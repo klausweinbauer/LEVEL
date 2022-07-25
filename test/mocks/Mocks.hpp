@@ -38,6 +38,7 @@ public:
   MOCK_METHOD(void, addData, (const T &, unsigned int), (override));
   MOCK_METHOD(void, updateData, (const T &, unsigned int), (override));
   MOCK_METHOD(void, removeData, (const T &, unsigned int), (override));
+  MOCK_METHOD(bool, isValid, (const T &, unsigned int), (override));
 };
 
 template <typename T> class MDBElement : public DBElement<T> {

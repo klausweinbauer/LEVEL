@@ -4,6 +4,7 @@
 #include <QRYIndex.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <thread>
 
 using namespace level;
@@ -42,6 +43,46 @@ TEST(Database, Heavy_Querying) {
   std::thread threads[threadCount];
   for (int i = 0; i < threadCount; i++) {
     threads[i] = std::thread(Database_HeavyQueryingTask, &db, size, threadRuns);
+  }
+  for (int i = 0; i < threadCount; i++) {
+    threads[i].join();
+  }
+}
+
+void Database_HeavyWritingTask(Database<Database_Data> *db, int propWrite,
+                               int runs) {
+  int maxSize = 0;
+  for (int i = 0; i < runs; i++) {
+
+    int size = db->count();
+    if (size > maxSize) {
+      maxSize = size;
+    }
+    int prop = rand() % 100;
+    if (prop <= propWrite) {
+      db->insert({rand()});
+    } else {
+      auto results = db->get(QRYIndex::byRange(0, runs));
+      if (results.size() > 0) {
+        db->remove(*results.begin());
+      }
+    }
+  }
+
+  std::cout << "Max size: " << maxSize << std::endl;
+}
+
+TEST(Database, Heavy_Writing) {
+  Database<Database_Data> db;
+  db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
+
+  const int threadCount = 10;
+  const int threadRuns = 100;
+  const int propWrite = 60;
+  std::thread threads[threadCount];
+  for (int i = 0; i < threadCount; i++) {
+    threads[i] =
+        std::thread(Database_HeavyWritingTask, &db, propWrite, threadRuns);
   }
   for (int i = 0; i < threadCount; i++) {
     threads[i].join();

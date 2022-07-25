@@ -34,6 +34,8 @@ public:
   virtual void updateData(const TData &entry, unsigned int index) {}
 
   virtual void removeData(const TData &entry, unsigned int index) {}
+
+  virtual bool isValid(const TData &entry, unsigned int index) { return true; }
 };
 
 } // namespace level

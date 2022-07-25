@@ -17,6 +17,7 @@ template <typename T>
 std::unique_ptr<NiceMock<MIndexer<T>>> Database_getIndexer() {
   auto indexer = std::make_unique<NiceMock<MIndexer<T>>>();
   ON_CALL(*indexer, supportsQuery(_)).WillByDefault(Return(true));
+  ON_CALL(*indexer, isValid(_, _)).WillByDefault(Return(true));
   return indexer;
 }
 
@@ -296,4 +297,71 @@ TEST(Database, Call_Update_Data_On_Indexer_After_View_Scope_Ends) {
   EXPECT_CALL(*indexer2, updateData(_, 0)).Times(1);
   db.addIndexer(std::move(indexer2));
   db.get(query);
+}
+
+TEST(Database, Check_IsValid_State_With_Indexer_During_Get) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  int value = rand();
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({0})));
+  EXPECT_CALL(*indexer, isValid(value, 0)).WillOnce(Return(true));
+  db.addIndexer(std::move(indexer));
+  db.insert(value);
+  db.get(query);
+}
+
+TEST(Database,
+     Do_Not_Check_IsValid_State_With_Not_Supported_Indexer_During_Get) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  int value = rand();
+  EXPECT_CALL(*indexer, supportsQuery(_))
+      .WillOnce(Return(true))
+      .WillRepeatedly(Return(false));
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({0})));
+  EXPECT_CALL(*indexer, isValid(value, 0)).Times(0);
+  db.addIndexer(std::move(indexer));
+  db.insert(value);
+  db.get(query);
+}
+
+TEST(Database, Handle_Exception_From_IsValid_During_Get) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  int value = rand();
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({0})));
+  EXPECT_CALL(*indexer, isValid(value, 0)).WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
+  db.insert(value);
+  ASSERT_NO_THROW(db.get(query));
+}
+
+TEST(Database, Handle_Exception_From_Supports_Query_During_IsValid_Check) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  int value = rand();
+  EXPECT_CALL(*indexer, getIndexList(_))
+      .WillOnce(Return(std::vector<unsigned int>({0})));
+  EXPECT_CALL(*indexer, supportsQuery(_))
+      .WillOnce(Return(true))
+      .WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
+  db.insert(value);
+  ASSERT_NO_THROW(db.get(query));
+}
+
+TEST(Database, Handle_Exception_From_Supports_Query_During_Get) {
+  Database<int> db;
+  auto indexer = Database_getIndexer<int>();
+  auto query = Database_getQuery();
+  EXPECT_CALL(*indexer, supportsQuery(_)).WillOnce(Throw(std::exception()));
+  db.addIndexer(std::move(indexer));
+  ASSERT_NO_THROW(db.get(query));
 }

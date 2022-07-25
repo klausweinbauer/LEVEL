@@ -88,17 +88,18 @@ private:
     std::vector<unsigned int> indexList;
 
     for (auto &&indexer : _indexer) {
-      if (indexer->supportsQuery(query)) {
-        try {
+      try {
+        if (indexer->supportsQuery(query)) {
+
           auto tmpIndexList = indexer->getIndexList(query);
           for (unsigned int i : tmpIndexList) {
             if (i < _size && _data[i]->hasData()) {
               indexList.push_back(i);
             }
           }
-        } catch (const std::exception &) {
-          // Ignore indexer exceptions
         }
+      } catch (const std::exception &) {
+        // Ignore indexer exceptions
       }
     }
 
@@ -107,6 +108,24 @@ private:
     indexList.erase(last, indexList.end());
 
     return indexList;
+  }
+
+  bool validateElement(std::shared_ptr<IQuery> query, const T &data,
+                       unsigned int index) {
+    std::scoped_lock lock(_indexerLock);
+    for (auto &&indexer : _indexer) {
+      try {
+        if (indexer->supportsQuery(query)) {
+          if (indexer->isValid(data, index)) {
+            return true;
+          }
+        }
+      } catch (const std::exception &) {
+        // Ignore indexer exceptions
+      }
+    }
+
+    return false;
   }
 
   void updateIndexer(const DBElement<T> *const element) {
@@ -161,8 +180,8 @@ public:
   }
 
   /**
-   * @brief Insert a new element by reference. The caller transfers ownership of
-   * the entry to the database.
+   * @brief Insert a new element by reference. The caller transfers ownership
+   * of the entry to the database.
    *
    * @param entry
    * @return DBView<T>
@@ -208,7 +227,10 @@ public:
 
     std::vector<DBView<T>> views;
     for (DBElement<T> *element : elements) {
-      views.push_back(DBView<T>(element));
+      DBView<T> view = DBView<T>(element);
+      if (element->hasData() && validateElement(query, *view, view.index())) {
+        views.push_back(std::move(view));
+      }
     }
 
     return views;
@@ -252,8 +274,9 @@ public:
   virtual bool remove(unsigned int index) override {
     DBElement<T> *element = getElement(index);
     if (!element->hasData()) {
-      throw DBException(ERR_INDEX_OUT_OF_RANGE,
-                        "Element with this index does not exist.");
+      throw DBException(
+          ERR_INDEX_OUT_OF_RANGE,
+          "Removing element failed. Element with this index does not exist.");
     }
 
     bool lockAcquired = false;
