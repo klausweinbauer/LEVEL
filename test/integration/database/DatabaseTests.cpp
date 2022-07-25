@@ -11,6 +11,9 @@ using namespace level;
 
 struct Database_Data {
   int _value;
+
+  Database_Data() : _value(0) {}
+  Database_Data(int value) : _value(value) {}
 };
 
 void Database_HeavyQueryingTask(Database<Database_Data> *db, int size,
@@ -51,13 +54,7 @@ TEST(Database, Heavy_Querying) {
 
 void Database_HeavyWritingTask(Database<Database_Data> *db, int propWrite,
                                int runs) {
-  int maxSize = 0;
   for (int i = 0; i < runs; i++) {
-
-    int size = db->count();
-    if (size > maxSize) {
-      maxSize = size;
-    }
     int prop = rand() % 100;
     if (prop <= propWrite) {
       db->insert({rand()});
@@ -68,8 +65,6 @@ void Database_HeavyWritingTask(Database<Database_Data> *db, int propWrite,
       }
     }
   }
-
-  std::cout << "Max size: " << maxSize << std::endl;
 }
 
 TEST(Database, Heavy_Writing) {
@@ -86,5 +81,44 @@ TEST(Database, Heavy_Writing) {
   }
   for (int i = 0; i < threadCount; i++) {
     threads[i].join();
+  }
+}
+
+void Database_HeavyUpdatingTask(Database<Database_Data> *db, int threadCount,
+                                int runs) {
+  int addCounter = 0;
+  while (addCounter < runs) {
+    unsigned int index = ((unsigned int)rand()) % threadCount;
+    auto view = db->get(QRYIndex::byIndex(index));
+    assert(view.size() == 1);
+    if (view[0]->_value < runs) {
+      view[0]->_value++;
+      addCounter++;
+    }
+  }
+}
+
+TEST(Database, Heavy_Updating) {
+  Database<Database_Data> db;
+  db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
+  const int threadCount = 10;
+  for (int i = 0; i < threadCount; i++) {
+    db.insert(Database_Data());
+  }
+
+  const int threadRuns = 1000;
+  std::thread threads[threadCount];
+  for (int i = 0; i < threadCount; i++) {
+    threads[i] =
+        std::thread(Database_HeavyUpdatingTask, &db, threadCount, threadRuns);
+  }
+
+  for (int i = 0; i < threadCount; i++) {
+    threads[i].join();
+  }
+
+  auto views = db.get(QRYIndex::byRange(0, threadCount));
+  for (auto &&view : views) {
+    EXPECT_EQ(threadRuns, view->_value);
   }
 }
