@@ -1,5 +1,6 @@
 #include <Exception.hpp>
 #include <QRYIndex.hpp>
+#include <QRYParameterValue.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -139,4 +140,22 @@ TEST(Query, QRYIndex_By_Index) {
   auto qry = QRYIndex::byIndex(index);
   ASSERT_EQ(index, qry.firstIndex());
   ASSERT_EQ(index + 1, qry.lastIndex());
+}
+
+struct QueryTest_Parameter {
+  int _x;
+  int _y;
+};
+
+TEST(Query, QRYParameterValue_Default_Constructor) {
+  QRYParameterValue<QueryTest_Parameter> qry;
+  ASSERT_EQ(0, qry.value()._x);
+  ASSERT_EQ(0, qry.value()._y);
+}
+
+TEST(Query, QRYParameterValue_Constructor) {
+  QueryTest_Parameter param = {rand(), rand()};
+  QRYParameterValue<QueryTest_Parameter> qry(param);
+  ASSERT_EQ(param._x, qry.value()._x);
+  ASSERT_EQ(param._y, qry.value()._y);
 }

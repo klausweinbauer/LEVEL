@@ -3,8 +3,10 @@
 #include <DBElement.hpp>
 #include <IDatabase.hpp>
 #include <IIndexer.hpp>
+#include <IQRYParameterValue.hpp>
 #include <IQuery.hpp>
 #include <ISocket.hpp>
+#include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <vector>
 
@@ -59,4 +61,12 @@ public:
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
   MOCK_METHOD(bool, remove, (unsigned int), (override));
+};
+
+template <typename TData, typename TParameter>
+class MParameterIndexer : public ParameterIndexer<TData, TParameter> {
+public:
+  MOCK_METHOD(TParameter, getValue, (const TData &), (override));
+  MOCK_METHOD(std::vector<unsigned int>, getByParameter,
+              (std::shared_ptr<QRYParameterValue<TParameter>>), (override));
 };

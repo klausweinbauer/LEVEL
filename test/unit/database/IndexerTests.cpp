@@ -1,6 +1,7 @@
 #include <IDXIndex.hpp>
 #include <Indexer.hpp>
 #include <Mocks.hpp>
+#include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -9,6 +10,7 @@ using namespace level;
 using ::testing::_;
 using ::testing::Eq;
 using ::testing::NiceMock;
+using ::testing::Ref;
 
 class DerivedMQuery : public MQuery {
 public:
@@ -84,6 +86,111 @@ TEST(Indexer, Default_RemoveData) {
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   int value = rand();
   ASSERT_NO_THROW(baseIndexer->removeData(value, 0));
+}
+
+struct Indexer_Parameter {
+  int _x;
+  int _y;
+
+  Indexer_Parameter() : Indexer_Parameter(0, 0) {}
+  Indexer_Parameter(int x, int y) : _x(x), _y(y) {}
+};
+
+struct Indexer_Data {
+  std::string _name;
+  Indexer_Parameter _p;
+
+  Indexer_Data() {}
+  Indexer_Data(std::string name, int x, int y)
+      : _name(name), _p(Indexer_Parameter(x, y)) {}
+};
+
+class Indexer_QRYParameter : public QRYParameterValue<Indexer_Parameter> {};
+
+class Indexer_QRYOtherParameter : public QRYParameterValue<int> {};
+
+class Indexer_ParameterIndexer
+    : public MParameterIndexer<Indexer_Data, Indexer_Parameter> {
+
+public:
+  virtual Indexer_Parameter getValue(const Indexer_Data &entry) {
+    return entry._p;
+  }
+};
+
+TEST(Indexer, ParameterIndexer_Supports_Parameter_Query) {
+  Indexer_ParameterIndexer indexer;
+  auto qry = std::make_shared<Indexer_QRYParameter>();
+  ASSERT_TRUE(indexer.supportsQuery(qry));
+}
+
+TEST(Indexer, ParameterIndexer_Does_Not_Support_Other_Query) {
+  Indexer_ParameterIndexer indexer;
+  auto qry = std::make_shared<MQuery>();
+  ASSERT_FALSE(indexer.supportsQuery(qry));
+}
+
+TEST(Indexer, ParameterIndexer_Does_Not_Support_Other_Parameter) {
+  Indexer_ParameterIndexer indexer;
+  auto qry = std::make_shared<Indexer_QRYOtherParameter>();
+  ASSERT_FALSE(indexer.supportsQuery(qry));
+}
+
+TEST(Indexer, ParameterIndexer_Calls_Derived_Indexer) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto baseIndexer = std::static_pointer_cast<
+      ParameterIndexer<Indexer_Data, Indexer_Parameter>>(indexer);
+  auto qry = std::make_shared<Indexer_QRYParameter>();
+  EXPECT_CALL(*indexer, getByParameter(Eq(qry))).Times(1);
+  baseIndexer->getIndexList(qry);
+}
+
+TEST(
+    Indexer,
+    ParameterIndexer_GetIndexList_Throws_Exception_When_Called_With_Wrong_Parameter) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto baseIndexer = std::static_pointer_cast<
+      ParameterIndexer<Indexer_Data, Indexer_Parameter>>(indexer);
+  auto qry = std::make_shared<Indexer_QRYOtherParameter>();
+  EXPECT_CALL(*indexer, getByParameter(_)).Times(0);
+  ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
+}
+
+TEST(
+    Indexer,
+    ParameterIndexer_GetIndexList_Throws_Exception_When_Called_With_Wrong_Query) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto baseIndexer = std::static_pointer_cast<IIndexer<Indexer_Data>>(indexer);
+  auto qry = std::make_shared<MQuery>();
+  EXPECT_CALL(*indexer, getByParameter(_)).Times(0);
+  ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
+}
+
+TEST(Indexer, ParameterIndexer_Calls_GetValue_During_AddData) {
+  auto indexer =
+      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
+  Indexer_Data data;
+  EXPECT_CALL(*indexer, getValue(Ref(data))).Times(1);
+  indexer->addData(data, 0);
+}
+
+TEST(Indexer, ParameterIndexer_Calls_GetValue_During_RemoveData) {
+  auto indexer =
+      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
+  Indexer_Data data;
+  EXPECT_CALL(*indexer, getValue(Ref(data))).Times(1);
+  indexer->removeData(data, 0);
+}
+
+TEST(Indexer, ParameterIndexer_Query_Index) {
+  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+  auto index = rand();
+  Indexer_Data data("data1", rand(), rand());
+  auto qry = std::make_shared<QRYParameterValue<Indexer_Parameter>>(data._p);
+  indexer->addData(data, index);
+  auto result = indexer->getIndexList(qry);
+  ASSERT_EQ(1, result.size());
+  ASSERT_EQ(index, result[0]);
 }
 
 TEST(Indexer, IDXIndex_Get_Index_List) {

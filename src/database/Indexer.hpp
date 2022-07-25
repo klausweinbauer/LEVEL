@@ -9,6 +9,9 @@ template <typename TData, typename TQuery>
 class Indexer : public IIndexer<TData> {
 
 public:
+  virtual std::vector<unsigned int>
+  getIndexList(std::shared_ptr<TQuery> query) = 0;
+
   virtual bool supportsQuery(std::shared_ptr<IQuery> query) override {
     return dynamic_cast<TQuery *>(query.get());
   };
@@ -25,9 +28,6 @@ public:
         std::static_pointer_cast<TQuery>(query);
     return getIndexList(derivedQuery);
   }
-
-  virtual std::vector<unsigned int>
-  getIndexList(std::shared_ptr<TQuery> query) = 0;
 
   virtual void addData(const TData &entry, unsigned int index) {}
 
