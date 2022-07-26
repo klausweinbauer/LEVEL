@@ -15,11 +15,10 @@ typedef unsigned long nfds_l;
 typedef unsigned int socklen_l;
 typedef long int ssize_t;
 
-
 struct pollfd_l {
   int fd;
   short events;
-  short revents; 
+  short revents;
 };
 
 struct sockaddr_l {
@@ -27,6 +26,11 @@ struct sockaddr_l {
   char sa_data[14];
 };
 #elif __linux__
+typedef nfds_t nfds_l;
+typedef socklen_t socklen_l;
+
+struct pollfd_l : pollfd {};
+struct sockaddr_l : sockaddr {};
 #endif
 
 class Syscall {
@@ -74,29 +78,30 @@ class Syscall {
                       const sockaddr_l *dest_addr, socklen_l addrlen);
 
   /**
-  * @brief Sets socket options.
-  *
-  * @param socket File descriptor to set the options.
-  * @param level Specifies the protocol level at which the option resides.
-  * @param option_name Specifies a single option to set.
-  * @param option_value 
-  * @param option_len
-  * @return int 0 is returned on successful completion and -1 otherwise.
-  */
+   * @brief Sets socket options.
+   *
+   * @param socket File descriptor to set the options.
+   * @param level Specifies the protocol level at which the option resides.
+   * @param option_name Specifies a single option to set.
+   * @param option_value
+   * @param option_len
+   * @return int 0 is returned on successful completion and -1 otherwise.
+   */
   int posixSetSockOpt(int socket, int level, int option_name,
-                 const void *option_value, socklen_l option_len);
+                      const void *option_value, socklen_l option_len);
 
   /**
    * @brief Closes a file descriptor.
-   * 
+   *
    * @param fd File descriptor to close.
    * @return int Returns zero on success and -1 on error.
    */
   int posixClose(int fd);
 
   /**
-   * @brief Assigns the address specified by addr to the socket referred to by the file descriptor.
-   * 
+   * @brief Assigns the address specified by addr to the socket referred to by
+   * the file descriptor.
+   *
    * @param sockfd Socket file descriptor.
    * @param addr Address to assign.
    * @param addrlen Size of the address.
@@ -106,16 +111,21 @@ class Syscall {
 
   /**
    * @brief Used to receive messages from a socket.
-   * 
+   *
    * @param sockfd Socket file descriptor.
    * @param buf Buffer for the received message.
    * @param len Length of the buffer.
    * @param flags Special flags.
    * @param src_addr Source address from where the message was received.
-   * @param addrlen This is a value-result argument. Before the call, it should be initialized to the size of the buffer associated with src_addr. Upon return, addrlen is updated to contain the actual size of the source address.
-   * @return ssize_t Returns the number of bytes received, or -1 if an error occurred.
+   * @param addrlen This is a value-result argument. Before the call, it should
+   * be initialized to the size of the buffer associated with src_addr. Upon
+   * return, addrlen is updated to contain the actual size of the source
+   * address.
+   * @return ssize_t Returns the number of bytes received, or -1 if an error
+   * occurred.
    */
-  ssize_t posixRecvFrom(int sockfd, void *buf, size_t len, int flags, sockaddr_l *src_addr, socklen_l addrlen);
+  ssize_t posixRecvFrom(int sockfd, void *buf, size_t len, int flags,
+                        sockaddr_l *src_addr, socklen_l *addrlen);
 };
 
 } // namespace level
