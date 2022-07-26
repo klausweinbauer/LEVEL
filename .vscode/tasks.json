@@ -22,7 +22,7 @@
 		{
 			"type": "shell",
 			"label": "Coverage-XML",
-			"command": "python3 -m gcovr --cobertura LEVEL_coverage.xml -e \"${workspaceFolder}/test/*\" -e \"${workspaceFolder}/src/msg/*\" -e \"${workspaceFolder}/build/*\" --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches",
+			"command": "python3 -m gcovr --cobertura LEVEL_Coverage.xml -e \"${workspaceFolder}/test/*\" -e \"${workspaceFolder}/src/msg/*\" -e \"${workspaceFolder}/build/*\" --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches",
 			"problemMatcher": []
 		}
 	]

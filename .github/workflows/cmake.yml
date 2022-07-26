@@ -49,7 +49,7 @@ jobs:
 
     - name: Generate Code Coverage Report
       if: ${{ startsWith(matrix.os,'ubuntu-') }}
-      run: python3 -m gcovr --cobertura LEVEL_coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
+      run: python3 -m gcovr --cobertura LEVEL_Coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
       
     - name: Upload Coverage Report
       if: ${{ startsWith(matrix.os,'ubuntu-') }}
