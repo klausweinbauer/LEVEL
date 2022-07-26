@@ -39,10 +39,19 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
     
+    - name: Install GCOVR (Linux)
+      if: ${{ startsWith(matrix.os,'ubuntu-') }}
+      run: |
+        sudo apt update
+        sudo apt-get install -y gcovr
+        sudo apt-get clean
+
     - name: Generate Code Coverage Report
+      if: ${{ startsWith(matrix.os,'ubuntu-') }}
       run: gcovr --xml LEVEL_Coverage.xml -e "${{github.workspace}}/build/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/test/*" --object-directory ${{github.workspace}}/build/test/unit/
       
     - name: Upload Coverage Report
+      if: ${{ startsWith(matrix.os,'ubuntu-') }}
       uses: codecov/codecov-action@v2
       with:
         files: ./LEVEL_Coverage.xml
