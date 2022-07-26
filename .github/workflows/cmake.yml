@@ -43,12 +43,13 @@ jobs:
       if: ${{ startsWith(matrix.os,'ubuntu-') }}
       run: |
         sudo apt update
-        sudo apt-get install -y gcovr
+        sudo apt-get install -y pip3 python3
         sudo apt-get clean
+        pip3 install git+https://github.com/gcovr/gcovr.git
 
     - name: Generate Code Coverage Report
       if: ${{ startsWith(matrix.os,'ubuntu-') }}
-      run: gcovr --xml LEVEL_Coverage.xml -e "${{github.workspace}}/build/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/test/*" --object-directory ${{github.workspace}}/build/test/unit/
+      run: python3 -m gcovr --cobertura LEVEL_coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
       
     - name: Upload Coverage Report
       if: ${{ startsWith(matrix.os,'ubuntu-') }}
