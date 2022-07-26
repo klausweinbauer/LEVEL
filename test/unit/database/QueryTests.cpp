@@ -6,14 +6,14 @@
 
 using namespace level;
 
-TEST(Query, QRYIndex_Default_Construction) {
+TEST(Query, QRYIndexDefaultConstruction) {
   QRYIndex qry;
   ASSERT_EQ(0, qry.firstIndex());
   ASSERT_EQ(0, qry.lastIndex());
   ASSERT_EQ(0, qry.length());
 }
 
-TEST(Query, QRYIndex_Index_Construction) {
+TEST(Query, QRYIndexIndexConstruction) {
   auto index = (unsigned int)rand();
   QRYIndex qry(index);
   ASSERT_EQ(index, qry.firstIndex());
@@ -21,7 +21,7 @@ TEST(Query, QRYIndex_Index_Construction) {
   ASSERT_EQ(1, qry.length());
 }
 
-TEST(Query, QRYIndex_Range_Construction) {
+TEST(Query, QRYIndexRangeConstruction) {
   auto index = (unsigned int)rand();
   auto len = rand() % 100;
   QRYIndex qry(index, index + len);
@@ -30,38 +30,38 @@ TEST(Query, QRYIndex_Range_Construction) {
   ASSERT_EQ(len, qry.length());
 }
 
-TEST(Query, QRYIndex_Invalid_Range_Construction) {
+TEST(Query, QRYIndexInvalidRangeConstruction) {
   auto index = (unsigned int)rand();
   ASSERT_THROW(QRYIndex qry(index + 1, index), Exception);
 }
 
-TEST(Query, QRYIndex_Set_First_Index) {
+TEST(Query, QRYIndexSetFirstIndex) {
   auto index = (unsigned int)rand();
   QRYIndex qry(0, index + 1);
   qry.setFirstIndex(index);
   ASSERT_EQ(index, qry.firstIndex());
 }
 
-TEST(Query, QRYIndex_Set_First_Index_Higher_Than_Last_Index) {
+TEST(Query, QRYIndexSetFirstIndexHigherThanLastIndex) {
   auto index = (unsigned int)rand();
   QRYIndex qry(0, index - 1);
   ASSERT_THROW(qry.setFirstIndex(index), Exception);
 }
 
-TEST(Query, QRYIndex_Set_Last_Index) {
+TEST(Query, QRYIndexSetLastIndex) {
   auto index = (unsigned int)rand();
   QRYIndex qry;
   qry.setLastIndex(index);
   ASSERT_EQ(index, qry.lastIndex());
 }
 
-TEST(Query, QRYIndex_Set_Last_Index_Smaller_Than_First_Index) {
+TEST(Query, QRYIndexSetLastIndexSmallerThanFirstIndex) {
   auto index = (unsigned int)rand();
   QRYIndex qry(index + 1, index + 2);
   ASSERT_THROW(qry.setLastIndex(index), Exception);
 }
 
-TEST(Query, QRYIndex_Set_Single_Index) {
+TEST(Query, QRYIndexSetSingleIndex) {
   auto index = (unsigned int)rand();
   QRYIndex qry;
   qry.setIndex(index);
@@ -69,13 +69,13 @@ TEST(Query, QRYIndex_Set_Single_Index) {
   ASSERT_EQ(index + 1, qry.lastIndex());
 }
 
-TEST(Query, QRYIndex_Set_Single_Index_Overflow) {
+TEST(Query, QRYIndexSetSingleIndexOverflow) {
   auto index = UINT32_MAX;
   QRYIndex qry;
   ASSERT_THROW(qry.setIndex(index), Exception);
 }
 
-TEST(Query, QRYIndex_Set_Range) {
+TEST(Query, QRYIndexSetRange) {
   auto index = (unsigned int)rand();
   auto len = rand() % 100;
   QRYIndex qry;
@@ -85,7 +85,7 @@ TEST(Query, QRYIndex_Set_Range) {
   ASSERT_EQ(len, qry.length());
 }
 
-TEST(Query, QRYIndex_Set_Range_Backwards) {
+TEST(Query, QRYIndexSetRangeBackwards) {
   int index = (rand() % 10000) + 1000;
   int len = rand() % 1000;
   QRYIndex qry;
@@ -95,7 +95,7 @@ TEST(Query, QRYIndex_Set_Range_Backwards) {
   ASSERT_EQ(len, qry.length());
 }
 
-TEST(Query, QRYIndex_Set_Range_With_Max_Possible_Value) {
+TEST(Query, QRYIndexSetRangeWithMaxPossibleValue) {
   unsigned int index = UINT32_MAX - 1;
   int len = 100;
   QRYIndex qry;
@@ -105,19 +105,19 @@ TEST(Query, QRYIndex_Set_Range_With_Max_Possible_Value) {
   ASSERT_EQ(len, qry.length());
 }
 
-TEST(Query, QRYIndex_Set_Range_With_Overflowing_Value) {
+TEST(Query, QRYIndexSetRangeWithOverflowingValue) {
   unsigned int index = UINT32_MAX;
   QRYIndex qry;
   ASSERT_THROW(qry.setRange(index, 1), Exception);
 }
 
-TEST(Query, QRYIndex_Set_Range_With_Underflowing_Value) {
+TEST(Query, QRYIndexSetRangeWithUnderflowingValue) {
   unsigned int index = 0;
   QRYIndex qry;
   ASSERT_THROW(qry.setRange(index, -2), Exception);
 }
 
-TEST(Query, QRYIndex_By_Range) {
+TEST(Query, QRYIndexByRange) {
   unsigned int index1 = (unsigned int)(rand() % 1000) + 100;
   unsigned int index2 = index1 + (rand() % 100);
   auto qry = QRYIndex::byRange(index1, index2);
@@ -126,7 +126,7 @@ TEST(Query, QRYIndex_By_Range) {
   ASSERT_EQ(expQry.lastIndex(), qry->lastIndex());
 }
 
-TEST(Query, QRYIndex_By_Range_With_Length) {
+TEST(Query, QRYIndexByRangeWithLength) {
   unsigned int index = (unsigned int)(rand() % 1000) + 100;
   int len = rand() % 100;
   auto qry = QRYIndex::byRange(index, len);
@@ -135,7 +135,7 @@ TEST(Query, QRYIndex_By_Range_With_Length) {
   ASSERT_EQ(expQry.lastIndex(), qry->lastIndex());
 }
 
-TEST(Query, QRYIndex_By_Index) {
+TEST(Query, QRYIndexByIndex) {
   unsigned int index = (unsigned int)(rand() % 1000) + 100;
   auto qry = QRYIndex::byIndex(index);
   ASSERT_EQ(index, qry->firstIndex());
@@ -150,20 +150,20 @@ struct QueryTest_Parameter {
   QueryTest_Parameter(int x, int y) : _x(x), _y(y) {}
 };
 
-TEST(Query, QRYParameter_Default_Constructor) {
+TEST(Query, QRYParameterDefaultConstructor) {
   QRYParameter<QueryTest_Parameter> qry;
   ASSERT_EQ(0, qry.value()._x);
   ASSERT_EQ(0, qry.value()._y);
 }
 
-TEST(Query, QRYParameter_Constructor) {
+TEST(Query, QRYParameterConstructor) {
   QueryTest_Parameter param(rand(), rand());
   QRYParameter<QueryTest_Parameter> qry(param);
   ASSERT_EQ(param._x, qry.value()._x);
   ASSERT_EQ(param._y, qry.value()._y);
 }
 
-TEST(Query, QRYParameter_Set_Value) {
+TEST(Query, QRYParameterSetValue) {
   QueryTest_Parameter param(rand(), rand());
   QRYParameter<QueryTest_Parameter> qry;
   qry.setValue(param);
@@ -171,7 +171,7 @@ TEST(Query, QRYParameter_Set_Value) {
   ASSERT_EQ(param._y, qry.value()._y);
 }
 
-TEST(Query, QRYParameter_By_Value) {
+TEST(Query, QRYParameterByValue) {
   QueryTest_Parameter param(rand(), rand());
   auto qry = QRYParameter<QueryTest_Parameter>::byValue(param);
   ASSERT_EQ(param._x, qry.value()._x);

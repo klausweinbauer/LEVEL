@@ -200,6 +200,9 @@ public:
    * @param indexer Indexer to add to the database.
    */
   virtual void addIndexer(std::unique_ptr<IIndexer<T>> indexer) override {
+    if (!indexer) {
+      throw Exception(ERR_ARG_NULL, "Indexer is null.");
+    }
     std::lock_guard<std::mutex> guard(_indexerLock);
     _indexer.push_back(std::move(indexer));
   }

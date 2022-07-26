@@ -17,23 +17,23 @@ struct DBViewTestHelper {
   DBViewTestHelper(int value) : _value(value) {}
 };
 
-TEST(DBView, Initialize_With_Element_Nullptr) {
+TEST(DBView, InitializeWithElementNullptr) {
   ASSERT_THROW(DBView<int> view(nullptr), Exception);
 }
 
-TEST(DBView, Lock_Element_During_Construction) {
+TEST(DBView, LockElementDuringConstruction) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, lock()).Times(1);
   DBView<int> view(element.get());
 }
 
-TEST(DBView, Unlock_Element_At_End_Of_Life) {
+TEST(DBView, UnlockElementAtEndOfLife) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, unlock()).Times(1);
   { DBView<int> view(element.get()); }
 }
 
-TEST(DBView, Do_Not_Unlock_Element_At_End_Of_Life_When_Deleted) {
+TEST(DBView, DoNotUnlockElementAtEndOfLifeWhenDeleted) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   {
     DBView<int> view(element.get());
@@ -42,21 +42,21 @@ TEST(DBView, Do_Not_Unlock_Element_At_End_Of_Life_When_Deleted) {
   }
 }
 
-TEST(DBView, Call_Clear_On_DBElement_During_Delete) {
+TEST(DBView, CallClearOnDBElementDuringDelete) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, clear()).Times(1);
   DBView<int> view(element.get());
   view.remove();
 }
 
-TEST(DBView, Move_Construction) {
+TEST(DBView, MoveConstruction) {
   auto element = std::make_shared<DBElement<int>>();
   DBView<int> view1(element.get());
   DBView<int> view2(std::move(view1));
   ASSERT_FALSE(view1.isValid());
 }
 
-TEST(DBView, Move_Assignment) {
+TEST(DBView, MoveAssignment) {
   auto element1 = std::make_shared<DBElement<int>>();
   auto element2 = std::make_shared<DBElement<int>>();
   DBView<int> view1(element1.get());
@@ -64,20 +64,20 @@ TEST(DBView, Move_Assignment) {
   view2 = std::move(view1);
 }
 
-TEST(DBView, Check_Valid_State) {
+TEST(DBView, CheckValidState) {
   auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element.get());
   ASSERT_TRUE(view.isValid());
 }
 
-TEST(DBView, Check_Valid_State_After_Delete) {
+TEST(DBView, CheckValidStateAfterDelete) {
   auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element.get());
   view.remove();
   ASSERT_FALSE(view.isValid());
 }
 
-TEST(DBView, Deref_View) {
+TEST(DBView, DerefView) {
   int value = rand();
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&value));
@@ -85,7 +85,7 @@ TEST(DBView, Deref_View) {
   ASSERT_EQ(value, *view);
 }
 
-TEST(DBView, Deref_View_By_Arrow) {
+TEST(DBView, DerefViewByArrow) {
   DBViewTestHelper helper(rand());
   auto element = std::make_shared<NiceMock<MDBElement<DBViewTestHelper>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&helper));
@@ -93,7 +93,7 @@ TEST(DBView, Deref_View_By_Arrow) {
   ASSERT_EQ(helper._value, view->_value);
 }
 
-TEST(DBView, Modify_By_Reference) {
+TEST(DBView, ModifyByReference) {
   int value = rand();
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&value));
@@ -102,7 +102,7 @@ TEST(DBView, Modify_By_Reference) {
   ASSERT_EQ(1, value);
 }
 
-TEST(DBView, Modify_By_Arrow_Reference) {
+TEST(DBView, ModifyByArrowReference) {
   DBViewTestHelper helper(rand());
   auto element = std::make_shared<NiceMock<MDBElement<DBViewTestHelper>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&helper));
@@ -111,7 +111,7 @@ TEST(DBView, Modify_By_Arrow_Reference) {
   ASSERT_EQ(1, helper._value);
 }
 
-TEST(DBView, Throw_Exception_When_Deref_Invalid) {
+TEST(DBView, ThrowExceptionWhenDerefInvalid) {
   auto element = std::make_shared<DBElement<int>>();
   DBView<int> view(element.get());
   view.remove();
@@ -125,7 +125,7 @@ TEST(DBView, Throw_Exception_When_Deref_Invalid_By_Arrow) {
   ASSERT_THROW(view->_value, DBException);
 }
 
-TEST(DBView, Get_Index) {
+TEST(DBView, GetIndex) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   DBView<int> view(element.get());
   unsigned int index = (unsigned int)rand();
@@ -133,21 +133,21 @@ TEST(DBView, Get_Index) {
   EXPECT_EQ(index, view.index());
 }
 
-TEST(DBView, Get_Index_Throws_Exception_When_View_Is_Invalid) {
+TEST(DBView, GetIndexThrowsExceptionWhenViewIsInvalid) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   DBView<int> view(element.get());
   view.remove();
   EXPECT_THROW(view.index(), DBException);
 }
 
-TEST(DBView, Double_Remove_Call) {
+TEST(DBView, DoubleRemoveCall) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   DBView<int> view(element.get());
   view.remove();
   ASSERT_NO_THROW(view.remove());
 }
 
-TEST(DBView, Unlock_Element_In_Remove_Call) {
+TEST(DBView, UnlockElementInRemoveCall) {
   auto element = std::make_shared<NiceMock<MDBElement<int>>>();
   DBView<int> view(element.get());
   EXPECT_CALL(*element, unlock()).Times(1);

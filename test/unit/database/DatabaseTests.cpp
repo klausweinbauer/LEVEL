@@ -40,12 +40,12 @@ template <typename T> DBView<T> insertAndGet(Database<T> &db, T value) {
   return std::move(db.get(query)[0]);
 }
 
-TEST(Database, Default_Count) {
+TEST(Database, DefaultCount) {
   Database<int> db;
   ASSERT_EQ(0, db.count());
 }
 
-TEST(Database, Insert_By_Value) {
+TEST(Database, InsertByValue) {
   Database<int> db;
   int value = rand();
   auto view = db.insert(value);
@@ -53,7 +53,7 @@ TEST(Database, Insert_By_Value) {
   ASSERT_EQ(1, db.count());
 }
 
-TEST(Database, Insert_By_Reference) {
+TEST(Database, InsertByReference) {
   Database<Dummy> db;
   int value = rand();
   auto view = db.insert(std::make_unique<Dummy>(value));
@@ -61,7 +61,7 @@ TEST(Database, Insert_By_Reference) {
   ASSERT_EQ(1, db.count());
 }
 
-TEST(Database, Call_Add_Value_On_Indexer_During_Insert) {
+TEST(Database, CallAddValueOnIndexerDuringInsert) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   int value = rand();
@@ -70,7 +70,7 @@ TEST(Database, Call_Add_Value_On_Indexer_During_Insert) {
   db.insert(value);
 }
 
-TEST(Database, Ignore_Exception_In_Add_Value_By_Indexer) {
+TEST(Database, IgnoreExceptionInAddValueByIndexer) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   EXPECT_CALL(*indexer, addData(_, 0)).WillOnce(Throw(std::exception()));
@@ -78,14 +78,14 @@ TEST(Database, Ignore_Exception_In_Add_Value_By_Indexer) {
   EXPECT_NO_THROW(db.insert(rand()));
 }
 
-TEST(Database, Double_Free_Of_Same_View) {
+TEST(Database, DoubleFreeOfSameView) {
   Database<int> db;
   auto view = db.insert(rand());
   ASSERT_TRUE(db.remove(view));
   ASSERT_FALSE(db.remove(view));
 }
 
-TEST(Database, Check_Reuse_Of_Indices) {
+TEST(Database, CheckReuseOfIndices) {
   Database<int> db;
   int index1, index2;
   {
@@ -102,7 +102,7 @@ TEST(Database, Check_Reuse_Of_Indices) {
   ASSERT_EQ(0, index2);
 }
 
-TEST(Database, Remove_By_View_Call) {
+TEST(Database, RemoveByViewCall) {
   Database<int> db;
   auto view = db.insert(rand());
   view.remove();
@@ -110,7 +110,7 @@ TEST(Database, Remove_By_View_Call) {
   ASSERT_THROW(view.index(), DBException);
 }
 
-TEST(Database, Remove_By_Database_Call) {
+TEST(Database, RemoveByDatabaseCall) {
   Database<int> db;
   auto view = db.insert(rand());
   db.remove(view);
@@ -118,7 +118,7 @@ TEST(Database, Remove_By_Database_Call) {
   ASSERT_THROW(view.index(), DBException);
 }
 
-TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {
+TEST(Database, CallRemoveValueOnIndexerDuringDeletion) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   int value = rand();
@@ -127,8 +127,7 @@ TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {
   db.remove(db.insert(value));
 }
 
-TEST(Database,
-     Call_Remove_Value_On_Indexer_During_Deletion_When_Invoked_On_View) {
+TEST(Database, CallRemoveValueOnIndexerDuringDeletionWhenInvokedOnView) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   int value = rand();
@@ -138,7 +137,7 @@ TEST(Database,
   EXPECT_NO_THROW(view.remove());
 }
 
-TEST(Database, Ignore_Exception_In_Remove_Value_By_Indexer) {
+TEST(Database, IgnoreExceptionInRemoveValueByIndexer) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   EXPECT_CALL(*indexer, removeData(_, 0)).WillOnce(Throw(std::exception()));
@@ -146,14 +145,14 @@ TEST(Database, Ignore_Exception_In_Remove_Value_By_Indexer) {
   EXPECT_NO_THROW(db.remove(db.insert(rand())));
 }
 
-TEST(Database, Get_Nothing) {
+TEST(Database, GetNothing) {
   Database<int> db;
   auto query = Database_getQuery();
   auto result = db.get(query);
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Database, Call_To_Get_On_Indexer_During_Get) {
+TEST(Database, CallToGetOnIndexerDuringGet) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -163,7 +162,7 @@ TEST(Database, Call_To_Get_On_Indexer_During_Get) {
   db.get(query);
 }
 
-TEST(Database, Call_Only_Matching_Indexer_During_Get) {
+TEST(Database, CallOnlyMatchingIndexerDuringGet) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -173,7 +172,7 @@ TEST(Database, Call_Only_Matching_Indexer_During_Get) {
   db.get(query);
 }
 
-TEST(Database, Ignore_Exception_In_Get_By_Indexer) {
+TEST(Database, IgnoreExceptionInGetByIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -183,7 +182,7 @@ TEST(Database, Ignore_Exception_In_Get_By_Indexer) {
   EXPECT_NO_THROW(db.get(query));
 }
 
-TEST(Database, Get_Selected_View_By_Indexer) {
+TEST(Database, GetSelectedViewByIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -197,7 +196,7 @@ TEST(Database, Get_Selected_View_By_Indexer) {
   ASSERT_EQ(value, *result[0]);
 }
 
-TEST(Database, Get_Only_One_View_For_Multiple_Same_Indices_By_One_Indexer) {
+TEST(Database, GetOnlyOneViewForMultipleSameIndicesByOneIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -210,8 +209,7 @@ TEST(Database, Get_Only_One_View_For_Multiple_Same_Indices_By_One_Indexer) {
   ASSERT_EQ(1, result.size());
 }
 
-TEST(Database,
-     Get_Only_One_View_For_Multiple_Same_Indices_By_Multiple_Indexer) {
+TEST(Database, GetOnlyOneViewForMultipleSameIndicesByMultipleIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer1 = Database_getIndexer<int>();
@@ -227,7 +225,7 @@ TEST(Database,
   ASSERT_EQ(1, result.size());
 }
 
-TEST(Database, Ignore_Invalid_Indices_Returned_By_Indexer) {
+TEST(Database, IgnoreInvalidIndicesReturnedByIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -238,7 +236,7 @@ TEST(Database, Ignore_Invalid_Indices_Returned_By_Indexer) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Database, Ignore_Empty_Indices_Returned_By_Indexer) {
+TEST(Database, IgnoreEmptyIndicesReturnedByIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -250,7 +248,7 @@ TEST(Database, Ignore_Empty_Indices_Returned_By_Indexer) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Database, Return_Views_In_Correct_Order_If_Switched_By_Indexer) {
+TEST(Database, ReturnViewsInCorrectOrderIfSwitchedByIndexer) {
   Database<int> db;
   auto query = Database_getQuery();
   auto indexer = Database_getIndexer<int>();
@@ -266,7 +264,7 @@ TEST(Database, Return_Views_In_Correct_Order_If_Switched_By_Indexer) {
   ASSERT_EQ(value2, *result[1]);
 }
 
-TEST(Database, Insert_And_Get) {
+TEST(Database, InsertAndGet) {
   Database<int> db;
   int data1 = rand();
   int data2 = rand();
@@ -276,7 +274,7 @@ TEST(Database, Insert_And_Get) {
   ASSERT_EQ(data2, *view2);
 }
 
-TEST(Database, Call_Update_Data_On_Indexer_After_View_Scope_Ends) {
+TEST(Database, CallUpdateDataOnIndexerAfterViewScopeEnds) {
   Database<int> db;
   auto indexer1 = Database_getIndexer<int>();
   auto indexer2 = Database_getIndexer<int>();
@@ -290,7 +288,7 @@ TEST(Database, Call_Update_Data_On_Indexer_After_View_Scope_Ends) {
   db.get(query);
 }
 
-TEST(Database, Check_IsValid_State_With_Indexer_During_Get) {
+TEST(Database, CheckIsValidStateWithIndexerDuringGet) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   auto query = Database_getQuery();
@@ -303,8 +301,7 @@ TEST(Database, Check_IsValid_State_With_Indexer_During_Get) {
   db.get(query);
 }
 
-TEST(Database,
-     Do_Not_Check_IsValid_State_With_Not_Supported_Indexer_During_Get) {
+TEST(Database, DoNotCheckIsValidStateWithNotSupportedIndexerDuringGet) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   auto query = Database_getQuery();
@@ -320,7 +317,7 @@ TEST(Database,
   db.get(query);
 }
 
-TEST(Database, Handle_Exception_From_IsValid_During_Get) {
+TEST(Database, HandleExceptionFromIsValidDuringGet) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   auto query = Database_getQuery();
@@ -333,7 +330,7 @@ TEST(Database, Handle_Exception_From_IsValid_During_Get) {
   ASSERT_NO_THROW(db.get(query));
 }
 
-TEST(Database, Handle_Exception_From_Supports_Query_During_IsValid_Check) {
+TEST(Database, HandleExceptionFromSupportsQueryDuringIsValidCheck) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   auto query = Database_getQuery();
@@ -348,11 +345,17 @@ TEST(Database, Handle_Exception_From_Supports_Query_During_IsValid_Check) {
   ASSERT_NO_THROW(db.get(query));
 }
 
-TEST(Database, Handle_Exception_From_Supports_Query_During_Get) {
+TEST(Database, HandleExceptionFromSupportsQueryDuringGet) {
   Database<int> db;
   auto indexer = Database_getIndexer<int>();
   auto query = Database_getQuery();
   EXPECT_CALL(*indexer, supportsQuery(_)).WillOnce(Throw(std::exception()));
   db.addIndexer(std::move(indexer));
   ASSERT_NO_THROW(db.get(query));
+}
+
+TEST(Database, ExceptionOnAddNullptrIndexer) {
+  Database<int> db;
+  auto indexer = std::unique_ptr<NiceMock<MIndexer<int>>>(nullptr);
+  ASSERT_THROW(db.addIndexer(std::move(indexer)), Exception);
 }

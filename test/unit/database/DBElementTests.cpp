@@ -16,27 +16,27 @@ struct DBElementTestHelper {
   DBElementTestHelper(int value) : _value(value) {}
 };
 
-TEST(DBElement, Correct_Index_Initialization) {
+TEST(DBElement, CorrectIndexInitialization) {
   unsigned int index = (unsigned int)rand();
   DBElement<int> element(index);
   ASSERT_EQ(index, element.index());
 }
 
-TEST(DBElement, Set_Holding_Thread_Id_After_Lock) {
+TEST(DBElement, SetHoldingThreadIdAfterLock) {
   DBElement<int> element;
   element.lock();
   ASSERT_EQ(std::this_thread::get_id(), element.holdingThread());
   element.unlock();
 }
 
-TEST(DBElement, Reset_Holding_Thread_Id_After_Unlock) {
+TEST(DBElement, ResetHoldingThreadIdAfterUnlock) {
   DBElement<int> element;
   element.lock();
   element.unlock();
   ASSERT_EQ(std::thread::id(), element.holdingThread());
 }
 
-TEST(DBElement, Set_And_Get_Data) {
+TEST(DBElement, SetAndGetData) {
   DBElement<DBElementTestHelper> element;
   int value = rand();
   element.setData(std::move(std::make_unique<DBElementTestHelper>(value)));
@@ -44,7 +44,7 @@ TEST(DBElement, Set_And_Get_Data) {
   ASSERT_EQ(value, element.data()._value);
 }
 
-TEST(DBElement, Throw_Exception_On_Data_When_Not_Set) {
+TEST(DBElement, ThrowExceptionOnDataWhenNotSet) {
   DBElement<DBElementTestHelper> element;
   ASSERT_THROW(element.data()._value = rand(), DBException);
 }
@@ -64,7 +64,7 @@ public:
   MOCK_METHOD(void, removeCallback, (DBElement<T> *));
 };
 
-TEST(DBElement, Call_To_Database_On_Clear) {
+TEST(DBElement, CallToDatabaseOnClear) {
   auto db = std::make_shared<NiceMock<MDatabase<int>>>();
   DBElement<int> element;
   DBElement_MRemoveCallback<int> callback;
@@ -75,19 +75,19 @@ TEST(DBElement, Call_To_Database_On_Clear) {
   element.clear();
 }
 
-TEST(DBElement, Ignore_Call_To_Database_On_Clear_If_Not_Initialized) {
+TEST(DBElement, IgnoreCallToDatabaseOnClearIfNotInitialized) {
   unsigned int index = (unsigned int)rand();
   DBElement<int> element(index);
   ASSERT_NO_THROW(element.clear());
 }
 
-TEST(DBElement, Has_Data_Assigned) {
+TEST(DBElement, HasDataAssigned) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
   ASSERT_TRUE(element.hasData());
 }
 
-TEST(DBElement, Has_No_Data_Assigned) {
+TEST(DBElement, HasNoDataAssigned) {
   DBElement<int> element;
   ASSERT_FALSE(element.hasData());
 }
@@ -99,7 +99,7 @@ public:
   MOCK_METHOD(void, updateCallback, (const DBElement<T> *const));
 };
 
-TEST(DBElement, Call_Data_Modified_When_Unlocked) {
+TEST(DBElement, CallDataModifiedWhenUnlocked) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
   DBElement_MUpdateCallback<int> callback;
@@ -111,7 +111,7 @@ TEST(DBElement, Call_Data_Modified_When_Unlocked) {
   element.unlock();
 }
 
-TEST(DBElement, Do_Not_Call_Data_Modified_When_Unlocked_And_Data_Is_Null) {
+TEST(DBElement, DoNotCallDataModifiedWhenUnlockedAndDataIsNull) {
   DBElement<int> element;
   DBElement_MUpdateCallback<int> callback;
   element.updateCallback = [&callback](const DBElement<int> *const e) {
@@ -122,7 +122,7 @@ TEST(DBElement, Do_Not_Call_Data_Modified_When_Unlocked_And_Data_Is_Null) {
   element.unlock();
 }
 
-TEST(DBElement, Do_Not_Call_Data_Modified_When_Not_Set) {
+TEST(DBElement, DoNotCallDataModifiedWhenNotSet) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
   DBElement_MUpdateCallback<int> callback;
