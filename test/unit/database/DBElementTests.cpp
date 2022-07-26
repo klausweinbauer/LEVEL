@@ -26,6 +26,7 @@ TEST(DBElement, Set_Holding_Thread_Id_After_Lock) {
   DBElement<int> element;
   element.lock();
   ASSERT_EQ(std::this_thread::get_id(), element.holdingThread());
+  element.unlock();
 }
 
 TEST(DBElement, Reset_Holding_Thread_Id_After_Unlock) {
@@ -105,6 +106,7 @@ TEST(DBElement, Call_Data_Modified_When_Unlocked) {
   element.updateCallback = [&callback](const DBElement<int> *const e) {
     callback.updateCallback(e);
   };
+  element.lock();
   EXPECT_CALL(callback, updateCallback(&element)).Times(1);
   element.unlock();
 }
@@ -115,6 +117,7 @@ TEST(DBElement, Do_Not_Call_Data_Modified_When_Unlocked_And_Data_Is_Null) {
   element.updateCallback = [&callback](const DBElement<int> *const e) {
     callback.updateCallback(e);
   };
+  element.lock();
   EXPECT_CALL(callback, updateCallback(&element)).Times(0);
   element.unlock();
 }
@@ -123,6 +126,7 @@ TEST(DBElement, Do_Not_Call_Data_Modified_When_Not_Set) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
   DBElement_MUpdateCallback<int> callback;
+  element.lock();
   EXPECT_CALL(callback, updateCallback(&element)).Times(0);
   ASSERT_NO_THROW(element.unlock());
 }

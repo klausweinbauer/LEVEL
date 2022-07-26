@@ -13,6 +13,8 @@ using ::testing::ReturnPointee;
 
 struct DBViewTestHelper {
   int _value;
+  DBViewTestHelper() : _value(0) {}
+  DBViewTestHelper(int value) : _value(value) {}
 };
 
 TEST(DBView, Initialize_With_Element_Nullptr) {
@@ -84,7 +86,7 @@ TEST(DBView, Deref_View) {
 }
 
 TEST(DBView, Deref_View_By_Arrow) {
-  DBViewTestHelper helper = {._value = rand()};
+  DBViewTestHelper helper(rand());
   auto element = std::make_shared<NiceMock<MDBElement<DBViewTestHelper>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&helper));
   DBView<DBViewTestHelper> view(element.get());
@@ -101,7 +103,7 @@ TEST(DBView, Modify_By_Reference) {
 }
 
 TEST(DBView, Modify_By_Arrow_Reference) {
-  DBViewTestHelper helper = {._value = rand()};
+  DBViewTestHelper helper(rand());
   auto element = std::make_shared<NiceMock<MDBElement<DBViewTestHelper>>>();
   EXPECT_CALL(*element, data()).WillRepeatedly(ReturnPointee(&helper));
   DBView<DBViewTestHelper> view(element.get());
