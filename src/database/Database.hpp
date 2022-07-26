@@ -197,6 +197,8 @@ public:
    * @brief Add an indexer to this database. The caller transfers the ownership
    * of the indexer to the database.
    *
+   * @throw Exception if indexer is nullptr.
+   *
    * @param indexer Indexer to add to the database.
    */
   virtual void addIndexer(std::unique_ptr<IIndexer<T>> indexer) override {
