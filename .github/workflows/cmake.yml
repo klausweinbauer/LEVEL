@@ -38,4 +38,13 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
+    
+    - name: Generate Code Coverage Report
+      run: gcovr --xml LEVEL_Coverage.xml -e "${{github.workspace}}/build/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/test/*" --object-directory ${{github.workspace}}/build/test/unit/
       
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v2
+      with:
+        files: ./LEVEL_Coverage.xml
+        fail_ci_if_error: true
+        functionalities: fix

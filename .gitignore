@@ -21,4 +21,5 @@ dockcross
 doc/html/
 doc/latex/
 
-valgrind-out.txt
+*[Vv]algrind*
+*[Cc]overage*
