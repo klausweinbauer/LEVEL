@@ -30,7 +30,7 @@ void SocketBasedNI::send(const CAM_t *cam) {
   uint8_t *buffer = (uint8_t *)calloc(1, bufferSize);
 
   int len = _encoder->encode(cam, buffer, bufferSize);
-  _sendSocket->sendTo((char *)buffer, len);
+  _sendSocket->send((char *)buffer, len);
 
   free(buffer);
 }

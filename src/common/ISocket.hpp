@@ -29,7 +29,7 @@ public:
    * @param len Length of buffer in bytes.
    * @param flags Optional socket flags.
    */
-  virtual void sendTo(const char *buffer, int len, int flags = 0) = 0;
+  virtual void send(const char *buffer, int len, int flags = 0) = 0;
 
   /**
    * @brief Receive data.
@@ -39,13 +39,7 @@ public:
    * @param flags Optional socket flags.
    * @return int Returns the number of bytes stored in buffer.
    */
-  virtual int recvFrom(char *buffer, int len, int flags = 0) = 0;
-
-  /**
-   * @brief Bind socket to use it for receiving data.
-   *
-   */
-  virtual void bindSocket() = 0;
+  virtual int recv(char *buffer, int len, int flags = 0) = 0;
 
   /**
    * @brief Close the socket.

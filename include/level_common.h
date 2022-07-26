@@ -77,6 +77,12 @@ void SHARED_EXPORT getLastErrMsg(char *buffer, int size, int *actualSize);
  */
 void SHARED_EXPORT setLastErrMsg(const char *buffer, int size);
 
+/**
+ * @brief Clear the last error message.
+ *
+ */
+void SHARED_EXPORT clearLastErrMsg();
+
 #ifdef __cplusplus
 }
 };

@@ -25,7 +25,7 @@ WSASession::~WSASession() { WSACleanup(); }
 #endif
 
 UDPSocket::UDPSocket(unsigned short port)
-    : _port(port), _enableRecvException(true) {
+    : _port(port), _enableRecvException(true), _isBound(false) {
   _sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 #ifdef _WIN32
@@ -63,7 +63,7 @@ UDPSocket::~UDPSocket() {
 #endif
 }
 
-void UDPSocket::sendTo(const char *buffer, int len, int flags) {
+void UDPSocket::send(const char *buffer, int len, int flags) {
   sockaddr_in add{};
   add.sin_family = AF_INET;
   add.sin_addr.s_addr = inet_addr("255.255.255.255");
@@ -80,8 +80,14 @@ void UDPSocket::sendTo(const char *buffer, int len, int flags) {
   }
 }
 
-int UDPSocket::recvFrom(char *buffer, int len, int flags) {
+int UDPSocket::recv(char *buffer, int len, int flags) {
   _enableRecvException = true;
+
+  if (!_isBound) {
+    bindSocket();
+    _isBound = true;
+  }
+
   int ret = recvfrom(_sock, buffer, len, flags, nullptr, nullptr);
   if (ret < 0) {
     if (_enableRecvException) {
@@ -90,9 +96,6 @@ int UDPSocket::recvFrom(char *buffer, int len, int flags) {
              << strerror(errno) << std::endl;
       throw NetworkException(ERR, errMsg.str().c_str());
     }
-  } else {
-    // make the buffer zero terminated
-    buffer[ret] = 0;
   }
 
   return ret;
