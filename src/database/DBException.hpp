@@ -16,8 +16,6 @@
 #include <sstream>
 #include <string>
 
-#define DB_EXCEPTION_BUFFER_LEN 256
-
 namespace level {
 
 /**
