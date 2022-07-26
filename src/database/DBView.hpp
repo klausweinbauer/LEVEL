@@ -84,9 +84,7 @@ public:
   DBView(DBView<T> &&view) : _element(nullptr) { swap(*this, view); }
 
   DBView<T> &operator=(DBView<T> &&view) {
-    if (this != std::addressof(view)) {
-      swap(*this, view);
-    }
+    swap(*this, view);
     return *this;
   }
 

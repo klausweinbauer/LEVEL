@@ -91,7 +91,6 @@ private:
     for (auto &&indexer : _indexer) {
       try {
         if (indexer->supportsQuery(query)) {
-
           auto tmpIndexList = indexer->getIndexList(query);
           for (unsigned int i : tmpIndexList) {
             if (i < _size && _data[i]->hasData()) {
