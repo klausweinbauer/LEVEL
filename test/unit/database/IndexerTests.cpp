@@ -22,7 +22,7 @@ class NotDerivedMQuery : public IQuery {};
 template <typename T> class IndexerTest_Indexer : public Indexer<T, MQuery> {
 public:
   MOCK_METHOD(std::vector<unsigned int>, getIndexList,
-              (std::shared_ptr<MQuery>));
+              (std::shared_ptr<MQuery>), (override, const));
 };
 
 template <typename T>
@@ -133,7 +133,7 @@ class Indexer_ParameterIndexer
 public:
   Indexer_ParameterIndexer() {}
 
-  virtual Indexer_Parameter getValue(const Indexer_Data &entry) {
+  virtual Indexer_Parameter getValue(const Indexer_Data &entry) const {
     return entry._p;
   }
 };

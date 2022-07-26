@@ -9,6 +9,7 @@
  * @copyright Copyright (c) 2022
  *
  */
+
 #pragma once
 
 #include <DBElement.hpp>
@@ -51,7 +52,7 @@ private:
       index = _size;
       _size += 1;
       _data = (DBElement<T> **)realloc(_data, _size * sizeof(DBElement<T> *));
-      _data[index] = new DBElement<T>(index, this);
+      _data[index] = new DBElement<T>(index);
     }
     return _data[index];
   }
@@ -110,6 +111,15 @@ private:
     return indexList;
   }
 
+  /**
+   * @brief Validate a data entry with supported indexers.
+   *
+   * @param query The query used to derive the data element.
+   * @param data The data element.
+   * @param index The index of the element.
+   * @return true If any supported indexer validates the data.
+   * @return false If no supported indexer validates the data.
+   */
   bool validateElement(std::shared_ptr<IQuery> query, const T &data,
                        unsigned int index) {
     std::scoped_lock lock(_indexerLock);
@@ -128,12 +138,44 @@ private:
     return false;
   }
 
-  void updateIndexer(const DBElement<T> *const element) {
+  /**
+   * @brief Callback method for updating a data element.
+   *
+   * @param element Data element.
+   */
+  void updateCallback(const DBElement<T> *const element) {
+    assert(element->holdingThread() == std::this_thread::get_id() &&
+           "Caller of updateCallback must hold element lock.");
+
     std::lock_guard<std::mutex> guard(_indexerLock);
 
     for (auto &&indexer : _indexer) {
       indexer->updateData(element->data(), element->index());
     }
+  }
+
+  /**
+   * @brief Callback method for removing a data element.
+   *
+   * @param element Data element.
+   */
+  void removeCallback(DBElement<T> *element) {
+    assert(element->holdingThread() == std::this_thread::get_id() &&
+           "Caller of removeCallback must hold element lock.");
+
+    _indexerLock.lock();
+    for (auto &&indexer : _indexer) {
+      try {
+        indexer->removeData(element->data(), element->index());
+      } catch (const std::exception &) {
+        // Ignore indexer exception
+      }
+    }
+    _indexerLock.unlock();
+    element->setData(nullptr);
+
+    std::lock_guard<std::mutex> freeIndicesGuard(_freeIndicesLock);
+    _freeIndices.push_back(element->index());
   }
 
 public:
@@ -152,6 +194,12 @@ public:
   Database(const Database &) = delete;
   Database &operator=(const Database &) = delete;
 
+  /**
+   * @brief Add an indexer to this database. The caller transfers the ownership
+   * of the indexer to the database.
+   *
+   * @param indexer Indexer to add to the database.
+   */
   virtual void addIndexer(std::unique_ptr<IIndexer<T>> indexer) override {
     std::lock_guard<std::mutex> guard(_indexerLock);
     _indexer.push_back(std::move(indexer));
@@ -172,8 +220,8 @@ public:
    * @brief Insert a new element by value. The inserted type must implement a
    * copy constructor.
    *
-   * @param entry
-   * @return DBView<T>
+   * @param entry Value to insert.
+   * @return DBView<T> A view to the newly inserted value.
    */
   virtual DBView<T> insert(T entry) override {
     return insert(std::make_unique<T>(entry));
@@ -183,14 +231,17 @@ public:
    * @brief Insert a new element by reference. The caller transfers ownership
    * of the entry to the database.
    *
-   * @param entry
-   * @return DBView<T>
+   * @param entry Value to insert.
+   * @return DBView<T> A view to the newly inserted value.
    */
   virtual DBView<T> insert(std::unique_ptr<T> entry) override {
     DBElement<T> *element = getFreeElement();
     element->setData(std::move(entry));
-    element->dataChanged = [this](const DBElement<T> *const element) {
-      this->updateIndexer(element);
+    element->updateCallback = [this](const DBElement<T> *const element) {
+      this->updateCallback(element);
+    };
+    element->removeCallback = [this](DBElement<T> *element) {
+      this->removeCallback(element);
     };
 
     _indexerLock.lock();
@@ -243,10 +294,7 @@ public:
    * @return true Successfully deleted the entry.
    * @return false Failed to delete the entry.
    */
-  virtual bool remove(DBView<T> &view) override {
-    view.remove();
-    return true;
-  }
+  virtual bool remove(DBView<T> &view) override { return view.remove(); }
 
   /**
    * @brief Deletes a database entry by a view.
@@ -255,54 +303,7 @@ public:
    * @return true Successfully deleted the entry.
    * @return false Failed to delete the entry.
    */
-  virtual bool remove(DBView<T> &&view) override {
-    view.remove();
-    return true;
-  }
-
-  /**
-   * @brief Deletes a database entry by its index. If the caller does not hold
-   * the entry, this call will block until it safely acquired the element for
-   * deletion.
-   *
-   * @throw DBException if index does not point to a valid entry.
-   *
-   * @param index The index of the entry to delete.
-   * @return true Successfully deleted the entry.
-   * @return false Failed to delete the entry.
-   */
-  virtual bool remove(unsigned int index) override {
-    DBElement<T> *element = getElement(index);
-    if (!element->hasData()) {
-      throw DBException(
-          ERR_INDEX_OUT_OF_RANGE,
-          "Removing element failed. Element with this index does not exist.");
-    }
-
-    bool lockAcquired = false;
-    if (element->holdingThread() != std::this_thread::get_id()) {
-      element->lock();
-      lockAcquired = true;
-    }
-    _indexerLock.lock();
-    for (auto &&indexer : _indexer) {
-      try {
-        indexer->removeData(element->data(), element->index());
-      } catch (const std::exception &) {
-        // Ignore indexer exception
-      }
-    }
-    _indexerLock.unlock();
-    element->setData(nullptr);
-    if (lockAcquired) {
-      element->unlock();
-    }
-
-    std::lock_guard<std::mutex> freeIndicesGuard(_freeIndicesLock);
-    _freeIndices.push_back(element->index());
-
-    return true;
-  }
+  virtual bool remove(DBView<T> &&view) override { return view.remove(); }
 };
 
 } // namespace level

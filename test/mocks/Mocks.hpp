@@ -32,13 +32,14 @@ public:
 
 template <typename T> class MIndexer : public IIndexer<T> {
 public:
-  MOCK_METHOD(bool, supportsQuery, (std::shared_ptr<IQuery>));
+  MOCK_METHOD(bool, supportsQuery, (std::shared_ptr<IQuery>),
+              (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getIndexList,
-              (std::shared_ptr<IQuery>));
+              (std::shared_ptr<IQuery>), (override, const));
   MOCK_METHOD(void, addData, (const T &, unsigned int), (override));
   MOCK_METHOD(void, updateData, (const T &, unsigned int), (override));
   MOCK_METHOD(void, removeData, (const T &, unsigned int), (override));
-  MOCK_METHOD(bool, isValid, (const T &, unsigned int), (override));
+  MOCK_METHOD(bool, isValid, (const T &, unsigned int), (override, const));
 };
 
 template <typename T> class MDBElement : public DBElement<T> {
@@ -62,7 +63,7 @@ public:
               (override));
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
-  MOCK_METHOD(bool, remove, (unsigned int), (override));
+  // MOCK_METHOD(bool, remove, (unsigned int), (override));
 };
 
 template <typename TData, typename TParameter>
@@ -70,7 +71,7 @@ class MParameterIndexer : public ParameterIndexer<TData, TParameter> {
 public:
   MParameterIndexer() {}
 
-  MOCK_METHOD(TParameter, getValue, (const TData &), (override));
+  MOCK_METHOD(TParameter, getValue, (const TData &), (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getByParameter,
-              (std::shared_ptr<QRYParameter<TParameter>>), (override));
+              (std::shared_ptr<QRYParameter<TParameter>>), (override, const));
 };

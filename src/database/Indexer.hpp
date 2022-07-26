@@ -1,3 +1,15 @@
+/**
+ * @file Indexer.hpp
+ * @author Klaus Weinbauer
+ * @brief Base class for indexer implementations. Override addData(),
+ * updateData(), removeData() and isValid() according to the logic as needed.
+ * @version 0.1
+ * @date 2022-07-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #pragma once
 
 #include <DBException.hpp>
@@ -5,19 +17,27 @@
 
 namespace level {
 
+/**
+ * @brief Base class for indexer implementations. Override addData(),
+ * updateData(), removeData() and isValid() according to the logic as needed.
+ *
+ * @tparam TData Data type stored in the database.
+ * @tparam TQuery Type of the query that this indexer supports. This type must
+ * implement the IQuery interface.
+ */
 template <typename TData, typename TQuery>
 class Indexer : public IIndexer<TData> {
 
 public:
   virtual std::vector<unsigned int>
-  getIndexList(std::shared_ptr<TQuery> query) = 0;
+  getIndexList(std::shared_ptr<TQuery> query) const = 0;
 
-  virtual bool supportsQuery(std::shared_ptr<IQuery> query) override {
+  virtual bool supportsQuery(std::shared_ptr<IQuery> query) const override {
     return dynamic_cast<TQuery *>(query.get());
   };
 
   virtual std::vector<unsigned int>
-  getIndexList(std::shared_ptr<IQuery> query) override {
+  getIndexList(std::shared_ptr<IQuery> query) const override {
     auto castedQuery = dynamic_cast<TQuery *>(query.get());
     if (!castedQuery) {
       throw DBException(ERR_INVALID_ARG,
@@ -35,7 +55,9 @@ public:
 
   virtual void removeData(const TData &entry, unsigned int index) {}
 
-  virtual bool isValid(const TData &entry, unsigned int index) { return true; }
+  virtual bool isValid(const TData &entry, unsigned int index) const {
+    return true;
+  }
 };
 
 } // namespace level

@@ -78,53 +78,44 @@ TEST(Database, Ignore_Exception_In_Add_Value_By_Indexer) {
   EXPECT_NO_THROW(db.insert(rand()));
 }
 
-TEST(Database, Exception_When_Removing_Not_Existing_Entry) {
-  Database<int> db;
-  ASSERT_THROW(db.remove(1), DBException);
-}
-
-TEST(Database, Exception_When_Removing_Deleted_Entry) {
-  Database<int> db;
-  db.insert(rand());
-  db.remove(0);
-  ASSERT_THROW(db.remove(0), DBException);
-}
-
-TEST(Database, Remove_Entry_By_Index) {
-  Database<int> db;
-  db.insert(rand());
-  db.remove(0);
-  ASSERT_EQ(0, db.count());
-}
-
-TEST(Database, Remove_Entry_By_Index_While_Holding_View) {
+TEST(Database, Double_Free_Of_Same_View) {
   Database<int> db;
   auto view = db.insert(rand());
-  ASSERT_NO_THROW(db.remove(view.index()));
+  ASSERT_TRUE(db.remove(view));
+  ASSERT_FALSE(db.remove(view));
 }
 
-TEST(Database, Reuse_Of_Indices) {
+TEST(Database, Check_Reuse_Of_Indices) {
   Database<int> db;
-  db.insert(rand());
-  db.remove(0);
-  db.insert(rand());
-  ASSERT_NO_THROW(db.remove(0));
+  int index1, index2;
+  {
+    auto view = db.insert(rand());
+    index1 = view.index();
+    db.remove(view);
+  }
+  {
+    auto view = db.insert(rand());
+    index2 = view.index();
+    db.remove(view);
+  }
+  ASSERT_EQ(0, index1);
+  ASSERT_EQ(0, index2);
 }
 
-TEST(Database, Remove_By_Direct_View_Call) {
+TEST(Database, Remove_By_View_Call) {
   Database<int> db;
   auto view = db.insert(rand());
   view.remove();
-  ASSERT_THROW(db.remove(0), DBException);
-  ASSERT_THROW(view.index(), Exception);
+  ASSERT_NO_THROW(db.remove(view));
+  ASSERT_THROW(view.index(), DBException);
 }
 
-TEST(Database, Remove_By_View) {
+TEST(Database, Remove_By_Database_Call) {
   Database<int> db;
   auto view = db.insert(rand());
   db.remove(view);
-  ASSERT_THROW(db.remove(0), DBException);
-  ASSERT_THROW(view.index(), Exception);
+  ASSERT_NO_THROW(view.remove());
+  ASSERT_THROW(view.index(), DBException);
 }
 
 TEST(Database, Call_Remove_Value_On_Indexer_During_Deletion) {

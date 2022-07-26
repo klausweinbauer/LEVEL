@@ -1,7 +1,8 @@
 /**
  * @file DBElement.hpp
  * @author Klaus Weinbauer
- * @brief Manages a data object in the database.
+ * @brief Container class for a data entry in the database. This class manages a
+ * data object within the database.
  * @version 0.1
  * @date 2022-06-28
  *
@@ -20,7 +21,8 @@
 namespace level {
 
 /**
- * @brief Container class for data entry in database.
+ * @brief Container class for a data entry in the database. This class manages a
+ * data object within the database.
  *
  * @tparam T Type of data to store in database. This type must implement a copy
  * constructor.
@@ -31,14 +33,12 @@ private:
   std::mutex _lock;
   std::thread::id _threadId;
   const unsigned int _index;
-  IDatabase<T> *const _database;
 
 public:
-  DBElement() : DBElement<T>(0, nullptr) {}
+  DBElement() : DBElement<T>(0) {}
 
-  DBElement(unsigned int index, IDatabase<T> *database)
-      : _data(nullptr), _threadId(std::thread::id()), _index(index),
-        _database(database) {}
+  DBElement(unsigned int index)
+      : _data(nullptr), _threadId(std::thread::id()), _index(index) {}
 
   virtual ~DBElement() {}
 
@@ -48,7 +48,17 @@ public:
   DBElement(DBElement<T> &&element) = delete;
   DBElement<T> &operator=(DBElement<T> &&element) = delete;
 
-  std::function<void(const DBElement<T> *const)> dataChanged;
+  /**
+   * @brief Callback method to handle data update.
+   *
+   */
+  std::function<void(const DBElement<T> *const)> updateCallback;
+
+  /**
+   * @brief Callback method to handle data deletion.
+   *
+   */
+  std::function<void(DBElement<T> *)> removeCallback;
 
   /**
    * @brief Get the Data object.
@@ -87,8 +97,8 @@ public:
     if (_data) {
       // Invalidation of possibly stored pointers by the user.
       _data = std::make_unique<T>(*_data);
-      if (dataChanged) {
-        dataChanged(this);
+      if (updateCallback) {
+        updateCallback(this);
       }
     }
 
@@ -112,8 +122,8 @@ public:
    *
    */
   virtual void clear() {
-    if (_database) {
-      _database->remove(_index);
+    if (removeCallback) {
+      removeCallback(this);
     }
     _data = nullptr;
   }
@@ -135,4 +145,4 @@ public:
   virtual unsigned int index() const { return _index; }
 };
 
-}; // namespace level
+} // namespace level

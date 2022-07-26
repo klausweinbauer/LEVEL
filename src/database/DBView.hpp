@@ -1,15 +1,15 @@
 /**
  * @file DBView.hpp
  * @author Klaus Weinbauer
- * @brief Manages a transaction with a database element.
+ * @brief Data access container for database entries. This class manages a
+ * transaction with a database element to ensure thread- and memory-safe access
+ * for the caller as long as it holds the view instance.
  * @version 0.1
  * @date 2022-06-28
  *
  * @copyright Copyright (c) 2022
  *
- * This class is basically a wrapper for an interaction with a database element,
- * to ensure mutual exclusion for the caller as long as it holds the view
- * instance.
+ * @details
  *
  */
 
@@ -29,7 +29,9 @@ namespace level {
 template <typename T> class DBElement;
 
 /**
- * @brief Data access container for database entries.
+ * @brief Data access container for database entries. This class manages a
+ * transaction with a database element to ensure thread- and memory-safe access
+ * for the caller as long as it holds the view instance.
  *
  * @tparam T Type of data to store in database.
  */
@@ -116,13 +118,14 @@ public:
    * @brief Delete the corresponding element in the database.
    *
    */
-  void remove() {
+  bool remove() {
     if (!_element) {
-      return;
+      return false;
     }
     _element->clear();
     _element->unlock();
     _element = nullptr;
+    return true;
   }
 
   /**
@@ -152,4 +155,4 @@ public:
   }
 };
 
-}; // namespace level
+} // namespace level

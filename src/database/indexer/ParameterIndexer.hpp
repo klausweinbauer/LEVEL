@@ -34,9 +34,9 @@ public:
    * @param entry
    * @return TParameter Parameter from data object.
    */
-  virtual TParameter getValue(const TData &entry) = 0;
+  virtual TParameter getValue(const TData &entry) const = 0;
 
-  virtual bool supportsQuery(std::shared_ptr<IQuery> query) override {
+  virtual bool supportsQuery(std::shared_ptr<IQuery> query) const override {
     bool supportsQuery = Indexer<TData, IQRYParameter>::supportsQuery(query);
     bool supportsParameter =
         dynamic_cast<QRYParameter<TParameter> *>(query.get());
@@ -44,7 +44,7 @@ public:
   };
 
   virtual std::vector<unsigned int>
-  getIndexList(std::shared_ptr<IQRYParameter> query) override {
+  getIndexList(std::shared_ptr<IQRYParameter> query) const override {
     if (!supportsQuery(query)) {
       throw Exception(ERR_INVALID_ARG,
                       "This query is not supported by parameter indexer.");
@@ -56,10 +56,10 @@ public:
   }
 
   virtual std::vector<unsigned int>
-  getByParameter(std::shared_ptr<QRYParameter<TParameter>> query) {
+  getByParameter(std::shared_ptr<QRYParameter<TParameter>> query) const {
     TParameter key = query->value();
     if (_map.count(key)) {
-      std::set<unsigned int> set = _map[key];
+      std::set<unsigned int> set = _map.at(key);
       std::vector<unsigned int> indices(set.size());
       std::copy(set.begin(), set.end(), indices.begin());
       return indices;
@@ -103,10 +103,10 @@ public:
     }
   }
 
-  virtual bool isValid(const TData &entry, unsigned int index) {
+  virtual bool isValid(const TData &entry, unsigned int index) const {
     TParameter key = getValue(entry);
     if (_reverseLookup.count(index)) {
-      return _reverseLookup[index] == key;
+      return _reverseLookup.at(index) == key;
     }
     return false;
   }

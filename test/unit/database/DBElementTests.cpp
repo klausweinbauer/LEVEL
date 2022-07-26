@@ -18,7 +18,7 @@ struct DBElementTestHelper {
 
 TEST(DBElement, Correct_Index_Initialization) {
   unsigned int index = (unsigned int)rand();
-  DBElement<int> element(index, nullptr);
+  DBElement<int> element(index);
   ASSERT_EQ(index, element.index());
 }
 
@@ -56,17 +56,27 @@ TEST(DBElement, Clear) {
   ASSERT_THROW(element.data(), DBException);
 }
 
+template <typename T> class DBElement_MRemoveCallback {
+public:
+  DBElement_MRemoveCallback() {}
+
+  MOCK_METHOD(void, removeCallback, (DBElement<T> *));
+};
+
 TEST(DBElement, Call_To_Database_On_Clear) {
   auto db = std::make_shared<NiceMock<MDatabase<int>>>();
-  unsigned int index = (unsigned int)rand();
-  DBElement<int> element(index, db.get());
-  EXPECT_CALL(*db, remove(index)).Times(1);
+  DBElement<int> element;
+  DBElement_MRemoveCallback<int> callback;
+  element.removeCallback = [&callback](DBElement<int> *element) {
+    callback.removeCallback(element);
+  };
+  EXPECT_CALL(callback, removeCallback(&element)).Times(1);
   element.clear();
 }
 
 TEST(DBElement, Ignore_Call_To_Database_On_Clear_If_Not_Initialized) {
   unsigned int index = (unsigned int)rand();
-  DBElement<int> element(index, nullptr);
+  DBElement<int> element(index);
   ASSERT_NO_THROW(element.clear());
 }
 
@@ -81,38 +91,38 @@ TEST(DBElement, Has_No_Data_Assigned) {
   ASSERT_FALSE(element.hasData());
 }
 
-template <typename T> class DBElement_MDataChanged {
+template <typename T> class DBElement_MUpdateCallback {
 public:
-  DBElement_MDataChanged() {}
+  DBElement_MUpdateCallback() {}
 
-  MOCK_METHOD(void, dataChanged, (const DBElement<T> *const));
+  MOCK_METHOD(void, updateCallback, (const DBElement<T> *const));
 };
 
 TEST(DBElement, Call_Data_Modified_When_Unlocked) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
-  DBElement_MDataChanged<int> callback;
-  element.dataChanged = [&callback](const DBElement<int> *const e) {
-    callback.dataChanged(e);
+  DBElement_MUpdateCallback<int> callback;
+  element.updateCallback = [&callback](const DBElement<int> *const e) {
+    callback.updateCallback(e);
   };
-  EXPECT_CALL(callback, dataChanged(&element)).Times(1);
+  EXPECT_CALL(callback, updateCallback(&element)).Times(1);
   element.unlock();
 }
 
 TEST(DBElement, Do_Not_Call_Data_Modified_When_Unlocked_And_Data_Is_Null) {
   DBElement<int> element;
-  DBElement_MDataChanged<int> callback;
-  element.dataChanged = [&callback](const DBElement<int> *const e) {
-    callback.dataChanged(e);
+  DBElement_MUpdateCallback<int> callback;
+  element.updateCallback = [&callback](const DBElement<int> *const e) {
+    callback.updateCallback(e);
   };
-  EXPECT_CALL(callback, dataChanged(&element)).Times(0);
+  EXPECT_CALL(callback, updateCallback(&element)).Times(0);
   element.unlock();
 }
 
 TEST(DBElement, Do_Not_Call_Data_Modified_When_Not_Set) {
   DBElement<int> element;
   element.setData(std::make_unique<int>(rand()));
-  DBElement_MDataChanged<int> callback;
-  EXPECT_CALL(callback, dataChanged(&element)).Times(0);
+  DBElement_MUpdateCallback<int> callback;
+  EXPECT_CALL(callback, updateCallback(&element)).Times(0);
   ASSERT_NO_THROW(element.unlock());
 }
