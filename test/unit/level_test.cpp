@@ -17,12 +17,12 @@ int main(int argc, char **argv) {
   return ret;
 }
 
-TEST(API, Test_Get_Version) {
+TEST(API, TestGetVersion) {
   auto version = getVersion();
   ASSERT_TRUE(0 == strcmp("0.1.0", version));
 }
 
-TEST(API, Test_Get_Error_Message) {
+TEST(API, TestGetErrorMessage) {
   std::string expMsg("General error code.");
 
   char buffer[256];
@@ -32,7 +32,7 @@ TEST(API, Test_Get_Error_Message) {
   ASSERT_EQ(0, expMsg.compare(msg));
 }
 
-TEST(API, Test_Set_Error_Message) {
+TEST(API, TestSetErrorMessage) {
   std::string expMsg("Test_Set_Error_Message message.");
   char buffer[256];
   int size;
@@ -45,7 +45,7 @@ TEST(API, Test_Set_Error_Message) {
   ASSERT_EQ(0, expMsg.compare(msg));
 }
 
-TEST(API, Test_Set_Invalid_Error_Message) {
+TEST(API, TestSetInvalidErrorMessage) {
   std::string expMsg("Test_Set_Invalid_Error_Message message.");
   char buffer[256];
   int size;
@@ -59,7 +59,7 @@ TEST(API, Test_Set_Invalid_Error_Message) {
   ASSERT_EQ(0, expMsg.compare(msg));
 }
 
-TEST(API, Test_Override_Error_Message) {
+TEST(API, TestOverrideErrorMessage) {
   std::string oldMsg("Test_Override_Error_Message message old.");
   std::string expMsg("Test_Override_Error_Message message.");
   char buffer[256];
@@ -74,7 +74,7 @@ TEST(API, Test_Override_Error_Message) {
   ASSERT_EQ(0, expMsg.compare(msg));
 }
 
-TEST(API, Test_Get_Empty_Last_Error_Message) {
+TEST(API, TestGetEmptyLastErrorMessage) {
   char buffer[256];
   int size;
 

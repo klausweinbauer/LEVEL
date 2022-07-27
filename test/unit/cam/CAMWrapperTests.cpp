@@ -6,18 +6,18 @@
 using namespace level;
 using namespace level::cam;
 
-TEST(CAM_Wrapper, Test_Ctor) {
+TEST(CAMWrapper, TestCtor) {
   CAMWrapper cam(1);
   ASSERT_EQ(1, cam->header.stationID);
 }
 
-TEST(CAM_Wrapper, Test_Arrow_Operator) {
+TEST(CAMWrapper, TestArrowOperator) {
   CAMWrapper cam(1);
   cam->header.stationID = 2;
   ASSERT_EQ(2, cam->header.stationID);
 }
 
-TEST(CAM_Wrapper, Test_Copy_Ctor) {
+TEST(CAMWrapper, TestCopyCtor) {
   CAMWrapper cam1(1);
   cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   auto lfc1 = &cam1->cam.camParameters.lowFrequencyContainer->choice
@@ -34,7 +34,7 @@ TEST(CAM_Wrapper, Test_Copy_Ctor) {
   ASSERT_EQ(VehicleRole_specialTransport, lfc2->vehicleRole);
 }
 
-TEST(CAM_Wrapper, Test_Init_LFC) {
+TEST(CAMWrapper, TestInitLFC) {
   CAMWrapper cam(1);
   auto type = LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
   cam.setLFC(type);
@@ -43,7 +43,7 @@ TEST(CAM_Wrapper, Test_Init_LFC) {
   ASSERT_EQ(type, cam->cam.camParameters.lowFrequencyContainer->present);
 }
 
-TEST(CAM_Wrapper, Test_Override_LFC) {
+TEST(CAMWrapper, TestOverrideLFC) {
   CAMWrapper cam(1);
   cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   cam.setLFC(LowFrequencyContainer_PR_NOTHING);
@@ -51,7 +51,7 @@ TEST(CAM_Wrapper, Test_Override_LFC) {
   ASSERT_EQ(nullptr, cam->cam.camParameters.lowFrequencyContainer);
 }
 
-TEST(CAM_Wrapper, Test_Assignment_Operator) {
+TEST(CAMWrapper, TestAssignmentOperator) {
   CAMWrapper cam1(1);
   cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   auto lfc1 = &cam1->cam.camParameters.lowFrequencyContainer->choice
@@ -71,7 +71,7 @@ TEST(CAM_Wrapper, Test_Assignment_Operator) {
   ASSERT_EQ(VehicleRole_specialTransport, lfc2->vehicleRole);
 }
 
-TEST(CAM_Wrapper, Test_Failed_Copy) {
+TEST(CAMWrapper, TestFailedCopy) {
   CAMWrapper cam1(1);
   cam1->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_NOTHING;
