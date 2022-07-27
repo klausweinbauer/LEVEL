@@ -30,8 +30,9 @@ private:
   WSAData data_;
 
 public:
-  static SysWSASession& instance() {
-    static std::unique_ptr<SysWSASession> session = std::make_unique<SysWSASession>();
+  static SysWSASession &instance() {
+    static std::unique_ptr<SysWSASession> session =
+        std::make_unique<SysWSASession>();
     return *session;
   }
 
@@ -49,13 +50,10 @@ typedef nfds_t nfds_l;
 typedef socklen_t SockLen;
 
 struct pollfd_l : pollfd {};
-struct sockaddr_l : sokkaddr {};
+struct sockaddr_l : sockaddr {};
 #endif
 
-enum SockDomain {
-  Domain_INET = AF_INET,
-  Domain_INET6 = AF_INET6
-};
+enum SockDomain { Domain_INET = AF_INET, Domain_INET6 = AF_INET6 };
 
 enum SockType {
   Type_STREAM = SOCK_STREAM,
