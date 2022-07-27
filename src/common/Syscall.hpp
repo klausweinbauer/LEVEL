@@ -1,3 +1,14 @@
+/**
+ * @file Syscall.hpp
+ * @author Klaus Weinbauer
+ * @brief System level abstraction.
+ * @version 0.1
+ * @date 2022-07-27
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #pragma once
 
 #include <string>
@@ -126,6 +137,10 @@ struct SockAddrInet : SockAddr {
   }
 };
 
+/**
+ * @brief Class for system level abstraction.
+ *
+ */
 class Syscall {
 
 public:
