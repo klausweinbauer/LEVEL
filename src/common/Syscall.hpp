@@ -3,6 +3,9 @@
 #include <string>
 
 #ifdef _WIN32
+#include <WS2tcpip.h>
+#include <memory>
+#include <system_error>
 #elif __linux__
 #include <arpa/inet.h>
 #include <poll.h>
@@ -18,26 +21,40 @@ typedef unsigned long nfds_l;
 typedef unsigned int SockLen;
 typedef long int ssize_t;
 
-struct PollFD {
-  int fd;
-  short events;
-  short revents;
-};
+struct pollfd_l : public pollfd {};
 
-struct SockAddr {
-  unsigned short int sa_family;
-  char sa_data[14];
+struct sockaddr_l : sockaddr {};
+
+class SysWSASession {
+private:
+  WSAData data_;
+
+public:
+  static SysWSASession& instance() {
+    static std::unique_ptr<SysWSASession> session = std::make_unique<SysWSASession>();
+    return *session;
+  }
+
+  SysWSASession() {
+    int ret = WSAStartup(MAKEWORD(2, 2), &data_);
+    if (ret != 0)
+      throw std::system_error(WSAGetLastError(), std::system_category(),
+                              "WSAStartup Failed");
+  }
+
+  ~SysWSASession() { WSACleanup(); }
 };
 #elif __linux__
 typedef nfds_t nfds_l;
 typedef socklen_t SockLen;
 
+struct pollfd_l : pollfd {};
+struct sockaddr_l : sokkaddr {};
+#endif
+
 enum SockDomain {
-  Domain_LOCAL = AF_LOCAL,
   Domain_INET = AF_INET,
-  Domain_INET6 = AF_INET6,
-  Domain_PACKET = AF_PACKET,
-  Domain_BLUETOOTH = AF_BLUETOOTH
+  Domain_INET6 = AF_INET6
 };
 
 enum SockType {
@@ -45,26 +62,24 @@ enum SockType {
   Type_DGRAM = SOCK_DGRAM,
   Type_RAW = SOCK_RAW,
   Type_RDM = SOCK_RDM,
-  Type_SEQPACKET = SOCK_SEQPACKET,
-  Type_PACKET = SOCK_PACKET
+  Type_SEQPACKET = SOCK_SEQPACKET
 };
 
 enum Protocol { UDP = IPPROTO_UDP, TCP = IPPROTO_TCP, RAW = IPPROTO_RAW };
 
 enum PollEvent {
-  IN = POLLIN,
-  PRI = POLLPRI,
-  OUT = POLLOUT,
-  RDHUP = POLLRDHUP,
-  ERR = POLLERR,
-  HUP = POLLHUP,
-  NVAL = POLLNVAL
+  Event_IN = POLLIN,
+  Event_PRI = POLLPRI,
+  Event_OUT = POLLOUT,
+  Event_ERR = POLLERR,
+  Event_HUP = POLLHUP,
+  Event_NVAL = POLLNVAL
 };
 
 enum ProtocolLevel { Level_SOCKET = SOL_SOCKET };
 enum SocketOption { Option_BROADCAST = SO_BROADCAST };
 
-struct PollFD : pollfd {
+struct PollFD : pollfd_l {
   PollFD() {}
   PollFD(int fd, PollEvent event) {
     pollfd::fd = fd;
@@ -73,7 +88,7 @@ struct PollFD : pollfd {
   }
 };
 
-struct SockAddr : sockaddr {
+struct SockAddr : sockaddr_l {
   SockLen len() { return sizeof(SockAddr); }
 };
 struct SockAddrInet : SockAddr {
@@ -112,7 +127,6 @@ struct SockAddrInet : SockAddr {
     return ntohs(addr->sin_port);
   }
 };
-#endif
 
 class Syscall {
 

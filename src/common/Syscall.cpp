@@ -18,7 +18,10 @@ int Syscall::sysPoll(PollFD *fds, nfds_l nfds, int timeout) {
 }
 
 int Syscall::sysSocket(SockDomain domain, SockType type, Protocol protocol) {
-#if defined(_WIN32) || defined(__linux__)
+#ifdef _WIN32
+  SysWSASession::instance();
+  return socket(domain, type, protocol);
+#elif __linux__
   return socket(domain, type, protocol);
 #endif
 }

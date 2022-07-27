@@ -41,12 +41,16 @@ TEST(Syscall, PollTimeout) {
   int timeout = 100;
   int fd = sys.sysSocket(Domain_INET, Type_DGRAM, UDP);
   ASSERT_TRUE(fd > 2);
-  PollFD pfd(fd, PollEvent::IN);
+  PollFD pfd(fd, PollEvent::Event_IN);
   Clock::time_point t0 = Clock::now();
   ASSERT_EQ(0, sys.sysPoll(&pfd, 1, timeout));
   Clock::time_point t1 = Clock::now();
   milliseconds ms = std::chrono::duration_cast<milliseconds>(t1 - t0);
+  #ifdef _WIN32
+  ASSERT_TRUE((timeout * 0.95) <= ms.count());
+  #elif __linux__
   ASSERT_TRUE(timeout <= ms.count());
+  #endif
   ASSERT_EQ(0, sys.sysClose(fd));
 }
 
@@ -83,7 +87,7 @@ TEST(Syscall, PollAndRecvFrom) {
   ASSERT_TRUE(fd > 2);
   SockAddrInet addr(port);
   ASSERT_EQ(0, sys.sysBind(fd, &addr, addr.len()));
-  PollFD pfd(fd, PollEvent::IN);
+  PollFD pfd(fd, PollEvent::Event_IN);
   std::thread thread(Syscall_send, port, timeout, msg);
   ASSERT_EQ(1, sys.sysPoll(&pfd, 1, timeout));
   const int bufferSize = 256;
