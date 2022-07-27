@@ -9,7 +9,7 @@
 
 namespace level {
 
-int Syscall::posixPoll(pollfd_l *fds, nfds_l nfds, int timeout) {
+int Syscall::sysPoll(PollFD *fds, nfds_l nfds, int timeout) {
 #ifdef _WIN32
   return WSAPoll((pollfd *)fds, nfds, timeout);
 #elif __linux__
@@ -17,14 +17,14 @@ int Syscall::posixPoll(pollfd_l *fds, nfds_l nfds, int timeout) {
 #endif
 }
 
-int Syscall::posixSocket(int domain, int type, int protocol) {
+int Syscall::sysSocket(SockDomain domain, SockType type, Protocol protocol) {
 #if defined(_WIN32) || defined(__linux__)
   return socket(domain, type, protocol);
 #endif
 }
 
-ssize_t Syscall::posixSendTo(int sockfd, const void *buf, size_t len, int flags,
-                             const sockaddr_l *dest_addr, socklen_l addrlen) {
+ssize_t Syscall::sysSendTo(int sockfd, const void *buf, size_t len, int flags,
+                           const SockAddr *dest_addr, SockLen addrlen) {
 #ifdef _WIN32
   return sendto(sockfd, (char *)buf, len, flags, (sockaddr *)dest_addr,
                 addrlen);
@@ -33,8 +33,9 @@ ssize_t Syscall::posixSendTo(int sockfd, const void *buf, size_t len, int flags,
 #endif
 }
 
-int Syscall::posixSetSockOpt(int socket, int level, int option_name,
-                             const void *option_value, socklen_l option_len) {
+int Syscall::sysSetSockOpt(int socket, ProtocolLevel level,
+                           SocketOption option_name, const void *option_value,
+                           SockLen option_len) {
 #ifdef _WIN32
   return setsockopt(socket, level, option_name, (char *)option_value,
                     option_len);
@@ -43,7 +44,7 @@ int Syscall::posixSetSockOpt(int socket, int level, int option_name,
 #endif
 }
 
-int Syscall::posixClose(int fd) {
+int Syscall::sysClose(int fd) {
 #ifdef _WIN32
   return closesocket(fd);
 #elif __linux__
@@ -51,7 +52,7 @@ int Syscall::posixClose(int fd) {
 #endif
 }
 
-int Syscall::posixBind(int sockfd, const sockaddr_l *addr, socklen_l addrlen) {
+int Syscall::sysBind(int sockfd, const SockAddr *addr, SockLen addrlen) {
 #ifdef _WIN32
   return bind(sockfd, (sockaddr *)addr, addrlen);
 #elif __linux__
@@ -59,8 +60,8 @@ int Syscall::posixBind(int sockfd, const sockaddr_l *addr, socklen_l addrlen) {
 #endif
 }
 
-ssize_t Syscall::posixRecvFrom(int sockfd, void *buf, size_t len, int flags,
-                               sockaddr_l *src_addr, socklen_l *addrlen) {
+ssize_t Syscall::sysRecvFrom(int sockfd, void *buf, size_t len, int flags,
+                             SockAddr *src_addr, SockLen *addrlen) {
 #ifdef _WIN32
   return recvfrom(sockfd, (char *)buf, len, flags, (sockaddr *)src_addr,
                   (int *)addrlen);
