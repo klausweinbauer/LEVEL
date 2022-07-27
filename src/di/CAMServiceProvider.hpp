@@ -12,6 +12,7 @@
 
 #include <Encoder.hpp>
 #include <SocketBasedNI.hpp>
+#include <Syscall.hpp>
 #include <UDPSocket.hpp>
 #include <functional>
 #include <level_config.h>
@@ -22,7 +23,8 @@ namespace di {
 
 static std::function<std::shared_ptr<ISocket>()> socketProvider = []() {
   // transient
-  return std::shared_ptr<ISocket>(new UDPSocket(level::config::port));
+  return std::shared_ptr<ISocket>(
+      new UDPSocket(level::config::port, std::make_shared<Syscall>()));
 };
 static std::shared_ptr<ISocket> socket() { return socketProvider(); }
 
