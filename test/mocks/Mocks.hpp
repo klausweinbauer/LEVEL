@@ -24,7 +24,7 @@ class MSocket : public ISocket {
 public:
   MOCK_METHOD(bool, send, (const char *, int), (override));
   MOCK_METHOD(int, recv, (char *, int, int), (override));
-  MOCK_METHOD(bool, read, (char *, int, bool *), (override));
+  MOCK_METHOD(int, read, (char *, int, const bool *const), (override));
 };
 
 class MQuery : public IQuery {

@@ -25,6 +25,9 @@ public:
   /**
    * @brief Send data.
    *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
+   *
    * @param buffer Buffer containing the data to transmit.
    * @param len Length of buffer in bytes.
    * @return true Send successful.
@@ -36,10 +39,14 @@ public:
    * @brief Receive data. This call blocks until data is received or the timeout
    * is triggered.
    *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
+   *
    * @param buffer Buffer where received data should be stored.
    * @param len Size of the buffer.
    * @param timeout Timeout in milliseconds. If set to 0, no timeout is used.
-   * @return int Returns the number of bytes stored in buffer.
+   * @return int Returns the number of bytes stored in buffer. Returns 0 if
+   * timeout is triggered.
    */
   virtual int recv(char *buffer, int len, int timeout = 0) = 0;
 
@@ -48,14 +55,18 @@ public:
    * filled completely. This operation can be canceled asynchronously by setting
    * the cancel flag.
    *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
+   *
    * @param buffer Buffer to fill with received data.
    * @param len The length of the buffer to fill.
    * @param cancel Cancel flag. Once this is set to true, the operation will
    * terminate and return to the caller.
-   * @return true The buffer is filled with received data.
-   * @return false Operation failed or was canceled.
+   * @return int Returns the number of bytes received and stored in buffer. If
+   * not canceled, this is equal to len.
    */
-  virtual bool read(char *buffer, int len, bool *cancel = nullptr) = 0;
+  virtual int read(char *buffer, int len,
+                   const bool *const cancel = nullptr) = 0;
 };
 
 } // namespace level

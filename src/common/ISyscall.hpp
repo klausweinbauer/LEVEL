@@ -105,7 +105,7 @@ public:
 
 struct SockAddrInet : SockAddr {
 public:
-  SockAddrInet() {}
+  SockAddrInet() : SockAddrInet(0) {}
 
   SockAddrInet(uint16_t port) {
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
@@ -126,7 +126,7 @@ public:
   std::string addr() {
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     const int bufferSize = 64;
-    char buffer[bufferSize];
+    char buffer[bufferSize] = {};
     const char *result = inet_ntop(addr->sin_family, (void *)&addr->sin_addr,
                                    buffer, bufferSize);
     if (result != nullptr) {

@@ -105,10 +105,10 @@ TEST(Syscall, PollAndRecvFrom) {
   thread.join();
 }
 
-TEST(Syscall, GetAddressFromUninitializedInetSocketAddress) {
+TEST(Syscall, CheckDefaultInitializationOfInetSocketAddress) {
   SockAddrInet socketAddr;
   std::string addr = socketAddr.addr();
-  ASSERT_EQ(0, addr.length());
+  ASSERT_LT(0, addr.length());
 }
 
 TEST(Syscall, GetAddressFromInetSocketAddress) {
@@ -133,7 +133,7 @@ TEST(Syscall, SetSocketOptionBroadcast) {
 TEST(Syscall, UDPPacketSizeBound) {
   uint16_t port = 10000 + rand() % 50000;
   const int bufferSize = 1 << 16;
-  char *buffer = new char[bufferSize];
+  char *buffer = new char[bufferSize]();
   auto sys = Syscall_get();
   int fd = sys->sysSocket(Domain_INET, Type_DGRAM, UDP);
   SockAddrInet addr(port, "127.0.0.1");

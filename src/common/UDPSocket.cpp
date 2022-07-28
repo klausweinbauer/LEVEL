@@ -5,14 +5,10 @@
 #include <sstream>
 #include <string.h>
 
-// Though UDP can handle up to 65535kB (- header size) data packets, this is not
-// practical. So we split data into chunks of SOCKET_MAX_SEND_SIZE.
-#define SOCKET_MAX_SEND_SIZE 4096
-
 namespace level {
 
 UDPSocket::UDPSocket(unsigned short port, std::shared_ptr<ISyscall> syscall)
-    : _sys(syscall), _fd(0), _addr(port) {
+    : _sys(syscall), _fd(0), _port(port), _isBound(false) {
   if (!_sys) {
     throw Exception(ERR_ARG_NULL, "Argument 'syscall' is null.");
   }
@@ -31,21 +27,22 @@ UDPSocket::UDPSocket(unsigned short port, std::shared_ptr<ISyscall> syscall)
 
 UDPSocket::~UDPSocket() { _sys->sysClose(_fd); }
 
-unsigned short UDPSocket::port() { return _addr.port(); }
+unsigned short UDPSocket::port() { return _port; }
 
 bool UDPSocket::send(const char *buffer, int len) {
   if (!buffer) {
     throw Exception(ERR_ARG_NULL, "Argument 'buffer' is null.");
   }
 
+  SockAddrInet addr(_port, "255.255.255.255");
   int chunkStart = 0;
   int chunkSize = len > SOCKET_MAX_SEND_SIZE ? SOCKET_MAX_SEND_SIZE : len;
   int remainingLen = len;
   while (remainingLen > 0) {
     int sizeSent = _sys->sysSendTo(_fd, &buffer[chunkStart], chunkSize, 0,
-                                   &_addr, _addr.len());
+                                   &addr, addr.len());
     if (sizeSent == -1) {
-      return false;
+      throw NetworkException(ERR, "Send message failed.");
     }
     chunkStart += sizeSent;
     remainingLen -= sizeSent;
@@ -59,6 +56,9 @@ int UDPSocket::recv(char *buffer, int len, int timeout) {
   if (!buffer) {
     throw Exception(ERR_ARG_NULL, "Argument 'buffer' is null.");
   }
+
+  bindSocket();
+
   if (timeout > 0) {
     PollFD pollFd(_fd, PollEvent::Event_IN);
     int pollReturn = _sys->sysPoll(&pollFd, 1, timeout);
@@ -66,21 +66,50 @@ int UDPSocket::recv(char *buffer, int len, int timeout) {
       return 0;
     } else if (pollReturn > 0) {
       if (pollFd.revents == PollEvent::Event_IN) {
-        int retResult = _sys->sysRecvFrom(_fd, buffer, len);
-        return retResult;
+        return handleRecv(buffer, len);
       } else {
         return 0;
       }
     } else {
-      throw Exception(ERR, "Poll syscall failed.");
+      throw NetworkException(ERR, "Poll syscall failed.");
     }
   } else {
-    return _sys->sysRecvFrom(_fd, buffer, len);
+    return handleRecv(buffer, len);
   }
 }
 
-bool UDPSocket::read(char *buffer, int len, bool *cancel) {}
+int UDPSocket::read(char *buffer, int len, const bool *const cancel) {
+  if (!buffer) {
+    throw Exception(ERR_ARG_NULL, "Argument 'buffer' is null.");
+  }
 
-void UDPSocket::bindSocket() {}
+  int bufferIndex = 0;
+  while (bufferIndex < len && (!cancel || !*cancel)) {
+    bufferIndex +=
+        recv(&buffer[bufferIndex], len - bufferIndex, SOCKET_READ_TIMOUT);
+  }
+  return bufferIndex;
+}
+
+void UDPSocket::bindSocket() {
+  if (_isBound) {
+    return;
+  }
+
+  SockAddrInet addr(_port);
+  int failed = _sys->sysBind(_fd, &addr, addr.len());
+  if (failed) {
+    throw NetworkException(ERR, "Could not bind to network socket.");
+  }
+  _isBound = true;
+}
+
+int UDPSocket::handleRecv(char *buffer, int len) {
+  int receivedBytes = _sys->sysRecvFrom(_fd, buffer, len);
+  if (receivedBytes < 0) {
+    throw NetworkException(ERR, "Receiving data failed.");
+  }
+  return receivedBytes;
+}
 
 }; // namespace level
