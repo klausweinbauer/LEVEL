@@ -6,6 +6,7 @@
 #include <IQRYParameter.hpp>
 #include <IQuery.hpp>
 #include <ISocket.hpp>
+#include <ISyscall.hpp>
 #include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <vector>
@@ -21,9 +22,9 @@ struct Dummy {
 
 class MSocket : public ISocket {
 public:
-  MOCK_METHOD(void, send, (const char *buffer, int len, int flags), (override));
-  MOCK_METHOD(int, recv, (char *buffer, int len, int flags), (override));
-  MOCK_METHOD(void, close, (), (override));
+  MOCK_METHOD(bool, send, (const char *, int), (override));
+  MOCK_METHOD(int, recv, (char *, int, int), (override));
+  MOCK_METHOD(int, read, (char *, int, const bool *const), (override));
 };
 
 class MQuery : public IQuery {
@@ -74,4 +75,22 @@ public:
   MOCK_METHOD(TParameter, getValue, (const TData &), (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getByParameter,
               (std::shared_ptr<QRYParameter<TParameter>>), (override, const));
+};
+
+class MSyscall : public ISyscall {
+public:
+  virtual ~MSyscall() {}
+
+  MOCK_METHOD(int, sysPoll, (PollFD *, nfds_l, int), (override));
+  MOCK_METHOD(int, sysSocket, (SockDomain, SockType, Protocol), (override));
+  MOCK_METHOD(ssize_t, sysSendTo,
+              (int, const void *, size_t, int, const SockAddr *, SockLen),
+              (override));
+  MOCK_METHOD(int, sysSetSockOpt,
+              (int, ProtocolLevel, SocketOption, const void *, SockLen),
+              (override));
+  MOCK_METHOD(int, sysClose, (int), (override));
+  MOCK_METHOD(int, sysBind, (int, const SockAddr *, SockLen), (override));
+  MOCK_METHOD(ssize_t, sysRecvFrom,
+              (int, void *, size_t, int, SockAddr *, SockLen *), (override));
 };

@@ -1,8 +1,6 @@
 #include <Database.hpp>
 #include <IDXIndex.hpp>
-#include <Mocks.hpp>
 #include <QRYIndex.hpp>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <thread>
@@ -33,7 +31,7 @@ void Database_HeavyQueryingTask(Database<Database_Data> *db, int size,
   }
 }
 
-TEST(Database, Heavy_Querying) {
+TEST(Database, HeavyQuerying) {
   Database<Database_Data> db;
   db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
   const int size = 10;
@@ -67,7 +65,7 @@ void Database_HeavyWritingTask(Database<Database_Data> *db, int propWrite,
   }
 }
 
-TEST(Database, Heavy_Writing) {
+TEST(Database, HeavyWriting) {
   Database<Database_Data> db;
   db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
 
@@ -98,7 +96,7 @@ void Database_HeavyUpdatingTask(Database<Database_Data> *db, int threadCount,
   }
 }
 
-TEST(Database, Heavy_Updating) {
+TEST(Database, HeavyUpdating) {
   Database<Database_Data> db;
   db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
   const int threadCount = 10;

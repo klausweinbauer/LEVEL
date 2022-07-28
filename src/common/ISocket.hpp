@@ -20,32 +20,53 @@ namespace level {
 class ISocket {
 
 public:
-  virtual ~ISocket(){};
+  virtual ~ISocket() {}
 
   /**
    * @brief Send data.
    *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
+   *
    * @param buffer Buffer containing the data to transmit.
    * @param len Length of buffer in bytes.
-   * @param flags Optional socket flags.
+   * @return true Send successful.
+   * @return false Send failed.
    */
-  virtual void send(const char *buffer, int len, int flags = 0) = 0;
+  virtual bool send(const char *buffer, int len) = 0;
 
   /**
-   * @brief Receive data.
+   * @brief Receive data. This call blocks until data is received or the timeout
+   * is triggered.
+   *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
    *
    * @param buffer Buffer where received data should be stored.
    * @param len Size of the buffer.
-   * @param flags Optional socket flags.
-   * @return int Returns the number of bytes stored in buffer.
+   * @param timeout Timeout in milliseconds. If set to 0, no timeout is used.
+   * @return int Returns the number of bytes stored in buffer. Returns 0 if
+   * timeout is triggered.
    */
-  virtual int recv(char *buffer, int len, int flags = 0) = 0;
+  virtual int recv(char *buffer, int len, int timeout = 0) = 0;
 
   /**
-   * @brief Close the socket.
+   * @brief Receive a fixed amount of data. This call blocks until the buffer is
+   * filled completely. This operation can be canceled asynchronously by setting
+   * the cancel flag.
    *
+   * @throw Exception For general errors.
+   * @throw NetworkException For network and socket related errors.
+   *
+   * @param buffer Buffer to fill with received data.
+   * @param len The length of the buffer to fill.
+   * @param cancel Cancel flag. Once this is set to true, the operation will
+   * terminate and return to the caller.
+   * @return int Returns the number of bytes received and stored in buffer. If
+   * not canceled, this is equal to len.
    */
-  virtual void close() = 0;
+  virtual int read(char *buffer, int len,
+                   const bool *const cancel = nullptr) = 0;
 };
 
 } // namespace level

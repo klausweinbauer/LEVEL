@@ -14,7 +14,7 @@ getEncoder(EncodingType encoding = EncodingType::DER_BER) {
   return std::shared_ptr<IEncoder>(new Encoder(encoding));
 }
 
-TEST(CAM_Encoder, Test_CAM_encoding_BER) {
+TEST(CAMEncoder, TestCAMencodingBER) {
   auto encoder = getEncoder(EncodingType::DER_BER);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -41,7 +41,7 @@ TEST(CAM_Encoder, Test_CAM_encoding_BER) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
+TEST(CAMEncoder, TestCAMencodingXERCANONICAL) {
   auto encoder = getEncoder(EncodingType::XER_CANONICAL);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -68,7 +68,7 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_CANONICAL) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
+TEST(CAMEncoder, TestCAMencodingXERBASIC) {
   auto encoder = getEncoder(EncodingType::XER_BASIC);
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   cam->header.stationID = 1;
@@ -95,7 +95,7 @@ TEST(CAM_Encoder, Test_CAM_encoding_XER_BASIC) {
   ASN_STRUCT_FREE(asn_DEF_CAM, camDecode);
 }
 
-TEST(CAM_Encoder, Test_Encode_With_Invalid_Type) {
+TEST(CAMEncoder, TestEncodeWithInvalidType) {
   auto encoder = getEncoder(EncodingType(-1));
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
   int bufferLen = 4096;
@@ -114,7 +114,7 @@ TEST(CAM_Encoder, Test_Encode_With_Invalid_Type) {
   ASN_STRUCT_FREE(asn_DEF_CAM, cam);
 }
 
-TEST(CAM_Encoder, Test_Encode_With_Nullptr) {
+TEST(CAMEncoder, TestEncodeWithNullptr) {
   auto encoder = getEncoder();
   int errCode = 0;
   auto buffer = new uint8_t[32];
@@ -130,7 +130,7 @@ TEST(CAM_Encoder, Test_Encode_With_Nullptr) {
   delete[] buffer;
 }
 
-TEST(CAM_Encoder, Test_Encode_Invalid_CAM) {
+TEST(CAMEncoder, TestEncodeInvalidCAM) {
   auto encoder = getEncoder();
   int errCode = 0;
   int bufferLen = 4096;
@@ -149,7 +149,7 @@ TEST(CAM_Encoder, Test_Encode_Invalid_CAM) {
   free(buffer);
 }
 
-TEST(CAM_Encoder, Test_Encode_With_Too_Small_Buffer) {
+TEST(CAMEncoder, TestEncodeWithTooSmallBuffer) {
   auto encoder = getEncoder();
   int errCode = 0;
   int bufferLen = 32;
@@ -170,7 +170,7 @@ TEST(CAM_Encoder, Test_Encode_With_Too_Small_Buffer) {
   free(buffer);
 }
 
-TEST(CAM_Encoder, Test_Decode_With_Nullptr) {
+TEST(CAMEncoder, TestDecodeWithNullptr) {
   auto encoder = getEncoder();
   int errCode = 0;
 
@@ -183,7 +183,7 @@ TEST(CAM_Encoder, Test_Decode_With_Nullptr) {
   ASSERT_EQ(ERR_ARG_NULL, errCode);
 }
 
-TEST(CAM_Encoder, Test_Decode_With_Empty_Buffer) {
+TEST(CAMEncoder, TestDecodeWithEmptyBuffer) {
   auto encoder = getEncoder();
   int errCode = 0;
   auto buffer = new uint8_t[0];
@@ -199,7 +199,7 @@ TEST(CAM_Encoder, Test_Decode_With_Empty_Buffer) {
   delete[] buffer;
 }
 
-TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
+TEST(CAMEncoder, TestDecodeWithInvalidData) {
   auto encoder = getEncoder(EncodingType::DER_BER);
   int errCode = 0;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
@@ -225,7 +225,7 @@ TEST(CAM_Encoder, Test_Decode_With_Invalid_Data) {
   ASN_STRUCT_FREE(asn_DEF_CAM, cam);
 }
 
-TEST(CAM_Encoder, Test_Decode_With_Invalid_Type) {
+TEST(CAMEncoder, TestDecodeWithInvalidType) {
   auto encoder = getEncoder(EncodingType(-1));
   int errCode = 0;
   CAM_t *cam = (CAM_t *)calloc(1, sizeof(CAM_t));
@@ -246,7 +246,7 @@ TEST(CAM_Encoder, Test_Decode_With_Invalid_Type) {
   ASN_STRUCT_FREE(asn_DEF_CAM, cam);
 }
 
-TEST(CAM_Encoder, Test_Encode_Property_Failed) {
+TEST(CAMEncoder, TestEncodePropertyFailed) {
   auto encoder = getEncoder(EncodingType::DER_BER);
   int errCode = 0;
   std::string errMsg;

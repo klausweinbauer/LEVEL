@@ -9,6 +9,8 @@
 
 namespace level {
 
+Syscall::~Syscall() {}
+
 int Syscall::sysPoll(PollFD *fds, nfds_l nfds, int timeout) {
 #ifdef _WIN32
   return WSAPoll((pollfd *)fds, nfds, timeout);
