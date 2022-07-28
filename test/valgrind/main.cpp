@@ -2,6 +2,7 @@
 
 #ifdef __linux__
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <exception>
@@ -23,7 +24,9 @@ namespace fs = filesystem;
 #define STILL_REACHABLE_BYTES_BY_GTEST 160
 
 string getPath(string path, string file) { return path + "/" + file; }
-string getLogFile(string file) { return "./" + file + ".log"; }
+string getLogFile(string path, string file, string hash) {
+  return path + "/" + file + "." + hash + ".log";
+}
 
 void removeFile(string filePath) {
   fs::path path(filePath);
@@ -49,6 +52,35 @@ string readContent(string filePath) {
   return content;
 }
 
+vector<char> readBinary(string filePath) {
+  streampos fileSize;
+  ifstream file(filePath, ios::binary);
+
+  file.seekg(0, ios::end);
+  fileSize = file.tellg();
+  file.seekg(0, ios::beg);
+
+  vector<char> fileData(fileSize);
+  file.read((char *)&fileData[0], fileSize);
+  return fileData;
+}
+
+unsigned long long computeHash(const vector<char> &bytes) {
+  unsigned long long hash;
+  for (auto b : bytes) {
+    // Hash function: sdbm
+    hash = b + (hash << 6) + (hash << 16) - hash;
+  }
+  return hash;
+}
+
+string computeStringHash(const vector<char> &bytes) {
+  stringstream ss;
+  unsigned long long hash = computeHash(bytes);
+  ss << setfill('0') << setw(sizeof(unsigned long long) * 2) << hex << hash;
+  return ss.str();
+}
+
 string waitForFileContent(string filePath) {
   fs::path path(filePath);
   while (!fs::exists(path)) {
@@ -67,9 +99,9 @@ string getVersion() {
   return regex_replace(content, std::regex("^valgrind-"), "");
 }
 
-int runTarget(string path, string file) {
+int runTarget(string path, string file, string hash) {
   string targetPath = getPath(path, file);
-  string logFilePath = getLogFile(file);
+  string logFilePath = getLogFile(path, file, hash);
   stringstream ssCmd;
   ssCmd << TO_STRING(VALGRIND_EXECUTABLE)
         << " --leak-check=full --show-leak-kinds=all --track-origins=yes "
@@ -78,22 +110,56 @@ int runTarget(string path, string file) {
   return system(ssCmd.str().c_str());
 }
 
+bool validContent(const string &content) {
+  regex rLeaks(".+in use at exit: ([0-9,]+)");
+  smatch mLeaks;
+  return regex_search(content, mLeaks, rLeaks);
+}
+
+bool hasLeaks(string *content) {
+  regex rLeaks(".+in use at exit: ([0-9,]+)");
+  smatch mLeaks;
+  assert(true == regex_search(*content, mLeaks, rLeaks));
+  string rGroup = mLeaks.str(1);
+  rGroup.erase(remove(rGroup.begin(), rGroup.end(), ','), rGroup.end());
+  return stoi(rGroup);
+}
+
 void ensureContent(mutex *m, string *content, string *path, string *name,
                    bool *initialized) {
   unique_lock<mutex> lock(*m);
   if (!*initialized) {
-    int executionResult = runTarget(*path, *name);
-    ASSERT_EQ(0, executionResult);
-    *content = readContent(getLogFile(*name));
+    string targetPath = getPath(*path, *name);
+    auto bytes = readBinary(targetPath);
+    auto hash = computeStringHash(bytes);
+
+    bool foundFile = false;
+    for (const auto &entry : fs::directory_iterator(*path)) {
+      regex rHash(".+\\/" + *name + "\\.([0-9a-fA-F]{16})\\.log");
+      smatch mHash;
+      string entryPath = entry.path();
+      if (regex_search(entryPath, mHash, rHash)) {
+        string logHash = mHash.str(1);
+        if (logHash == hash) {
+          foundFile = true;
+          break;
+        }
+      }
+    }
+
+    if (foundFile) {
+      *content = readContent(getLogFile(*path, *name, hash));
+      foundFile = validContent(*content);
+    }
+
+    if (!foundFile) {
+      int executionResult = runTarget(*path, *name, hash);
+      ASSERT_EQ(0, executionResult);
+      *content = readContent(getLogFile(*path, *name, hash));
+    }
+
     *initialized = true;
   }
-}
-
-bool hasLeaks(string *content) {
-  regex rLeaks(".+in use at exit: ([0-9]+)");
-  smatch mLeaks;
-  assert(true == regex_search(*content, mLeaks, rLeaks));
-  return stoi(mLeaks.str(1));
 }
 
 void testMemoryLeak(mutex *m, string *content, string *path, string *name,
