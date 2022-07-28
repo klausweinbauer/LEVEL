@@ -1,4 +1,6 @@
-if(UNIX) 
+if(UNIX AND ENABLE_VALGRIND_TESTS) 
+
+  message("[INFO] Valgrind tests enabled.")
 
   get_property(LEVEL_UNIT_TEST_TARGET GLOBAL PROPERTY LEVEL_UNIT_TEST_TARGET)
   get_property(LEVEL_UNIT_TEST_TARGET_PATH GLOBAL PROPERTY LEVEL_UNIT_TEST_TARGET_PATH)
@@ -24,4 +26,6 @@ if(UNIX)
 
   gtest_discover_tests(${LEVEL_TARGET_NAME})
 
+else()
+  message("[INFO] Valgrind tests disabled.")
 endif()

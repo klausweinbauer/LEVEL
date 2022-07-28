@@ -107,8 +107,8 @@ TEST(Syscall, PollAndRecvFrom) {
 
 TEST(Syscall, CheckDefaultInitializationOfInetSocketAddress) {
   SockAddrInet socketAddr;
-  std::string addr = socketAddr.addr();
-  ASSERT_LT(0, addr.length());
+  ASSERT_EQ("0.0.0.0", socketAddr.addr());
+  ASSERT_EQ(0, socketAddr.port());
 }
 
 TEST(Syscall, GetAddressFromInetSocketAddress) {

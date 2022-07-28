@@ -163,6 +163,12 @@ TEST(Indexer, ParameterIndexerDoesNotSupportOtherParameter) {
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
+TEST(Indexer, ParameterIndexerDoesNotSupportNullQuery) {
+  Indexer_ParameterIndexer indexer;
+  auto qry = std::shared_ptr<Indexer_QRYParameter>(nullptr);
+  ASSERT_FALSE(indexer.supportsQuery(qry));
+}
+
 TEST(Indexer, ParameterIndexerCallsDerivedIndexer) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();

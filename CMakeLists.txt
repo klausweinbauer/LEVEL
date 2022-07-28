@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.16.3)
 
+project(level VERSION 0.1.0)
+
+option(BUILD_TESTS "include tests in build" OFF)
+option(ENABLE_VALGRIND_TESTS "Include valgrind tests in build." OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 
 if (UNIX)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -fprofile-arcs -ftest-coverage --coverage -g -O0")
 endif()
-
-project(level VERSION 0.1.0)
-
-option(BUILD_TESTS "include tests in build" ON)
 
 if(WIN32)
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

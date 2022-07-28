@@ -127,12 +127,8 @@ public:
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     const int bufferSize = 64;
     char buffer[bufferSize] = {};
-    const char *result = inet_ntop(addr->sin_family, (void *)&addr->sin_addr,
-                                   buffer, bufferSize);
-    if (result != nullptr) {
-      return std::string((char *)buffer);
-    }
-    return std::string();
+    inet_ntop(addr->sin_family, (void *)&addr->sin_addr, buffer, bufferSize);
+    return std::string((char *)buffer);
   }
 
   uint16_t port() {

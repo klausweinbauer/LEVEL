@@ -274,8 +274,6 @@ DEFINE_TESTS(INTEGRATION_TEST_TARGET)
 #endif
 
 int main(int argc, char **argv) {
-  srand(time(0));
-
   ::testing::InitGoogleTest(&argc, argv);
 
   int ret = RUN_ALL_TESTS();
