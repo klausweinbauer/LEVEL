@@ -4,13 +4,13 @@
 		{
 			"type": "shell",
 			"label": "Valgrind-Unit",
-			"command": "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ${workspaceFolder}/build/test/unit/LEVEL_Unit_Tests && code valgrind-out.txt",
+			"command": "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ${workspaceFolder}/build/test/unit/UnitTests && code valgrind-out.txt",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Valgrind-Integration",
-			"command": "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ${workspaceFolder}/build/test/integration/LEVEL_Integration_Tests && code valgrind-out.txt",
+			"command": "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ${workspaceFolder}/build/test/integration/IntegrationTests && code valgrind-out.txt",
 			"problemMatcher": []
 		},
 		{

@@ -1,8 +1,6 @@
 #include <Database.hpp>
 #include <IDXIndex.hpp>
-#include <Mocks.hpp>
 #include <QRYIndex.hpp>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <thread>
