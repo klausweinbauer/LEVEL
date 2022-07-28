@@ -4,7 +4,6 @@
 #include <functional>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <math.h>
 #include <memory>
 
 using ::testing::_;
@@ -18,6 +17,8 @@ using ::testing::SaveArg;
 using ::testing::SaveArgPointee;
 using ::testing::Throw;
 using ::testing::Values;
+
+#define PI 3.1415926535
 
 namespace level {
 namespace UDPSocketTests {
@@ -162,7 +163,7 @@ TEST(UDPSocket, SendMessage) {
 }
 
 TEST(UDPSocket, SendLargeMessage) {
-  double chunks = M_PI * M_PI;
+  double chunks = PI * PI;
   const int bufferLen = SOCKET_MAX_SEND_SIZE * chunks;
   char *buffer = new char[bufferLen];
   auto port = randPort();
@@ -311,7 +312,7 @@ TEST(UDPSocket, ThrowOnBindErrorInReceive) {
 }
 
 TEST(UDPSocket, ReadData) {
-  double readChunkFactor = M_PI_4 * M_PI_4 * M_PI_4 * M_PI_4;
+  double readChunkFactor = PI / 9.0;
   const int readChunkSize = gBufferLen * readChunkFactor;
   auto port = randPort();
   auto sys = getSys(2, readChunkSize);
