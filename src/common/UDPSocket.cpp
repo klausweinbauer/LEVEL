@@ -20,7 +20,9 @@ UDPSocket::UDPSocket(unsigned short port, std::shared_ptr<ISyscall> syscall)
   if (_fd == -1) {
     throw NetworkException(ERR, "Could not open socket.");
   }
-  int failed = _sys->sysSetSockOpt(_fd, Level_SOCKET, Option_BROADCAST);
+  int trueflag = 1;
+  int failed = _sys->sysSetSockOpt(_fd, Level_SOCKET, Option_BROADCAST,
+                                   (void *)&trueflag, sizeof(trueflag));
   if (failed) {
     _sys->sysClose(_fd);
     throw NetworkException(ERR, "Could not configure socket for broadcast.");
@@ -53,7 +55,29 @@ bool UDPSocket::send(const char *buffer, int len) {
   return true;
 }
 
-int UDPSocket::recv(char *buffer, int len, int timeout) { return 0; }
+int UDPSocket::recv(char *buffer, int len, int timeout) {
+  if (!buffer) {
+    throw Exception(ERR_ARG_NULL, "Argument 'buffer' is null.");
+  }
+  if (timeout > 0) {
+    PollFD pollFd(_fd, PollEvent::Event_IN);
+    int pollReturn = _sys->sysPoll(&pollFd, 1, timeout);
+    if (pollReturn == 0) {
+      return 0;
+    } else if (pollReturn > 0) {
+      if (pollFd.revents == PollEvent::Event_IN) {
+        int retResult = _sys->sysRecvFrom(_fd, buffer, len);
+        return retResult;
+      } else {
+        return 0;
+      }
+    } else {
+      throw Exception(ERR, "Poll syscall failed.");
+    }
+  } else {
+    return _sys->sysRecvFrom(_fd, buffer, len);
+  }
+}
 
 bool UDPSocket::read(char *buffer, int len, bool *cancel) {}
 

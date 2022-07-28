@@ -7,10 +7,14 @@
 
 using ::testing::_;
 using ::testing::AtLeast;
+using ::testing::DoAll;
 using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::ReturnArg;
+using ::testing::SaveArg;
+using ::testing::SaveArgPointee;
 using ::testing::Throw;
+using ::testing::Values;
 
 namespace level {
 namespace UDPSocketTests {
@@ -37,17 +41,19 @@ std::shared_ptr<MSyscall> getSys(int fd = 2) {
 unsigned short randPort() { return (unsigned short)rand() % UINT16_MAX; }
 
 std::shared_ptr<UDPSocket>
-getSocket(unsigned short port = 0, std::shared_ptr<ISyscall> syscall = nullptr,
-          int fd = 2) {
+getSocket(unsigned short port = 0,
+          std::shared_ptr<ISyscall> syscall = nullptr) {
   if (port == 0) {
     port = randPort();
   }
   if (!syscall) {
-    syscall = getSys(fd);
+    syscall = getSys();
   }
   auto socket = std::make_shared<UDPSocket>(port, syscall);
   return socket;
 }
+
+class RecvWithTimeoutTest : public testing::TestWithParam<PollEvent> {};
 
 } // namespace UDPSocketTests
 } // namespace level
@@ -61,11 +67,15 @@ TEST(UDPSocket, SuccessfulInitialization) {
   auto sys = getSys();
   EXPECT_CALL(*sys, sysSocket(Domain_INET, Type_DGRAM, UDP))
       .WillOnce(Return(fd));
-  EXPECT_CALL(*sys,
-              sysSetSockOpt(fd, Level_SOCKET, Option_BROADCAST, nullptr, 0))
-      .WillOnce(Return(0));
+  const void *trueflag;
+  int trueflagSize = 0;
+  EXPECT_CALL(*sys, sysSetSockOpt(fd, Level_SOCKET, Option_BROADCAST, _, _))
+      .WillOnce(
+          DoAll(SaveArg<3>(&trueflag), SaveArg<4>(&trueflagSize), Return(0)));
   auto socket = getSocket(port, sys);
   ASSERT_EQ(port, socket->port());
+  ASSERT_NE(nullptr, trueflag);
+  ASSERT_NE(0, trueflagSize);
 }
 
 TEST(UDPSocket, ThrowIfSyscallIsNull) {
@@ -136,7 +146,103 @@ TEST(UDPSocket, SendMessageFails) {
   ASSERT_FALSE(socket->send(buffer, bufferSize));
 }
 
-TEST(UDPSocket, ThrowsIfBufferIsNull) {
+TEST(UDPSocket, ThrowsIfSendBufferIsNull) {
   auto socket = getSocket();
   ASSERT_THROW(socket->send(nullptr, 0), Exception);
+}
+
+TEST(UDPSocket, ReceiveData) {
+  auto port = randPort();
+  auto sys = getSys();
+  auto socket = getSocket(port, sys);
+  const int bufferSize = 64;
+  int readSize = 50;
+  char buffer[bufferSize];
+  EXPECT_CALL(*sys, sysRecvFrom(_, buffer, bufferSize, _, _, _))
+      .WillOnce(Return(readSize));
+  ASSERT_EQ(readSize, socket->recv(buffer, bufferSize));
+}
+
+TEST(UDPSocket, ThrowsIfReceiveBufferIsNull) {
+  auto socket = getSocket();
+  ASSERT_THROW(socket->recv(nullptr, 0), Exception);
+}
+
+TEST(UDPSocket, TriggerTimeoutInReceive) {
+  auto port = randPort();
+  auto sys = getSys();
+  auto socket = getSocket(port, sys);
+  int timeout = 100;
+  const int bufferSize = 16;
+  char buffer[bufferSize];
+  EXPECT_CALL(*sys, sysPoll(_, 1, timeout)).WillOnce(Return(0));
+  ASSERT_EQ(0, socket->recv(buffer, bufferSize, timeout));
+}
+
+TEST(UDPSocket, UseTimeoutAndReceiveData) {
+  auto port = randPort();
+  int fd = 3;
+  auto sys = getSys(fd);
+  auto socket = getSocket(port, sys);
+  int timeout = 100;
+  const int bufferSize = 16;
+  const int recvSize = 10;
+  char buffer[bufferSize];
+  EXPECT_CALL(*sys, sysPoll(_, 1, timeout))
+      .WillOnce(DoAll(Invoke([](PollFD *fds, nfds_l nfds, int timeout) {
+                        fds->revents = PollEvent::Event_IN;
+                      }),
+                      Return(1)));
+  EXPECT_CALL(*sys, sysRecvFrom(fd, buffer, bufferSize, _, _, _))
+      .WillOnce(Return(recvSize));
+  ASSERT_EQ(recvSize, socket->recv(buffer, bufferSize, timeout));
+}
+
+TEST_P(RecvWithTimeoutTest, DontCallRecvFromWithEvent) {
+  auto port = randPort();
+  auto sys = getSys();
+  auto socket = getSocket(port, sys);
+  int timeout = 100;
+  const int bufferSize = 16;
+  char buffer[bufferSize];
+  EXPECT_CALL(*sys, sysPoll(_, 1, timeout))
+      .WillOnce(DoAll(Invoke([](PollFD *fds, nfds_l nfds, int timeout) {
+                        fds->revents = GetParam();
+                      }),
+                      Return(1)));
+  EXPECT_CALL(*sys, sysRecvFrom(_, _, _, _, _, _)).Times(0);
+  ASSERT_EQ(0, socket->recv(buffer, bufferSize, timeout));
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    UDPSocket, RecvWithTimeoutTest,
+    Values(PollEvent::Event_ERR, PollEvent::Event_HUP, PollEvent::Event_NVAL,
+           PollEvent::Event_OUT, PollEvent::Event_PRI),
+    [](const ::testing::TestParamInfo<RecvWithTimeoutTest::ParamType> &info) {
+      switch (info.param) {
+      case PollEvent::Event_ERR:
+        return "ERR";
+      case PollEvent::Event_HUP:
+        return "HUP";
+      case PollEvent::Event_NVAL:
+        return "NVAL";
+      case PollEvent::Event_OUT:
+        return "OUT";
+      case PollEvent::Event_PRI:
+        return "PRI";
+      default:
+        return "unknown";
+      }
+    });
+
+TEST(UDPSocket, TimeoutFailed) {
+  auto port = randPort();
+  auto sys = getSys();
+  auto socket = getSocket(port, sys);
+  int timeout = 100;
+  const int bufferSize = 16;
+  char buffer[bufferSize];
+  EXPECT_CALL(*sys, sysPoll(_, 1, timeout)).WillOnce(Return(-1));
+  EXPECT_CALL(*sys, sysRecvFrom(_, _, _, _, _, _)).Times(0);
+  ASSERT_THROW(socket->recv(buffer, bufferSize, timeout), Exception);
 }
