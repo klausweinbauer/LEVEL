@@ -11,7 +11,6 @@
 #pragma once
 
 #include <Encoder.hpp>
-#include <SocketBasedNI.hpp>
 #include <Syscall.hpp>
 #include <UDPSocket.hpp>
 #include <functional>
@@ -36,17 +35,6 @@ static std::function<std::shared_ptr<IEncoder>()> encoderProvider = []() {
 };
 
 static std::shared_ptr<IEncoder> encoder() { return encoderProvider(); }
-
-static std::function<std::shared_ptr<INetworkInterface>()> networkProvider =
-    []() {
-      // singelton
-      static auto instance = std::shared_ptr<INetworkInterface>(
-          new SocketBasedNI(socket(), socket(), encoder()));
-      return instance;
-    };
-static std::shared_ptr<INetworkInterface> network() {
-  return networkProvider();
-}
 
 } // namespace di
 } // namespace cam

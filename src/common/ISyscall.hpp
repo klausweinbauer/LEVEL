@@ -89,6 +89,7 @@ enum ProtocolLevel { Level_SOCKET = SOL_SOCKET };
 enum SocketOption { Option_BROADCAST = SO_BROADCAST };
 
 struct PollFD : pollfd_l {
+public:
   PollFD() {}
   PollFD(int fd, PollEvent event) {
     pollfd::fd = fd;
@@ -98,10 +99,12 @@ struct PollFD : pollfd_l {
 };
 
 struct SockAddr : sockaddr_l {
+public:
   SockLen len() { return sizeof(SockAddr); }
 };
 
 struct SockAddrInet : SockAddr {
+public:
   SockAddrInet() {}
 
   SockAddrInet(uint16_t port) {
@@ -111,7 +114,7 @@ struct SockAddrInet : SockAddr {
     addr->sin_port = htons(port);
   }
 
-  SockAddrInet(std::string address, uint16_t port) {
+  SockAddrInet(uint16_t port, std::string address) {
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = inet_addr(address.c_str());

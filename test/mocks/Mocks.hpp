@@ -22,9 +22,9 @@ struct Dummy {
 
 class MSocket : public ISocket {
 public:
-  MOCK_METHOD(void, send, (const char *buffer, int len), (override));
-  MOCK_METHOD(int, recv, (char *buffer, int len), (override));
-  MOCK_METHOD(void, close, (), (override));
+  MOCK_METHOD(bool, send, (const char *, int), (override));
+  MOCK_METHOD(int, recv, (char *, int, int), (override));
+  MOCK_METHOD(bool, read, (char *, int, bool *), (override));
 };
 
 class MQuery : public IQuery {

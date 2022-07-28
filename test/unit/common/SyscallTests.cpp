@@ -61,7 +61,7 @@ TEST(Syscall, SendTo) {
   std::string msg("Hello World!");
   int fd = sys->sysSocket(Domain_INET, Type_DGRAM, UDP);
   ASSERT_TRUE(fd > 2);
-  SockAddrInet addr("127.0.0.1", 10000 + rand() % 50000);
+  SockAddrInet addr(10000 + rand() % 50000, "127.0.0.1");
   int ret =
       sys->sysSendTo(fd, msg.c_str(), msg.length() + 1, 0, &addr, addr.len());
   ASSERT_EQ(msg.length() + 1, ret);
@@ -70,7 +70,7 @@ TEST(Syscall, SendTo) {
 
 void Syscall_send(uint16_t port, int timeout, std::string msg) {
   auto sys = Syscall_get();
-  SockAddrInet addr("127.0.0.1", port);
+  SockAddrInet addr(port, "127.0.0.1");
   int fd = sys->sysSocket(Domain_INET, Type_DGRAM, UDP);
   ASSERT_TRUE(fd > 2);
   std::this_thread::sleep_for(std::chrono::milliseconds(timeout / 2));
@@ -114,7 +114,7 @@ TEST(Syscall, GetAddressFromUninitializedInetSocketAddress) {
 TEST(Syscall, GetAddressFromInetSocketAddress) {
   std::string strAddr("1.2.3.4");
   uint16_t port = 4321;
-  SockAddrInet socketAddr(strAddr, port);
+  SockAddrInet socketAddr(port, strAddr);
   ASSERT_EQ(0, socketAddr.addr().compare(strAddr));
   ASSERT_EQ(port, socketAddr.port());
 }
@@ -128,4 +128,17 @@ TEST(Syscall, SetSocketOptionBroadcast) {
                                (void *)&trueflag, sizeof(trueflag));
   ASSERT_EQ(0, ret);
   ASSERT_EQ(0, sys->sysClose(fd));
+}
+
+TEST(Syscall, UDPPacketSizeBound) {
+  uint16_t port = 10000 + rand() % 50000;
+  const int bufferSize = 1 << 16;
+  char *buffer = new char[bufferSize];
+  auto sys = Syscall_get();
+  int fd = sys->sysSocket(Domain_INET, Type_DGRAM, UDP);
+  SockAddrInet addr(port, "127.0.0.1");
+  int sendResult = sys->sysSendTo(fd, buffer, bufferSize, 0, &addr, addr.len());
+  ASSERT_TRUE(sendResult < bufferSize);
+  ASSERT_EQ(0, sys->sysClose(fd));
+  delete[] buffer;
 }
