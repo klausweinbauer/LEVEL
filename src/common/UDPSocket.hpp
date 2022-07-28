@@ -1,48 +1,43 @@
 #pragma once
 
 #include <ISocket.hpp>
+#include <ISyscall.hpp>
+#include <memory>
 #include <string>
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#else
-#include <netinet/in.h>
+// Though UDP can handle up to 65535kB (- header size) data packets, this is not
+// practical. So we split data into chunks of SOCKET_MAX_SEND_SIZE.
+#ifndef SOCKET_MAX_SEND_SIZE
+#define SOCKET_MAX_SEND_SIZE 4096
+#endif
+
+// The default timeout used in read.
+#ifndef SOCKET_READ_TIMOUT
+#define SOCKET_READ_TIMOUT 500
 #endif
 
 namespace level {
 
-#ifdef _WIN32
-class WSASession {
-public:
-  WSASession();
-  ~WSASession();
-
-private:
-  WSAData data_;
-};
-#endif
-
 class UDPSocket : public ISocket {
 
 private:
+  std::shared_ptr<ISyscall> _sys;
+  int _fd;
   unsigned short _port;
-  bool _enableRecvException;
   bool _isBound;
 
-#ifdef _WIN32
-  SOCKET _sock;
-  WSASession _session;
-#else
-  int _sock;
-#endif
+  virtual void bindSocket();
+  virtual int handleRecv(char *buffer, int len);
 
 public:
-  UDPSocket(unsigned short port);
+  UDPSocket(unsigned short port, std::shared_ptr<ISyscall> syscall);
   ~UDPSocket();
 
-  virtual void send(const char *buffer, int len, int flags = 0) override;
-  virtual int recv(char *buffer, int len, int flags = 0) override;
-  virtual void bindSocket();
-  virtual void close() override;
+  virtual unsigned short port();
+
+  virtual bool send(const char *buffer, int len) override;
+  virtual int recv(char *buffer, int len, int timeout = 0) override;
+  virtual int read(char *buffer, int len,
+                   const bool *const cancel = nullptr) override;
 };
 }; // namespace level

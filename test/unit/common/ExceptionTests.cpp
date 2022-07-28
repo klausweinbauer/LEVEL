@@ -6,7 +6,7 @@ using namespace level;
 
 const char *defaultErrorMsg = "Unknown error code.";
 
-TEST(Common_Exception, Test_Set_Last_Error_Message) {
+TEST(Exception, TestSetLastErrorMessage) {
   std::string expMsg("Test error message.");
 
   try {
@@ -22,18 +22,18 @@ TEST(Common_Exception, Test_Set_Last_Error_Message) {
   ASSERT_EQ(0, expMsg.compare(msg));
 }
 
-TEST(Common_Exception, Test_Error_Message_For_Unknown_Error) {
+TEST(Exception, TestErrorMessageForUnknownError) {
   std::string msg(Exception::errMsg(1));
   ASSERT_GT(msg.length(), 0);
   ASSERT_FALSE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Get_Default_Error_Message) {
+TEST(Exception, TestGetDefaultErrorMessage) {
   Exception ex(ERR);
   ASSERT_EQ(Exception::errMsg(ERR), ex.getErrMsg());
 }
 
-TEST(Common_Exception, Test_Get_Exception_Description) {
+TEST(Exception, TestGetExceptionDescription) {
   std::string expMsg(
       "General exception from LEVEL. For more information on what went "
       "wrong use members getErrCode() and getErrMsg() or global "
@@ -43,109 +43,109 @@ TEST(Common_Exception, Test_Get_Exception_Description) {
   ASSERT_EQ(expMsg, msg);
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR) {
+TEST(Exception, TestErrorMessageERR) {
   std::string msg(Exception::errMsg(ERR));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_ALLOC_FAILED) {
+TEST(Exception, TestErrorMessageERRALLOCFAILED) {
   std::string msg(Exception::errMsg(ERR_ALLOC_FAILED));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_NULL) {
+TEST(Exception, TestErrorMessageERRNULL) {
   std::string msg(Exception::errMsg(ERR_NULL));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_BUFFER_OVERFLOW) {
+TEST(Exception, TestErrorMessageERRBUFFEROVERFLOW) {
   std::string msg(Exception::errMsg(ERR_BUFFER_OVERFLOW));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_ENCODE) {
+TEST(Exception, TestErrorMessageERRENCODE) {
   std::string msg(Exception::errMsg(ERR_ENCODE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_DECODE) {
+TEST(Exception, TestErrorMessageERRDECODE) {
   std::string msg(Exception::errMsg(ERR_DECODE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_RECEIVER_START) {
+TEST(Exception, TestErrorMessageERRRECEIVERSTART) {
   std::string msg(Exception::errMsg(ERR_RECEIVER_START));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_TRANSMITTER_START) {
+TEST(Exception, TestErrorMessageERRTRANSMITTERSTART) {
   std::string msg(Exception::errMsg(ERR_TRANSMITTER_START));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_ARG_NULL) {
+TEST(Exception, TestErrorMessageERRARGNULL) {
   std::string msg(Exception::errMsg(ERR_ARG_NULL));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_INDEX_OUT_OF_RANGE) {
+TEST(Exception, TestErrorMessageERRINDEXOUTOFRANGE) {
   std::string msg(Exception::errMsg(ERR_INDEX_OUT_OF_RANGE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_INVALID_ARG) {
+TEST(Exception, TestErrorMessageERRINVALIDARG) {
   std::string msg(Exception::errMsg(ERR_INVALID_ARG));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_MSG_NOT_FOUND) {
+TEST(Exception, TestErrorMessageERRMSGNOTFOUND) {
   std::string msg(Exception::errMsg(ERR_MSG_NOT_FOUND));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_INVALID_OPERATION) {
+TEST(Exception, TestErrorMessageERRINVALIDOPERATION) {
   std::string msg(Exception::errMsg(ERR_INVALID_OPERATION));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_HIGH_FREQ_CONTAINER_TYPE) {
+TEST(Exception, TestErrorMessageERRHIGHFREQCONTAINERTYPE) {
   std::string msg(Exception::errMsg(ERR_HIGH_FREQ_CONTAINER_TYPE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_LOW_FREQ_CONTAINER_TYPE) {
+TEST(Exception, TestErrorMessageERRLOWFREQCONTAINERTYPE) {
   std::string msg(Exception::errMsg(ERR_LOW_FREQ_CONTAINER_TYPE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_CAM_ALREADY_EXISTS) {
+TEST(Exception, TestErrorMessageERRCAMALREADYEXISTS) {
   std::string msg(Exception::errMsg(ERR_CAM_ALREADY_EXISTS));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_SPECIAL_VEHICLE_CONTAINER_TYPE) {
+TEST(Exception, TestErrorMessageERRSPECIALVEHICLECONTAINERTYPE) {
   std::string msg(Exception::errMsg(ERR_SPECIAL_VEHICLE_CONTAINER_TYPE));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));
 }
 
-TEST(Common_Exception, Test_Error_Message_ERR_DENM_ALREADY_EXISTS) {
+TEST(Exception, TestErrorMessageERRDENMALREADYEXISTS) {
   std::string msg(Exception::errMsg(ERR_DENM_ALREADY_EXISTS));
   ASSERT_GT(msg.length(), 0);
   ASSERT_TRUE(msg.rfind(defaultErrorMsg, 0));

@@ -29,6 +29,11 @@ jobs:
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+      - name: Install Valgrind
+        run: | 
+          sudo apt update
+          sudo apt-get install valgrind           
+
       - name: Test
         working-directory: ${{github.workspace}}/build
         # Execute tests defined by the CMake configuration.

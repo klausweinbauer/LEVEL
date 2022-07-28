@@ -30,25 +30,25 @@ std::shared_ptr<NiceMock<IndexerTest_Indexer<T>>> IndexerTest_getIndexer() {
   return std::make_shared<NiceMock<IndexerTest_Indexer<T>>>();
 }
 
-TEST(Indexer, Supports_Derived_Query) {
+TEST(Indexer, SupportsDerivedQuery) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto query = std::make_shared<DerivedMQuery>();
   ASSERT_TRUE(indexer->supportsQuery(query));
 }
 
-TEST(Indexer, Not_Supports_Not_Derived_Query) {
+TEST(Indexer, NotSupportsNotDerivedQuery) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto query = std::make_shared<NotDerivedMQuery>();
   ASSERT_FALSE(indexer->supportsQuery(query));
 }
 
-TEST(Indexer, Not_Supports_Nullptr_To_Query) {
+TEST(Indexer, NotSupportsNullptrQuery) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto query = std::shared_ptr<DerivedMQuery>(nullptr);
   ASSERT_FALSE(indexer->supportsQuery(query));
 }
 
-TEST(Indexer, GetIndexList_Throws_Exception_When_Called_Without_Derived_Query) {
+TEST(Indexer, GetIndexListThrowsExceptionWhenCalledWithoutDerivedQuery) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   auto query = std::make_shared<NotDerivedMQuery>();
@@ -56,7 +56,7 @@ TEST(Indexer, GetIndexList_Throws_Exception_When_Called_Without_Derived_Query) {
   ASSERT_THROW(baseIndexer->getIndexList(query), DBException);
 }
 
-TEST(Indexer, Calls_Derived_GetIndexList) {
+TEST(Indexer, CallsDerivedGetIndexList) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   auto query = std::make_shared<DerivedMQuery>();
@@ -64,7 +64,7 @@ TEST(Indexer, Calls_Derived_GetIndexList) {
   baseIndexer->getIndexList(query);
 }
 
-TEST(Indexer, Query_Still_Exists_After_GetIndexList) {
+TEST(Indexer, QueryStillExistsAfterGetIndexList) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   auto query = std::make_shared<DerivedMQuery>();
@@ -74,25 +74,32 @@ TEST(Indexer, Query_Still_Exists_After_GetIndexList) {
   ASSERT_EQ(value, query->_value);
 }
 
-TEST(Indexer, Default_AddData) {
+TEST(Indexer, DefaultAddData) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   int value = rand();
   ASSERT_NO_THROW(baseIndexer->addData(value, 0));
 }
 
-TEST(Indexer, Default_UpdateData) {
+TEST(Indexer, DefaultUpdateData) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   int value = rand();
   ASSERT_NO_THROW(baseIndexer->updateData(value, 0));
 }
 
-TEST(Indexer, Default_RemoveData) {
+TEST(Indexer, DefaultRemoveData) {
   auto indexer = IndexerTest_getIndexer<int>();
   auto baseIndexer(std::static_pointer_cast<IIndexer<int>>(indexer));
   int value = rand();
   ASSERT_NO_THROW(baseIndexer->removeData(value, 0));
+}
+
+TEST(Indexer, ThrowsOnNullptrQuery) {
+  auto indexer =
+      std::static_pointer_cast<IIndexer<int>>(IndexerTest_getIndexer<int>());
+  ASSERT_THROW(indexer->getIndexList(std::shared_ptr<IQuery>(nullptr)),
+               Exception);
 }
 
 struct Indexer_Parameter {
@@ -138,25 +145,25 @@ public:
   }
 };
 
-TEST(Indexer, ParameterIndexer_Supports_Parameter_Query) {
+TEST(Indexer, ParameterIndexerSupportsParameterQuery) {
   Indexer_ParameterIndexer indexer;
   auto qry = std::make_shared<Indexer_QRYParameter>();
   ASSERT_TRUE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexer_Does_Not_Support_Other_Query) {
+TEST(Indexer, ParameterIndexerDoesNotSupportOtherQuery) {
   Indexer_ParameterIndexer indexer;
   auto qry = std::make_shared<MQuery>();
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexer_Does_Not_Support_Other_Parameter) {
+TEST(Indexer, ParameterIndexerDoesNotSupportOtherParameter) {
   Indexer_ParameterIndexer indexer;
   auto qry = std::make_shared<Indexer_QRYOtherParameter>();
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexer_Calls_Derived_Indexer) {
+TEST(Indexer, ParameterIndexerCallsDerivedIndexer) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
   auto baseIndexer = std::static_pointer_cast<
@@ -166,9 +173,8 @@ TEST(Indexer, ParameterIndexer_Calls_Derived_Indexer) {
   baseIndexer->getIndexList(qry);
 }
 
-TEST(
-    Indexer,
-    ParameterIndexer_GetIndexList_Throws_Exception_When_Called_With_Wrong_Parameter) {
+TEST(Indexer,
+     ParameterIndexerGetIndexListThrowsExceptionWhenCalledWithWrongParameter) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
   auto baseIndexer = std::static_pointer_cast<
@@ -178,9 +184,8 @@ TEST(
   ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
 }
 
-TEST(
-    Indexer,
-    ParameterIndexer_GetIndexList_Throws_Exception_When_Called_With_Wrong_Query) {
+TEST(Indexer,
+     ParameterIndexerGetIndexListThrowsExceptionWhenCalledWithWrongQuery) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
   auto baseIndexer = std::static_pointer_cast<IIndexer<Indexer_Data>>(indexer);
@@ -189,7 +194,7 @@ TEST(
   ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
 }
 
-TEST(Indexer, ParameterIndexer_Calls_GetValue_During_AddData) {
+TEST(Indexer, ParameterIndexerCallsGetValueDuringAddData) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
   Indexer_Data data;
@@ -197,7 +202,7 @@ TEST(Indexer, ParameterIndexer_Calls_GetValue_During_AddData) {
   indexer->addData(data, 0);
 }
 
-TEST(Indexer, ParameterIndexer_Calls_GetValue_During_RemoveData) {
+TEST(Indexer, ParameterIndexerCallsGetValueDuringRemoveData) {
   auto indexer =
       std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
   Indexer_Data data;
@@ -205,8 +210,7 @@ TEST(Indexer, ParameterIndexer_Calls_GetValue_During_RemoveData) {
   indexer->removeData(data, rand());
 }
 
-TEST(Indexer,
-     ParameterIndexer_Returns_Empty_List_If_Query_Does_Not_Find_Entries) {
+TEST(Indexer, ParameterIndexerReturnsEmptyListIfQueryDoesNotFindEntries) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   Indexer_Parameter param(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(param);
@@ -214,7 +218,7 @@ TEST(Indexer,
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexer_Add_Single_Entry) {
+TEST(Indexer, ParameterIndexerAddSingleEntry) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
@@ -225,7 +229,7 @@ TEST(Indexer, ParameterIndexer_Add_Single_Entry) {
   ASSERT_EQ(index, result[0]);
 }
 
-TEST(Indexer, ParameterIndexer_Add_Duplicate_Entry) {
+TEST(Indexer, ParameterIndexerAddDuplicateEntry) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index1 = rand();
   auto index2 = index1 + 1;
@@ -239,7 +243,7 @@ TEST(Indexer, ParameterIndexer_Add_Duplicate_Entry) {
   ASSERT_EQ(index1, result[0]);
 }
 
-TEST(Indexer, ParameterIndexer_Throws_When_Adding_Duplicate_Index) {
+TEST(Indexer, ParameterIndexerThrowsWhenAddingDuplicateIndex) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
@@ -248,7 +252,7 @@ TEST(Indexer, ParameterIndexer_Throws_When_Adding_Duplicate_Index) {
   ASSERT_THROW(indexer->addData(data, index), Exception);
 }
 
-TEST(Indexer, ParameterIndexer_Query_After_Entry_Is_Removed) {
+TEST(Indexer, ParameterIndexerQueryAfterEntryIsRemoved) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
@@ -259,7 +263,7 @@ TEST(Indexer, ParameterIndexer_Query_After_Entry_Is_Removed) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexer_Update_When_Parameter_Changed_Value) {
+TEST(Indexer, ParameterIndexerUpdateWhenParameterChangedValue) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
@@ -272,7 +276,7 @@ TEST(Indexer, ParameterIndexer_Update_When_Parameter_Changed_Value) {
   ASSERT_EQ(index, result[0]);
 }
 
-TEST(Indexer, ParameterIndexer_Can_Not_Find_Old_Entry_After_Update) {
+TEST(Indexer, ParameterIndexerCanNotFindOldEntryAfterUpdate) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   auto index = rand();
   Indexer_Data data1(rand(), rand());
@@ -284,14 +288,14 @@ TEST(Indexer, ParameterIndexer_Can_Not_Find_Old_Entry_After_Update) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexer_Throw_When_Update_Not_Existing_Value) {
+TEST(Indexer, ParameterIndexerThrowWhenUpdateNotExistingValue) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   Indexer_Data data(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
   ASSERT_THROW(indexer->updateData(data, rand()), Exception);
 }
 
-TEST(Indexer, ParameterIndexer_IsValid_Check) {
+TEST(Indexer, ParameterIndexerIsValidCheck) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());
@@ -299,7 +303,7 @@ TEST(Indexer, ParameterIndexer_IsValid_Check) {
   ASSERT_TRUE(indexer->isValid(data, index));
 }
 
-TEST(Indexer, ParameterIndexer_IsNotValid_Check) {
+TEST(Indexer, ParameterIndexerIsNotValidCheck) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());
@@ -308,14 +312,14 @@ TEST(Indexer, ParameterIndexer_IsNotValid_Check) {
   ASSERT_FALSE(indexer->isValid(data, index));
 }
 
-TEST(Indexer, ParameterIndexer_IsNotValid_Check_For_Empty_Index) {
+TEST(Indexer, ParameterIndexerIsNotValidCheckForEmptyIndex) {
   auto indexer = std::make_shared<Indexer_ParameterIndexer>();
   unsigned int index = rand();
   Indexer_Data data;
   ASSERT_FALSE(indexer->isValid(data, index));
 }
 
-TEST(Indexer, IDXIndex_Get_Index_List) {
+TEST(Indexer, IDXIndexGetIndexList) {
   auto index = (unsigned int)(rand() % 10000) + 100;
   auto len = rand() % 100;
   auto qry = std::make_shared<QRYIndex>(index, index + len);
@@ -327,14 +331,14 @@ TEST(Indexer, IDXIndex_Get_Index_List) {
   }
 }
 
-TEST(Indexer, IDXIndex_Get_Empty_Index_List) {
+TEST(Indexer, IDXIndexGetEmptyIndexList) {
   auto qry = std::make_shared<QRYIndex>();
   IDXIndexer<int> indexer;
   auto result = indexer.getIndexList(qry);
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, IDXIndex_IsValid_Check) {
+TEST(Indexer, IDXIndexIsValidCheck) {
   auto indexer = std::make_shared<IDXIndexer<Indexer_Data>>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());

@@ -1,4 +1,5 @@
 #include <CAMWrapper.hpp>
+#include <Exception.hpp>
 #include <vector>
 
 namespace level {
@@ -46,7 +47,7 @@ CAMWrapper::CAMWrapper(const CAMWrapper &other) : _cam(nullptr) {
   }
 
   const size_t bufferLen = dynamicBuffer.size();
-  uint8_t* buffer = (uint8_t*)calloc(bufferLen, sizeof(uint8_t));
+  uint8_t *buffer = (uint8_t *)calloc(bufferLen, sizeof(uint8_t));
   std::copy(dynamicBuffer.begin(), dynamicBuffer.end(), buffer);
 
   asn_dec_rval_t retValDecode;
