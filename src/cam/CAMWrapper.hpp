@@ -1,7 +1,8 @@
 #pragma once
 
 #include <CAM.h>
-#include <CAMServiceProvider.hpp>
+#include <Types.hpp>
+#include <algorithm>
 
 namespace level {
 namespace cam {
@@ -31,4 +32,15 @@ public:
 };
 
 } // namespace cam
+
+#define CAM_TYPE_NAME "CAM"
+
+template <> struct TypeName<CAM> {
+  static const char *get() { return CAM_TYPE_NAME; }
+};
+
+template <> struct TypeName<cam::CAMWrapper> {
+  static const char *get() { return CAM_TYPE_NAME; }
+};
+
 } // namespace level
