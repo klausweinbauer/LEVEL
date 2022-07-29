@@ -47,6 +47,8 @@ public:
   XEREncoder(asn_TYPE_descriptor_t typeDescriptor, xer_encoder_flags_e encoding)
       : _typeDescriptor(typeDescriptor), _encoding(encoding) {}
 
+  virtual ~XEREncoder() {}
+
   virtual std::vector<BYTE> encode(const T *message) {
 
     std::vector<BYTE> buffer;
