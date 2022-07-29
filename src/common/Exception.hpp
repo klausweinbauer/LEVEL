@@ -45,13 +45,7 @@ public:
 
   virtual int getErrCode() const { return _errCode; }
 
-  virtual const char *getErrMsg() const {
-    if (_errMsg.size() > 0) {
-      return _errMsg.c_str();
-    } else {
-      return errMsg(_errCode);
-    }
-  }
+  virtual const char *getErrMsg() const { return errMsg(_errCode); }
 
   virtual const char *what() const noexcept override {
     return "General exception from LEVEL. For more information on what went "
