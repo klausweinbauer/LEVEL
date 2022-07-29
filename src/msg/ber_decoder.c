@@ -69,7 +69,7 @@ ber_check_tags(asn_codec_ctx_t *opt_codec_ctx,
 	ssize_t consumed_myself = 0;
 	ssize_t tag_len;
 	ssize_t len_len;
-	ber_tlv_tag_t tlv_tag;
+	ber_tlv_tag_t tlv_tag = 0;
 	ber_tlv_len_t tlv_len;
 	ber_tlv_len_t limit_len = -1;
 	int expect_00_terminators = 0;
