@@ -1,7 +1,7 @@
 /**
- * @file XEREncoder.hpp
+ * @file DEREncoder.hpp
  * @author Klaus Weinbauer
- * @brief ASN1 based XER encoder.
+ * @brief ASN1 based DER BER encoder.
  * @version 0.1
  * @date 2022-07-29
  *
@@ -9,28 +9,26 @@
  *
  */
 
+#pragma once
+
 #include <EncodeException.hpp>
 #include <IEncoder.hpp>
 #include <Types.hpp>
-#include <constr_TYPE.h>
-#include <cstddef>
 #include <string>
-#include <vector>
 
-#define XER_ENCODING_TYPE_NAME "XML"
+#define DER_BER_ENCODING_TYPE_NAME "DER/BER"
 
 namespace level {
 
 /**
- * @brief ASN1 based XER encoder.
+ * @brief ASN1 based DER BER encoder.
  *
  * @tparam T ASN1 type struct.
  */
-template <typename T> class XEREncoder : public IEncoder<T> {
+template <typename T> class DEREncoder : public IEncoder<T> {
 
 private:
   asn_TYPE_descriptor_t _typeDescriptor;
-  xer_encoder_flags_e _encoding;
 
   static int writeCallback(const void *src, size_t size, void *container) {
     auto buffer = (std::vector<BYTE> *)container;
@@ -44,18 +42,21 @@ private:
   }
 
 public:
-  XEREncoder(asn_TYPE_descriptor_t typeDescriptor, xer_encoder_flags_e encoding)
-      : _typeDescriptor(typeDescriptor), _encoding(encoding) {}
+  DEREncoder(asn_TYPE_descriptor_t typeDescriptor)
+      : _typeDescriptor(typeDescriptor) {}
 
   virtual std::vector<BYTE> encode(const T *message) {
+    if (!message) {
+      throw Exception(ERR_ARG_NULL, "Argument 'message' is null.");
+    }
 
     std::vector<BYTE> buffer;
     asn_enc_rval_t retVal;
-    retVal = xer_encode(&_typeDescriptor, (void *)message, _encoding,
-                        writeCallback, (void *)&buffer);
+    retVal = der_encode(&_typeDescriptor, (void *)message, writeCallback,
+                        (void *)&buffer);
 
     if (retVal.encoded == -1) {
-      throw EncodeException(XER_ENCODING_TYPE_NAME, TypeName<T>::get(),
+      throw EncodeException(DER_BER_ENCODING_TYPE_NAME, TypeName<T>::get(),
                             retVal.failed_type->xml_tag,
                             retVal.failed_type->name);
     }
@@ -77,12 +78,12 @@ public:
     asn_codec_ctx_t opt_codec_ctx{};
     opt_codec_ctx.max_stack_size = 0;
 
-    retVal = xer_decode(&opt_codec_ctx, &_typeDescriptor, (void **)&msg, buffer,
+    retVal = ber_decode(&opt_codec_ctx, &_typeDescriptor, (void **)&msg, buffer,
                         bufferLen);
 
     if (retVal.code != asn_dec_rval_code_e::RC_OK) {
       ASN_STRUCT_FREE(_typeDescriptor, msg);
-      throw EncodeException(XER_ENCODING_TYPE_NAME, TypeName<T>::get());
+      throw EncodeException(DER_BER_ENCODING_TYPE_NAME, TypeName<T>::get());
     }
 
     return msg;

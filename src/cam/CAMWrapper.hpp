@@ -1,18 +1,36 @@
+/**
+ * @file CAMWrapper.hpp
+ * @author Klaus Weinbauer
+ * @brief Memory safe wrapper for CAMs.
+ * @version 0.1
+ * @date 2022-07-29
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #pragma once
 
 #include <CAM.h>
+#include <IEncoder.hpp>
 #include <Types.hpp>
 #include <algorithm>
 
 namespace level {
 namespace cam {
 
+/**
+ * @brief Memory safe wrapper for CAMs.
+ *
+ */
 class CAMWrapper {
 
 private:
-  CAM_t *_cam;
+  CAM *_cam;
 
 public:
+  static std::shared_ptr<IEncoder<CAM>> copyEncoder;
+
   CAMWrapper(int stationId);
   CAMWrapper(int stationId, HighFrequencyContainer_PR type);
 
@@ -21,7 +39,7 @@ public:
   CAMWrapper(const CAMWrapper &other);
   CAMWrapper &operator=(CAMWrapper other);
 
-  CAM_t *operator->();
+  CAM *operator->();
 
   void setLFC(LowFrequencyContainer_PR type);
 

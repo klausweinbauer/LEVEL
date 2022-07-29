@@ -6,18 +6,18 @@
 using namespace level;
 using namespace level::cam;
 
-TEST(CAMWrapper, TestCtor) {
+TEST(CAMWrapper, SuccessfulConstruction) {
   CAMWrapper cam(1);
   ASSERT_EQ(1, cam->header.stationID);
 }
 
-TEST(CAMWrapper, TestArrowOperator) {
+TEST(CAMWrapper, ArrowOperator) {
   CAMWrapper cam(1);
   cam->header.stationID = 2;
   ASSERT_EQ(2, cam->header.stationID);
 }
 
-TEST(CAMWrapper, TestCopyCtor) {
+TEST(CAMWrapper, CopyConstruction) {
   CAMWrapper cam1(1);
   cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   auto lfc1 = &cam1->cam.camParameters.lowFrequencyContainer->choice
@@ -34,7 +34,7 @@ TEST(CAMWrapper, TestCopyCtor) {
   ASSERT_EQ(VehicleRole_specialTransport, lfc2->vehicleRole);
 }
 
-TEST(CAMWrapper, TestInitLFC) {
+TEST(CAMWrapper, InitializeLowFrequencyContainer) {
   CAMWrapper cam(1);
   auto type = LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
   cam.setLFC(type);
@@ -43,7 +43,7 @@ TEST(CAMWrapper, TestInitLFC) {
   ASSERT_EQ(type, cam->cam.camParameters.lowFrequencyContainer->present);
 }
 
-TEST(CAMWrapper, TestOverrideLFC) {
+TEST(CAMWrapper, OverrideLowFrequencyContainer) {
   CAMWrapper cam(1);
   cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   cam.setLFC(LowFrequencyContainer_PR_NOTHING);
@@ -51,7 +51,7 @@ TEST(CAMWrapper, TestOverrideLFC) {
   ASSERT_EQ(nullptr, cam->cam.camParameters.lowFrequencyContainer);
 }
 
-TEST(CAMWrapper, TestAssignmentOperator) {
+TEST(CAMWrapper, AssignmentOperator) {
   CAMWrapper cam1(1);
   cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   auto lfc1 = &cam1->cam.camParameters.lowFrequencyContainer->choice
@@ -71,17 +71,17 @@ TEST(CAMWrapper, TestAssignmentOperator) {
   ASSERT_EQ(VehicleRole_specialTransport, lfc2->vehicleRole);
 }
 
-TEST(CAMWrapper, TestFailedCopy) {
+TEST(CAMWrapper, FailsOnCopyingInvalidMessage) {
   CAMWrapper cam1(1);
   cam1->cam.camParameters.highFrequencyContainer.present =
       HighFrequencyContainer_PR_NOTHING;
-  bool threwException = false;
+  ASSERT_THROW(CAMWrapper cam2(cam1), Exception);
+}
 
-  try {
-    CAMWrapper cam2(cam1);
-  } catch (const Exception &) {
-    threwException = true;
-  }
-
-  ASSERT_TRUE(threwException);
+TEST(CAMWrapper, MissingCopyEncoder) {
+  CAMWrapper cam1(1);
+  auto tmp = CAMWrapper::copyEncoder;
+  CAMWrapper::copyEncoder = std::shared_ptr<IEncoder<CAM>>(nullptr);
+  ASSERT_THROW(CAMWrapper cam2(cam1), Exception);
+  CAMWrapper::copyEncoder = tmp;
 }
