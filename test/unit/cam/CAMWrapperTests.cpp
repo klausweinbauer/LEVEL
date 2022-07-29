@@ -77,11 +77,3 @@ TEST(CAMWrapper, FailsOnCopyingInvalidMessage) {
       HighFrequencyContainer_PR_NOTHING;
   ASSERT_THROW(CAMWrapper cam2(cam1), Exception);
 }
-
-TEST(CAMWrapper, MissingCopyEncoder) {
-  CAMWrapper cam1(1);
-  auto tmp = CAMWrapper::copyEncoder;
-  CAMWrapper::copyEncoder = std::shared_ptr<IEncoder<CAM>>(nullptr);
-  ASSERT_THROW(CAMWrapper cam2(cam1), Exception);
-  CAMWrapper::copyEncoder = tmp;
-}

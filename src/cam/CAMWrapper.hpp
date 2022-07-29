@@ -12,6 +12,7 @@
 #pragma once
 
 #include <CAM.h>
+#include <DEREncoder.hpp>
 #include <IEncoder.hpp>
 #include <Types.hpp>
 #include <algorithm>
@@ -27,10 +28,9 @@ class CAMWrapper {
 
 private:
   CAM *_cam;
+  static DEREncoder<CAM> _copyEncoder;
 
 public:
-  static std::shared_ptr<IEncoder<CAM>> copyEncoder;
-
   CAMWrapper(int stationId);
   CAMWrapper(int stationId, HighFrequencyContainer_PR type);
 
