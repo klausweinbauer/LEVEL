@@ -18,8 +18,8 @@ std::shared_ptr<IEncoder<CAM>> getDEREncoder() {
   return std::make_shared<DEREncoder<CAM>>(asn_DEF_CAM);
 }
 
-std::shared_ptr<CAM> getMsg(bool valid = true) {
-  auto cam = std::make_shared<CAM_t>();
+CAM *getMsg(bool valid = true) {
+  auto cam = (CAM *)calloc(1, sizeof(CAM));
   cam->header.messageID = rand();
   cam->header.stationID = rand();
   cam->header.protocolVersion = rand();
@@ -82,21 +82,24 @@ using namespace level::EncoderTests;
 TEST(Encoder, XEREncode) {
   auto encoder = getXEREncoder();
   auto msg = getMsg();
-  auto data = encoder->encode(msg.get());
+  auto data = encoder->encode(msg);
   ASSERT_TRUE(isValidXEREncode(data));
+  freeMsg(msg);
 }
 
 TEST(Encoder, XEREncodeCanonical) {
   auto encoder = getXEREncoder(true);
   auto msg = getMsg();
-  auto data = encoder->encode(msg.get());
+  auto data = encoder->encode(msg);
   ASSERT_TRUE(isValidXEREncode(data));
+  freeMsg(msg);
 }
 
 TEST(Encoder, XEREncodeFailed) {
   auto encoder = getXEREncoder();
   auto msg = getMsg(false);
-  ASSERT_THROW(encoder->encode(msg.get()), EncodeException);
+  ASSERT_THROW(encoder->encode(msg), EncodeException);
+  freeMsg(msg);
 }
 
 TEST(Encoder, XEREncodeNullptr) {
@@ -107,29 +110,32 @@ TEST(Encoder, XEREncodeNullptr) {
 TEST(Encoder, XERDecode) {
   auto encoder = getXEREncoder();
   auto msgIn = getMsg();
-  auto data = encoder->encode(msgIn.get());
+  auto data = encoder->encode(msgIn);
   auto msgOut = encoder->decode(data);
-  ASSERT_TRUE(equal(msgIn.get(), msgOut));
+  ASSERT_TRUE(equal(msgIn, msgOut));
   freeMsg(msgOut);
+  freeMsg(msgIn);
 }
 
 TEST(Encoder, XERDecodeCanonical) {
   auto encoder = getXEREncoder(true);
   auto msgIn = getMsg();
-  auto data = encoder->encode(msgIn.get());
+  auto data = encoder->encode(msgIn);
   auto msgOut = encoder->decode(data);
-  ASSERT_TRUE(equal(msgIn.get(), msgOut));
+  ASSERT_TRUE(equal(msgIn, msgOut));
   freeMsg(msgOut);
+  freeMsg(msgIn);
 }
 
 TEST(Encoder, XERDecodeFailed) {
   auto encoder = getXEREncoder(true);
   auto msgIn = getMsg();
-  auto data = encoder->encode(msgIn.get());
+  auto data = encoder->encode(msgIn);
   for (size_t i = data.size() - 32; i < data.size(); i++) {
     data[i] = rand() % 256;
   }
   ASSERT_THROW(encoder->decode(data), EncodeException);
+  freeMsg(msgIn);
 }
 
 TEST(Encoder, XERDecodeEmptyVector) {
@@ -143,19 +149,19 @@ TEST(Encoder, XERDecodeNullptr) {
   ASSERT_THROW(encoder->decode(nullptr, 0), EncodeException);
 }
 
-// ###################################pragma endregion
-
 TEST(Encoder, DEREncode) {
   auto encoder = getDEREncoder();
   auto msg = getMsg();
-  auto data = encoder->encode(msg.get());
+  auto data = encoder->encode(msg);
   ASSERT_TRUE(isValidDEREncode(data));
+  freeMsg(msg);
 }
 
 TEST(Encoder, DEREncodeFailed) {
   auto encoder = getDEREncoder();
   auto msg = getMsg(false);
-  ASSERT_THROW(encoder->encode(msg.get()), EncodeException);
+  ASSERT_THROW(encoder->encode(msg), EncodeException);
+  freeMsg(msg);
 }
 
 TEST(Encoder, DEREncodeNullptr) {
@@ -166,20 +172,22 @@ TEST(Encoder, DEREncodeNullptr) {
 TEST(Encoder, DERDecode) {
   auto encoder = getDEREncoder();
   auto msgIn = getMsg();
-  auto data = encoder->encode(msgIn.get());
+  auto data = encoder->encode(msgIn);
   auto msgOut = encoder->decode(data);
-  ASSERT_TRUE(equal(msgIn.get(), msgOut));
+  ASSERT_TRUE(equal(msgIn, msgOut));
   freeMsg(msgOut);
+  freeMsg(msgIn);
 }
 
 TEST(Encoder, DERDecodeFailed) {
   auto encoder = getDEREncoder();
   auto msgIn = getMsg();
-  auto data = encoder->encode(msgIn.get());
+  auto data = encoder->encode(msgIn);
   for (size_t i = data.size() - 32; i < data.size(); i++) {
     data[i] = rand() % 256;
   }
   ASSERT_THROW(encoder->decode(data), EncodeException);
+  freeMsg(msgIn);
 }
 
 TEST(Encoder, DERDecodeEmptyVector) {

@@ -111,21 +111,30 @@ int runTarget(string path, string file, string hash) {
 }
 
 bool validContent(const string &content) {
+  // TODO Regex should operate on chunks to prevent seg fault
+  // Valid output should be smaller than ~32kB
+  if (content.size() > 32000) {
+    return false;
+  }
   regex rLeaks(".+in use at exit: ([0-9,]+)");
   smatch mLeaks;
   return regex_search(content, mLeaks, rLeaks);
 }
 
+string removeChar(string s, char c) {
+  s.erase(remove(s.begin(), s.end(), c), s.end());
+  return s;
+}
+
 bool hasLeaks(string *content) {
+  // TODO Regex should operate on chunks to prevent seg fault
   regex rLeaks(".+in use at exit: ([0-9,]+)");
   smatch mLeaks;
   assert(true == regex_search(*content, mLeaks, rLeaks));
-  string rGroup = mLeaks.str(1);
-  rGroup.erase(remove(rGroup.begin(), rGroup.end(), ','), rGroup.end());
-  return stoi(rGroup);
+  return stoi(removeChar(mLeaks.str(1), ','));
 }
 
-void ensureContent(mutex *m, string *content, string *path, string *name,
+bool ensureContent(mutex *m, string *content, string *path, string *name,
                    bool *initialized) {
   unique_lock<mutex> lock(*m);
   if (!*initialized) {
@@ -149,31 +158,32 @@ void ensureContent(mutex *m, string *content, string *path, string *name,
 
     if (foundFile) {
       *content = readContent(getLogFile(*path, *name, hash));
-      foundFile = validContent(*content);
-    }
-
-    if (!foundFile) {
+    } else {
       int executionResult = runTarget(*path, *name, hash);
-      ASSERT_EQ(0, executionResult);
+      if (executionResult != 0) {
+        return false;
+      }
       *content = readContent(getLogFile(*path, *name, hash));
     }
 
     *initialized = true;
+    return validContent(*content);
   }
 }
 
 void testMemoryLeak(mutex *m, string *content, string *path, string *name,
                     bool *initialized) {
-  ensureContent(m, content, path, name, initialized);
+  ASSERT_TRUE(ensureContent(m, content, path, name, initialized));
   if (hasLeaks(content)) {
-    regex rDefinitelyLost(".+definitely lost: ([0-9]+)");
-    regex rIndirectlyLost(".+indirectly lost: ([0-9]+)");
+    // TODO Regex should operate on chunks to prevent seg fault
+    regex rDefinitelyLost(".+definitely lost: ([0-9,]+)");
+    regex rIndirectlyLost(".+indirectly lost: ([0-9,]+)");
     smatch mDefinitelyLost;
     smatch mIndirectlyLost;
     ASSERT_TRUE(regex_search(*content, mDefinitelyLost, rDefinitelyLost));
     ASSERT_TRUE(regex_search(*content, mIndirectlyLost, rIndirectlyLost));
-    int definitelyLost = stoi(mDefinitelyLost.str(1));
-    int indirectlyLost = stoi(mIndirectlyLost.str(1));
+    int definitelyLost = stoi(removeChar(mDefinitelyLost.str(1), ','));
+    int indirectlyLost = stoi(removeChar(mIndirectlyLost.str(1), ','));
     ASSERT_EQ(0, definitelyLost);
     ASSERT_EQ(0, indirectlyLost);
   }
@@ -181,24 +191,26 @@ void testMemoryLeak(mutex *m, string *content, string *path, string *name,
 
 void testPossiblyLostMemory(mutex *m, string *content, string *path,
                             string *name, bool *initialized) {
-  ensureContent(m, content, path, name, initialized);
+  ASSERT_TRUE(ensureContent(m, content, path, name, initialized));
   if (hasLeaks(content)) {
-    regex rPossiblyLost(".+possibly lost: ([0-9]+)");
+    // TODO Regex should operate on chunks to prevent seg fault
+    regex rPossiblyLost(".+possibly lost: ([0-9,]+)");
     smatch mPossiblyLost;
     ASSERT_TRUE(regex_search(*content, mPossiblyLost, rPossiblyLost));
-    int possiblyLost = stoi(mPossiblyLost.str(1));
+    int possiblyLost = stoi(removeChar(mPossiblyLost.str(1), ','));
     ASSERT_EQ(0, possiblyLost);
   }
 }
 
 void testStillReachableMemory(mutex *m, string *content, string *path,
                               string *name, bool *initialized) {
-  ensureContent(m, content, path, name, initialized);
+  ASSERT_TRUE(ensureContent(m, content, path, name, initialized));
   if (hasLeaks(content)) {
-    regex rStillReachable(".+still reachable: ([0-9]+)");
+    // TODO Regex should operate on chunks to prevent seg fault
+    regex rStillReachable(".+still reachable: ([0-9,]+)");
     smatch mStillReachable;
     ASSERT_TRUE(regex_search(*content, mStillReachable, rStillReachable));
-    int stillReachable = stoi(mStillReachable.str(1));
+    int stillReachable = stoi(removeChar(mStillReachable.str(1), ','));
     stillReachable -= STILL_REACHABLE_BYTES_BY_GTEST;
     assert(stillReachable >= 0 && "You fixed the leak by gtest? Nice work! You "
                                   "can now delete this assert. Thank you!");
@@ -208,24 +220,26 @@ void testStillReachableMemory(mutex *m, string *content, string *path,
 
 void testSuppressed(mutex *m, string *content, string *path, string *name,
                     bool *initialized) {
-  ensureContent(m, content, path, name, initialized);
+  ASSERT_TRUE(ensureContent(m, content, path, name, initialized));
   if (hasLeaks(content)) {
-    regex rSuppressed(".+suppressed: ([0-9]+)");
+    // TODO Regex should operate on chunks to prevent seg fault
+    regex rSuppressed(".+suppressed: ([0-9,]+)");
     smatch mSuppressed;
     ASSERT_TRUE(regex_search(*content, mSuppressed, rSuppressed));
-    int suppressed = stoi(mSuppressed.str(1));
+    int suppressed = stoi(removeChar(mSuppressed.str(1), ','));
     ASSERT_EQ(0, suppressed);
   }
 }
 
 void testErrors(mutex *m, string *content, string *path, string *name,
                 bool *initialized) {
-  ensureContent(m, content, path, name, initialized);
+  ASSERT_TRUE(ensureContent(m, content, path, name, initialized));
   if (hasLeaks(content)) {
-    regex rErrors(".+ERROR SUMMARY: ([0-9]+)");
+    // TODO Regex should operate on chunks to prevent seg fault
+    regex rErrors(".+ERROR SUMMARY: ([0-9,]+)");
     smatch mErrors;
     ASSERT_TRUE(regex_search(*content, mErrors, rErrors));
-    int errors = stoi(mErrors.str(1));
+    int errors = stoi(removeChar(mErrors.str(1), ','));
     ASSERT_EQ(0, errors);
   }
 }

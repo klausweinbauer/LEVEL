@@ -64,10 +64,9 @@ public:
   }
 
   virtual T *decode(const std::vector<BYTE> buffer) {
-    BYTE *array = new BYTE[buffer.size()];
-    std::copy(buffer.begin(), buffer.end(), array);
-    auto msg = decode(array, buffer.size());
-    delete[] array;
+    auto array = std::make_unique<BYTE[]>(buffer.size());
+    std::copy(buffer.begin(), buffer.end(), array.get());
+    auto msg = decode(array.get(), buffer.size());
     return msg;
   }
 
