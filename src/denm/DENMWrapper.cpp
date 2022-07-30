@@ -19,15 +19,8 @@ DENMWrapper::DENMWrapper(int stationId, int sequenceNumber)
 DENMWrapper::~DENMWrapper() { ASN_STRUCT_FREE(asn_DEF_DENM, _denm); }
 
 DENMWrapper::DENMWrapper(const DENMWrapper &other) : _denm(nullptr) {
-  try {
-    auto data = _copyEncoder.encode(other._denm);
-    _denm = _copyEncoder.decode(data);
-  } catch (const Exception &e) {
-    throw Exception(
-        ERR,
-        "Copying DENM failed. Only valid messages can be copied.\nError: " +
-            std::string(e.getErrMsg()));
-  }
+  auto data = _copyEncoder.encode(other._denm);
+  _denm = _copyEncoder.decode(data);
 }
 
 DENMWrapper &DENMWrapper::operator=(DENMWrapper other) {

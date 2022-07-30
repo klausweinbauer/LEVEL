@@ -1,3 +1,4 @@
+#include <DENMEncoder.hpp>
 #include <DENMExtensions.hpp>
 #include <Exception.hpp>
 #include <gmock/gmock.h>
@@ -28,13 +29,34 @@ TEST(DENMWrapper, StarOperator) {
   ASSERT_EQ(2, (*denm).header.stationID);
 }
 
-TEST(DENMWrapper, CopyConstruction) {}
+TEST(DENMWrapper, CopyConstruction) {
+  DENMWrapper denm;
+  CauseCode cc{0, 0};
+  cc.causeCode = rand();
+  setEventType(getSituation(denm), cc);
+  DENMWrapper denmCopy(denm);
+  CauseCode cc2{0, 0};
+  cc2.causeCode = cc.causeCode + 1;
+  setEventType(getSituation(denmCopy), cc2);
+  ASSERT_EQ(cc.causeCode, getEventType(getSituation(denm)).causeCode);
+  ASSERT_EQ(cc2.causeCode, getEventType(getSituation(denmCopy)).causeCode);
+}
 
-TEST(DENMWrapper, InitializeLowFrequencyContainer) {}
+TEST(DENMWrapper, AssignmentOperator) {
+  DENMWrapper denm1;
+  DENMWrapper denm2;
+  InformationQuality_t q1 = rand();
+  InformationQuality_t q2 = q1 + 1;
+  setInfromationQuality(getSituation(denm1), q1);
 
-TEST(DENMWrapper, OverrideLowFrequencyContainer) {}
+  denm2 = denm1;
+  ASSERT_EQ(q1, getInfromationQuality(getSituation(denm1)));
+  ASSERT_EQ(q1, getInfromationQuality(getSituation(denm2)));
 
-TEST(DENMWrapper, AssignmentOperator) {}
+  setInfromationQuality(getSituation(denm2), q2);
+  ASSERT_EQ(q1, getInfromationQuality(getSituation(denm1)));
+  ASSERT_EQ(q2, getInfromationQuality(getSituation(denm2)));
+}
 
 TEST(DENMWrapper, GetSituationContainer) {
   DENMWrapper denm;
@@ -69,10 +91,3 @@ TEST(DENMWrapper, GetDENMWrapperTypename) {
   ASSERT_EQ(std::string(DENM_TYPE_NAME),
             std::string(TypeName<DENMWrapper>::get()));
 }
-
-// TODO Find a configuration that is not encodable
-// TODO Try cause code in situation container
-/*TEST(DENMWrapper, FailsOnCopyingInvalidMessage) {
-  DENMWrapper denm(1, rand());
-  ASSERT_THROW(DENMWrapper denmNew(denm), Exception);
-}*/
