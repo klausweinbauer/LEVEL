@@ -2,6 +2,7 @@
 #include <Exception.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <string>
 
 using namespace level;
 using namespace level::denm;
@@ -59,6 +60,14 @@ TEST(DENMWrapper, ClearContainer) {
   clearSituation(*denm);
   ASSERT_NE(CauseCodeType::CauseCodeType_aquaplannning,
             getEventType(getSituation(denm)).causeCode);
+}
+
+TEST(DENMWrapper, GetDENMTypename) {
+  ASSERT_EQ(std::string(DENM_TYPE_NAME), std::string(TypeName<DENM>::get()));
+}
+TEST(DENMWrapper, GetDENMWrapperTypename) {
+  ASSERT_EQ(std::string(DENM_TYPE_NAME),
+            std::string(TypeName<DENMWrapper>::get()));
 }
 
 // TODO Find a configuration that is not encodable
