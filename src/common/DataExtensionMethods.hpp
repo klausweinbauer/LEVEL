@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Exception.hpp>
-#include <constr_TYPE.h>
 #include <cstdlib>
 
 namespace level {
