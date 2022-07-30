@@ -28,3 +28,7 @@ for dir in "${INCLUDE_DIRS[@]}"; do
     done
   done
 done
+
+lcov -c --directory $COVERAGE_DIR --output-file "$COVERAGE_DIR/_coverage.info"
+lcov --remove "$COVERAGE_DIR/_coverage.info" --rc lcov_branch_coverage=1 -o "$COVERAGE_DIR/_coverage.info" "*_deps*" "/usr/*" "*test/*" "*src/msg*"
+genhtml "$COVERAGE_DIR/_coverage.info" --output-directory "$COVERAGE_DIR/html"
