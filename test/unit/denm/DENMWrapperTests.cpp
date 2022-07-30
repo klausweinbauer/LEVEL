@@ -1,4 +1,4 @@
-#include <DENMWrapper.hpp>
+#include <DENMExtensions.hpp>
 #include <Exception.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -21,6 +21,12 @@ TEST(DENMWrapper, ArrowOperator) {
   ASSERT_EQ(2, denm->header.stationID);
 }
 
+TEST(DENMWrapper, StarOperator) {
+  DENMWrapper denm(1, rand());
+  denm->header.stationID = 2;
+  ASSERT_EQ(2, (*denm).header.stationID);
+}
+
 TEST(DENMWrapper, CopyConstruction) {}
 
 TEST(DENMWrapper, InitializeLowFrequencyContainer) {}
@@ -31,67 +37,28 @@ TEST(DENMWrapper, AssignmentOperator) {}
 
 TEST(DENMWrapper, GetSituationContainer) {
   DENMWrapper denm;
-  ASSERT_NE(nullptr, denm.getSituationContainer());
+  ASSERT_NE(nullptr, getSituation(denm));
 }
 
-TEST(DENMWrapper, DontOverrideSituationContainerOnGet) {
+TEST(DENMWrapper, GetAndSetExtensionMethods) {
   DENMWrapper denm;
-  auto container = denm.getSituationContainer();
-  container->eventType.causeCode = CauseCodeType::CauseCodeType_aquaplannning;
-  ASSERT_EQ(container->eventType.causeCode,
-            denm.getSituationContainer()->eventType.causeCode);
+  CauseCode cc;
+  cc.causeCode = CauseCodeType_aquaplannning;
+  setEventType(getSituation(denm), cc);
+  ASSERT_EQ(CauseCodeType_aquaplannning,
+            getEventType(getSituation(denm)).causeCode);
+  ASSERT_EQ(denm->denm.situation->eventType.causeCode,
+            getEventType(getSituation(denm)).causeCode);
 }
 
-TEST(DENMWrapper, ClearSituationContainer) {
+TEST(DENMWrapper, ClearContainer) {
   DENMWrapper denm;
-  auto container = denm.getSituationContainer();
-  container->eventType.causeCode = CauseCodeType::CauseCodeType_aquaplannning;
-  denm.clearSituationContainer();
+  CauseCode cc;
+  cc.causeCode = CauseCodeType_aquaplannning;
+  setEventType(getSituation(denm), cc);
+  clearSituation(*denm);
   ASSERT_NE(CauseCodeType::CauseCodeType_aquaplannning,
-            denm.getSituationContainer()->eventType.causeCode);
-}
-
-TEST(DENMWrapper, GetLocationContainer) {
-  DENMWrapper denm;
-  ASSERT_NE(nullptr, denm.getLocationContainer());
-}
-
-TEST(DENMWrapper, DontOverrideLocationContainerOnGet) {
-  DENMWrapper denm;
-  auto container = denm.getLocationContainer();
-  container->roadType = (RoadType_t *)calloc(1, sizeof(RoadType_t));
-  *container->roadType = RoadType_urban_NoStructuralSeparationToOppositeLanes;
-  ASSERT_EQ(*container->roadType, *denm.getLocationContainer()->roadType);
-}
-
-TEST(DENMWrapper, ClearLocationContainer) {
-  DENMWrapper denm;
-  auto container = denm.getLocationContainer();
-  container->roadType = (RoadType_t *)calloc(1, sizeof(RoadType_t));
-  denm.clearLocationContainer();
-  ASSERT_EQ(nullptr, denm.getLocationContainer()->roadType);
-}
-
-TEST(DENMWrapper, GetAlacarteContainer) {
-  DENMWrapper denm;
-  ASSERT_NE(nullptr, denm.getAlacarteContainer());
-}
-
-TEST(DENMWrapper, DontOverrideAlacarteContainerOnGet) {
-  DENMWrapper denm;
-  auto container = denm.getAlacarteContainer();
-  container->lanePosition = (LanePosition_t *)calloc(1, sizeof(LanePosition_t));
-  *container->lanePosition = LanePosition_secondLaneFromOutside;
-  ASSERT_EQ(*container->lanePosition,
-            *denm.getAlacarteContainer()->lanePosition);
-}
-
-TEST(DENMWrapper, ClearAlacarteContainer) {
-  DENMWrapper denm;
-  auto container = denm.getAlacarteContainer();
-  container->lanePosition = (LanePosition_t *)calloc(1, sizeof(LanePosition_t));
-  denm.clearAlacarteContainer();
-  ASSERT_EQ(nullptr, denm.getAlacarteContainer()->lanePosition);
+            getEventType(getSituation(denm)).causeCode);
 }
 
 // TODO Find a configuration that is not encodable

@@ -28,15 +28,7 @@ public:
   DENMWrapper &operator=(DENMWrapper other);
 
   DENM *operator->();
-
-  SituationContainer *getSituationContainer();
-  void clearSituationContainer();
-
-  LocationContainer *getLocationContainer();
-  void clearLocationContainer();
-
-  AlacarteContainer *getAlacarteContainer();
-  void clearAlacarteContainer();
+  DENM &operator*();
 
   friend void swap(DENMWrapper &first, DENMWrapper &second) {
     using std::swap;
