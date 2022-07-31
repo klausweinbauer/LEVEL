@@ -48,7 +48,7 @@ jobs:
       #    pip3 install git+https://github.com/gcovr/gcovr.git
 
       - name: Generate Code Coverage Report
-        run: ${{github.workspace}}/generate-coverage.sh
+        run: ${{github.workspace}}/scripts/generate-coverage.sh
       #  run: python3 -m gcovr --cobertura LEVEL_Coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --object-directory ${{github.workspace}}/build/test/unit/ --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
 
       - name: Upload Coverage Report
