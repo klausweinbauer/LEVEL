@@ -41,7 +41,7 @@ public:
       : _errCode(errCode), _errMsg(errMsg) {
     setLastErrorMessage();
   };
-  virtual ~Exception(){};
+  virtual ~Exception() {}
 
   virtual int getErrCode() const { return _errCode; }
 

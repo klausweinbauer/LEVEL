@@ -26,8 +26,8 @@ class DBException : public Exception {
 
 public:
   DBException(int errCode)
-      : Exception(errCode, "General database exception."){};
-  DBException(int errCode, std::string errMsg) : Exception(errCode, errMsg){};
+      : Exception(errCode, "General database exception.") {}
+  DBException(int errCode, std::string errMsg) : Exception(errCode, errMsg) {}
 };
 
 } // namespace level
