@@ -46,6 +46,11 @@ jobs:
       #    sudo apt-get install -y pip python3
       #    sudo apt-get clean
       #    pip3 install git+https://github.com/gcovr/gcovr.git
+      - name: Install lcov
+        run: |
+          sudo apt update
+          sudo apt-get install -y lcov
+          sudo apt-get clean
 
       - name: Generate Code Coverage Report
         run: ${{github.workspace}}/scripts/generate-coverage.sh
