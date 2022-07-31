@@ -22,7 +22,7 @@ namespace level {
   DEF_GET_RP(type, parentType, property, name)                                 \
   DEF_SET_RP(type, parentType, property, name)
 
-// Pointer property
+// Definitions for pointer property
 #define DEF_GET_PP(type, parentType, property, name)                           \
   inline type *get##name(parentType *parent) { return parent->property; }      \
   inline type *get##name(parentType &parent) { return parent.property; }
@@ -59,5 +59,36 @@ namespace level {
   DEF_GET_PP(type, parentType, property, name)                                 \
   DEF_SET_PP(type, parentType, property, name)                                 \
   DEF_CLEAR_PP(type, parentType, property, name)
+
+// Definitions for union reference property
+#define DEF_GET_RPU(type, parentType, property, name, enum, choiceType)        \
+  inline type *get##name(parentType *parent) {                                 \
+    if (parent->property.present != enum) {                                    \
+      throw Exception(ERR, "Invalid choice.");                                 \
+    }                                                                          \
+    return &parent->property.choice.choiceType;                                \
+  }                                                                            \
+  inline type *get##name(parentType &parent) {                                 \
+    if (parent.property.present != enum) {                                     \
+      throw Exception(ERR, "Invalid choice.");                                 \
+    }                                                                          \
+    return &parent.property.choice.choiceType;                                 \
+  }
+
+#define DEF_SET_RPU(type, parentType, property, name, enum, choiceType)        \
+  inline void set##name(parentType *parent) {                                  \
+    parent->property.present = enum;                                           \
+    type newObject{};                                                          \
+    parent->property.choice.choiceType = newObject;                            \
+  }                                                                            \
+  inline void set##name(parentType &parent) {                                  \
+    parent.property.present = enum;                                            \
+    type newObject{};                                                          \
+    parent.property.choice.choiceType = newObject;                             \
+  }
+
+#define DEF_RPU(type, parentType, property, name, enum, choiceType)            \
+  DEF_GET_RPU(type, parentType, property, name, enum, choiceType)              \
+  DEF_SET_RPU(type, parentType, property, name, enum, choiceType)
 
 } // namespace level
