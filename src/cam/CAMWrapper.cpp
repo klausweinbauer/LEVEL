@@ -1,11 +1,11 @@
+#include <CAMEncoder.hpp>
 #include <CAMWrapper.hpp>
-#include <DEREncoder.hpp>
 #include <Exception.hpp>
 #include <vector>
 
 namespace level::cam {
 
-DEREncoder<CAM> CAMWrapper::_copyEncoder(asn_DEF_CAM);
+DEREncoder CAMWrapper::_copyEncoder;
 
 CAMWrapper::CAMWrapper(int stationId)
     : CAMWrapper(stationId,

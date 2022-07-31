@@ -45,6 +45,8 @@ public:
   DEREncoder(asn_TYPE_descriptor_t typeDescriptor)
       : _typeDescriptor(typeDescriptor) {}
 
+  virtual ~DEREncoder() {}
+
   virtual std::vector<BYTE> encode(const T *message) {
     if (!message) {
       throw Exception(ERR_ARG_NULL, "Argument 'message' is null.");

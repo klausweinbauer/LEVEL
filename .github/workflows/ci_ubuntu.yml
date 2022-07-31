@@ -40,21 +40,28 @@ jobs:
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: ctest -C ${{env.BUILD_TYPE}}
 
-      - name: Install GCOVR
+      #- name: Install GCOVR
+      #  run: |
+      #    sudo apt update
+      #    sudo apt-get install -y pip python3
+      #    sudo apt-get clean
+      #    pip3 install git+https://github.com/gcovr/gcovr.git
+      - name: Install lcov
         run: |
           sudo apt update
-          sudo apt-get install -y pip python3
+          sudo apt-get install -y lcov
           sudo apt-get clean
-          pip3 install git+https://github.com/gcovr/gcovr.git
 
       - name: Generate Code Coverage Report
-        run: python3 -m gcovr --cobertura LEVEL_Coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --object-directory ${{github.workspace}}/build/test/unit/ --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
+        run: ${{github.workspace}}/scripts/generate-coverage.sh
+      #  run: python3 -m gcovr --cobertura LEVEL_Coverage.xml -e "${{github.workspace}}/test/*" -e "${{github.workspace}}/src/msg/*" -e "${{github.workspace}}/build/*" --object-directory ${{github.workspace}}/build/test/unit/ --exclude-unreachable-branches --exclude-function-lines --exclude-throw-branches
 
       - name: Upload Coverage Report
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./LEVEL_Coverage.xml
+          #files: ./LEVEL_Coverage.xml
+          files: ${{github.workspace}}/coverage/_coverage.info
           flags: unittests
           fail_ci_if_error: true
           verbose: true

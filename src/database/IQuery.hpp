@@ -19,7 +19,7 @@ namespace level {
  */
 class IQuery {
 public:
-  virtual ~IQuery(){};
+  virtual ~IQuery() {}
 };
 
 } // namespace level

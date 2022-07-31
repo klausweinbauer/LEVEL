@@ -25,7 +25,7 @@ namespace cam {
  */
 class INetworkInterface {
 public:
-  virtual ~INetworkInterface(){};
+  virtual ~INetworkInterface() {}
 
   /**
    * @brief Encode and send the given message.

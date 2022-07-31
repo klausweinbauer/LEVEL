@@ -12,8 +12,7 @@
 #pragma once
 
 #include <CAM.h>
-#include <DEREncoder.hpp>
-#include <IEncoder.hpp>
+#include <CAMEncoder.hpp>
 #include <Types.hpp>
 #include <algorithm>
 
@@ -28,7 +27,7 @@ class CAMWrapper {
 
 private:
   CAM *_cam;
-  static DEREncoder<CAM> _copyEncoder;
+  static DEREncoder _copyEncoder;
 
 public:
   CAMWrapper(int stationId);
