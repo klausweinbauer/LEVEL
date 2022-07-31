@@ -33,6 +33,11 @@ TEST(Exception, GetDefaultErrorMessage) {
   ASSERT_EQ(Exception::errMsg(ERR), ex.getErrMsg());
 }
 
+TEST(Exception, GetDefaultErrorCode) {
+  Exception ex;
+  ASSERT_EQ(ERR, ex.getErrCode());
+}
+
 TEST(Exception, GetExceptionDescription) {
   std::string expMsg(
       "General exception from LEVEL. For more information on what went "
