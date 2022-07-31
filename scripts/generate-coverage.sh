@@ -41,6 +41,7 @@ lcov -c --directory $COVERAGE_DIR --output-file $COVERAGE_FILE_PATH
 lcov --remove $COVERAGE_FILE_PATH -o $COVERAGE_FILE_PATH "*_deps*" "/usr/*" "*test/*" "*src/msg*"
 #lcov --list "$COVERAGE_DIR/_coverage.info"
 
+echo "Remove function coverage"
 declare -a FILTERED_LINES
 while read -r line; do
   if ! [[ $line =~ $FUNCTION_FILTER ]]; then
@@ -51,11 +52,13 @@ done < $COVERAGE_FILE_PATH
 
 echo "" > $COVERAGE_FILE_PATH
 for line in "${FILTERED_LINES[@]}"; do
-  echo "$line" >> $COVERAGE_FILE_PATH
+  echo "$line" >> "$COVERAGE_FILE_PATH"
 done
 
+lcov --summary "$COVERAGE_FILE_PATH"
+
 if [[ $1 == "html" ]]; then
-  genhtml "$COVERAGE_DIR/_coverage.info" --output-directory "$COVERAGE_DIR/html"
+  genhtml "$COVERAGE_FILE_PATH" --output-directory "$COVERAGE_DIR/html"
 fi
 
 popd
