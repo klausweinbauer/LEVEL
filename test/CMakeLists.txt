@@ -1,3 +1,3 @@
 add_subdirectory(unit)
-add_subdirectory(integration)
-add_subdirectory(valgrind)
+#add_subdirectory(integration)
+#add_subdirectory(valgrind)

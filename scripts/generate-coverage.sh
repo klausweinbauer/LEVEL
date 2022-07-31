@@ -17,6 +17,7 @@ FUNCTION_FILTER="^FN[A-Z]{0,2}:[0-9]+.*$"
 
 COVERAGE_FILE_PATH="$COVERAGE_DIR/$COVERAGE_FILE"
 
+FILECNT=0
 mkdir -p $COVERAGE_DIR
 for dir in "${INCLUDE_DIRS[@]}"; do
   for type in "${FILETYPES[@]}"; do
@@ -31,24 +32,31 @@ for dir in "${INCLUDE_DIRS[@]}"; do
       done
       if [[ $INCLUDE -eq 1 ]]; then
         FILENAME=$(basename $file)
+        echo "Copy file: $FILENAME"
+        let FILECNT++
         cp $file "$COVERAGE_DIR/$FILENAME"
       fi
     done
   done
 done
+echo "Copied $FILECNT files to $COVERAGE_DIR"
 
 lcov -c --directory $COVERAGE_DIR --output-file $COVERAGE_FILE_PATH
 lcov --remove $COVERAGE_FILE_PATH -o $COVERAGE_FILE_PATH "*_deps*" "/usr/*" "*test/*" "*src/msg*"
 #lcov --list "$COVERAGE_DIR/_coverage.info"
 
 echo "Remove function coverage"
+LINECNT=0
 declare -a FILTERED_LINES
 while read -r line; do
   if ! [[ $line =~ $FUNCTION_FILTER ]]; then
     #echo "$line"
     FILTERED_LINES+=($line)
+  else
+    let LINECNT++
   fi
 done < $COVERAGE_FILE_PATH
+echo "Removed $LINECNT function lines"
 
 echo "" > $COVERAGE_FILE_PATH
 for line in "${FILTERED_LINES[@]}"; do
