@@ -1,6 +1,8 @@
 .vscode/settings.json
 valgrind-out.txt
 
+coverage/
+
 out/
 build/
 build*/
@@ -22,5 +24,3 @@ dockcross
 
 doc/html/
 doc/latex/
-
-*[Cc]overage*
