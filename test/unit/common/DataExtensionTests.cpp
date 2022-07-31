@@ -40,24 +40,31 @@ struct Model {
   }
 };
 
-// Define reference parameter
+// Define reference property
 DEF_RP(int, Model, rp, RP)
 
-// Define pointer parameter
+// Define pointer property
 #define asn_DEF_int
 #define ASN_STRUCT_FREE(def, ptr) free(ptr)
 DEF_PP(int, Model, pp, PP)
 
-// Define union reference parameter
-DEF_RPU(ContainerA, Model, rpu, TypeA, TypeA, containerA)
-DEF_RPU(ContainerB, Model, rpu, TypeB, TypeB, containerB)
+// Define union reference property
+DEF_RPU(ContainerModel, ContainerA, Model, rpu, RPUTypeA, TypeA, containerA)
+DEF_RPU(ContainerModel, ContainerB, Model, rpu, RPUTypeB, TypeB, containerB)
+
+// Define union pointer property
+#define asn_DEF_ContainerModel
+#define ASN_STRUCT_FREE(def, ptr) free(ptr)
+DEF_PPU(ContainerModel, ContainerA, Model, ppu, PPUTypeA, TypeA, containerA)
+DEF_PPU(ContainerModel, ContainerB, Model, ppu, PPUTypeB, TypeB, containerB)
+DEF_CLEAR_PPU(ContainerModel, Model, ppu, PPU);
 
 } // namespace level::DataExtensionTests
 
 using namespace level;
 using namespace level::DataExtensionTests;
 
-// Reference property
+// Reference property tests
 TEST(DataExtension, GetReferencePropertyByParentPointer) {
   Model m;
   m.rp = rand();
@@ -86,7 +93,7 @@ TEST(DataExtension, SetReferencePropertyByParentReference) {
   ASSERT_EQ(value, *getRP(m));
 }
 
-// Pointer property
+// Pointer property tests
 TEST(DataExtension, GetPointerPropertyByParentPointer) {
   Model m;
   ASSERT_EQ(nullptr, getPP(&m));
@@ -139,14 +146,14 @@ TEST(DataExtension, ClearPointerPropertyByParentReference) {
   ASSERT_EQ(nullptr, getPP(m));
 }
 
-// Union reference property
+// Union reference property tests
 TEST(DataExtension, GetUnionReferencePropertyByParentPointer) {
   Model m;
   int value = rand();
   m.rpu.present = TypeA;
   m.rpu.choice.containerA.a = value;
-  ASSERT_NE(nullptr, getTypeA(&m));
-  ASSERT_EQ(value, getTypeA(&m)->a);
+  ASSERT_NE(nullptr, getRPUTypeA(&m));
+  ASSERT_EQ(value, getRPUTypeA(&m)->a);
 }
 
 TEST(DataExtension, GetUnionReferencePropertyByParentReference) {
@@ -154,58 +161,121 @@ TEST(DataExtension, GetUnionReferencePropertyByParentReference) {
   float value = (float)(rand() / 3.1415926535);
   m.rpu.present = TypeB;
   m.rpu.choice.containerB.b = value;
-  ASSERT_NE(nullptr, getTypeB(m));
-  ASSERT_EQ(value, getTypeB(m)->b);
+  ASSERT_NE(nullptr, getRPUTypeB(m));
+  ASSERT_EQ(value, getRPUTypeB(m)->b);
 }
 
 TEST(DataExtension, SetUnionReferencePropertyByParentPointer) {
   Model m;
-  ASSERT_NO_THROW(setTypeA(&m));
+  ASSERT_NO_THROW(setRPUTypeA(&m));
+  ASSERT_EQ(TypeA, m.rpu.present);
 }
 
 TEST(DataExtension, SetUnionReferencePropertyByParentReference) {
   Model m;
-  ASSERT_NO_THROW(setTypeB(m));
+  ASSERT_NO_THROW(setRPUTypeB(m));
+  ASSERT_EQ(TypeB, m.rpu.present);
 }
 
 TEST(DataExtension, ResetUnionReferencePropertyByParentPointer) {
   Model m;
-  setTypeA(&m);
-  getTypeA(&m)->a = rand();
-  setTypeB(&m);
-  ASSERT_EQ(0.0, getTypeB(&m)->b);
+  setRPUTypeA(&m);
+  getRPUTypeA(&m)->a = rand();
+  setRPUTypeB(&m);
+  ASSERT_EQ(0.0, getRPUTypeB(&m)->b);
 }
 
 TEST(DataExtension, ResetUnionReferencePropertyByParentReference) {
   Model m;
-  setTypeB(m);
-  getTypeB(m)->b = (rand() / 3.1415926535);
-  setTypeA(m);
-  ASSERT_EQ(0, getTypeA(m)->a);
+  setRPUTypeB(m);
+  getRPUTypeB(m)->b = (rand() / 3.1415926535);
+  setRPUTypeA(m);
+  ASSERT_EQ(0, getRPUTypeA(m)->a);
 }
 
 TEST(DataExtension, ThrowOnGetWrongUnionReferencePropertyByParentPointer) {
   Model m;
-  setTypeA(&m);
-  ASSERT_THROW(getTypeB(&m), Exception);
+  setRPUTypeA(&m);
+  ASSERT_THROW(getRPUTypeB(&m), Exception);
 }
 
 TEST(DataExtension, ThrowOnGetWrongUnionReferencePropertyByParentReference) {
   Model m;
-  setTypeB(m);
-  ASSERT_THROW(getTypeA(m), Exception);
+  setRPUTypeB(m);
+  ASSERT_THROW(getRPUTypeA(m), Exception);
 }
 
 TEST(DataExtension, OverrideUnionReferencePropertyByParentPointer) {
   Model m;
-  setTypeA(&m);
-  setTypeB(&m);
-  ASSERT_NO_THROW(getTypeB(&m));
+  setRPUTypeA(&m);
+  setRPUTypeB(&m);
+  ASSERT_NO_THROW(getRPUTypeB(&m));
 }
 
 TEST(DataExtension, OverrideUnionReferencePropertyByParentReference) {
   Model m;
-  setTypeB(m);
-  setTypeA(m);
-  ASSERT_NO_THROW(getTypeA(m));
+  setRPUTypeB(m);
+  setRPUTypeA(m);
+  ASSERT_NO_THROW(getRPUTypeA(m));
+}
+
+// Union pointer property tests
+TEST(DataExtension, GetUnionPointerPropertyByParentPointer) {
+  Model m;
+  ASSERT_EQ(nullptr, getPPUTypeA(&m));
+}
+
+TEST(DataExtension, GetUnionPointerPropertyByParentReference) {
+  Model m;
+  ASSERT_EQ(nullptr, getPPUTypeB(m));
+}
+
+TEST(DataExtension, SetUnionPointerPropertyByParentPointer) {
+  Model m;
+  ASSERT_NO_THROW(setPPUTypeA(&m));
+  ASSERT_NE(nullptr, getPPUTypeA(&m));
+}
+
+TEST(DataExtension, SetUnionPointerPropertyByParentReference) {
+  Model m;
+  ASSERT_NO_THROW(setPPUTypeB(m));
+  ASSERT_NE(nullptr, getPPUTypeB(m));
+}
+
+TEST(DataExtension, ResetUnionPointerPropertyByParentPointer) {
+  Model m;
+  setPPUTypeA(&m);
+  ASSERT_THROW(setPPUTypeB(&m), Exception);
+}
+
+TEST(DataExtension, ResetUnionPointerPropertyByParentReference) {
+  Model m;
+  setPPUTypeB(m);
+  ASSERT_THROW(setPPUTypeA(m), Exception);
+}
+
+TEST(DataExtension, ThrowOnGetWrongUnionPointerPropertyByParentPointer) {
+  Model m;
+  setPPUTypeA(&m);
+  ASSERT_THROW(getPPUTypeB(&m), Exception);
+}
+
+TEST(DataExtension, ThrowOnGetWrongUnionPointerPropertyByParentReference) {
+  Model m;
+  setPPUTypeB(m);
+  ASSERT_THROW(getPPUTypeA(m), Exception);
+}
+
+TEST(DataExtension, ClearUnionPointerPropertyByParentPointer) {
+  Model m;
+  setPPUTypeA(&m);
+  ASSERT_NO_THROW(clearPPU(&m));
+  ASSERT_EQ(nullptr, getPPUTypeA(&m));
+}
+
+TEST(DataExtension, ClearUnionPointerPropertyByParentReference) {
+  Model m;
+  setPPUTypeB(m);
+  ASSERT_NO_THROW(clearPPU(m));
+  ASSERT_EQ(nullptr, getPPUTypeA(m));
 }

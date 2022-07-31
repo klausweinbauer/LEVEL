@@ -61,34 +61,82 @@ namespace level {
   DEF_CLEAR_PP(type, parentType, property, name)
 
 // Definitions for union reference property
-#define DEF_GET_RPU(type, parentType, property, name, enum, choiceType)        \
-  inline type *get##name(parentType *parent) {                                 \
+#define DEF_GET_RPU(unionType, parentType, property, name, enum, choiceType)   \
+  inline unionType *get##name(parentType *parent) {                            \
     if (parent->property.present != enum) {                                    \
       throw Exception(ERR, "Invalid choice.");                                 \
     }                                                                          \
     return &parent->property.choice.choiceType;                                \
   }                                                                            \
-  inline type *get##name(parentType &parent) {                                 \
+  inline unionType *get##name(parentType &parent) {                            \
     if (parent.property.present != enum) {                                     \
       throw Exception(ERR, "Invalid choice.");                                 \
     }                                                                          \
     return &parent.property.choice.choiceType;                                 \
   }
 
-#define DEF_SET_RPU(type, parentType, property, name, enum, choiceType)        \
+#define DEF_SET_RPU(type, parentType, property, name, enum)                    \
   inline void set##name(parentType *parent) {                                  \
-    parent->property.present = enum;                                           \
     type newObject{};                                                          \
-    parent->property.choice.choiceType = newObject;                            \
+    newObject.present = enum;                                                  \
+    parent->property = newObject;                                              \
   }                                                                            \
   inline void set##name(parentType &parent) {                                  \
-    parent.property.present = enum;                                            \
     type newObject{};                                                          \
-    parent.property.choice.choiceType = newObject;                             \
+    newObject.present = enum;                                                  \
+    parent.property = newObject;                                               \
   }
 
-#define DEF_RPU(type, parentType, property, name, enum, choiceType)            \
-  DEF_GET_RPU(type, parentType, property, name, enum, choiceType)              \
-  DEF_SET_RPU(type, parentType, property, name, enum, choiceType)
+#define DEF_RPU(type, unionType, parentType, property, name, enum, choiceType) \
+  DEF_GET_RPU(unionType, parentType, property, name, enum, choiceType)         \
+  DEF_SET_RPU(type, parentType, property, name, enum)
+
+// Definitions for union pointer property
+#define DEF_GET_PPU(unionType, parentType, property, name, enum, choiceType)   \
+  inline unionType *get##name(parentType *parent) {                            \
+    if (!parent->property) {                                                   \
+      return nullptr;                                                          \
+    }                                                                          \
+    if (parent->property->present != enum) {                                   \
+      throw Exception(ERR, "Invalid choice.");                                 \
+    }                                                                          \
+    return &parent->property->choice.choiceType;                               \
+  }                                                                            \
+  inline unionType *get##name(parentType &parent) {                            \
+    if (!parent.property) {                                                    \
+      return nullptr;                                                          \
+    }                                                                          \
+    if (parent.property->present != enum) {                                    \
+      throw Exception(ERR, "Invalid choice.");                                 \
+    }                                                                          \
+    return &parent.property->choice.choiceType;                                \
+  }
+
+#define DEF_SET_PPU(type, parentType, property, name, enum)                    \
+  inline void set##name(parentType *parent) {                                  \
+    if (!parent->property) {                                                   \
+      type *newObject = (type *)calloc(1, sizeof(type));                       \
+      newObject->present = enum;                                               \
+      parent->property = newObject;                                            \
+    } else if (parent->property->present != enum) {                            \
+      throw Exception(ERR, "Other union present.");                            \
+    }                                                                          \
+  }                                                                            \
+  inline void set##name(parentType &parent) {                                  \
+    if (!parent.property) {                                                    \
+      type *newObject = (type *)calloc(1, sizeof(type));                       \
+      newObject->present = enum;                                               \
+      parent.property = newObject;                                             \
+    } else if (parent.property->present != enum) {                             \
+      throw Exception(ERR, "Other union present.");                            \
+    }                                                                          \
+  }
+
+#define DEF_PPU(type, unionType, parentType, property, name, enum, choiceType) \
+  DEF_GET_PPU(unionType, parentType, property, name, enum, choiceType)         \
+  DEF_SET_PPU(type, parentType, property, name, enum)
+
+#define DEF_CLEAR_PPU(type, parentType, property, name)                        \
+  DEF_CLEAR_PP(type, parentType, property, name)
 
 } // namespace level
