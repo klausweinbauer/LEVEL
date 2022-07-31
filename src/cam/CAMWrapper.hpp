@@ -30,6 +30,7 @@ private:
   static DEREncoder _copyEncoder;
 
 public:
+  CAMWrapper();
   CAMWrapper(int stationId);
   CAMWrapper(int stationId, HighFrequencyContainer_PR type);
 
@@ -39,6 +40,7 @@ public:
   CAMWrapper &operator=(CAMWrapper other);
 
   CAM *operator->();
+  CAM &operator*();
 
   void setLFC(LowFrequencyContainer_PR type);
 
