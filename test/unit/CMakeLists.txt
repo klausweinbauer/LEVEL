@@ -7,6 +7,8 @@ add_executable(${LEVEL_TARGET_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}/level_test.cpp
 )
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage --coverage -O0")
+
 target_include_directories(${LEVEL_TARGET_NAME} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR},
   ${CMAKE_CURRENT_SOURCE_DIR}/../mocks)

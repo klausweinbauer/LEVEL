@@ -8,7 +8,7 @@ option(ENABLE_VALGRIND_TESTS "Include valgrind tests in build." OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 if (UNIX)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -fprofile-arcs -ftest-coverage --coverage -g -O0")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -g")
 endif()
 
 if(WIN32)
