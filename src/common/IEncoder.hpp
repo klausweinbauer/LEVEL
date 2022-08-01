@@ -28,13 +28,6 @@ public:
   virtual ~IEncoder() {}
 
   /**
-   * @brief Encode a message.
-   *
-   * @param message Message to encode.
-   * @return int Returns the length of the encoded message.
-   */
-
-  /**
    * @brief Encodes a message.
    *
    * @throw EncodeException if encountered an error during encoding.

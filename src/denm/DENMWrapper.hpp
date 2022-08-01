@@ -1,3 +1,14 @@
+/**
+ * @file DENMWrapper.hpp
+ * @author Klaus Weinbauer
+ * @brief Memory safe wrapper for DENMs.
+ * @version 0.1
+ * @date 2022-08-01
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #pragma once
 
 #include <DENM.h>
