@@ -32,7 +32,6 @@ for dir in "${INCLUDE_DIRS[@]}"; do
       done
       if [[ $INCLUDE -eq 1 ]]; then
         FILENAME=$(basename $file)
-        echo "Copy file: $FILENAME"
         let FILECNT++
         cp $file "$COVERAGE_DIR/$FILENAME"
       fi

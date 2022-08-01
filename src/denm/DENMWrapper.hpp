@@ -30,6 +30,86 @@ public:
   DENM *operator->();
   DENM &operator*();
 
+  /**
+   * @brief Get ManagementContainer.
+   *
+   * @return ManagementContainer* ManagementContainer.
+   */
+  ManagementContainer *getMC() const;
+
+  /**
+   * @brief Get SituationContainer.
+   *
+   * @return SituationContainer* SituationContainer or nullptr if not set.
+   */
+  SituationContainer *getSC() const;
+
+  /**
+   * @brief Get LocationContainer.
+   *
+   * @return LocationContainer* LocationContainer or nullptr if not set.
+   */
+  LocationContainer *getLC() const;
+
+  /**
+   * @brief Get AlacarteContainer.
+   *
+   * @return AlacarteContainer* AlacarteContainer or nullptr if not set.
+   */
+  AlacarteContainer *getAC() const;
+
+  /**
+   * @brief Set SituationContainer.
+   *
+   * @throw Exception if container already set.
+   *
+   * @return SituationContainer* SituationContainer.
+   */
+  SituationContainer *setSC();
+
+  /**
+   * @brief Set LocationContainer.
+   *
+   * @throw Exception if container already set.
+   *
+   * @return LocationContainer* LocationContainer.
+   */
+  LocationContainer *setLC();
+
+  /**
+   * @brief Set AlacarteContainer.
+   *
+   * @throw Exception if container already set.
+   *
+   * @return AlacarteContainer* AlacarteContainer.
+   */
+  AlacarteContainer *setAC();
+
+  /**
+   * @brief Delete ManagementContainer.
+   *
+   */
+  void clearMC();
+
+  /**
+   * @brief Delete SituationContainer.
+   *
+   */
+  void clearSC();
+
+  /**
+   * @brief Delete LocationContainer.
+   *
+   * @return voic
+   */
+  void clearLC();
+
+  /**
+   * @brief Delete AlacarteContainer.
+   *
+   */
+  void clearAC();
+
   friend void swap(DENMWrapper &first, DENMWrapper &second) {
     using std::swap;
     swap(first._denm, second._denm);

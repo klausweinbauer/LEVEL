@@ -31,4 +31,64 @@ DENMWrapper &DENMWrapper::operator=(DENMWrapper other) {
 DENM *DENMWrapper::operator->() { return _denm; }
 DENM &DENMWrapper::operator*() { return *_denm; }
 
+ManagementContainer *DENMWrapper::getMC() const {
+  return &_denm->denm.management;
+}
+
+SituationContainer *DENMWrapper::getSC() const { return _denm->denm.situation; }
+
+LocationContainer *DENMWrapper::getLC() const { return _denm->denm.location; }
+
+AlacarteContainer *DENMWrapper::getAC() const { return _denm->denm.alacarte; }
+
+SituationContainer *DENMWrapper::setSC() {
+  if (_denm->denm.situation) {
+    throw Exception(ERR, "SituationContainer already set.");
+  }
+
+  _denm->denm.situation =
+      (SituationContainer *)calloc(1, sizeof(SituationContainer));
+  return _denm->denm.situation;
+}
+
+LocationContainer *DENMWrapper::setLC() {
+  if (_denm->denm.location) {
+    throw Exception(ERR, "LocationContainer already set.");
+  }
+
+  _denm->denm.location =
+      (LocationContainer *)calloc(1, sizeof(LocationContainer));
+  return _denm->denm.location;
+}
+
+AlacarteContainer *DENMWrapper::setAC() {
+  if (_denm->denm.alacarte) {
+    throw Exception(ERR, "AlacarteContainer already set.");
+  }
+
+  _denm->denm.alacarte =
+      (AlacarteContainer *)calloc(1, sizeof(AlacarteContainer));
+  return _denm->denm.alacarte;
+}
+
+void DENMWrapper::clearMC() {
+  ManagementContainer mc{};
+  _denm->denm.management = mc;
+}
+
+void DENMWrapper::clearSC() {
+  ASN_STRUCT_FREE(asn_DEF_SituationContainer, _denm->denm.situation);
+  _denm->denm.situation = nullptr;
+}
+
+void DENMWrapper::clearLC() {
+  ASN_STRUCT_FREE(asn_DEF_LocationContainer, _denm->denm.location);
+  _denm->denm.location = nullptr;
+}
+
+void DENMWrapper::clearAC() {
+  ASN_STRUCT_FREE(asn_DEF_AlacarteContainer, _denm->denm.alacarte);
+  _denm->denm.alacarte = nullptr;
+}
+
 } // namespace level::denm
