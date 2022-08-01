@@ -39,21 +39,71 @@ CAMWrapper &CAMWrapper::operator=(CAMWrapper other) {
 CAM *CAMWrapper::operator->() { return _cam; }
 CAM &CAMWrapper::operator*() { return *_cam; }
 
-void CAMWrapper::setLFC(LowFrequencyContainer_PR type) {
-  auto lfcPtr = &_cam->cam.camParameters.lowFrequencyContainer;
-
-  if (*lfcPtr != nullptr) {
-    ASN_STRUCT_FREE(asn_DEF_LowFrequencyContainer, *lfcPtr);
+LowFrequencyContainer *CAMWrapper::setLFC(LowFrequencyContainer_PR type) {
+  if (type == LowFrequencyContainer_PR_NOTHING) {
+    clearLFC();
+    return nullptr;
   }
 
-  if (type == LowFrequencyContainer_PR::LowFrequencyContainer_PR_NOTHING) {
-    *lfcPtr = nullptr;
+  auto lfc = &_cam->cam.camParameters.lowFrequencyContainer;
+  *lfc = (LowFrequencyContainer *)calloc(1, sizeof(LowFrequencyContainer));
+  (*lfc)->present = type;
+  return *lfc;
+}
+
+HighFrequencyContainer *CAMWrapper::setHFC(HighFrequencyContainer_PR type) {
+  auto hfc = &_cam->cam.camParameters.highFrequencyContainer;
+  if (type == HighFrequencyContainer_PR_NOTHING) {
+    clearHFC();
   } else {
-    auto lfc =
-        (LowFrequencyContainer *)calloc(1, sizeof(LowFrequencyContainer));
-    lfc->present = type;
-    *lfcPtr = lfc;
+    if (hfc->present == HighFrequencyContainer_PR_NOTHING) {
+      hfc->present = type;
+    } else {
+      throw Exception(ERR, "High frequency container already present.");
+    }
   }
+  return hfc;
+}
+
+SpecialVehicleContainer *CAMWrapper::setSVC(SpecialVehicleContainer_PR type) {
+  if (type == SpecialVehicleContainer_PR_NOTHING) {
+    clearSVC();
+    return nullptr;
+  }
+
+  auto svc = &_cam->cam.camParameters.specialVehicleContainer;
+  *svc = (SpecialVehicleContainer *)calloc(1, sizeof(SpecialVehicleContainer));
+  (*svc)->present = type;
+  return *svc;
+}
+
+LowFrequencyContainer *CAMWrapper::getLFC() {
+  return _cam->cam.camParameters.lowFrequencyContainer;
+}
+
+HighFrequencyContainer *CAMWrapper::getHFC() {
+  return &_cam->cam.camParameters.highFrequencyContainer;
+}
+
+SpecialVehicleContainer *CAMWrapper::getSVC() {
+  return _cam->cam.camParameters.specialVehicleContainer;
+}
+
+void CAMWrapper::clearLFC() {
+  auto lfc = &_cam->cam.camParameters.lowFrequencyContainer;
+  ASN_STRUCT_FREE(asn_DEF_LowFrequencyContainer, *lfc);
+  *lfc = nullptr;
+}
+
+void CAMWrapper::clearHFC() {
+  HighFrequencyContainer hfc{};
+  _cam->cam.camParameters.highFrequencyContainer = hfc;
+}
+
+void CAMWrapper::clearSVC() {
+  auto svc = &_cam->cam.camParameters.specialVehicleContainer;
+  ASN_STRUCT_FREE(asn_DEF_SpecialVehicleContainer, *svc);
+  *svc = nullptr;
 }
 
 } // namespace level::cam

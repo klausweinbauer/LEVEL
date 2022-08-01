@@ -42,7 +42,17 @@ public:
   CAM *operator->();
   CAM &operator*();
 
-  void setLFC(LowFrequencyContainer_PR type);
+  LowFrequencyContainer *setLFC(LowFrequencyContainer_PR type);
+  HighFrequencyContainer *setHFC(HighFrequencyContainer_PR type);
+  SpecialVehicleContainer *setSVC(SpecialVehicleContainer_PR type);
+
+  LowFrequencyContainer *getLFC();
+  HighFrequencyContainer *getHFC();
+  SpecialVehicleContainer *getSVC();
+
+  void clearLFC();
+  void clearHFC();
+  void clearSVC();
 
   friend void swap(CAMWrapper &first, CAMWrapper &second) {
     using std::swap;
