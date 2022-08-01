@@ -31,21 +31,23 @@ TEST(CAMWrapper, FailsOnCopyingInvalidMessage) {
 }
 
 TEST(CAMWrapper, CopyConstructor) {
-  CAMWrapper cam1(rand(), HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  CAMWrapper cam1(0, HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   CAMWrapper cam2(cam1);
-  ASSERT_EQ(cam2->header.stationID, cam1->header.stationID);
-  cam1->header.stationID++;
-  ASSERT_NE(cam2->header.stationID, cam1->header.stationID);
+  ASSERT_NE(nullptr, cam1.getLFC());
+  ASSERT_NE(nullptr, cam2.getLFC());
+  ASSERT_NE(cam2.getLFC(), cam1.getLFC());
 }
 
 TEST(CAMWrapper, AssignmentOperator) {
-  int id = rand();
-  CAMWrapper cam1(id, HighFrequencyContainer_PR_rsuContainerHighFrequency);
-  CAMWrapper cam2(id + 1);
+  CAMWrapper cam1(0, HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  cam1.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
+  CAMWrapper cam2(0, HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  ASSERT_EQ(nullptr, cam2.getLFC());
   cam2 = cam1;
-  ASSERT_EQ(cam2->header.stationID, cam1->header.stationID);
-  cam1->header.stationID++;
-  ASSERT_NE(cam2->header.stationID, cam1->header.stationID);
+  ASSERT_NE(nullptr, cam1.getLFC());
+  ASSERT_NE(nullptr, cam2.getLFC());
+  ASSERT_NE(cam2.getLFC(), cam1.getLFC());
 }
 
 TEST(CAMWrapper, GetHFC) {
@@ -130,6 +132,12 @@ TEST(CAMWrapper, SetLFCToNoting) {
   ASSERT_EQ(nullptr, cam->cam.camParameters.lowFrequencyContainer);
 }
 
+TEST(CAMWrapper, ResetLFC) {
+  CAMWrapper cam;
+  cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
+  ASSERT_THROW(cam.setLFC((LowFrequencyContainer_PR)2), Exception);
+}
+
 TEST(CAMWrapper, ClearLFC) {
   CAMWrapper cam;
   cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
@@ -179,6 +187,13 @@ TEST(CAMWrapper, SetSVCToNoting) {
   cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer);
   ASSERT_EQ(nullptr, cam.setSVC(SpecialVehicleContainer_PR_NOTHING));
   ASSERT_EQ(nullptr, cam->cam.camParameters.specialVehicleContainer);
+}
+
+TEST(CAMWrapper, ResetSVC) {
+  CAMWrapper cam;
+  cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer);
+  ASSERT_THROW(cam.setSVC(SpecialVehicleContainer_PR_emergencyContainer),
+               Exception);
 }
 
 TEST(CAMWrapper, ClearSVC) {

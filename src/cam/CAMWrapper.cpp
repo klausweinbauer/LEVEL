@@ -40,12 +40,14 @@ CAM *CAMWrapper::operator->() { return _cam; }
 CAM &CAMWrapper::operator*() { return *_cam; }
 
 LowFrequencyContainer *CAMWrapper::setLFC(LowFrequencyContainer_PR type) {
+  auto lfc = &_cam->cam.camParameters.lowFrequencyContainer;
   if (type == LowFrequencyContainer_PR_NOTHING) {
     clearLFC();
     return nullptr;
+  } else if (*lfc != nullptr && (*lfc)->present != type) {
+    throw Exception(ERR, "Low frequency container already set.");
   }
 
-  auto lfc = &_cam->cam.camParameters.lowFrequencyContainer;
   *lfc = (LowFrequencyContainer *)calloc(1, sizeof(LowFrequencyContainer));
   (*lfc)->present = type;
   return *lfc;
@@ -66,26 +68,28 @@ HighFrequencyContainer *CAMWrapper::setHFC(HighFrequencyContainer_PR type) {
 }
 
 SpecialVehicleContainer *CAMWrapper::setSVC(SpecialVehicleContainer_PR type) {
+  auto svc = &_cam->cam.camParameters.specialVehicleContainer;
   if (type == SpecialVehicleContainer_PR_NOTHING) {
     clearSVC();
     return nullptr;
+  } else if (*svc != nullptr && (*svc)->present != type) {
+    throw Exception(ERR, "Special vehicle container already set.");
   }
 
-  auto svc = &_cam->cam.camParameters.specialVehicleContainer;
   *svc = (SpecialVehicleContainer *)calloc(1, sizeof(SpecialVehicleContainer));
   (*svc)->present = type;
   return *svc;
 }
 
-LowFrequencyContainer *CAMWrapper::getLFC() {
+LowFrequencyContainer *CAMWrapper::getLFC() const {
   return _cam->cam.camParameters.lowFrequencyContainer;
 }
 
-HighFrequencyContainer *CAMWrapper::getHFC() {
+HighFrequencyContainer *CAMWrapper::getHFC() const {
   return &_cam->cam.camParameters.highFrequencyContainer;
 }
 
-SpecialVehicleContainer *CAMWrapper::getSVC() {
+SpecialVehicleContainer *CAMWrapper::getSVC() const {
   return _cam->cam.camParameters.specialVehicleContainer;
 }
 

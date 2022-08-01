@@ -42,16 +42,76 @@ public:
   CAM *operator->();
   CAM &operator*();
 
+  /**
+   * @brief Set LowFrequencyContainer.
+   *
+   * @throw Exception if other container is set.
+   *
+   * @param type Container type.
+   * @return LowFrequencyContainer* LowFrequencyContainer or nullptr if set to
+   * NOTHING.
+   */
   LowFrequencyContainer *setLFC(LowFrequencyContainer_PR type);
+
+  /**
+   * @brief Set HighFrequencyContainer.
+   *
+   * @throw Exception if other container is set.
+   *
+   * @param type Container type.
+   * @return HighFrequencyContainer* HighFrequencyContainer.
+   */
   HighFrequencyContainer *setHFC(HighFrequencyContainer_PR type);
+
+  /**
+   * @brief Set SpecialVehicleContainer.
+   *
+   * @throw Exception if other container is set.
+   *
+   * @param type Container type.
+   * @return SpecialVehicleContainer* SpecialVehicleContainer or nullptr if set
+   * to NOTHING.
+   */
   SpecialVehicleContainer *setSVC(SpecialVehicleContainer_PR type);
 
-  LowFrequencyContainer *getLFC();
-  HighFrequencyContainer *getHFC();
-  SpecialVehicleContainer *getSVC();
+  /**
+   * @brief Get LowFrequencyContainer.
+   *
+   * @return LowFrequencyContainer* LowFrequencyContainer or nullptr if not set.
+   */
+  LowFrequencyContainer *getLFC() const;
 
+  /**
+   * @brief Get HighFrequencyContainer.
+   *
+   * @return HighFrequencyContainer* HighFrequencyContainer.
+   */
+  HighFrequencyContainer *getHFC() const;
+
+  /**
+   * @brief Get SpecialVehicleContainer.
+   *
+   * @return SpecialVehicleContainer* SpecialVehicleContainer or nullptr if not
+   * set.
+   */
+  SpecialVehicleContainer *getSVC() const;
+
+  /**
+   * @brief Delete LowFrequencyContainer.
+   *
+   */
   void clearLFC();
+
+  /**
+   * @brief Clear HighFrequencyContainer.
+   *
+   */
   void clearHFC();
+
+  /**
+   * @brief Delete SpecialVehicleContainer.
+   *
+   */
   void clearSVC();
 
   friend void swap(CAMWrapper &first, CAMWrapper &second) {

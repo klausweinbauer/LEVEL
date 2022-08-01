@@ -9,6 +9,8 @@
  *
  */
 
+#pragma once
+
 #include <EncodeException.hpp>
 #include <IEncoder.hpp>
 #include <Types.hpp>
