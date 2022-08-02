@@ -151,9 +151,9 @@ TEST(Syscall, SocketAddressInitialization) {
   addr2.sin_port = htons(port);
   addr2.sin_addr.s_addr = INADDR_ANY;
   ASSERT_EQ(sizeof(SockAddrInet), sizeof(sockaddr_in));
-  char *addr1Raw = (char*)&addr1;
-  char *addr2Raw = (char*)&addr2;
-  for (int i = 0; i < sizeof(SockAddrInet); i++) {
+  char *addr1Raw = (char *)&addr1;
+  char *addr2Raw = (char *)&addr2;
+  for (int i = 0; i < (int)sizeof(SockAddrInet); i++) {
     ASSERT_EQ(addr1Raw[i], addr2Raw[i]);
   }
 }
@@ -165,11 +165,15 @@ TEST(Syscall, SocketAddressInitializationWithIP) {
   sockaddr_in addr2;
   addr2.sin_family = AF_INET;
   addr2.sin_port = htons(port);
+#ifdef WIN32
   addr2.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
+#elif __linux__
+  addr2.sin_addr.s_addr = inet_addr(ip.c_str());
+#endif
   ASSERT_EQ(sizeof(SockAddrInet), sizeof(sockaddr_in));
-  char *addr1Raw = (char*)&addr1;
-  char *addr2Raw = (char*)&addr2;
-  for (int i = 0; i < sizeof(SockAddrInet); i++) {
+  char *addr1Raw = (char *)&addr1;
+  char *addr2Raw = (char *)&addr2;
+  for (int i = 0; i < (int)sizeof(SockAddrInet); i++) {
     ASSERT_EQ(addr1Raw[i], addr2Raw[i]);
   }
 }

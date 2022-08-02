@@ -15,9 +15,9 @@
 
 #ifdef _WIN32
 #include <WS2tcpip.h>
+#include <WinSock2.h>
 #include <memory>
 #include <system_error>
-#include <WinSock2.h>
 #elif __linux__
 #include <arpa/inet.h>
 #include <poll.h>
@@ -109,31 +109,31 @@ public:
   SockAddrInet() : SockAddrInet(0) {}
 
   SockAddrInet(uint16_t port) {
-    #ifdef WIN32
+#ifdef WIN32
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
     addr->sin_addr.s_addr = INADDR_ANY;
-    #elif __linux__
+#elif __linux__
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = htonl(INADDR_ANY);
     addr->sin_port = htons(port);
-    #endif
+#endif
   }
 
   SockAddrInet(uint16_t port, std::string address) {
-    #ifdef WIN32
+#ifdef WIN32
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
     addr->sin_addr.S_un.S_addr = inet_addr(address.c_str());
-    #elif __linux__
+#elif __linux__
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = inet_addr(address.c_str());
     addr->sin_port = htons(port);
-    #endif
+#endif
   }
 
   SockLen len() { return sizeof(SockAddrInet); }
