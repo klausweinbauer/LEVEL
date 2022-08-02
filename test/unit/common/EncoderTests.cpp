@@ -56,7 +56,7 @@ bool equal(CAM *cam1, CAM *cam2) {
   return result;
 }
 
-bool isValidXEREncode(std::vector<BYTE> data) {
+bool isValidXEREncode(std::vector<char> data) {
   std::string dataStart({(char)data[0], (char)data[1], (char)data[2],
                          (char)data[3], (char)data[4]});
   int n = data.size();
@@ -69,9 +69,9 @@ bool isValidXEREncode(std::vector<BYTE> data) {
   return "<CAM>" == dataStart && "</CAM>" == dataEnd;
 }
 
-bool isValidDEREncode(std::vector<BYTE> data) {
+bool isValidDEREncode(std::vector<char> data) {
   assert(data.size() <= 129 && "Not implemented.");
-  return data[0] == 48 && data[1] == (data.size() - 2);
+  return data[0] == 48 && data[1] == (char)(data.size() - 2);
 }
 
 } // namespace level::EncoderTests
@@ -140,7 +140,7 @@ TEST(Encoder, XERDecodeFailed) {
 
 TEST(Encoder, XERDecodeEmptyVector) {
   auto encoder = getXEREncoder(true);
-  auto data = std::vector<BYTE>();
+  auto data = std::vector<char>();
   ASSERT_THROW(encoder->decode(data), EncodeException);
 }
 
@@ -192,7 +192,7 @@ TEST(Encoder, DERDecodeFailed) {
 
 TEST(Encoder, DERDecodeEmptyVector) {
   auto encoder = getDEREncoder();
-  auto data = std::vector<BYTE>();
+  auto data = std::vector<char>();
   ASSERT_THROW(encoder->decode(data), EncodeException);
 }
 

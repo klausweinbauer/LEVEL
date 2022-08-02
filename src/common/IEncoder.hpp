@@ -33,9 +33,9 @@ public:
    * @throw EncodeException if encountered an error during encoding.
    *
    * @param message Message to encode.
-   * @return std::vector<BYTE> Returns the encoded message.
+   * @return std::vector<char> Returns the encoded message.
    */
-  virtual std::vector<BYTE> encode(const T *message) = 0;
+  virtual std::vector<char> encode(const T *message) = 0;
 
   /**
    * @brief Decode a message.
@@ -45,16 +45,18 @@ public:
    * @param buffer Buffer that contains the encoded message.
    * @return T* Returns a newly allocated message.
    */
-  virtual T *decode(const std::vector<BYTE> buffer) = 0;
+  virtual T *decode(const std::vector<char> buffer) = 0;
 
   /**
    * @brief Decode a message.
+   *
+   * @throw EncodeException if encountered an error during decoding.
    *
    * @param buffer Buffer that contains the encoded message.
    * @param bufferLen Length of the encoded message.
    * @return T* Returns a newly allocated message.
    */
-  virtual T *decode(const BYTE *buffer, int bufferLen) = 0;
+  virtual T *decode(const char *buffer, int bufferLen) = 0;
 };
 
 } // namespace level

@@ -35,10 +35,10 @@ private:
   xer_encoder_flags_e _encoding;
 
   static int writeCallback(const void *src, size_t size, void *container) {
-    auto buffer = (std::vector<BYTE> *)container;
+    auto buffer = (std::vector<char> *)container;
 
     for (size_t i = 0; i < size; i++) {
-      BYTE data = ((BYTE *)src)[i];
+      char data = ((char *)src)[i];
       buffer->push_back(data);
     }
 
@@ -51,9 +51,9 @@ public:
 
   virtual ~XEREncoder() {}
 
-  virtual std::vector<BYTE> encode(const T *message) {
+  virtual std::vector<char> encode(const T *message) {
 
-    std::vector<BYTE> buffer;
+    std::vector<char> buffer;
     asn_enc_rval_t retVal;
     retVal = xer_encode(&_typeDescriptor, (void *)message, _encoding,
                         writeCallback, (void *)&buffer);
@@ -67,14 +67,14 @@ public:
     return buffer;
   }
 
-  virtual T *decode(const std::vector<BYTE> buffer) {
-    auto array = std::make_unique<BYTE[]>(buffer.size());
+  virtual T *decode(const std::vector<char> buffer) {
+    auto array = std::make_unique<char[]>(buffer.size());
     std::copy(buffer.begin(), buffer.end(), array.get());
     auto msg = decode(array.get(), buffer.size());
     return msg;
   }
 
-  virtual T *decode(const BYTE *buffer, int bufferLen) {
+  virtual T *decode(const char *buffer, int bufferLen) {
     T *msg = nullptr;
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};

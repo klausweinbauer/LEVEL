@@ -65,7 +65,6 @@ public:
               (override));
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
-  // MOCK_METHOD(bool, remove, (unsigned int), (override));
 };
 
 template <typename TData, typename TParameter>
@@ -100,7 +99,7 @@ template <typename T> class MEncoder : public IEncoder<T> {
 public:
   virtual ~MEncoder() {}
 
-  MOCK_METHOD(std::vector<BYTE>, encode, (const T *), (override));
-  MOCK_METHOD(T *, decode, (const std::vector<BYTE>), (override));
-  MOCK_METHOD(T *, decode, (const BYTE *, int), (override));
+  MOCK_METHOD(std::vector<char>, encode, (const T *), (override));
+  MOCK_METHOD(T *, decode, (const std::vector<char>), (override));
+  MOCK_METHOD(T *, decode, (const char *, int), (override));
 };

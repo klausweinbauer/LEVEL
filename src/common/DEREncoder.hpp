@@ -31,10 +31,10 @@ private:
   asn_TYPE_descriptor_t _typeDescriptor;
 
   static int writeCallback(const void *src, size_t size, void *container) {
-    auto buffer = (std::vector<BYTE> *)container;
+    auto buffer = (std::vector<char> *)container;
 
     for (size_t i = 0; i < size; i++) {
-      BYTE data = ((BYTE *)src)[i];
+      char data = ((char *)src)[i];
       buffer->push_back(data);
     }
 
@@ -47,12 +47,12 @@ public:
 
   virtual ~DEREncoder() {}
 
-  virtual std::vector<BYTE> encode(const T *message) {
+  virtual std::vector<char> encode(const T *message) {
     if (!message) {
       throw Exception(ERR_ARG_NULL, "Argument 'message' is null.");
     }
 
-    std::vector<BYTE> buffer;
+    std::vector<char> buffer;
     asn_enc_rval_t retVal;
     retVal = der_encode(&_typeDescriptor, (void *)message, writeCallback,
                         (void *)&buffer);
@@ -66,14 +66,14 @@ public:
     return buffer;
   }
 
-  virtual T *decode(const std::vector<BYTE> buffer) {
-    auto array = std::make_unique<BYTE[]>(buffer.size());
+  virtual T *decode(const std::vector<char> buffer) {
+    auto array = std::make_unique<char[]>(buffer.size());
     std::copy(buffer.begin(), buffer.end(), array.get());
     auto msg = decode(array.get(), buffer.size());
     return msg;
   }
 
-  virtual T *decode(const BYTE *buffer, int bufferLen) {
+  virtual T *decode(const char *buffer, int bufferLen) {
     T *msg = nullptr;
     asn_dec_rval_t retVal;
     asn_codec_ctx_t opt_codec_ctx{};
