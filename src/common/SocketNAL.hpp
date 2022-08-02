@@ -15,6 +15,7 @@
 #include <INetworkInterface.hpp>
 #include <ISocket.hpp>
 #include <memory>
+#include <thread>
 
 #define SOCKET_NAL_BUFFER_SIZE_MAX 65535
 #define SOCKET_NAL_TIMEOUT 100
