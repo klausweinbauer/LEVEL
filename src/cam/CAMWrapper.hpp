@@ -16,6 +16,8 @@
 #include <Types.hpp>
 #include <algorithm>
 
+#define CAM_MESSAGE_ID 2
+
 namespace level {
 namespace cam {
 

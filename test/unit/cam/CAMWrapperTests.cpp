@@ -9,6 +9,31 @@ using namespace level::cam;
 TEST(CAMWrapper, SuccessfulConstruction) {
   CAMWrapper cam(1);
   ASSERT_EQ(1, cam->header.stationID);
+  ASSERT_EQ(CAM_MESSAGE_ID, cam->header.messageID);
+
+  auto posConfEllipse = &cam->cam.camParameters.basicContainer.referencePosition
+                             .positionConfidenceEllipse;
+  ASSERT_EQ(SemiAxisLength_unavailable, posConfEllipse->semiMajorConfidence);
+  ASSERT_EQ(SemiAxisLength_unavailable, posConfEllipse->semiMinorConfidence);
+  ASSERT_EQ(HeadingValue_unavailable, posConfEllipse->semiMajorOrientation);
+}
+
+TEST(CAMWrapper, SuccessfulConstructionForVehicle) {
+  CAMWrapper cam(0,
+                 HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
+
+  auto hfc = &cam->cam.camParameters.highFrequencyContainer.choice
+                  .basicVehicleContainerHighFrequency;
+  ASSERT_EQ(HeadingValue_unavailable, hfc->heading.headingConfidence);
+  ASSERT_EQ(SpeedConfidence_unavailable, hfc->speed.speedConfidence);
+  ASSERT_EQ(SpeedConfidence_unavailable, hfc->speed.speedConfidence);
+  ASSERT_EQ(VehicleLengthConfidenceIndication_unavailable,
+            hfc->vehicleLength.vehicleLengthConfidenceIndication);
+  ASSERT_EQ(AccelerationConfidence_unavailable,
+            hfc->longitudinalAcceleration.longitudinalAccelerationConfidence);
+  ASSERT_EQ(CurvatureConfidence_unavailable,
+            hfc->curvature.curvatureConfidence);
+  ASSERT_EQ(YawRateConfidence_unavailable, hfc->yawRate.yawRateConfidence);
 }
 
 TEST(CAMWrapper, InitializeWithPointer) {

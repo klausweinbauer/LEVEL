@@ -12,8 +12,7 @@
 #pragma once
 
 #include <exception>
-#include <level_common.h>
-#include <level_error.h>
+#include <level.h>
 #include <sstream>
 #include <string>
 

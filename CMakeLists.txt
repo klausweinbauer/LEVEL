@@ -8,7 +8,7 @@ option(ENABLE_VALGRIND_TESTS "Include valgrind tests in build." OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 if (UNIX)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -g")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb3 -g -Wno-unknown-pragmas")
 endif()
 
 if(WIN32)
@@ -20,11 +20,15 @@ endif()
 # LEVEL 
 ################################
 
-add_library(${PROJECT_NAME} SHARED src/level.cpp)
 set(LEVEL_TARGET_NAME ${PROJECT_NAME})
+add_library(${LEVEL_TARGET_NAME} SHARED src/level.cpp)
+add_definitions( -DPROJECT_VERSION=${PROJECT_VERSION})
 
 set_target_properties(${LEVEL_TARGET_NAME} PROPERTIES PUBLIC_HEADER 
-	"${CMAKE_CURRENT_SOURCE_DIR}/../include/level.h")
+	"${CMAKE_SOURCE_DIR}/include/level.h")
+
+INSTALL(TARGETS ${LEVEL_TARGET_NAME} DESTINATION lib)
+SET(CMAKE_INSTALL_PREFIX ".")
 
 include(GenerateExportHeader)
 

@@ -1,7 +1,5 @@
 #include <Exception.hpp>
 #include <cstdio>
-#include <level_common.h>
-#include <level_error.h>
 #include <mutex>
 #include <sstream>
 #include <string.h>
