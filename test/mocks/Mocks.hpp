@@ -2,6 +2,7 @@
 
 #include <DBElement.hpp>
 #include <IDatabase.hpp>
+#include <IEncoder.hpp>
 #include <IIndexer.hpp>
 #include <IQRYParameter.hpp>
 #include <IQuery.hpp>
@@ -64,7 +65,6 @@ public:
               (override));
   MOCK_METHOD(bool, remove, (DBView<T> &), (override));
   MOCK_METHOD(bool, remove, (DBView<T> &&), (override));
-  // MOCK_METHOD(bool, remove, (unsigned int), (override));
 };
 
 template <typename TData, typename TParameter>
@@ -93,4 +93,13 @@ public:
   MOCK_METHOD(int, sysBind, (int, const SockAddr *, SockLen), (override));
   MOCK_METHOD(ssize_t, sysRecvFrom,
               (int, void *, size_t, int, SockAddr *, SockLen *), (override));
+};
+
+template <typename T> class MEncoder : public IEncoder<T> {
+public:
+  virtual ~MEncoder() {}
+
+  MOCK_METHOD(std::vector<char>, encode, (const T *), (override));
+  MOCK_METHOD(T *, decode, (const std::vector<char>), (override));
+  MOCK_METHOD(T *, decode, (const char *, int), (override));
 };

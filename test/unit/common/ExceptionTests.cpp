@@ -1,3 +1,4 @@
+#include <EncodeException.hpp>
 #include <Exception.hpp>
 #include <gtest/gtest.h>
 #include <string>
@@ -46,6 +47,12 @@ TEST(Exception, GetExceptionDescription) {
   Exception ex;
   std::string msg(ex.what());
   ASSERT_EQ(expMsg, msg);
+}
+
+TEST(Exception, DefaultEncodeErrorMessage) {
+  std::string expMsg("Message de-/encoding failed.");
+  EncodeException e;
+  ASSERT_EQ(expMsg, std::string(e.getErrMsg()));
 }
 
 TEST(Exception, ErrorMessageERR) {

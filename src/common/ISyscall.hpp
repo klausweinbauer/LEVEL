@@ -15,6 +15,7 @@
 
 #ifdef _WIN32
 #include <WS2tcpip.h>
+#include <WinSock2.h>
 #include <memory>
 #include <system_error>
 #elif __linux__
@@ -61,7 +62,6 @@ typedef nfds_t nfds_l;
 typedef socklen_t SockLen;
 
 struct pollfd_l : pollfd {};
-struct sockaddr_l : sockaddr {};
 #endif
 
 enum SockDomain { Domain_INET = AF_INET, Domain_INET6 = AF_INET6 };
@@ -98,8 +98,16 @@ public:
   }
 };
 
-struct SockAddr : sockaddr_l {
+struct SockAddr : sockaddr {
 public:
+  SockAddr() {
+    sockaddr *base = (sockaddr *)this;
+    base->sa_family = 0;
+    for (int i = 0; i < 14; i++) {
+      base->sa_data[i] = 0;
+    }
+  }
+
   SockLen len() { return sizeof(SockAddr); }
 };
 
@@ -107,18 +115,32 @@ struct SockAddrInet : SockAddr {
 public:
   SockAddrInet() : SockAddrInet(0) {}
 
-  SockAddrInet(uint16_t port) {
+  SockAddrInet(uint16_t port) : SockAddr() {
+#ifdef WIN32
+    sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(port);
+    addr->sin_addr.s_addr = INADDR_ANY;
+#elif __linux__
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = htonl(INADDR_ANY);
     addr->sin_port = htons(port);
+#endif
   }
 
-  SockAddrInet(uint16_t port, std::string address) {
+  SockAddrInet(uint16_t port, std::string address) : SockAddr() {
+#ifdef WIN32
+    sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(port);
+    addr->sin_addr.S_un.S_addr = inet_addr(address.c_str());
+#elif __linux__
     sockaddr_in *addr = reinterpret_cast<sockaddr_in *>(this);
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = inet_addr(address.c_str());
     addr->sin_port = htons(port);
+#endif
   }
 
   SockLen len() { return sizeof(SockAddrInet); }

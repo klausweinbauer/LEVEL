@@ -9,6 +9,8 @@ DEREncoder CAMWrapper::_copyEncoder;
 
 CAMWrapper::CAMWrapper() : CAMWrapper(0) {}
 
+CAMWrapper::CAMWrapper(CAM *cam) : _cam(cam) {}
+
 CAMWrapper::CAMWrapper(int stationId)
     : CAMWrapper(stationId, HighFrequencyContainer_PR_NOTHING) {}
 
@@ -37,7 +39,10 @@ CAMWrapper &CAMWrapper::operator=(CAMWrapper other) {
 }
 
 CAM *CAMWrapper::operator->() { return _cam; }
+
 CAM &CAMWrapper::operator*() { return *_cam; }
+
+CAM *CAMWrapper::get() { return _cam; }
 
 LowFrequencyContainer *CAMWrapper::setLFC(LowFrequencyContainer_PR type) {
   auto lfc = &_cam->cam.camParameters.lowFrequencyContainer;

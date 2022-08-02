@@ -17,6 +17,14 @@ TEST(DENMWrapper, SuccessfulConstruction) {
   ASSERT_EQ(seqNr, denm->denm.management.actionID.sequenceNumber);
 }
 
+TEST(DENMWrapper, InitializeWithPointer) {
+  int id = rand();
+  DENM *denmPtr = (DENM *)calloc(1, sizeof(DENM));
+  denmPtr->header.messageID = id;
+  DENMWrapper denm(denmPtr);
+  ASSERT_EQ(id, denm->header.messageID);
+}
+
 TEST(DENMWrapper, ArrowOperator) {
   DENMWrapper denm(1, rand());
   denm->header.stationID = 2;
@@ -27,6 +35,12 @@ TEST(DENMWrapper, PointerOperator) {
   DENMWrapper denm(1, rand());
   denm->header.stationID = 2;
   ASSERT_EQ(2, (*denm).header.stationID);
+}
+
+TEST(DENMWrapper, GetDENM) {
+  int id = rand();
+  DENMWrapper denm(id, 0);
+  ASSERT_EQ(id, denm.get()->header.stationID);
 }
 
 TEST(DENMWrapper, CopyConstructor) {
