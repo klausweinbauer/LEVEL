@@ -31,6 +31,7 @@ private:
 
 public:
   CAMWrapper();
+  CAMWrapper(CAM *cam);
   CAMWrapper(int stationId);
   CAMWrapper(int stationId, HighFrequencyContainer_PR type);
 
@@ -41,6 +42,8 @@ public:
 
   CAM *operator->();
   CAM &operator*();
+
+  CAM *get();
 
   /**
    * @brief Set LowFrequencyContainer.

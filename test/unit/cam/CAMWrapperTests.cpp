@@ -11,6 +11,14 @@ TEST(CAMWrapper, SuccessfulConstruction) {
   ASSERT_EQ(1, cam->header.stationID);
 }
 
+TEST(CAMWrapper, InitializeWithPointer) {
+  int id = rand();
+  CAM *camPtr = (CAM *)calloc(1, sizeof(CAM));
+  camPtr->header.messageID = id;
+  CAMWrapper cam(camPtr);
+  ASSERT_EQ(id, cam->header.messageID);
+}
+
 TEST(CAMWrapper, ArrowOperator) {
   CAMWrapper cam(1);
   cam->header.stationID = 2;
@@ -21,6 +29,12 @@ TEST(CAMWrapper, PointerOperator) {
   CAMWrapper cam(1);
   (*cam).header.stationID = 2;
   ASSERT_EQ(2, (*cam).header.stationID);
+}
+
+TEST(CAMWrapper, GetCAM) {
+  int id = rand();
+  CAMWrapper cam(id);
+  ASSERT_EQ(id, cam.get()->header.stationID);
 }
 
 TEST(CAMWrapper, FailsOnCopyingInvalidMessage) {

@@ -31,6 +31,7 @@ private:
 
 public:
   DENMWrapper();
+  DENMWrapper(DENM *denm);
   DENMWrapper(int stationId, int sequenceNumber);
 
   ~DENMWrapper();
@@ -40,6 +41,8 @@ public:
 
   DENM *operator->();
   DENM &operator*();
+
+  DENM *get();
 
   /**
    * @brief Get ManagementContainer.

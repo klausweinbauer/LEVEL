@@ -9,6 +9,8 @@ DEREncoder DENMWrapper::_copyEncoder;
 
 DENMWrapper::DENMWrapper() : DENMWrapper(0, 0) {}
 
+DENMWrapper::DENMWrapper(DENM *denm) : _denm(denm) {}
+
 DENMWrapper::DENMWrapper(int stationId, int sequenceNumber)
     : _denm((DENM *)calloc(1, sizeof(DENM))) {
   _denm->header.stationID = stationId;
@@ -29,7 +31,10 @@ DENMWrapper &DENMWrapper::operator=(DENMWrapper other) {
 }
 
 DENM *DENMWrapper::operator->() { return _denm; }
+
 DENM &DENMWrapper::operator*() { return *_denm; }
+
+DENM *DENMWrapper::get() { return _denm; }
 
 ManagementContainer *DENMWrapper::getMC() const {
   return &_denm->denm.management;

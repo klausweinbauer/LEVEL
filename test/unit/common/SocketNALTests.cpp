@@ -5,23 +5,26 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+using ::testing::_;
+using ::testing::Invoke;
+using ::testing::NiceMock;
+using ::testing::Return;
+using ::testing::Throw;
+
 namespace level::SocketNALTests {
 
-std::shared_ptr<MSocket> getSocket() { return std::make_shared<MSocket>(); }
+std::shared_ptr<NiceMock<MSocket>> getSocket() {
+  return std::make_shared<NiceMock<MSocket>>();
+}
 
-template <typename T> std::shared_ptr<MEncoder<T>> getEncoder() {
-  return std::make_shared<MEncoder<T>>();
+template <typename T> std::shared_ptr<NiceMock<MEncoder<T>>> getEncoder() {
+  return std::make_shared<NiceMock<MEncoder<T>>>();
 }
 
 } // namespace level::SocketNALTests
 
 using namespace level;
 using namespace level::SocketNALTests;
-
-using ::testing::_;
-using ::testing::Invoke;
-using ::testing::Return;
-using ::testing::Throw;
 
 TEST(SocketNAL, SuccessfulConstruction) {
   ASSERT_NO_THROW(
