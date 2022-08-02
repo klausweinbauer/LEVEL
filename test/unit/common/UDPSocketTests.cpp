@@ -454,3 +454,23 @@ INSTANTIATE_TEST_SUITE_P(
     [](const ::testing::TestParamInfo<ReadTest::ParamType> &info) {
       return pollEventToString(info.param);
     });
+
+TEST(UDPSocket, ReadDataWhenMultipleFlagsArePresent) {
+  auto port = randPort();
+  auto sys = getSys();
+  auto socket = getSocket(port, sys);
+
+  EXPECT_CALL(*sys, sysPoll)
+      .WillOnce(Invoke([](PollFD *fds, nfds_l nfds, int timeout) {
+        assert(fds != nullptr);
+        assert(nfds > 0);
+        fds->revents = PollEvent::Event_IN | PollEvent::Event_OUT;
+        return 1;
+      }));
+
+  EXPECT_CALL(*sys, sysRecvFrom(_, _, _, _, _, _)).Times(1);
+
+  const int bufferSize = 100;
+  char buffer[bufferSize];
+  socket->recv(buffer, bufferSize, 100);
+}

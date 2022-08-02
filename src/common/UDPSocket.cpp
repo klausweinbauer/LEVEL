@@ -65,7 +65,7 @@ int UDPSocket::recv(char *buffer, int len, int timeout) {
     if (pollReturn == 0) {
       return 0;
     } else if (pollReturn > 0) {
-      if (pollFd.revents == PollEvent::Event_IN) {
+      if (pollFd.revents & PollEvent::Event_IN) {
         return handleRecv(buffer, len);
       } else {
         return 0;
