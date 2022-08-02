@@ -146,10 +146,14 @@ TEST(Syscall, UDPPacketSizeBound) {
 TEST(Syscall, SocketAddressInitialization) {
   uint16_t port = rand() % 65535;
   SockAddrInet addr1(port);
-  sockaddr_in addr2;
+  sockaddr_in addr2{};
   addr2.sin_family = AF_INET;
   addr2.sin_port = htons(port);
+#ifdef WIN32
   addr2.sin_addr.s_addr = INADDR_ANY;
+#elif __linux__
+  addr2.sin_addr.s_addr = htonl(INADDR_ANY);
+#endif
   ASSERT_EQ(sizeof(SockAddrInet), sizeof(sockaddr_in));
   char *addr1Raw = (char *)&addr1;
   char *addr2Raw = (char *)&addr2;
@@ -162,7 +166,7 @@ TEST(Syscall, SocketAddressInitializationWithIP) {
   uint16_t port = rand() % 65535;
   std::string ip("1.2.33.44");
   SockAddrInet addr1(port, ip);
-  sockaddr_in addr2;
+  sockaddr_in addr2{};
   addr2.sin_family = AF_INET;
   addr2.sin_port = htons(port);
 #ifdef WIN32
