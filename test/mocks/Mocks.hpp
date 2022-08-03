@@ -8,6 +8,7 @@
 #include <IQuery.hpp>
 #include <ISocket.hpp>
 #include <ISyscall.hpp>
+#include <IValueConverter.hpp>
 #include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <vector>
@@ -102,4 +103,22 @@ public:
   MOCK_METHOD(std::vector<char>, encode, (const T *), (override));
   MOCK_METHOD(T *, decode, (const std::vector<char>), (override));
   MOCK_METHOD(T *, decode, (const char *, int), (override));
+};
+
+class MValueConverter : public IValueConverter {
+public:
+  virtual ~MValueConverter() {}
+
+  MOCK_METHOD(int, siToITSHeading, (float heading), (override));
+  MOCK_METHOD(float, itsToSIHeading, (int heading), (override));
+  MOCK_METHOD(int, siToITSSpeed, (float speed), (override));
+  MOCK_METHOD(float, itsToSISpeed, (int speed), (override));
+  MOCK_METHOD(int, siToITSLongitudinalAcceleration, (float acceleration),
+              (override));
+  MOCK_METHOD(float, itsToSILongitudinalAcceleration, (int acceleration),
+              (override));
+  MOCK_METHOD(int, siToITSCurvature, (float curvature), (override));
+  MOCK_METHOD(float, itsToSICurvature, (int curvature), (override));
+  MOCK_METHOD(int, siToITSYawRate, (float yawRate), (override));
+  MOCK_METHOD(float, itsToSIYawRate, (int yawRate), (override));
 };

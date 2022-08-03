@@ -6,4 +6,5 @@ target_sources(${LEVEL_TARGET_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/SyscallTests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TypeTests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/UDPSocketTests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ValueConverterTests.cpp
 )

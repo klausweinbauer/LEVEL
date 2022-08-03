@@ -31,6 +31,8 @@ private:
   CAM *_cam;
   static DEREncoder _copyEncoder;
 
+  void initHFC();
+
 public:
   CAMWrapper();
   CAMWrapper(CAM *cam);

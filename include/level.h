@@ -11,8 +11,6 @@
 #ifdef __cplusplus
 namespace level {
 
-#define ROUND_TO_INT(x) (int)(x + 0.5)
-
 extern "C" {
 #endif
 
@@ -212,33 +210,11 @@ typedef enum {
 
 #pragma region Structs
 
-typedef struct CAMVDPUnit {
-public:
-  int heading;
-  int speed;
-  int driveDirection;
-  int acceleration;
-  int curvature;
-  int yawRate;
-
-  CAMVDPUnit();
-  CAMVDPUnit(int heading, int speed, int driveDirection, int acceleration,
-             int curvature, int yawRate);
-} CAMVDPUnit_t;
-
 /**
  * @brief Vehicle data provider.
  *
  */
 typedef struct {
-private:
-  int _heading;
-  int _speed;
-  int _driveDirection;
-  int _acceleration;
-  int _curvature;
-  int _yawRate;
-
 public:
   /**
    * @brief Set the current heading value in degree with regards to the true
@@ -289,13 +265,6 @@ public:
    */
   void setYawRate(float yawRate);
 
-  /**
-   * @brief Get a CA basic service compliant state of the vehicle.
-   *
-   * @return CAMVDPUnit Vehicle state.
-   */
-  CAMVDPUnit_t getCAMDataUnit();
-
 } VDP_t;
 
 typedef struct {
@@ -326,6 +295,14 @@ typedef struct {
  * @return const char* Version string.
  */
 const char *SHARED_EXPORT getVersion();
+
+/**
+ * @brief Get a pointer to the vehicle data provider. Use the VDP to update the
+ * current vehicle state.
+ *
+ * @return VDP_t* Pointer to the vehicle data provider.
+ */
+VDP_t *SHARED_EXPORT getVDP();
 
 #pragma endregion // Configuration methods
 

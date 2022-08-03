@@ -12,7 +12,9 @@ CAMWrapper::CAMWrapper() : CAMWrapper(0) {}
 CAMWrapper::CAMWrapper(CAM *cam) : _cam(cam) {}
 
 CAMWrapper::CAMWrapper(int stationId)
-    : CAMWrapper(stationId, HighFrequencyContainer_PR_NOTHING) {}
+    : CAMWrapper(stationId,
+                 HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
+}
 
 CAMWrapper::CAMWrapper(int stationId, HighFrequencyContainer_PR type)
     : _cam((CAM *)calloc(1, sizeof(CAM))) {
@@ -28,17 +30,7 @@ CAMWrapper::CAMWrapper(int stationId, HighFrequencyContainer_PR type)
   _cam->cam.camParameters.highFrequencyContainer.present = type;
 
   if (type == HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
-    auto hfc = &_cam->cam.camParameters.highFrequencyContainer.choice
-                    .basicVehicleContainerHighFrequency;
-    hfc->heading.headingConfidence = HeadingValue_unavailable;
-    hfc->speed.speedConfidence = SpeedConfidence_unavailable;
-    hfc->speed.speedConfidence = SpeedConfidence_unavailable;
-    hfc->vehicleLength.vehicleLengthConfidenceIndication =
-        VehicleLengthConfidenceIndication_unavailable;
-    hfc->longitudinalAcceleration.longitudinalAccelerationConfidence =
-        AccelerationConfidence_unavailable;
-    hfc->curvature.curvatureConfidence = CurvatureConfidence_unavailable;
-    hfc->yawRate.yawRateConfidence = YawRateConfidence_unavailable;
+    initHFC();
   }
 }
 
@@ -87,6 +79,7 @@ HighFrequencyContainer *CAMWrapper::setHFC(HighFrequencyContainer_PR type) {
   } else {
     if (hfc->present == HighFrequencyContainer_PR_NOTHING) {
       hfc->present = type;
+      initHFC();
     } else {
       throw Exception(ERR, "High frequency container already present.");
     }
@@ -135,6 +128,20 @@ void CAMWrapper::clearSVC() {
   auto svc = &_cam->cam.camParameters.specialVehicleContainer;
   ASN_STRUCT_FREE(asn_DEF_SpecialVehicleContainer, *svc);
   *svc = nullptr;
+}
+
+void CAMWrapper::initHFC() {
+  auto hfc = &_cam->cam.camParameters.highFrequencyContainer.choice
+                  .basicVehicleContainerHighFrequency;
+  hfc->heading.headingConfidence = HeadingValue_unavailable;
+  hfc->speed.speedConfidence = SpeedConfidence_unavailable;
+  hfc->speed.speedConfidence = SpeedConfidence_unavailable;
+  hfc->vehicleLength.vehicleLengthConfidenceIndication =
+      VehicleLengthConfidenceIndication_unavailable;
+  hfc->longitudinalAcceleration.longitudinalAccelerationConfidence =
+      AccelerationConfidence_unavailable;
+  hfc->curvature.curvatureConfidence = CurvatureConfidence_unavailable;
+  hfc->yawRate.yawRateConfidence = YawRateConfidence_unavailable;
 }
 
 } // namespace level::cam
