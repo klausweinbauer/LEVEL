@@ -29,7 +29,7 @@ class CAMWrapper {
 
 private:
   CAM *_cam;
-  static DEREncoder _copyEncoder;
+  static CAMDEREncoder _copyEncoder;
 
   void initHFC();
 
@@ -47,7 +47,7 @@ public:
   CAM *operator->();
   CAM &operator*();
 
-  CAM *get();
+  CAM *get() const;
 
   /**
    * @brief Set LowFrequencyContainer.

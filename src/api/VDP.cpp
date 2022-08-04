@@ -7,7 +7,7 @@ namespace level {
 
 using namespace level::di;
 
-VDP_t *getVDP() { return di::getVDP_t().get(); }
+VDP_t *getVDP() { return di::getVDP().get(); }
 
 void VDP_t::setHeading(float heading) {
   auto p = di::getCABasicService().get();

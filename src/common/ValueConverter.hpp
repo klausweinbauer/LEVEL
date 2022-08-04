@@ -22,6 +22,8 @@ public:
 
   virtual int siToITSYawRate(float yawRate) override;
   virtual float itsToSIYawRate(int yawRate) override;
+
+  virtual int timestampToDeltaTime(unsigned long long int timestamp) override;
 };
 
 } // namespace level

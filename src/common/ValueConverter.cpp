@@ -71,4 +71,8 @@ int ValueConverter::siToITSYawRate(float yawRate) {
 
 float ValueConverter::itsToSIYawRate(int yawRate) { return yawRate / 100.0; }
 
+int ValueConverter::timestampToDeltaTime(unsigned long long int timestamp) {
+  return timestamp % 65536;
+}
+
 } // namespace level

@@ -1,10 +1,14 @@
 #pragma once
 
-#include <CABasicService.hpp>
+#include <CAMWrapper.hpp>
 #include <DBElement.hpp>
+#include <ICABasicService.hpp>
 #include <IDatabase.hpp>
 #include <IEncoder.hpp>
+#include <IFrequencyManager.hpp>
 #include <IIndexer.hpp>
+#include <INetworkInterface.hpp>
+#include <IPOTI.hpp>
 #include <IQRYParameter.hpp>
 #include <IQuery.hpp>
 #include <ISocket.hpp>
@@ -79,6 +83,13 @@ public:
               (std::shared_ptr<QRYParameter<TParameter>>), (override, const));
 };
 
+template <typename T> class MNetworkInterface : public INetworkInterface<T> {
+public:
+  virtual ~MNetworkInterface() {}
+
+  MOCK_METHOD(bool, send, (const T *), (override));
+};
+
 class MSyscall : public ISyscall {
 public:
   virtual ~MSyscall() {}
@@ -110,30 +121,27 @@ class MValueConverter : public IValueConverter {
 public:
   virtual ~MValueConverter() {}
 
-  MOCK_METHOD(int, siToITSHeading, (float heading), (override));
-  MOCK_METHOD(float, itsToSIHeading, (int heading), (override));
-  MOCK_METHOD(int, siToITSSpeed, (float speed), (override));
-  MOCK_METHOD(float, itsToSISpeed, (int speed), (override));
-  MOCK_METHOD(int, siToITSLongitudinalAcceleration, (float acceleration),
-              (override));
-  MOCK_METHOD(float, itsToSILongitudinalAcceleration, (int acceleration),
-              (override));
-  MOCK_METHOD(int, siToITSCurvature, (float curvature), (override));
-  MOCK_METHOD(float, itsToSICurvature, (int curvature), (override));
-  MOCK_METHOD(int, siToITSYawRate, (float yawRate), (override));
-  MOCK_METHOD(float, itsToSIYawRate, (int yawRate), (override));
+  MOCK_METHOD(int, siToITSHeading, (float), (override));
+  MOCK_METHOD(float, itsToSIHeading, (int), (override));
+  MOCK_METHOD(int, siToITSSpeed, (float), (override));
+  MOCK_METHOD(float, itsToSISpeed, (int), (override));
+  MOCK_METHOD(int, siToITSLongitudinalAcceleration, (float), (override));
+  MOCK_METHOD(float, itsToSILongitudinalAcceleration, (int), (override));
+  MOCK_METHOD(int, siToITSCurvature, (float), (override));
+  MOCK_METHOD(float, itsToSICurvature, (int), (override));
+  MOCK_METHOD(int, siToITSYawRate, (float), (override));
+  MOCK_METHOD(float, itsToSIYawRate, (int), (override));
+  MOCK_METHOD(int, timestampToDeltaTime, (unsigned long long int), (override));
 };
 
-class MCABasicService : public cam::CABasicService {
+class MCABasicService : public cam::ICABasicService {
 public:
-  MCABasicService() : cam::CABasicService(std::make_shared<ValueConverter>()) {}
-
   virtual ~MCABasicService() {}
 
   MOCK_METHOD(void, configure, (CABasicServiceConfig), (override));
   MOCK_METHOD(CABasicServiceConfig, getConfiguration, (), (override));
   MOCK_METHOD(float, getCAMGenerationFrequency, (), (override));
-  MOCK_METHOD(cam::CAMWrapper &, cam, (), (override));
+  MOCK_METHOD(cam::CAMWrapper, cam, (), (override));
   MOCK_METHOD(cam::CAMWrapper, getCAM, (unsigned int), (override));
   MOCK_METHOD(void, setHeading, (float), (override));
   MOCK_METHOD(void, setSpeed, (float), (override));
@@ -141,4 +149,21 @@ public:
   MOCK_METHOD(void, setAcceleration, (float), (override));
   MOCK_METHOD(void, setCurvature, (float), (override));
   MOCK_METHOD(void, setYawRate, (float), (override));
+};
+
+class MPOTI : public IPOTI {
+public:
+  virtual ~MPOTI() {}
+
+  MOCK_METHOD(unsigned long long int, now, (), (const, override));
+};
+
+class MFrequencyManager : public cam::IFrequencyManager {
+public:
+  virtual ~MFrequencyManager() {}
+
+  MOCK_METHOD(int, getTCheckCAMGen, (), (override));
+  MOCK_METHOD(bool, generateCAM, (const cam::CAMWrapper &), (override));
+  MOCK_METHOD(bool, includeLFC, (), (override));
+  MOCK_METHOD(void, notifyCAMGeneration, (const cam::CAMWrapper &), (override));
 };

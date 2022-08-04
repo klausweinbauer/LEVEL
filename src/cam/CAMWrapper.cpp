@@ -5,7 +5,7 @@
 
 namespace level::cam {
 
-DEREncoder CAMWrapper::_copyEncoder;
+CAMDEREncoder CAMWrapper::_copyEncoder;
 
 CAMWrapper::CAMWrapper() : CAMWrapper(0) {}
 
@@ -56,7 +56,7 @@ CAM *CAMWrapper::operator->() { return _cam; }
 
 CAM &CAMWrapper::operator*() { return *_cam; }
 
-CAM *CAMWrapper::get() { return _cam; }
+CAM *CAMWrapper::get() const { return _cam; }
 
 LowFrequencyContainer *CAMWrapper::setLFC(LowFrequencyContainer_PR type) {
   if (type != LowFrequencyContainer_PR_NOTHING &&

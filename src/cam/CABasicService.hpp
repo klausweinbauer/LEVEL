@@ -1,72 +1,62 @@
 #pragma once
 
 #include <CAMWrapper.hpp>
+#include <ICABasicService.hpp>
+#include <IFrequencyManager.hpp>
+#include <INetworkInterface.hpp>
+#include <IPOTI.hpp>
 #include <ValueConverter.hpp>
 #include <functional>
 #include <level.h>
+#include <mutex>
+#include <thread>
 
 namespace level::cam {
 
-class CABasicService {
+class CABasicService : public ICABasicService {
 private:
+  std::shared_ptr<INetworkInterface<CAM>> _nal;
   std::shared_ptr<IValueConverter> _valueConverter;
+  std::shared_ptr<IFrequencyManager> _frequencyManager;
   CAMWrapper _cam;
-  CABasicServiceConfig _config;
+  std::mutex _camMutex;
+  CABasicServiceConfig _config{.stationID = 0,
+                               .stationType = StationType_Unknown};
+  bool _disseminationActive;
+  std::thread _disseminationThread;
+  std::shared_ptr<IPOTI> _poti;
+
+  void disseminationTask();
 
 public:
-  virtual ~CABasicService() {}
+  virtual ~CABasicService();
 
-  CABasicService(std::shared_ptr<IValueConverter> valueConverter);
+  CABasicService(std::shared_ptr<INetworkInterface<CAM>> networkInterface,
+                 std::shared_ptr<IValueConverter> valueConverter,
+                 std::shared_ptr<IFrequencyManager> frequencyManager,
+                 std::shared_ptr<IPOTI> poti);
 
-  std::function<void(ITSPDUHeader header)> receiveCallback;
+  virtual void configure(CABasicServiceConfig config) override;
 
-  /**
-   * @brief Configure the cooperative awareness basic service.
-   *
-   * @param config Settings to apply.
-   */
-  virtual void configure(CABasicServiceConfig config);
+  virtual CABasicServiceConfig getConfiguration() override;
 
-  /**
-   * @brief Get the current cooperative awareness basic service configuration.
-   *
-   * @return CABasicServiceConfig Current configuration.
-   */
-  virtual CABasicServiceConfig getConfiguration();
+  virtual float getCAMGenerationFrequency() override;
 
-  /**
-   * @brief Get the current CAM generation frequency.
-   *
-   * @return float Frequency in Hz.
-   */
-  virtual float getCAMGenerationFrequency();
+  virtual CAMWrapper cam() override;
 
-  /**
-   * @brief Get a reference to the current local CAM.
-   *
-   * @return CAMWrapper* Local CAM instance.
-   */
-  virtual CAMWrapper &cam();
+  virtual CAMWrapper getCAM(unsigned int stationID) override;
 
-  /**
-   * @brief Get the most recent data for a specific station.
-   *
-   * @param stationID StationID from where to get the data.
-   * @return CAMWrapper Message.
-   */
-  virtual CAMWrapper getCAM(unsigned int stationID);
+  virtual void setHeading(float heading) override;
 
-  virtual void setHeading(float heading);
+  virtual void setSpeed(float speed) override;
 
-  virtual void setSpeed(float speed);
+  virtual void setDriveDirection(DriveDirectionType direction) override;
 
-  virtual void setDriveDirection(DriveDirectionType direction);
+  virtual void setAcceleration(float acceleration) override;
 
-  virtual void setAcceleration(float acceleration);
+  virtual void setCurvature(float radius) override;
 
-  virtual void setCurvature(float radius);
-
-  virtual void setYawRate(float yawRate);
+  virtual void setYawRate(float yawRate) override;
 };
 
 } // namespace level::cam

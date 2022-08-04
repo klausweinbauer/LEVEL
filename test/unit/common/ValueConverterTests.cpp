@@ -187,3 +187,16 @@ TEST(ValueConverter, SetYawRateLowerBound) {
   ASSERT_EQ(itsExpected, itsValue);
   ASSERT_EQ(siExpected, converter.itsToSIYawRate(itsValue));
 }
+
+TEST(ValueConverter, GetDeltaTime) {
+  ValueConverter converter;
+  unsigned long long int timestamp = rand() % 65000;
+  ASSERT_EQ((int)timestamp, converter.timestampToDeltaTime(timestamp));
+}
+
+TEST(ValueConverter, GetDeltaTimeWrapped) {
+  ValueConverter converter;
+  unsigned long long int timestamp = 65536;
+  ASSERT_EQ(0, converter.timestampToDeltaTime(timestamp));
+  ASSERT_EQ(0, converter.timestampToDeltaTime(timestamp * 2));
+}

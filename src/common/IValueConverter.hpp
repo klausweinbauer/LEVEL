@@ -20,6 +20,8 @@ public:
 
   virtual int siToITSYawRate(float yawRate) = 0;
   virtual float itsToSIYawRate(int yawRate) = 0;
+
+  virtual int timestampToDeltaTime(unsigned long long int timestamp) = 0;
 };
 
 } // namespace level

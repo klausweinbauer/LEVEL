@@ -14,6 +14,8 @@ using namespace level;
 std::shared_ptr<ISyscall> sys() { return std::make_shared<Syscall>(); }
 
 TEST(Network, SendAndReceiveCAMsWith100Hz) {
+  using namespace level::cam;
+
   const int msgsToSend = 100;
   bool recvFlags[msgsToSend] = {false};
   int errCount = 0;
@@ -33,8 +35,8 @@ TEST(Network, SendAndReceiveCAMsWith100Hz) {
   unsigned int port = 50000 + rand() % 10000;
   cam::CAMNetworkInterface nal(std::make_shared<UDPSocket>(port, sys()),
                                std::make_shared<UDPSocket>(port, sys()),
-                               std::make_shared<cam::DEREncoder>(),
-                               recvCallback, errCallback);
+                               std::make_shared<CAMDEREncoder>(), recvCallback,
+                               errCallback);
 
   int sendCount = 0;
   do {

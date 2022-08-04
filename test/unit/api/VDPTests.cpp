@@ -21,6 +21,10 @@ using namespace level;
 TEST(VDPTest, GetPointerToVDP) { ASSERT_NE(nullptr, getVDP()); }
 
 TEST(VDPTest, SetHeading) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   float value = randFloat();
   getVDP()->setHeading(value);
   ASSERT_EQ(converter.siToITSHeading(value),
@@ -31,6 +35,10 @@ TEST(VDPTest, SetHeading) {
 }
 
 TEST(VDPTest, SetSpeed) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   float value = randFloat();
   getVDP()->setSpeed(value);
   ASSERT_EQ(converter.siToITSSpeed(value),
@@ -41,6 +49,10 @@ TEST(VDPTest, SetSpeed) {
 }
 
 TEST(VDPTest, SetAcceleration) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   float value = randFloat();
   getVDP()->setAcceleration(value);
   ASSERT_EQ(converter.siToITSLongitudinalAcceleration(value),
@@ -52,6 +64,10 @@ TEST(VDPTest, SetAcceleration) {
 }
 
 TEST(VDPTest, SetYawRate) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   float value = randFloat();
   getVDP()->setYawRate(value);
   ASSERT_EQ(converter.siToITSYawRate(value),
@@ -62,6 +78,10 @@ TEST(VDPTest, SetYawRate) {
 }
 
 TEST(VDPTest, SetCurvature) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   float value = randFloat();
   getVDP()->setCurvature(value);
   ASSERT_EQ(converter.siToITSCurvature(value),
@@ -72,6 +92,10 @@ TEST(VDPTest, SetCurvature) {
 }
 
 TEST(VDPTest, SetDriveDirection) {
+  CABasicServiceConfig config;
+  config.stationType = StationType_PassengerCar;
+  configureCABasicService(config);
+
   auto value = DriveDirectionType::DirveDirection_Backward;
   getVDP()->setDriveDirection(value);
   ASSERT_EQ(value, di::getCABasicService()

@@ -270,9 +270,6 @@ public:
 typedef struct CABasicServiceConfig {
   unsigned int stationID;
   StationType stationType;
-
-  CABasicServiceConfig() : stationID(0), stationType(StationType_Unknown) {}
-
 } CABasicServiceConfig_t;
 
 typedef struct ITSPDUHeader {
