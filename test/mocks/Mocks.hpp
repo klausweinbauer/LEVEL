@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CABasicService.hpp>
 #include <DBElement.hpp>
 #include <IDatabase.hpp>
 #include <IEncoder.hpp>
@@ -121,4 +122,23 @@ public:
   MOCK_METHOD(float, itsToSICurvature, (int curvature), (override));
   MOCK_METHOD(int, siToITSYawRate, (float yawRate), (override));
   MOCK_METHOD(float, itsToSIYawRate, (int yawRate), (override));
+};
+
+class MCABasicService : public cam::CABasicService {
+public:
+  MCABasicService() : cam::CABasicService(std::make_shared<ValueConverter>()) {}
+
+  virtual ~MCABasicService() {}
+
+  MOCK_METHOD(void, configure, (CABasicServiceConfig), (override));
+  MOCK_METHOD(CABasicServiceConfig, getConfiguration, (), (override));
+  MOCK_METHOD(float, getCAMGenerationFrequency, (), (override));
+  MOCK_METHOD(cam::CAMWrapper &, cam, (), (override));
+  MOCK_METHOD(cam::CAMWrapper, getCAM, (unsigned int), (override));
+  MOCK_METHOD(void, setHeading, (float), (override));
+  MOCK_METHOD(void, setSpeed, (float), (override));
+  MOCK_METHOD(void, setDriveDirection, (DriveDirectionType), (override));
+  MOCK_METHOD(void, setAcceleration, (float), (override));
+  MOCK_METHOD(void, setCurvature, (float), (override));
+  MOCK_METHOD(void, setYawRate, (float), (override));
 };
