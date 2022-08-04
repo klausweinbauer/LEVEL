@@ -116,11 +116,29 @@ TEST(CAMWrapper, SetHFC) {
   ASSERT_EQ(YawRateConfidence_unavailable, hfcbv->yawRate.yawRateConfidence);
 }
 
+TEST(CAMWrapper, SetInvalidHFC) {
+  CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
+  ASSERT_THROW(cam.setHFC((HighFrequencyContainer_PR)999), Exception);
+}
+
 TEST(CAMWrapper, ResetHFC) {
   CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
   cam.setHFC(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
-  ASSERT_THROW(cam.setHFC(HighFrequencyContainer_PR_rsuContainerHighFrequency),
-               Exception);
+  cam.setHFC(HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  ASSERT_EQ(HighFrequencyContainer_PR_rsuContainerHighFrequency,
+            cam->cam.camParameters.highFrequencyContainer.present);
+}
+
+TEST(CAMWrapper, ResetHFCWithSameType) {
+  CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
+  int value = rand();
+  cam.setHFC(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
+  cam->cam.camParameters.highFrequencyContainer.choice
+      .basicVehicleContainerHighFrequency.speed.speedValue = value;
+  ASSERT_NO_THROW(
+      cam.setHFC(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency));
+  ASSERT_EQ(value, cam->cam.camParameters.highFrequencyContainer.choice
+                       .basicVehicleContainerHighFrequency.speed.speedValue);
 }
 
 TEST(CAMWrapper, SetHFCToNoting) {
@@ -183,10 +201,22 @@ TEST(CAMWrapper, SetLFCToNoting) {
   ASSERT_EQ(nullptr, cam->cam.camParameters.lowFrequencyContainer);
 }
 
-TEST(CAMWrapper, ResetLFC) {
+TEST(CAMWrapper, SetInvalidLFC) {
   CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
   cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
   ASSERT_THROW(cam.setLFC((LowFrequencyContainer_PR)2), Exception);
+}
+
+TEST(CAMWrapper, ResetLFCWithSameType) {
+  auto type = VehicleRole_agriculture;
+  CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
+  cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency);
+  cam->cam.camParameters.lowFrequencyContainer->choice
+      .basicVehicleContainerLowFrequency.vehicleRole = type;
+  ASSERT_NO_THROW(
+      cam.setLFC(LowFrequencyContainer_PR_basicVehicleContainerLowFrequency));
+  ASSERT_EQ(type, cam->cam.camParameters.lowFrequencyContainer->choice
+                      .basicVehicleContainerLowFrequency.vehicleRole);
 }
 
 TEST(CAMWrapper, ClearLFC) {
@@ -233,6 +263,11 @@ TEST(CAMWrapper, SetSVC) {
   ASSERT_EQ(type, cam->cam.camParameters.specialVehicleContainer->present);
 }
 
+TEST(CAMWrapper, SetInvalidSVC) {
+  CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
+  ASSERT_THROW(cam.setSVC((SpecialVehicleContainer_PR)999), Exception);
+}
+
 TEST(CAMWrapper, SetSVCToNoting) {
   CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
   cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer);
@@ -243,8 +278,21 @@ TEST(CAMWrapper, SetSVCToNoting) {
 TEST(CAMWrapper, ResetSVC) {
   CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
   cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer);
-  ASSERT_THROW(cam.setSVC(SpecialVehicleContainer_PR_emergencyContainer),
-               Exception);
+  ASSERT_NO_THROW(cam.setSVC(SpecialVehicleContainer_PR_emergencyContainer));
+  ASSERT_EQ(SpecialVehicleContainer_PR_emergencyContainer,
+            cam->cam.camParameters.specialVehicleContainer->present);
+}
+
+TEST(CAMWrapper, ResetSVCWithSameType) {
+  auto type = DangerousGoodsBasic_explosives1;
+  CAMWrapper cam(0, HighFrequencyContainer_PR_NOTHING);
+  cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer);
+  cam->cam.camParameters.specialVehicleContainer->choice.dangerousGoodsContainer
+      .dangerousGoodsBasic = type;
+  ASSERT_NO_THROW(
+      cam.setSVC(SpecialVehicleContainer_PR_dangerousGoodsContainer));
+  ASSERT_EQ(type, cam->cam.camParameters.specialVehicleContainer->choice
+                      .dangerousGoodsContainer.dangerousGoodsBasic);
 }
 
 TEST(CAMWrapper, ClearSVC) {

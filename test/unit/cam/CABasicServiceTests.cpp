@@ -162,3 +162,39 @@ TEST(CABasicService, IgnoreSetYawRateForInvalidHFC) {
                    ->cam.camParameters.highFrequencyContainer.choice
                    .basicVehicleContainerHighFrequency.yawRate.yawRateValue);
 }
+
+TEST(CABasicService, SetConfiguration) {
+  CABasicService service(getConverter());
+  CABasicServiceConfig config;
+  config.stationID = 1;
+  config.stationType = StationType_PassengerCar;
+  ASSERT_NO_THROW(service.configure(config));
+  ASSERT_EQ(config.stationID, service.cam()->header.stationID);
+  ASSERT_EQ(config.stationType,
+            service.cam()->cam.camParameters.basicContainer.stationType);
+  ASSERT_EQ(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency,
+            service.cam()->cam.camParameters.highFrequencyContainer.present);
+}
+
+TEST(CABasicService, GetConfiguration) {
+  CABasicService service(getConverter());
+  CABasicServiceConfig expectedConfig;
+  expectedConfig.stationID = 1;
+  expectedConfig.stationType = StationType_PassengerCar;
+  service.configure(expectedConfig);
+  auto config = service.getConfiguration();
+  ASSERT_EQ(expectedConfig.stationID, config.stationID);
+  ASSERT_EQ(expectedConfig.stationType, config.stationType);
+  ASSERT_EQ(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency,
+            service.cam()->cam.camParameters.highFrequencyContainer.present);
+}
+
+TEST(CABasicService, ConfigureServiceAsRSU) {
+  CABasicService service(getConverter());
+  CABasicServiceConfig expectedConfig;
+  expectedConfig.stationID = 1;
+  expectedConfig.stationType = StationType_RoadSideUnit;
+  service.configure(expectedConfig);
+  ASSERT_EQ(HighFrequencyContainer_PR_rsuContainerHighFrequency,
+            service.cam()->cam.camParameters.highFrequencyContainer.present);
+}

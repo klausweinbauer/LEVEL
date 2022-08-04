@@ -5,9 +5,18 @@ namespace level::cam {
 CABasicService::CABasicService(std::shared_ptr<IValueConverter> valueConverter)
     : _valueConverter(valueConverter) {}
 
-void CABasicService::configure(CABasicServiceConfig config) {}
+void CABasicService::configure(CABasicServiceConfig config) {
+  _config = config;
+  _cam->header.stationID = _config.stationID;
+  _cam->cam.camParameters.basicContainer.stationType = _config.stationType;
+  if (_config.stationType == StationType_RoadSideUnit) {
+    _cam.setHFC(HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  } else {
+    _cam.setHFC(HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
+  }
+}
 
-CABasicServiceConfig CABasicService::getConfiguration() {}
+CABasicServiceConfig CABasicService::getConfiguration() { return _config; }
 
 float CABasicService::getCAMGenerationFrequency() {}
 

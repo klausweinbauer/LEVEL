@@ -11,6 +11,7 @@ class CABasicService {
 private:
   std::shared_ptr<IValueConverter> _valueConverter;
   CAMWrapper _cam;
+  CABasicServiceConfig _config;
 
 public:
   virtual ~CABasicService() {}

@@ -267,23 +267,26 @@ public:
 
 } VDP_t;
 
-typedef struct {
+typedef struct CABasicServiceConfig {
   unsigned int stationID;
   StationType stationType;
-} CABasicServiceConfig;
 
-typedef struct {
+  CABasicServiceConfig() : stationID(0), stationType(StationType_Unknown) {}
+
+} CABasicServiceConfig_t;
+
+typedef struct ITSPDUHeader {
   unsigned int stationID;
   long protocolVersion;
   long messageID;
-} ITSPDUHeader;
+} ITSPDUHeader_t;
 
-typedef struct {
+typedef struct CAMBasicContainer {
   StationType stationType;
   int latitude;
   int longitude;
   int altitude;
-} CAMBasicContainer;
+} CAMBasicContainer_t;
 
 #pragma endregion // Structs
 
@@ -314,14 +317,14 @@ VDP_t *SHARED_EXPORT getVDP();
  * @param config Configuration.
  * @return int Returns 0 on success or an error code.
  */
-int SHARED_EXPORT configureCABasicService(CABasicServiceConfig config);
+int SHARED_EXPORT configureCABasicService(CABasicServiceConfig_t config);
 
 /**
  * @brief Returns the current cooperative awareness basic service configuration.
  *
  * @return CABasicServiceConfig Current configuration.
  */
-CABasicServiceConfig SHARED_EXPORT getCABasicServiceConfig();
+CABasicServiceConfig_t SHARED_EXPORT getCABasicServiceConfig();
 
 /**
  * @brief Returns the most recent data for a specific station.
@@ -331,7 +334,7 @@ CABasicServiceConfig SHARED_EXPORT getCABasicServiceConfig();
  * @return int Returns 0 on success or an error code.
  */
 int SHARED_EXPORT getCAMBasicContainer(int stationID,
-                                       CAMBasicContainer *container);
+                                       CAMBasicContainer_t *container);
 
 #pragma endregion // CAM methods
 
