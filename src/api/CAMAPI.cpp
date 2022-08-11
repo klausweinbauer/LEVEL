@@ -5,11 +5,8 @@
 namespace level {
 
 int configureCABasicService(CABasicServiceConfig_t config) {
-  try {
-    di::getCABasicService()->configure(config);
-  } catch (const Exception &e) {
-    return e.getErrCode();
-  }
+  di::getCABasicService()->configure(config);
+  return 0;
 }
 
 CABasicServiceConfig_t getCABasicServiceConfig() {

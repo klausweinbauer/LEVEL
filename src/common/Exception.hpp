@@ -34,7 +34,12 @@ private:
   }
 
 public:
-  Exception() : Exception(ERR) {}
+  Exception()
+      : Exception(
+            ERR,
+            "General exception from LEVEL. For more information on what went "
+            "wrong use members getErrCode() and getErrMsg() or global "
+            "getLastErrMsg() function.") {}
   Exception(int errCode) : _errCode(errCode) { setLastErrorMessage(); };
   Exception(int errCode, std::string errMsg)
       : _errCode(errCode), _errMsg(errMsg) {
@@ -52,11 +57,7 @@ public:
     }
   }
 
-  virtual const char *what() const noexcept override {
-    return "General exception from LEVEL. For more information on what went "
-           "wrong use members getErrCode() and getErrMsg() or global "
-           "getLastErrMsg() function.";
-  }
+  virtual const char *what() const noexcept override { return _errMsg.c_str(); }
 
   /**
    * @brief Returns a general description for an error code.

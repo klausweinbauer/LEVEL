@@ -52,8 +52,6 @@ public:
   /**
    * @brief Set LowFrequencyContainer.
    *
-   * @throw Exception if other container is set.
-   *
    * @param type Container type.
    * @return LowFrequencyContainer* LowFrequencyContainer or nullptr if set to
    * NOTHING.
@@ -63,8 +61,6 @@ public:
   /**
    * @brief Set HighFrequencyContainer.
    *
-   * @throw Exception if other container is set.
-   *
    * @param type Container type.
    * @return HighFrequencyContainer* HighFrequencyContainer.
    */
@@ -72,8 +68,6 @@ public:
 
   /**
    * @brief Set SpecialVehicleContainer.
-   *
-   * @throw Exception if other container is set.
    *
    * @param type Container type.
    * @return SpecialVehicleContainer* SpecialVehicleContainer or nullptr if set
