@@ -23,7 +23,7 @@ private:
   CABasicServiceConfig _config{.stationID = 0,
                                .stationType = StationType_Unknown};
   bool _disseminationActive;
-  std::thread _disseminationThread;
+  std::unique_ptr<std::thread> _disseminationThread;
   std::shared_ptr<IPOTI> _poti;
 
   void disseminationTask();

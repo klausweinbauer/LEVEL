@@ -8,13 +8,21 @@ CABasicService::CABasicService(
     std::shared_ptr<IFrequencyManager> frequencyManager,
     std::shared_ptr<IPOTI> poti)
     : _nal(networkInterface), _valueConverter(valueConverter),
-      _frequencyManager(frequencyManager), _disseminationActive(true),
-      _disseminationThread([this]() { disseminationTask(); }), _poti(poti) {
+      _frequencyManager(frequencyManager), _cam(), _disseminationActive(false),
+      _poti(poti) {
+
+  _config.stationID = rand();
+  _config.stationType = StationType::StationType_PassengerCar;
 
   configure(_config);
+
+  _disseminationActive = true;
+  _disseminationThread = std::unique_ptr<std::thread>(
+      new std::thread(([this]() { disseminationTask(); })));
 }
 
 void CABasicService::configure(CABasicServiceConfig config) {
+  std::lock_guard<std::mutex> guard(_camMutex);
   _config = config;
   _cam->header.stationID = _config.stationID;
   _cam->cam.camParameters.basicContainer.stationType = _config.stationType;
@@ -32,7 +40,7 @@ void CABasicService::configure(CABasicServiceConfig config) {
 
 CABasicService::~CABasicService() {
   _disseminationActive = false;
-  _disseminationThread.join();
+  _disseminationThread->join();
 }
 
 void CABasicService::disseminationTask() {

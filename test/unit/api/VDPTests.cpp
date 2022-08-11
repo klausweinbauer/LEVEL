@@ -21,7 +21,7 @@ using namespace level;
 TEST(VDPTest, GetPointerToVDP) { ASSERT_NE(nullptr, getVDP()); }
 
 TEST(VDPTest, SetHeading) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
@@ -35,7 +35,7 @@ TEST(VDPTest, SetHeading) {
 }
 
 TEST(VDPTest, SetSpeed) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
@@ -49,7 +49,7 @@ TEST(VDPTest, SetSpeed) {
 }
 
 TEST(VDPTest, SetAcceleration) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
@@ -64,7 +64,7 @@ TEST(VDPTest, SetAcceleration) {
 }
 
 TEST(VDPTest, SetYawRate) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
@@ -78,7 +78,7 @@ TEST(VDPTest, SetYawRate) {
 }
 
 TEST(VDPTest, SetCurvature) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
@@ -92,7 +92,7 @@ TEST(VDPTest, SetCurvature) {
 }
 
 TEST(VDPTest, SetDriveDirection) {
-  CABasicServiceConfig config;
+  CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
