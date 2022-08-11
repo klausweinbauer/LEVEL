@@ -34,6 +34,8 @@ public:
 
   virtual int getTCheckCAMGen() override;
 
+  virtual int getTCAMGen() override;
+
   virtual bool generateCAM(const CAMWrapper &cam) override;
 
   virtual bool includeLFC() override;

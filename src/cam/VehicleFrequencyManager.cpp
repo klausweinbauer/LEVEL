@@ -9,6 +9,8 @@ VehicleFrequencyManager::VehicleFrequencyManager()
 
 int VehicleFrequencyManager::getTCheckCAMGen() { return _tCheckGenCAM; }
 
+int VehicleFrequencyManager::getTCAMGen() {}
+
 bool VehicleFrequencyManager::generateCAM(const CAMWrapper &cam) {}
 
 bool VehicleFrequencyManager::includeLFC() {}

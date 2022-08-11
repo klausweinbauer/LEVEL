@@ -38,14 +38,6 @@ public:
    */
   virtual CAMWrapper cam() = 0;
 
-  /**
-   * @brief Get the most recent data for a specific station.
-   *
-   * @param stationID StationID from where to get the data.
-   * @return CAMWrapper Message.
-   */
-  virtual CAMWrapper getCAM(unsigned int stationID) = 0;
-
   virtual void setHeading(float heading) = 0;
 
   virtual void setSpeed(float speed) = 0;

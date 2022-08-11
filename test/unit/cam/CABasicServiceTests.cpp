@@ -369,3 +369,14 @@ TEST(CABasicService, CheckGenDeltaTimeForGeneratedMessage) {
 
   ASSERT_EQ(deltaTime, genDeltaTime);
 }
+
+TEST(CABasicService, GetCAMGenerationFrequency) {
+  int tGen = 200;
+  auto fm = getFM();
+  auto valConv = getConverter();
+  auto nal = getNAL();
+  auto poti = getPOTI();
+  EXPECT_CALL(*fm, getTCAMGen).WillOnce(Return(tGen));
+  CABasicService service(nal, valConv, fm, poti);
+  ASSERT_EQ(5.0, service.getCAMGenerationFrequency());
+}

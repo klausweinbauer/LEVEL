@@ -44,8 +44,6 @@ public:
 
   virtual CAMWrapper cam() override;
 
-  virtual CAMWrapper getCAM(unsigned int stationID) override;
-
   virtual void setHeading(float heading) override;
 
   virtual void setSpeed(float speed) override;

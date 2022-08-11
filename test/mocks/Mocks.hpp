@@ -142,7 +142,6 @@ public:
   MOCK_METHOD(CABasicServiceConfig, getConfiguration, (), (override));
   MOCK_METHOD(float, getCAMGenerationFrequency, (), (override));
   MOCK_METHOD(cam::CAMWrapper, cam, (), (override));
-  MOCK_METHOD(cam::CAMWrapper, getCAM, (unsigned int), (override));
   MOCK_METHOD(void, setHeading, (float), (override));
   MOCK_METHOD(void, setSpeed, (float), (override));
   MOCK_METHOD(void, setDriveDirection, (DriveDirectionType), (override));
@@ -163,6 +162,7 @@ public:
   virtual ~MFrequencyManager() {}
 
   MOCK_METHOD(int, getTCheckCAMGen, (), (override));
+  MOCK_METHOD(int, getTCAMGen, (), (override));
   MOCK_METHOD(bool, generateCAM, (const cam::CAMWrapper &), (override));
   MOCK_METHOD(bool, includeLFC, (), (override));
   MOCK_METHOD(void, notifyCAMGeneration, (const cam::CAMWrapper &), (override));

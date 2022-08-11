@@ -17,6 +17,14 @@ public:
   virtual int getTCheckCAMGen() = 0;
 
   /**
+   * @brief The dynamic interval between two CAM generations. This may change
+   * depending on available network bandwidth or CAM value changes.
+   *
+   * @return int Interval between to CAM generations in ms.
+   */
+  virtual int getTCAMGen() = 0;
+
+  /**
    * @brief Checks if a new CAM shall be generated.
    *
    * @param cam The current local CAM state.

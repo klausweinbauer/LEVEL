@@ -68,14 +68,14 @@ void CABasicService::disseminationTask() {
 
 CABasicServiceConfig CABasicService::getConfiguration() { return _config; }
 
-float CABasicService::getCAMGenerationFrequency() {}
+float CABasicService::getCAMGenerationFrequency() {
+  return 1000.0 / _frequencyManager->getTCAMGen();
+}
 
 CAMWrapper CABasicService::cam() {
   std::lock_guard<std::mutex> guard(_camMutex);
   return _cam;
 }
-
-CAMWrapper CABasicService::getCAM(unsigned int stationID) {}
 
 void CABasicService::setHeading(float heading) {
   std::lock_guard<std::mutex> guard(_camMutex);
