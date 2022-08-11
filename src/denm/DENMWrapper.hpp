@@ -27,7 +27,7 @@ class DENMWrapper {
 
 private:
   DENM *_denm;
-  static DEREncoder _copyEncoder;
+  static DENMDEREncoder _copyEncoder;
 
 public:
   DENMWrapper();

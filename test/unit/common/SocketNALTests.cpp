@@ -21,28 +21,41 @@ template <typename T> std::shared_ptr<NiceMock<MEncoder<T>>> getEncoder() {
   return std::make_shared<NiceMock<MEncoder<T>>>();
 }
 
+template <typename T>
+std::shared_ptr<NiceMock<MRecvHandler<T>>> getRecvHandler() {
+  return std::make_shared<NiceMock<MRecvHandler<T>>>();
+}
+
+std::shared_ptr<NiceMock<MErrorHandler>> getErrHandler() {
+  return std::make_shared<NiceMock<MErrorHandler>>();
+}
+
 } // namespace level::SocketNALTests
 
 using namespace level;
 using namespace level::SocketNALTests;
 
 TEST(SocketNAL, SuccessfulConstruction) {
-  ASSERT_NO_THROW(
-      SocketNAL<int> nal(getSocket(), getSocket(), getEncoder<int>()));
+  ASSERT_NO_THROW(SocketNAL<int> nal(getSocket(), getSocket(),
+                                     getEncoder<int>(), getRecvHandler<int>(),
+                                     getErrHandler()));
 }
 
 TEST(SocketNAL, ThrowWhenSendSocketIsNull) {
-  ASSERT_THROW(SocketNAL<int> nal(nullptr, getSocket(), getEncoder<int>()),
+  ASSERT_THROW(SocketNAL<int> nal(nullptr, getSocket(), getEncoder<int>(),
+                                  getRecvHandler<int>(), getErrHandler()),
                Exception);
 }
 
 TEST(SocketNAL, ThrowWhenRecvSocketIsNull) {
-  ASSERT_THROW(SocketNAL<int> nal(getSocket(), nullptr, getEncoder<int>()),
+  ASSERT_THROW(SocketNAL<int> nal(getSocket(), nullptr, getEncoder<int>(),
+                                  getRecvHandler<int>(), getErrHandler()),
                Exception);
 }
 
 TEST(SocketNAL, ThrowWhenEncoderIsNull) {
-  ASSERT_THROW(SocketNAL<int> nal(getSocket(), getSocket(), nullptr),
+  ASSERT_THROW(SocketNAL<int> nal(getSocket(), getSocket(), nullptr,
+                                  getRecvHandler<int>(), getErrHandler()),
                Exception);
 }
 
@@ -61,7 +74,8 @@ TEST(SocketNAL, SendMessage) {
         return true;
       }));
 
-  SocketNAL<int> nal(sendSocket, getSocket(), encoder);
+  SocketNAL<int> nal(sendSocket, getSocket(), encoder, getRecvHandler<int>(),
+                     getErrHandler());
   ASSERT_NO_THROW(nal.send(&msg));
   ASSERT_EQ(encodedMsg[0], buffer[0]);
   ASSERT_EQ(encodedMsg[1], buffer[1]);
@@ -105,13 +119,16 @@ TEST(SocketNAL, ReceiveMessage) {
 
   int *receivedMsg;
   int recvCounter = 0;
-  std::function<void(int *)> callback = [&receivedMsg, &recvCounter](int *msg) {
-    receivedMsg = msg;
-    recvCounter++;
-  };
+  auto recvHandler = getRecvHandler<int>();
+  EXPECT_CALL(*recvHandler, invoke)
+      .WillOnce(Invoke([&receivedMsg, &recvCounter](int *msg) {
+        receivedMsg = msg;
+        recvCounter++;
+      }));
 
   {
-    SocketNAL<int> nal(getSocket(), recvSocket, encoder, callback);
+    SocketNAL<int> nal(getSocket(), recvSocket, encoder, recvHandler,
+                       getErrHandler());
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -136,13 +153,15 @@ TEST(SocketNAL, ReportErrorFromMessageDecode) {
 
   int errCode = 0;
   int errCounter = 0;
-  std::function<void(const Exception &)> callback =
-      [&errCode, &errCounter](const Exception &e) {
+  auto errHandler = getErrHandler();
+  EXPECT_CALL(*errHandler, invoke)
+      .WillOnce(Invoke([&errCode, &errCounter](const Exception &e) {
         errCode = e.getErrCode();
         errCounter++;
-      };
+      }));
   {
-    SocketNAL<int> nal(getSocket(), recvSocket, encoder, nullptr, callback);
+    SocketNAL<int> nal(getSocket(), recvSocket, encoder, getRecvHandler<int>(),
+                       errHandler);
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -169,13 +188,16 @@ TEST(SocketNAL, ReportErrorFromReceive) {
 
   int errCode = 0;
   int errCounter = 0;
-  std::function<void(const Exception &)> callback =
-      [&errCounter, &errCode](const Exception &e) {
+  auto errHandler = getErrHandler();
+  EXPECT_CALL(*errHandler, invoke)
+      .WillOnce(Invoke([&errCounter, &errCode](const Exception &e) {
         errCounter++;
         errCode = e.getErrCode();
-      };
+      }));
+
   {
-    SocketNAL<int> nal(getSocket(), recvSocket, encoder, nullptr, callback);
+    SocketNAL<int> nal(getSocket(), recvSocket, encoder, getRecvHandler<int>(),
+                       errHandler);
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -199,13 +221,16 @@ TEST(SocketNAL, HandleErrorCallbackFails) {
       .WillRepeatedly(Return(0));
 
   int callbackCount = 0;
-  std::function<void(const Exception &)> callback =
-      [&callbackCount](const Exception &e) {
+  auto errHandler = getErrHandler();
+  EXPECT_CALL(*errHandler, invoke)
+      .WillOnce(Invoke([&callbackCount](const Exception &e) {
         callbackCount++;
         throw std::exception();
-      };
+      }));
+
   {
-    SocketNAL<int> nal(getSocket(), recvSocket, encoder, nullptr, callback);
+    SocketNAL<int> nal(getSocket(), recvSocket, encoder, getRecvHandler<int>(),
+                       errHandler);
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -229,12 +254,15 @@ TEST(SocketNAL, HandleRecvCallbackFails) {
       .WillRepeatedly(Return(0));
 
   int callbackCount = 0;
-  std::function<void(int *)> callback = [&callbackCount](int *) {
+  auto recvHandler = getRecvHandler<int>();
+  EXPECT_CALL(*recvHandler, invoke).WillOnce(Invoke([&callbackCount](int *) {
     callbackCount++;
     throw std::exception();
-  };
+  }));
+
   {
-    SocketNAL<int> nal(getSocket(), recvSocket, encoder, callback);
+    SocketNAL<int> nal(getSocket(), recvSocket, encoder, recvHandler,
+                       getErrHandler());
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <CABasicService.hpp>
+#include <CAMRecvHandler.hpp>
+#include <ErrorHandler.hpp>
 #include <POTI.hpp>
 #include <SocketNAL.hpp>
 #include <Syscall.hpp>
@@ -28,6 +30,8 @@ namespace level::di {
 
 using namespace level::cam;
 
+REG_TRANSIENT(IErrorHandler, ErrorHandler, ErrorHandler)
+REG_TRANSIENT(IRecvHandler<CAM>, CAMRecvHandler, CAMRecvHandler)
 REG_SINGELTON(ISyscall, Syscall, Syscall)
 REG_SINGELTON(IPOTI, POTI, POTI)
 REG_TRANSIENT(IFrequencyManager, VehicleFrequencyManager,
@@ -35,7 +39,8 @@ REG_TRANSIENT(IFrequencyManager, VehicleFrequencyManager,
 REG_SINGELTON(IEncoder<CAM>, CAMDEREncoder, CAMEncoder)
 REG_TRANSIENT(ISocket, UDPSocket, Socket, 5100, getSyscall())
 REG_SINGELTON(INetworkInterface<CAM>, SocketNAL<CAM>, CAMNetwork, getSocket(),
-              getSocket(), getCAMEncoder())
+              getSocket(), getCAMEncoder(), getCAMRecvHandler(),
+              getErrorHandler())
 REG_SINGELTON(IValueConverter, ValueConverter, ValueConverter)
 REG_SINGELTON(VDP_t, VDP_t, VDP)
 REG_SINGELTON(ICABasicService, CABasicService, CABasicService, getCAMNetwork(),

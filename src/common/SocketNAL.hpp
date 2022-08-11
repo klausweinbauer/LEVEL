@@ -32,6 +32,8 @@ private:
   std::shared_ptr<ISocket> _sendSocket;
   std::shared_ptr<ISocket> _recvSocket;
   std::shared_ptr<IEncoder<T>> _encoder;
+  std::shared_ptr<IRecvHandler<T>> _recvHandler;
+  std::shared_ptr<IErrorHandler> _errHandler;
   bool _recvActive;
   std::thread _recvThread;
   char *_buffer;
@@ -51,7 +53,7 @@ private:
       } catch (const Exception &e) {
 
         try {
-          errorCallback(e);
+          _errHandler->invoke(e);
         } catch (const std::exception &) {
         }
 
@@ -59,7 +61,7 @@ private:
       }
 
       try {
-        recvCallback(decodedMsg);
+        _recvHandler->invoke(decodedMsg);
       } catch (const std::exception &) {
       }
     }
@@ -75,13 +77,13 @@ public:
   SocketNAL(std::shared_ptr<ISocket> sendSocket,
             std::shared_ptr<ISocket> recvSocket,
             std::shared_ptr<IEncoder<T>> encoder,
-            std::function<void(T *)> recvCallback = nullptr,
-            std::function<void(const Exception &)> errorCallback = nullptr)
+            std::shared_ptr<IRecvHandler<T>> recvHandler,
+            std::shared_ptr<IErrorHandler> errorHandler)
       : _sendSocket(sendSocket), _recvSocket(recvSocket), _encoder(encoder),
+        _recvHandler(recvHandler), _errHandler(errorHandler),
         _recvActive(false),
         _buffer((char *)calloc(1, sizeof(char) * SOCKET_NAL_BUFFER_SIZE_MAX)),
-        _bufferSize(SOCKET_NAL_BUFFER_SIZE_MAX), recvCallback(recvCallback),
-        errorCallback(errorCallback) {
+        _bufferSize(SOCKET_NAL_BUFFER_SIZE_MAX) {
 
     if (!_sendSocket) {
       free(_buffer);
@@ -99,9 +101,6 @@ public:
     _recvActive = true;
     _recvThread = std::thread(&SocketNAL::receive, this);
   }
-
-  std::function<void(T *)> recvCallback;
-  std::function<void(const Exception &)> errorCallback;
 
   virtual bool send(const T *msg) {
     std::vector<char> encodedMsg = _encoder->encode(msg);

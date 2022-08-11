@@ -167,3 +167,25 @@ public:
   MOCK_METHOD(bool, includeLFC, (), (override));
   MOCK_METHOD(void, notifyCAMGeneration, (const cam::CAMWrapper &), (override));
 };
+
+template <typename T> class MRecvHandler : public IRecvHandler<T> {
+public:
+  virtual ~MRecvHandler() {}
+
+  MOCK_METHOD(void, registerCallback, (std::function<void(T *, bool *)>),
+              (override));
+  MOCK_METHOD(void, unregisterCallbacks, (), (override));
+  MOCK_METHOD(int, callbackCount, (), (override));
+  MOCK_METHOD(void, invoke, (T *), (override));
+};
+
+class MErrorHandler : public IErrorHandler {
+public:
+  virtual ~MErrorHandler() {}
+
+  MOCK_METHOD(void, registerCallback, (std::function<void(const Exception &)>),
+              (override));
+  MOCK_METHOD(void, unregisterCallbacks, (), (override));
+  MOCK_METHOD(int, callbackCount, (), (override));
+  MOCK_METHOD(void, invoke, (const Exception &), (override));
+};

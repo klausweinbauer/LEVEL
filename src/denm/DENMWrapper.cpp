@@ -5,7 +5,7 @@
 
 namespace level::denm {
 
-DEREncoder DENMWrapper::_copyEncoder;
+DENMDEREncoder DENMWrapper::_copyEncoder;
 
 DENMWrapper::DENMWrapper() : DENMWrapper(0, 0) {}
 
