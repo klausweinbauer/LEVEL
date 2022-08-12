@@ -96,7 +96,7 @@ public:
 
   MOCK_METHOD(int, sysPoll, (PollFD *, nfds_l, int), (override));
   MOCK_METHOD(int, sysSocket, (SockDomain, SockType, Protocol), (override));
-  MOCK_METHOD(ssize_t, sysSendTo,
+  MOCK_METHOD(level::ssize_t, sysSendTo,
               (int, const void *, size_t, int, const SockAddr *, SockLen),
               (override));
   MOCK_METHOD(int, sysSetSockOpt,
@@ -104,7 +104,7 @@ public:
               (override));
   MOCK_METHOD(int, sysClose, (int), (override));
   MOCK_METHOD(int, sysBind, (int, const SockAddr *, SockLen), (override));
-  MOCK_METHOD(ssize_t, sysRecvFrom,
+  MOCK_METHOD(level::ssize_t, sysRecvFrom,
               (int, void *, size_t, int, SockAddr *, SockLen *), (override));
 };
 
