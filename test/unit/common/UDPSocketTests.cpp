@@ -28,8 +28,8 @@ int sendToDataSum = 0;
 const int gBufferLen = 64;
 char gBuffer[gBufferLen];
 
-ssize_t mSendTo(int sockfd, const void *buf, size_t len, int flags,
-                const SockAddr *dest_addr, SockLen addrle) {
+int mSendTo(int sockfd, const void *buf, size_t len, int flags,
+            const SockAddr *dest_addr, SockLen addrle) {
   const int failingSize = 61000;
   if (len > failingSize || sockfd < 2 || dest_addr == nullptr) {
     return -1;

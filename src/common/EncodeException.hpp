@@ -12,7 +12,6 @@
 #pragma once
 
 #include <Exception.hpp>
-#include <level_error.h>
 #include <string>
 
 namespace level {

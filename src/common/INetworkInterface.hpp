@@ -12,6 +12,8 @@
 #pragma once
 
 #include <Exception.hpp>
+#include <IErrorHandler.hpp>
+#include <IRecvHandler.hpp>
 #include <functional>
 
 namespace level {
@@ -35,17 +37,18 @@ public:
   virtual bool send(const T *msg) = 0;
 
   /**
-   * @brief Callback when the network access layer received a new message.
+   * @brief Get a pointer to the receive handler.
    *
+   * @return std::shared_ptr<IRecvHandler<T>> Receive handler instance.
    */
-  std::function<void(T *)> recvCallback;
+  std::shared_ptr<IRecvHandler<T>> getRecvHandler();
 
   /**
-   * @brief Callback when the network access layer encountered an error during
-   * receiving.
+   * @brief Get a pointer to the error handler.
    *
+   * @return std::shared_ptr<IErrorHandler> Error handler instance.
    */
-  std::function<void(const Exception &)> errorCallback;
+  std::shared_ptr<IErrorHandler> getErrorHandler();
 };
 
 } // namespace level

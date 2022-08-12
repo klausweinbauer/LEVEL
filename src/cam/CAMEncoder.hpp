@@ -17,14 +17,14 @@
 
 namespace level::cam {
 
-class DEREncoder : public level::DEREncoder<CAM> {
+class CAMDEREncoder : public level::DEREncoder<CAM> {
 public:
-  DEREncoder() : level::DEREncoder<CAM>(asn_DEF_CAM) {}
+  CAMDEREncoder() : level::DEREncoder<CAM>(asn_DEF_CAM) {}
 };
 
-class XEREncoder : public level::XEREncoder<CAM> {
+class CAMXEREncoder : public level::XEREncoder<CAM> {
 public:
-  XEREncoder(xer_encoder_flags_e encoding)
+  CAMXEREncoder(xer_encoder_flags_e encoding)
       : level::XEREncoder<CAM>(asn_DEF_CAM, encoding) {}
 };
 

@@ -13,8 +13,8 @@ public:
 
   virtual int sysSocket(SockDomain domain, SockType type, Protocol protocol);
 
-  virtual ssize_t sysSendTo(int sockfd, const void *buf, size_t len, int flags,
-                            const SockAddr *dest_addr, SockLen addrlen);
+  virtual int sysSendTo(int sockfd, const void *buf, size_t len, int flags,
+                        const SockAddr *dest_addr, SockLen addrlen);
 
   virtual int sysSetSockOpt(int socket, ProtocolLevel level,
                             SocketOption option_name,
@@ -25,9 +25,9 @@ public:
 
   virtual int sysBind(int sockfd, const SockAddr *addr, SockLen addrlen);
 
-  virtual ssize_t sysRecvFrom(int sockfd, void *buf, size_t len, int flags,
-                              SockAddr *src_addr = nullptr,
-                              SockLen *addrlen = nullptr);
+  virtual int sysRecvFrom(int sockfd, void *buf, size_t len, int flags,
+                          SockAddr *src_addr = nullptr,
+                          SockLen *addrlen = nullptr);
 };
 
 } // namespace level

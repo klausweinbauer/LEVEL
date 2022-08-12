@@ -16,6 +16,8 @@
 #include <Types.hpp>
 #include <algorithm>
 
+#define CAM_MESSAGE_ID 2
+
 namespace level {
 namespace cam {
 
@@ -27,7 +29,9 @@ class CAMWrapper {
 
 private:
   CAM *_cam;
-  static DEREncoder _copyEncoder;
+  static CAMDEREncoder _copyEncoder;
+
+  void initHFC();
 
 public:
   CAMWrapper();
@@ -43,12 +47,10 @@ public:
   CAM *operator->();
   CAM &operator*();
 
-  CAM *get();
+  CAM *get() const;
 
   /**
    * @brief Set LowFrequencyContainer.
-   *
-   * @throw Exception if other container is set.
    *
    * @param type Container type.
    * @return LowFrequencyContainer* LowFrequencyContainer or nullptr if set to
@@ -59,8 +61,6 @@ public:
   /**
    * @brief Set HighFrequencyContainer.
    *
-   * @throw Exception if other container is set.
-   *
    * @param type Container type.
    * @return HighFrequencyContainer* HighFrequencyContainer.
    */
@@ -68,8 +68,6 @@ public:
 
   /**
    * @brief Set SpecialVehicleContainer.
-   *
-   * @throw Exception if other container is set.
    *
    * @param type Container type.
    * @return SpecialVehicleContainer* SpecialVehicleContainer or nullptr if set

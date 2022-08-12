@@ -22,13 +22,12 @@ namespace level::cam {
  */
 class CAMNetworkInterface : public SocketNAL<CAM> {
 public:
-  CAMNetworkInterface(
-      std::shared_ptr<ISocket> sendSocket, std::shared_ptr<ISocket> recvSocket,
-      std::shared_ptr<IEncoder<CAM>> encoder,
-      std::function<void(CAM *)> recvCallback = nullptr,
-      std::function<void(const Exception &)> errorCallback = nullptr)
-      : SocketNAL(sendSocket, recvSocket, encoder, recvCallback,
-                  errorCallback) {}
+  CAMNetworkInterface(std::shared_ptr<ISocket> sendSocket,
+                      std::shared_ptr<ISocket> recvSocket,
+                      std::shared_ptr<IEncoder<CAM>> encoder,
+                      std::shared_ptr<IRecvHandler<CAM>> recvHandler,
+                      std::shared_ptr<IErrorHandler> errorHandler)
+      : SocketNAL(sendSocket, recvSocket, encoder, recvHandler, errorHandler) {}
 
   virtual ~CAMNetworkInterface() {}
 };

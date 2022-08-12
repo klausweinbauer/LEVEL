@@ -17,14 +17,14 @@
 
 namespace level::denm {
 
-class DEREncoder : public level::DEREncoder<DENM> {
+class DENMDEREncoder : public level::DEREncoder<DENM> {
 public:
-  DEREncoder() : level::DEREncoder<DENM>(asn_DEF_DENM) {}
+  DENMDEREncoder() : level::DEREncoder<DENM>(asn_DEF_DENM) {}
 };
 
-class XEREncoder : public level::XEREncoder<DENM> {
+class DENMXEREncoder : public level::XEREncoder<DENM> {
 public:
-  XEREncoder(xer_encoder_flags_e encoding)
+  DENMXEREncoder(xer_encoder_flags_e encoding)
       : level::XEREncoder<DENM>(asn_DEF_DENM, encoding) {}
 };
 

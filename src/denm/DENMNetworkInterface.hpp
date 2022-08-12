@@ -22,13 +22,12 @@ namespace level::denm {
  */
 class DENMNetworkInterface : public SocketNAL<DENM> {
 public:
-  DENMNetworkInterface(
-      std::shared_ptr<ISocket> sendSocket, std::shared_ptr<ISocket> recvSocket,
-      std::shared_ptr<IEncoder<DENM>> encoder,
-      std::function<void(DENM *)> recvCallback = nullptr,
-      std::function<void(const Exception &)> errorCallback = nullptr)
-      : SocketNAL(sendSocket, recvSocket, encoder, recvCallback,
-                  errorCallback) {}
+  DENMNetworkInterface(std::shared_ptr<ISocket> sendSocket,
+                       std::shared_ptr<ISocket> recvSocket,
+                       std::shared_ptr<IEncoder<DENM>> encoder,
+                       std::shared_ptr<IRecvHandler<DENM>> recvHandler,
+                       std::shared_ptr<IErrorHandler> errorHandler)
+      : SocketNAL(sendSocket, recvSocket, encoder, recvHandler, errorHandler) {}
 
   virtual ~DENMNetworkInterface() {}
 };
