@@ -294,7 +294,7 @@ typedef struct CAMBasicContainer {
  *
  * @return const char* Version string.
  */
-const char *SHARED_EXPORT getVersion();
+SHARED_EXPORT const char * getVersion();
 
 /**
  * @brief Get a pointer to the vehicle data provider. Use the VDP to update the
@@ -302,7 +302,7 @@ const char *SHARED_EXPORT getVersion();
  *
  * @return VDP_t* Pointer to the vehicle data provider.
  */
-VDP_t *SHARED_EXPORT getVDP();
+SHARED_EXPORT VDP_t * getVDP();
 
 #pragma endregion // Configuration methods
 

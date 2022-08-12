@@ -13,8 +13,7 @@ namespace level::CABasicServiceTests {
 
 float randFloat() { return rand() * 3.1415962535; }
 
-CABasicServiceConfig setTestConfig{.stationID = 0,
-                                   .stationType = StationType_PassengerCar};
+CABasicServiceConfig setTestConfig = {0, StationType_PassengerCar};
 
 std::shared_ptr<NiceMock<MValueConverter>> getConverter() {
   return std::make_shared<NiceMock<MValueConverter>>();
@@ -286,8 +285,9 @@ TEST(CABasicService, PassGeneratedCAMToNetwork) {
       }));
 
   {
-    CABasicServiceConfig config{.stationID = 0,
-                                .stationType = StationType_PassengerCar};
+    CABasicServiceConfig config;
+    config.stationID = 0;
+    config.stationType = StationType_PassengerCar;
     CABasicService service(nal, getConverter(), fm, getPOTI());
     service.configure(config);
     while (waitFlag) {
@@ -320,8 +320,9 @@ TEST(CABasicService, PassGeneratedCAMToNetworkWithLFC) {
       }));
 
   {
-    CABasicServiceConfig config{.stationID = 0,
-                                .stationType = StationType_PassengerCar};
+    CABasicServiceConfig config;
+    config.stationID = 0;
+    config.stationType = StationType_PassengerCar;
     CABasicService service(nal, getConverter(), fm, getPOTI());
     service.configure(config);
     while (waitFlag) {
@@ -358,8 +359,9 @@ TEST(CABasicService, CheckGenDeltaTimeForGeneratedMessage) {
       }));
 
   {
-    CABasicServiceConfig config{.stationID = 0,
-                                .stationType = StationType_PassengerCar};
+    CABasicServiceConfig config;
+    config.stationID = 0;
+    config.stationType = StationType_PassengerCar;
     CABasicService service(nal, std::make_shared<ValueConverter>(), fm, poti);
     service.configure(config);
     while (waitFlag) {

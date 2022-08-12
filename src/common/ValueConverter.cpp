@@ -1,5 +1,9 @@
 #include <Exception.hpp>
 #include <ValueConverter.hpp>
+
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 
 #define ROUND(x) (int)(x + 0.5)

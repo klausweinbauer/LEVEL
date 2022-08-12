@@ -19,8 +19,6 @@ std::shared_ptr<cam::IFrequencyManager> getVehicleFM() {
       std::make_shared<ValueConverter>(), getPOTI());
 }
 
-std::shared_ptr<cam::IFrequencyManager> getRSUFM() {}
-
 } // namespace level::FrequencyManagerTest
 
 using namespace level::FrequencyManagerTest;

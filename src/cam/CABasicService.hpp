@@ -20,8 +20,7 @@ private:
   std::shared_ptr<IFrequencyManager> _frequencyManager;
   CAMWrapper _cam;
   std::mutex _camMutex;
-  CABasicServiceConfig _config{.stationID = 0,
-                               .stationType = StationType_Unknown};
+  CABasicServiceConfig _config;
   bool _disseminationActive;
   std::unique_ptr<std::thread> _disseminationThread;
   std::shared_ptr<IPOTI> _poti;
