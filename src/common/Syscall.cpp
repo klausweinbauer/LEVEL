@@ -28,8 +28,8 @@ int Syscall::sysSocket(SockDomain domain, SockType type, Protocol protocol) {
 #endif
 }
 
-ssize_t Syscall::sysSendTo(int sockfd, const void *buf, size_t len, int flags,
-                           const SockAddr *dest_addr, SockLen addrlen) {
+int Syscall::sysSendTo(int sockfd, const void *buf, size_t len, int flags,
+                       const SockAddr *dest_addr, SockLen addrlen) {
 #ifdef _WIN32
   return sendto(sockfd, (char *)buf, len, flags, (sockaddr *)dest_addr,
                 addrlen);
@@ -65,8 +65,8 @@ int Syscall::sysBind(int sockfd, const SockAddr *addr, SockLen addrlen) {
 #endif
 }
 
-ssize_t Syscall::sysRecvFrom(int sockfd, void *buf, size_t len, int flags,
-                             SockAddr *src_addr, SockLen *addrlen) {
+int Syscall::sysRecvFrom(int sockfd, void *buf, size_t len, int flags,
+                         SockAddr *src_addr, SockLen *addrlen) {
 #ifdef _WIN32
   return recvfrom(sockfd, (char *)buf, len, flags, (sockaddr *)src_addr,
                   (int *)addrlen);

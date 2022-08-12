@@ -31,7 +31,6 @@ namespace level {
 #ifdef _WIN32
 typedef unsigned long nfds_l;
 typedef unsigned int SockLen;
-typedef long int ssize_t;
 
 struct pollfd_l : public pollfd {};
 
@@ -205,11 +204,11 @@ public:
    * @param flags This argument is the bitwise OR of zero or more flags.
    * @param dest_addr The address of the target.
    * @param addrlen The size of the dest_addr parameter.
-   * @return ssize_t On success, these calls return the number of bytes sent. On
+   * @return int On success, these calls return the number of bytes sent. On
    * error, -1 is returned.
    */
-  virtual ssize_t sysSendTo(int sockfd, const void *buf, size_t len, int flags,
-                            const SockAddr *dest_addr, SockLen addrlen) = 0;
+  virtual int sysSendTo(int sockfd, const void *buf, size_t len, int flags,
+                        const SockAddr *dest_addr, SockLen addrlen) = 0;
 
   /**
    * @brief Sets socket options.
@@ -257,12 +256,12 @@ public:
    * be initialized to the size of the buffer associated with src_addr. Upon
    * return, addrlen is updated to contain the actual size of the source
    * address.
-   * @return ssize_t Returns the number of bytes received, or -1 if an error
+   * @return int Returns the number of bytes received, or -1 if an error
    * occurred.
    */
-  virtual ssize_t sysRecvFrom(int sockfd, void *buf, size_t len, int flags = 0,
-                              SockAddr *src_addr = nullptr,
-                              SockLen *addrlen = nullptr) = 0;
+  virtual int sysRecvFrom(int sockfd, void *buf, size_t len, int flags = 0,
+                          SockAddr *src_addr = nullptr,
+                          SockLen *addrlen = nullptr) = 0;
 };
 
 } // namespace level
