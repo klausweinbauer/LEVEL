@@ -31,7 +31,7 @@ public:
    * @return true A new CAM shall be generated.
    * @return false No CAM generation required.
    */
-  virtual bool generateCAM(const CAMWrapper &cam) = 0;
+  virtual bool generateCAM(CAMWrapper &cam) = 0;
 
   /**
    * @brief Informs the CA Basic Service if the low frequency container should
@@ -48,7 +48,7 @@ public:
    *
    * @param cam The newly generated CAM.
    */
-  virtual void notifyCAMGeneration(const CAMWrapper &cam) = 0;
+  virtual void notifyCAMGeneration(CAMWrapper &cam) = 0;
 };
 
 } // namespace level::cam

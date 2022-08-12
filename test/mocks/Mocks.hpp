@@ -132,6 +132,11 @@ public:
   MOCK_METHOD(int, siToITSYawRate, (float), (override));
   MOCK_METHOD(float, itsToSIYawRate, (int), (override));
   MOCK_METHOD(int, timestampToDeltaTime, (unsigned long long int), (override));
+  MOCK_METHOD(int, siToITSLongitude, (float), (override));
+  MOCK_METHOD(float, itsToSILongitude, (int), (override));
+  MOCK_METHOD(int, siToITSLatitude, (float), (override));
+  MOCK_METHOD(float, itsToSILatitude, (int), (override));
+  MOCK_METHOD(float, distance, (float, float, float, float), (override));
 };
 
 class MCABasicService : public cam::ICABasicService {
@@ -163,9 +168,9 @@ public:
 
   MOCK_METHOD(int, getTCheckCAMGen, (), (override));
   MOCK_METHOD(int, getTCAMGen, (), (override));
-  MOCK_METHOD(bool, generateCAM, (const cam::CAMWrapper &), (override));
+  MOCK_METHOD(bool, generateCAM, (cam::CAMWrapper &), (override));
   MOCK_METHOD(bool, includeLFC, (), (override));
-  MOCK_METHOD(void, notifyCAMGeneration, (const cam::CAMWrapper &), (override));
+  MOCK_METHOD(void, notifyCAMGeneration, (cam::CAMWrapper &), (override));
 };
 
 template <typename T> class MRecvHandler : public IRecvHandler<T> {

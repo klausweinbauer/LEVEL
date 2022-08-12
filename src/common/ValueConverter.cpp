@@ -1,4 +1,6 @@
+#include <Exception.hpp>
 #include <ValueConverter.hpp>
+#include <math.h>
 
 #define ROUND(x) (int)(x + 0.5)
 
@@ -73,6 +75,56 @@ float ValueConverter::itsToSIYawRate(int yawRate) { return yawRate / 100.0; }
 
 int ValueConverter::timestampToDeltaTime(unsigned long long int timestamp) {
   return timestamp % 65536;
+}
+
+int ValueConverter::siToITSLongitude(float longitude) {
+  if (abs(longitude) > 180) {
+    throw Exception(ERR_INVALID_ARG,
+                    "Argument 'longitude' should be between -180 and 180.");
+  }
+  return ROUND(longitude * 10000000);
+}
+
+float ValueConverter::itsToSILongitude(int longitude) {
+  if (abs(longitude) > 1800000000) {
+    throw Exception(
+        ERR_INVALID_ARG,
+        "Argument 'longitude' should be between -1800000000 and 1800000000");
+  }
+  return longitude / 10000000.0;
+}
+
+int ValueConverter::siToITSLatitude(float latitude) {
+  if (abs(latitude) > 90) {
+    throw Exception(ERR_INVALID_ARG,
+                    "Argument 'latitude' should be between -90 and 90.");
+  }
+  return ROUND(latitude * 10000000);
+}
+
+float ValueConverter::itsToSILatitude(int latitude) {
+  if (abs(latitude) > 900000000) {
+    throw Exception(
+        ERR_INVALID_ARG,
+        "Argument 'latitude' should be between -900000000 and 900000000");
+  }
+  return latitude / 10000000.0;
+}
+
+// Haversine formula
+float ValueConverter::distance(float long1, float lat1, float long2,
+                               float lat2) {
+  double R =
+      6371; // Radius of earth in km (Volumetric mean)
+            // https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+  double dLat = lat2 * M_PI / 180 - lat1 * M_PI / 180;
+  double dLon = long2 * M_PI / 180 - long1 * M_PI / 180;
+  double a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * M_PI / 180) *
+                                                 cos(lat2 * M_PI / 180) *
+                                                 sin(dLon / 2) * sin(dLon / 2);
+  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  double d = R * c;
+  return d * 1000;
 }
 
 } // namespace level

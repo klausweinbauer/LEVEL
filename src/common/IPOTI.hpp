@@ -9,7 +9,7 @@ public:
   /**
    * @brief Current timestamp in milliseconds since 2004-01-01 00:00:00:000 UTC.
    *
-   * @return unsigned long long int
+   * @return unsigned long long int Timestamp in ms.
    */
   virtual unsigned long long int now() const = 0;
 };

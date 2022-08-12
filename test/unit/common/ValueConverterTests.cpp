@@ -1,3 +1,4 @@
+#include <Exception.hpp>
 #include <ValueConverter.hpp>
 #include <gtest/gtest.h>
 #include <level.h>
@@ -199,4 +200,49 @@ TEST(ValueConverter, GetDeltaTimeWrapped) {
   unsigned long long int timestamp = 65536;
   ASSERT_EQ(0, converter.timestampToDeltaTime(timestamp));
   ASSERT_EQ(0, converter.timestampToDeltaTime(timestamp * 2));
+}
+
+TEST(ValueConverter, SetLongitude) {
+  ValueConverter converter;
+  float siValue = 10;
+  int itsExpected = 100000000;
+  float siExpected = 10;
+  int itsValue = converter.siToITSLongitude(siValue);
+  ASSERT_EQ(itsExpected, itsValue);
+  ASSERT_EQ(siExpected, converter.itsToSILongitude(itsValue));
+}
+
+TEST(ValueConverter, SetLongitudeInvalid) {
+  ValueConverter converter;
+  float siValue = -180.1;
+  int itsValue = 1800000001;
+  ASSERT_THROW(converter.siToITSLongitude(siValue), Exception);
+  ASSERT_THROW(converter.itsToSILongitude(itsValue), Exception);
+}
+
+TEST(ValueConverter, SetLatitude) {
+  ValueConverter converter;
+  float siValue = 10;
+  int itsExpected = 100000000;
+  float siExpected = 10;
+  int itsValue = converter.siToITSLatitude(siValue);
+  ASSERT_EQ(itsExpected, itsValue);
+  ASSERT_EQ(siExpected, converter.itsToSILatitude(itsValue));
+}
+
+TEST(ValueConverter, SetLatitudeInvalid) {
+  ValueConverter converter;
+  float siValue = -90.1;
+  int itsValue = 900000001;
+  ASSERT_THROW(converter.siToITSLatitude(siValue), Exception);
+  ASSERT_THROW(converter.itsToSILatitude(itsValue), Exception);
+}
+
+TEST(ValueConverter, GetDistance) {
+  ValueConverter converter;
+  float lat1 = 47.05851, long1 = 15.46079;
+  float lat2 = 47.05846, long2 = 15.46068;
+  float expectedDistance = 10.07;
+  ASSERT_NEAR(expectedDistance, converter.distance(long1, lat1, long2, lat2),
+              0.01 * expectedDistance);
 }
