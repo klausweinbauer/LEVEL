@@ -1,4 +1,5 @@
 #include <CABasicService.hpp>
+#include <QRYStationID.hpp>
 
 namespace level::cam {
 
@@ -6,10 +7,11 @@ CABasicService::CABasicService(
     std::shared_ptr<INetworkInterface<CAM>> networkInterface,
     std::shared_ptr<IValueConverter> valueConverter,
     std::shared_ptr<IFrequencyManager> frequencyManager,
-    std::shared_ptr<IPOTI> poti)
+    std::shared_ptr<IPOTI> poti,
+    std::shared_ptr<IDatabase<CAMWrapper>> camDatabase)
     : _nal(networkInterface), _valueConverter(valueConverter),
       _frequencyManager(frequencyManager), _cam(), _disseminationActive(false),
-      _poti(poti) {
+      _poti(poti), _db(camDatabase) {
 
   _config.stationID = rand();
   _config.stationType = StationType::StationType_PassengerCar;
@@ -75,6 +77,22 @@ float CABasicService::getCAMGenerationFrequency() {
 CAMWrapper CABasicService::cam() {
   std::lock_guard<std::mutex> guard(_camMutex);
   return _cam;
+}
+
+CAMWrapper CABasicService::getCAM(unsigned int stationID) {
+  auto views = _db->get(QRYStationID::byValue(stationID));
+  auto timestamp = _poti->now();
+  int minTimeDelta = INT_MAX;
+  int minIndex = 0;
+  for (int i = 0; i < (int)views.size(); i++) {
+    int timeDelta =
+        abs((int)(views[i]->get()->cam.generationDeltaTime - timestamp));
+    if (timeDelta < minTimeDelta) {
+      minIndex = i;
+      minTimeDelta = timeDelta;
+    }
+  }
+  return *views[minIndex];
 }
 
 void CABasicService::setHeading(float heading) {

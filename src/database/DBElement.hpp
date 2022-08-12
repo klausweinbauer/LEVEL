@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <DBException.hpp>
 #include <DBView.hpp>
 #include <IDatabase.hpp>
 #include <functional>

@@ -1,3 +1,5 @@
+#include <CAMIndexer.hpp>
+#include <CAMWrapper.hpp>
 #include <IDXIndex.hpp>
 #include <Indexer.hpp>
 #include <Mocks.hpp>
@@ -350,4 +352,11 @@ TEST(Indexer, IDXIndexIsValidCheck) {
   Indexer_Data data(rand(), rand());
   indexer->addData(data, index);
   ASSERT_TRUE(indexer->isValid(data, index));
+}
+
+TEST(Indexer, IDXCAMStationID) {
+  auto stationID = (unsigned int)rand();
+  cam::CAMWrapper cam(stationID);
+  cam::IDXCAMStationID indexer;
+  ASSERT_EQ(stationID, indexer.getValue(cam));
 }

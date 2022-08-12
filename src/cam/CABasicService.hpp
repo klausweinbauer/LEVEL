@@ -2,6 +2,7 @@
 
 #include <CAMWrapper.hpp>
 #include <ICABasicService.hpp>
+#include <IDatabase.hpp>
 #include <IFrequencyManager.hpp>
 #include <INetworkInterface.hpp>
 #include <IPOTI.hpp>
@@ -24,6 +25,7 @@ private:
   bool _disseminationActive;
   std::unique_ptr<std::thread> _disseminationThread;
   std::shared_ptr<IPOTI> _poti;
+  std::shared_ptr<IDatabase<CAMWrapper>> _db;
 
   void disseminationTask();
 
@@ -33,7 +35,8 @@ public:
   CABasicService(std::shared_ptr<INetworkInterface<CAM>> networkInterface,
                  std::shared_ptr<IValueConverter> valueConverter,
                  std::shared_ptr<IFrequencyManager> frequencyManager,
-                 std::shared_ptr<IPOTI> poti);
+                 std::shared_ptr<IPOTI> poti,
+                 std::shared_ptr<IDatabase<CAMWrapper>> camDatabase);
 
   virtual void configure(CABasicServiceConfig config) override;
 
@@ -42,6 +45,8 @@ public:
   virtual float getCAMGenerationFrequency() override;
 
   virtual CAMWrapper cam() override;
+
+  virtual CAMWrapper getCAM(unsigned int stationID) override;
 
   virtual void setHeading(float heading) override;
 

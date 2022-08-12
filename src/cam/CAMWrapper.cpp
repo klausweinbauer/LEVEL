@@ -7,16 +7,16 @@ namespace level::cam {
 
 CAMDEREncoder CAMWrapper::_copyEncoder;
 
-CAMWrapper::CAMWrapper() : CAMWrapper(0) {}
+CAMWrapper::CAMWrapper() : CAMWrapper(0u) {}
 
 CAMWrapper::CAMWrapper(CAM *cam) : _cam(cam) {}
 
-CAMWrapper::CAMWrapper(int stationId)
+CAMWrapper::CAMWrapper(unsigned int stationId)
     : CAMWrapper(stationId,
                  HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
 }
 
-CAMWrapper::CAMWrapper(int stationId, HighFrequencyContainer_PR type)
+CAMWrapper::CAMWrapper(unsigned int stationId, HighFrequencyContainer_PR type)
     : _cam((CAM *)calloc(1, sizeof(CAM))) {
   _cam->header.stationID = stationId;
   _cam->header.messageID = CAM_MESSAGE_ID;
@@ -52,9 +52,9 @@ CAMWrapper &CAMWrapper::operator=(CAMWrapper other) {
   return *this;
 }
 
-CAM *CAMWrapper::operator->() { return _cam; }
+CAM *CAMWrapper::operator->() const { return _cam; }
 
-CAM &CAMWrapper::operator*() { return *_cam; }
+CAM &CAMWrapper::operator*() const { return *_cam; }
 
 CAM *CAMWrapper::get() const { return _cam; }
 

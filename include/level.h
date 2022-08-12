@@ -278,12 +278,23 @@ typedef struct ITSPDUHeader {
   long messageID;
 } ITSPDUHeader_t;
 
-typedef struct CAMBasicContainer {
+typedef struct CAMBasicContainerData {
   StationType stationType;
-  int latitude;
-  int longitude;
-  int altitude;
-} CAMBasicContainer_t;
+  float latitude;
+  float longitude;
+  float altitude;
+} CAMBasicContainerData_t;
+
+typedef struct CAMBasicVehicleContainerHighFrequencyData {
+  float headingValue;
+  float speedValue;
+  DriveDirectionType driveDirection;
+  float vehicleLength;
+  float vehicleWidth;
+  float longitudinalAccelerationValue;
+  float curvatureValue;
+  float yawRateValue;
+} CAMBasicVehicleContainerHighFrequencyData_t;
 
 #pragma endregion // Structs
 
@@ -294,7 +305,7 @@ typedef struct CAMBasicContainer {
  *
  * @return const char* Version string.
  */
-SHARED_EXPORT const char * getVersion();
+SHARED_EXPORT const char *getVersion();
 
 /**
  * @brief Get a pointer to the vehicle data provider. Use the VDP to update the
@@ -302,7 +313,7 @@ SHARED_EXPORT const char * getVersion();
  *
  * @return VDP_t* Pointer to the vehicle data provider.
  */
-SHARED_EXPORT VDP_t * getVDP();
+SHARED_EXPORT VDP_t *getVDP();
 
 #pragma endregion // Configuration methods
 
@@ -331,7 +342,17 @@ CABasicServiceConfig_t SHARED_EXPORT getCABasicServiceConfig();
  * @return int Returns 0 on success or an error code.
  */
 int SHARED_EXPORT getCAMBasicContainer(int stationID,
-                                       CAMBasicContainer_t *container);
+                                       CAMBasicContainerData_t *container);
+
+/**
+ * @brief Returns the most recent high frequency data for a vehicle.
+ *
+ * @param stationID StationID of the vehicle.
+ * @param container Container where the data is stored.
+ * @return int Returns 0 on success or an error code.
+ */
+int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(
+    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container);
 
 #pragma endregion // CAM methods
 

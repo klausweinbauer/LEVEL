@@ -36,16 +36,16 @@ private:
 public:
   CAMWrapper();
   CAMWrapper(CAM *cam);
-  CAMWrapper(int stationId);
-  CAMWrapper(int stationId, HighFrequencyContainer_PR type);
+  CAMWrapper(unsigned int stationId);
+  CAMWrapper(unsigned int stationId, HighFrequencyContainer_PR type);
 
   ~CAMWrapper();
 
   CAMWrapper(const CAMWrapper &other);
   CAMWrapper &operator=(CAMWrapper other);
 
-  CAM *operator->();
-  CAM &operator*();
+  CAM *operator->() const;
+  CAM &operator*() const;
 
   CAM *get() const;
 
