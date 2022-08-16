@@ -1,3 +1,4 @@
+#include <CAMRecvHandler.hpp>
 #include <RecvHandler.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -81,4 +82,12 @@ TEST(RecvHandler, HasOwnershipInSecondCallback) {
   handler.invoke(msgPtr);
   ASSERT_TRUE(hasOwnershipInSecondCallback);
   free(msgPtr);
+}
+
+TEST(RecvHandler, CAMReceiveHandlerFreeMessage) {
+  using namespace level::cam;
+  CAM *cam = (CAM *)calloc(1, sizeof(CAM));
+  CAMRecvHandler handler;
+  handler.invoke(cam);
+  // Expect no memory leak
 }
