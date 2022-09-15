@@ -46,7 +46,7 @@ public:
 
   virtual CAMWrapper cam() override;
 
-  virtual CAMWrapper getCAM(unsigned int stationID) override;
+  virtual bool tryGetCAM(unsigned int stationID, CAMWrapper *cam) override;
 
   virtual void setHeading(float heading) override;
 

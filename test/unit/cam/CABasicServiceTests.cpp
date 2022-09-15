@@ -1,6 +1,7 @@
 #include <CABasicService.hpp>
 #include <CAMIndexer.hpp>
 #include <Mocks.hpp>
+#include <QRYLatestMsg.hpp>
 #include <QRYStationID.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -441,7 +442,7 @@ TEST(CABasicService, GetCAMGenerationFrequency) {
   ASSERT_EQ(5.0, service->getCAMGenerationFrequency());
 }
 
-TEST(CABasicService, GetCAMFromDatabase) {
+TEST(CABasicService, TryGetCAMFromDatabase) {
   auto db = getDB();
   auto service = getService(db);
   auto stationId = (unsigned int)rand();
@@ -452,13 +453,28 @@ TEST(CABasicService, GetCAMFromDatabase) {
 
   EXPECT_CALL(*db, get(_))
       .WillOnce(Invoke([&view, stationId](std::shared_ptr<IQuery> q) {
-        auto cQuery = dynamic_cast<QRYParameter<StationIDQRYParam> *>(q.get());
+        auto cQuery = dynamic_cast<QRYLatestMsg *>(q.get());
         std::vector<DBView<CAMWrapper>> views;
-        if (cQuery && cQuery->value() == stationId) {
+        if (cQuery && cQuery->stationID == stationId) {
           views.push_back(std::move(view));
         }
         return views;
       }));
 
-  EXPECT_EQ(stationId, service->getCAM(stationId)->header.stationID);
+  CAMWrapper cam;
+  EXPECT_TRUE(service->tryGetCAM(stationId, &cam));
+  EXPECT_EQ(stationId, cam->header.stationID);
+}
+
+TEST(CABasicService, TryGetNotExistingCAMFromDatabase) {
+  auto db = getDB();
+  auto service = getService(db);
+  auto stationId = (unsigned int)rand();
+
+  EXPECT_CALL(*db, get(_)).WillOnce(Invoke([](std::shared_ptr<IQuery> q) {
+    return std::vector<DBView<CAMWrapper>>();
+  }));
+
+  CAMWrapper cam;
+  EXPECT_FALSE(service->tryGetCAM(stationId, &cam));
 }

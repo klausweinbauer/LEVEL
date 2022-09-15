@@ -33,7 +33,7 @@ void Database_HeavyQueryingTask(Database<Database_Data> *db, int size,
 
 TEST(Database, HeavyQuerying) {
   Database<Database_Data> db;
-  db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
+  db.addIndexer(std::make_unique<IDXIndex<Database_Data>>());
   const int size = 10;
   for (int i = 0; i < size; i++) {
     db.insert({i});
@@ -67,7 +67,7 @@ void Database_HeavyWritingTask(Database<Database_Data> *db, int propWrite,
 
 TEST(Database, HeavyWriting) {
   Database<Database_Data> db;
-  db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
+  db.addIndexer(std::make_unique<IDXIndex<Database_Data>>());
 
   const int threadCount = 10;
   const int threadRuns = 100;
@@ -98,7 +98,7 @@ void Database_HeavyUpdatingTask(Database<Database_Data> *db, int threadCount,
 
 TEST(Database, HeavyUpdating) {
   Database<Database_Data> db;
-  db.addIndexer(std::make_unique<IDXIndexer<Database_Data>>());
+  db.addIndexer(std::make_unique<IDXIndex<Database_Data>>());
   const int threadCount = 10;
   for (int i = 0; i < threadCount; i++) {
     db.insert(Database_Data());

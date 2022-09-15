@@ -19,14 +19,14 @@ namespace level {
  * https://en.cppreference.com/w/cpp/utility/hash for a good starting point.
  */
 template <typename TData, typename TParameter>
-class ParameterIndexer : public Indexer<TData, IQRYParameter> {
+class IDXParameter : public Indexer<TData, IQRYParameter> {
 
 private:
   std::unordered_map<TParameter, std::set<unsigned int>> _map;
   std::unordered_map<unsigned int, TParameter> _reverseLookup;
 
 public:
-  ParameterIndexer() {}
+  IDXParameter() {}
 
   /**
    * @brief Should return the parameter derived from the data element.

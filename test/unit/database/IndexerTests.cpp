@@ -1,9 +1,9 @@
 #include <CAMIndexer.hpp>
 #include <CAMWrapper.hpp>
 #include <IDXIndex.hpp>
+#include <IDXParameter.hpp>
 #include <Indexer.hpp>
 #include <Mocks.hpp>
-#include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -136,98 +136,99 @@ class Indexer_QRYParameter : public QRYParameter<Indexer_Parameter> {};
 
 class Indexer_QRYOtherParameter : public QRYParameter<int> {};
 
-class Indexer_ParameterIndexer
-    : public ParameterIndexer<Indexer_Data, Indexer_Parameter> {
+class Indexer_IDXParameter
+    : public IDXParameter<Indexer_Data, Indexer_Parameter> {
 
 public:
-  Indexer_ParameterIndexer() {}
+  Indexer_IDXParameter() {}
 
   virtual Indexer_Parameter getValue(const Indexer_Data &entry) const {
     return entry._p;
   }
 };
 
-TEST(Indexer, ParameterIndexerSupportsParameterQuery) {
-  Indexer_ParameterIndexer indexer;
+TEST(Indexer, IDXParameterSupportsParameterQuery) {
+  Indexer_IDXParameter indexer;
   auto qry = std::make_shared<Indexer_QRYParameter>();
   ASSERT_TRUE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexerDoesNotSupportOtherQuery) {
-  Indexer_ParameterIndexer indexer;
+TEST(Indexer, IDXParameterDoesNotSupportOtherQuery) {
+  Indexer_IDXParameter indexer;
   auto qry = std::make_shared<MQuery>();
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexerDoesNotSupportOtherParameter) {
-  Indexer_ParameterIndexer indexer;
+TEST(Indexer, IDXParameterDoesNotSupportOtherParameter) {
+  Indexer_IDXParameter indexer;
   auto qry = std::make_shared<Indexer_QRYOtherParameter>();
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexerDoesNotSupportNullQuery) {
-  Indexer_ParameterIndexer indexer;
+TEST(Indexer, IDXParameterDoesNotSupportNullQuery) {
+  Indexer_IDXParameter indexer;
   auto qry = std::shared_ptr<Indexer_QRYParameter>(nullptr);
   ASSERT_FALSE(indexer.supportsQuery(qry));
 }
 
-TEST(Indexer, ParameterIndexerCallsDerivedIndexer) {
+TEST(Indexer, IDXParameterCallsDerivedIndexer) {
   auto indexer =
-      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
-  auto baseIndexer = std::static_pointer_cast<
-      ParameterIndexer<Indexer_Data, Indexer_Parameter>>(indexer);
+      std::make_shared<MIDXParameter<Indexer_Data, Indexer_Parameter>>();
+  auto baseIndexer =
+      std::static_pointer_cast<IDXParameter<Indexer_Data, Indexer_Parameter>>(
+          indexer);
   auto qry = std::make_shared<Indexer_QRYParameter>();
   EXPECT_CALL(*indexer, getByParameter(Eq(qry))).Times(1);
   baseIndexer->getIndexList(qry);
 }
 
 TEST(Indexer,
-     ParameterIndexerGetIndexListThrowsExceptionWhenCalledWithWrongParameter) {
+     IDXParameterGetIndexListThrowsExceptionWhenCalledWithWrongParameter) {
   auto indexer =
-      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
-  auto baseIndexer = std::static_pointer_cast<
-      ParameterIndexer<Indexer_Data, Indexer_Parameter>>(indexer);
+      std::make_shared<MIDXParameter<Indexer_Data, Indexer_Parameter>>();
+  auto baseIndexer =
+      std::static_pointer_cast<IDXParameter<Indexer_Data, Indexer_Parameter>>(
+          indexer);
   auto qry = std::make_shared<Indexer_QRYOtherParameter>();
   EXPECT_CALL(*indexer, getByParameter(_)).Times(0);
   ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
 }
 
-TEST(Indexer,
-     ParameterIndexerGetIndexListThrowsExceptionWhenCalledWithWrongQuery) {
+TEST(Indexer, IDXParameterGetIndexListThrowsExceptionWhenCalledWithWrongQuery) {
   auto indexer =
-      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
+      std::make_shared<MIDXParameter<Indexer_Data, Indexer_Parameter>>();
   auto baseIndexer = std::static_pointer_cast<IIndexer<Indexer_Data>>(indexer);
   auto qry = std::make_shared<MQuery>();
   EXPECT_CALL(*indexer, getByParameter(_)).Times(0);
   ASSERT_THROW(baseIndexer->getIndexList(qry), Exception);
 }
 
-TEST(Indexer, ParameterIndexerCallsGetValueDuringAddData) {
+TEST(Indexer, IDXParameterCallsGetValueDuringAddData) {
   auto indexer =
-      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
+      std::make_shared<MIDXParameter<Indexer_Data, Indexer_Parameter>>();
   Indexer_Data data;
   EXPECT_CALL(*indexer, getValue(Ref(data))).Times(1);
   indexer->addData(data, 0);
 }
 
-TEST(Indexer, ParameterIndexerCallsGetValueDuringRemoveData) {
+TEST(Indexer, IDXParameterCallsGetValueDuringRemoveData) {
   auto indexer =
-      std::make_shared<MParameterIndexer<Indexer_Data, Indexer_Parameter>>();
+      std::make_shared<MIDXParameter<Indexer_Data, Indexer_Parameter>>();
   Indexer_Data data;
   EXPECT_CALL(*indexer, getValue(Ref(data))).Times(1);
   indexer->removeData(data, rand());
 }
 
-TEST(Indexer, ParameterIndexerReturnsEmptyListIfQueryDoesNotFindEntries) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterReturnsEmptyListIfQueryDoesNotFindEntries) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   Indexer_Parameter param(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(param);
   auto result = indexer->getIndexList(qry);
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexerAddSingleEntry) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterAddSingleEntry) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
@@ -237,8 +238,8 @@ TEST(Indexer, ParameterIndexerAddSingleEntry) {
   ASSERT_EQ(index, result[0]);
 }
 
-TEST(Indexer, ParameterIndexerAddDuplicateEntry) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterAddDuplicateEntry) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index1 = rand();
   auto index2 = index1 + 1;
   Indexer_Data data(rand(), rand());
@@ -251,8 +252,8 @@ TEST(Indexer, ParameterIndexerAddDuplicateEntry) {
   ASSERT_EQ(index1, result[0]);
 }
 
-TEST(Indexer, ParameterIndexerThrowsWhenAddingDuplicateIndex) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterThrowsWhenAddingDuplicateIndex) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
@@ -260,8 +261,8 @@ TEST(Indexer, ParameterIndexerThrowsWhenAddingDuplicateIndex) {
   ASSERT_THROW(indexer->addData(data, index), Exception);
 }
 
-TEST(Indexer, ParameterIndexerQueryAfterEntryIsRemoved) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterQueryAfterEntryIsRemoved) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
@@ -271,8 +272,8 @@ TEST(Indexer, ParameterIndexerQueryAfterEntryIsRemoved) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexerUpdateWhenParameterChangedValue) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterUpdateWhenParameterChangedValue) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index = rand();
   Indexer_Data data(rand(), rand());
   indexer->addData(data, index);
@@ -284,8 +285,8 @@ TEST(Indexer, ParameterIndexerUpdateWhenParameterChangedValue) {
   ASSERT_EQ(index, result[0]);
 }
 
-TEST(Indexer, ParameterIndexerCanNotFindOldEntryAfterUpdate) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterCanNotFindOldEntryAfterUpdate) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   auto index = rand();
   Indexer_Data data1(rand(), rand());
   Indexer_Data data2(rand(), rand());
@@ -296,23 +297,23 @@ TEST(Indexer, ParameterIndexerCanNotFindOldEntryAfterUpdate) {
   ASSERT_EQ(0, result.size());
 }
 
-TEST(Indexer, ParameterIndexerThrowWhenUpdateNotExistingValue) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterThrowWhenUpdateNotExistingValue) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   Indexer_Data data(rand(), rand());
   auto qry = std::make_shared<QRYParameter<Indexer_Parameter>>(data._p);
   ASSERT_THROW(indexer->updateData(data, rand()), Exception);
 }
 
-TEST(Indexer, ParameterIndexerIsValidCheck) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterIsValidCheck) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());
   indexer->addData(data, index);
   ASSERT_TRUE(indexer->isValid(data, index));
 }
 
-TEST(Indexer, ParameterIndexerIsNotValidCheck) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterIsNotValidCheck) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());
   indexer->addData(data, index);
@@ -320,8 +321,8 @@ TEST(Indexer, ParameterIndexerIsNotValidCheck) {
   ASSERT_FALSE(indexer->isValid(data, index));
 }
 
-TEST(Indexer, ParameterIndexerIsNotValidCheckForEmptyIndex) {
-  auto indexer = std::make_shared<Indexer_ParameterIndexer>();
+TEST(Indexer, IDXParameterIsNotValidCheckForEmptyIndex) {
+  auto indexer = std::make_shared<Indexer_IDXParameter>();
   unsigned int index = rand();
   Indexer_Data data;
   ASSERT_FALSE(indexer->isValid(data, index));
@@ -331,7 +332,7 @@ TEST(Indexer, IDXIndexGetIndexList) {
   auto index = (unsigned int)(rand() % 10000) + 100;
   auto len = rand() % 100;
   auto qry = std::make_shared<QRYIndex>(index, index + len);
-  IDXIndexer<int> indexer;
+  IDXIndex<int> indexer;
   auto result = indexer.getIndexList(qry);
   ASSERT_EQ(len, result.size());
   for (unsigned int i = index; i < index + len; i++) {
@@ -341,13 +342,13 @@ TEST(Indexer, IDXIndexGetIndexList) {
 
 TEST(Indexer, IDXIndexGetEmptyIndexList) {
   auto qry = std::make_shared<QRYIndex>();
-  IDXIndexer<int> indexer;
+  IDXIndex<int> indexer;
   auto result = indexer.getIndexList(qry);
   ASSERT_EQ(0, result.size());
 }
 
 TEST(Indexer, IDXIndexIsValidCheck) {
-  auto indexer = std::make_shared<IDXIndexer<Indexer_Data>>();
+  auto indexer = std::make_shared<IDXIndex<Indexer_Data>>();
   unsigned int index = rand();
   Indexer_Data data(rand(), rand());
   indexer->addData(data, index);
@@ -359,4 +360,162 @@ TEST(Indexer, IDXCAMStationID) {
   cam::CAMWrapper cam(stationID);
   cam::IDXCAMStationID indexer;
   ASSERT_EQ(stationID, indexer.getValue(cam));
+}
+
+TEST(Indexer, IDXCAMLatestGetIndex) {
+  auto stationID = (unsigned int)rand();
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam, index);
+  auto indexList = indexer.getIndexList(QRYLatestMsg::byId(stationID));
+
+  ASSERT_EQ(1, indexList.size());
+  ASSERT_EQ(index, indexList.at(0));
+}
+
+TEST(Indexer, IDXCAMLatestOverrideLatestMessage) {
+  auto stationID = (unsigned int)rand();
+  auto index1 = (unsigned int)rand();
+  auto index2 = (unsigned int)rand();
+
+  cam::CAMWrapper cam1(stationID);
+  cam::CAMWrapper cam2(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam1, index1);
+  indexer.addData(cam2, index2);
+  auto indexList = indexer.getIndexList(QRYLatestMsg::byId(stationID));
+
+  ASSERT_EQ(1, indexList.size());
+  ASSERT_EQ(index2, indexList.at(0));
+}
+
+TEST(Indexer, IDXCAMLatestRemoveMessage) {
+  auto stationID = (unsigned int)rand();
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam, index);
+  indexer.removeData(cam, index);
+  auto indexList = indexer.getIndexList(QRYLatestMsg::byId(stationID));
+
+  ASSERT_EQ(0, indexList.size());
+}
+
+TEST(Indexer, Indexer_IDXCAMLatestRemoveOldMessageOnUpdateMessage) {
+  auto stationID1 = (unsigned int)rand();
+  auto stationID2 = stationID1 + 1;
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam(stationID1);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam, index);
+  cam->header.stationID = stationID2;
+  indexer.updateData(cam, index);
+  auto indexList1 = indexer.getIndexList(QRYLatestMsg::byId(stationID1));
+  auto indexList2 = indexer.getIndexList(QRYLatestMsg::byId(stationID2));
+
+  ASSERT_EQ(0, indexList1.size());
+  ASSERT_EQ(1, indexList2.size());
+  ASSERT_EQ(index, indexList2.at(0));
+}
+
+TEST(Indexer, Indexer_IDXCAMLatestOverrideLatestOnUpdateMessage) {
+  auto stationID = (unsigned int)rand();
+  auto index1 = (unsigned int)rand();
+  auto index2 = (unsigned int)rand();
+
+  cam::CAMWrapper cam1(stationID);
+  cam::CAMWrapper cam2(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam1, index1);
+  indexer.addData(cam2, index2);
+  indexer.updateData(cam1, index1);
+  auto indexList = indexer.getIndexList(QRYLatestMsg::byId(stationID));
+
+  ASSERT_EQ(1, indexList.size());
+  ASSERT_EQ(index1, indexList.at(0));
+}
+
+TEST(Indexer, IDXCAMLatestRemoveOtherMessage) {
+  auto stationID = (unsigned int)rand();
+  auto index1 = (unsigned int)rand();
+  auto index2 = (unsigned int)rand();
+
+  cam::CAMWrapper cam1(stationID);
+  cam::CAMWrapper cam2(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam1, index1);
+  indexer.addData(cam2, index2);
+  indexer.removeData(cam1, index1);
+  auto indexList = indexer.getIndexList(QRYLatestMsg::byId(stationID));
+
+  ASSERT_EQ(1, indexList.size());
+  ASSERT_EQ(index2, indexList.at(0));
+}
+
+TEST(Indexer, IDXCAMLatestUpdateWithInvalidIndex) {
+  cam::CAMWrapper cam;
+  cam::IDXCAMLatest indexer;
+
+  ASSERT_NO_THROW(indexer.updateData(cam, rand()));
+}
+
+TEST(Indexer, IDXCAMLatestAddWithInvalidIndex) {
+  cam::CAMWrapper cam1;
+  cam::CAMWrapper cam2;
+  cam::IDXCAMLatest indexer;
+  auto index = (unsigned int)rand();
+
+  indexer.addData(cam1, index);
+  ASSERT_THROW(indexer.addData(cam2, index), Exception);
+}
+
+TEST(Indexer, IDXCAMLatestRemoveWithInvalidIndex) {
+  cam::CAMWrapper cam;
+  cam::IDXCAMLatest indexer;
+
+  ASSERT_NO_THROW(indexer.removeData(cam, 0));
+}
+
+TEST(Indexer, IDXCAMLatestIsValid) {
+  auto stationID = (unsigned int)rand();
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam(stationID);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam, index);
+  ASSERT_TRUE(indexer.isValid(cam, index));
+}
+
+TEST(Indexer, IDXCAMLatestIsNotValidByDifferentCAM) {
+  auto stationID1 = (unsigned int)rand();
+  auto stationID2 = (unsigned int)rand();
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam1(stationID1);
+  cam::CAMWrapper cam2(stationID2);
+  cam::IDXCAMLatest indexer;
+
+  indexer.addData(cam1, index);
+  ASSERT_FALSE(indexer.isValid(cam2, index));
+}
+
+TEST(Indexer, IDXCAMLatestIsNotValidByDifferentIndex) {
+  auto stationID = (unsigned int)rand();
+  auto index = (unsigned int)rand();
+
+  cam::CAMWrapper cam(stationID);
+  cam::IDXCAMLatest indexer;
+
+  ASSERT_FALSE(indexer.isValid(cam, index));
 }

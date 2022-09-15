@@ -3,6 +3,7 @@
 #include <CAMWrapper.hpp>
 #include <DBElement.hpp>
 #include <ICABasicService.hpp>
+#include <IDXParameter.hpp>
 #include <IDatabase.hpp>
 #include <IEncoder.hpp>
 #include <IFrequencyManager.hpp>
@@ -14,7 +15,6 @@
 #include <ISocket.hpp>
 #include <ISyscall.hpp>
 #include <IValueConverter.hpp>
-#include <ParameterIndexer.hpp>
 #include <gmock/gmock.h>
 #include <vector>
 
@@ -74,9 +74,9 @@ public:
 };
 
 template <typename TData, typename TParameter>
-class MParameterIndexer : public ParameterIndexer<TData, TParameter> {
+class MIDXParameter : public IDXParameter<TData, TParameter> {
 public:
-  MParameterIndexer() {}
+  MIDXParameter() {}
 
   MOCK_METHOD(TParameter, getValue, (const TData &), (override, const));
   MOCK_METHOD(std::vector<unsigned int>, getByParameter,
@@ -147,6 +147,7 @@ public:
   MOCK_METHOD(CABasicServiceConfig, getConfiguration, (), (override));
   MOCK_METHOD(float, getCAMGenerationFrequency, (), (override));
   MOCK_METHOD(cam::CAMWrapper, cam, (), (override));
+  MOCK_METHOD(bool, tryGetCAM, (unsigned int, cam::CAMWrapper *), (override));
   MOCK_METHOD(void, setHeading, (float), (override));
   MOCK_METHOD(void, setSpeed, (float), (override));
   MOCK_METHOD(void, setDriveDirection, (DriveDirectionType), (override));

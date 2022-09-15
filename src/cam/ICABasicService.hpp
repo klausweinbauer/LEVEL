@@ -44,7 +44,17 @@ public:
    * @param stationID StationID from where to get the data.
    * @return CAMWrapper Message.
    */
-  virtual CAMWrapper getCAM(unsigned int stationID) = 0;
+
+  /**
+   * @brief Try to get the most recent data for a specific station.
+   *
+   * @param stationID StationID from where to get the data.
+   * @param cam Pointer to message where to store the data.
+   * @return true A message exists for the provided station id and was written
+   * to cam.
+   * @return false No message exists for station id. Cam remains unchanged.
+   */
+  virtual bool tryGetCAM(unsigned int stationID, CAMWrapper *cam) = 0;
 
   virtual void setHeading(float heading) = 0;
 

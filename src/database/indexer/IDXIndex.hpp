@@ -5,7 +5,7 @@
 
 namespace level {
 
-template <typename T> class IDXIndexer : public Indexer<T, QRYIndex> {
+template <typename T> class IDXIndex : public Indexer<T, QRYIndex> {
 
 public:
   virtual std::vector<unsigned int>

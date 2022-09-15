@@ -4,8 +4,8 @@
 
 namespace level {
 
-typedef unsigned int StationIDQRYParam;
+typedef unsigned int QRYStationID_Param;
 
-class QRYStationID : public QRYParameter<StationIDQRYParam> {};
+class QRYStationID : public QRYParameter<QRYStationID_Param> {};
 
 } // namespace level
