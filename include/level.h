@@ -214,7 +214,7 @@ typedef enum {
  * @brief Vehicle data provider.
  *
  */
-typedef struct {
+typedef struct VDP {
 public:
   /**
    * @brief Set the current heading value in degree with regards to the true

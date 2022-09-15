@@ -13,9 +13,15 @@ CABasicServiceConfig_t getCABasicServiceConfig() {
   return di::getCABasicService()->getConfiguration();
 }
 
-int getCAMBasicContainer(int stationID, CAMBasicContainerData_t *container) {}
+int getCAMBasicContainer(int stationID, CAMBasicContainerData_t *container) {
+  // TODO Implement
+  return 0;
+}
 
 int getCAMBasicVehicleContainerHighFrequency(
-    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container) {}
+    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container) {
+  // TODO Implement
+  return 0;
+}
 
 } // namespace level
