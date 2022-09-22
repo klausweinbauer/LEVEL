@@ -166,4 +166,43 @@ void CAMWrapper::initHFC() {
   }
 }
 
+int CAMWrapper::getBasicContainer(CAMBasicContainerData_t *container) const {
+  if (container) {
+    auto bc = &_cam->cam.camParameters.basicContainer;
+    container->stationType = (level::StationType)bc->stationType;
+    container->latitude = bc->referencePosition.latitude;
+    container->longitude = bc->referencePosition.longitude;
+    container->altitude = bc->referencePosition.altitude.altitudeValue;
+    return 0;
+  } else {
+    return ERR_ARG_NULL;
+  }
+}
+
+int CAMWrapper::getBasicVehicleContainerHighFrequency(
+    CAMBasicVehicleContainerHighFrequencyData_t *container) const {
+  if (container) {
+    auto hfcBase = &_cam->cam.camParameters.highFrequencyContainer;
+    if (hfcBase->present ==
+        HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
+      auto hfc = &hfcBase->choice.basicVehicleContainerHighFrequency;
+      container->headingValue = hfc->heading.headingValue;
+      container->speedValue = hfc->speed.speedValue;
+      container->driveDirection =
+          (level::DriveDirectionType)hfc->driveDirection;
+      container->vehicleLength = hfc->vehicleLength.vehicleLengthValue;
+      container->vehicleWidth = hfc->vehicleWidth;
+      container->longitudinalAccelerationValue =
+          hfc->longitudinalAcceleration.longitudinalAccelerationValue;
+      container->curvatureValue = hfc->curvature.curvatureValue;
+      container->yawRateValue = hfc->yawRate.yawRateValue;
+      return 0;
+    } else {
+      return ERR_HIGH_FREQ_CONTAINER_TYPE;
+    }
+  } else {
+    return ERR_ARG_NULL;
+  }
+}
+
 } // namespace level::cam

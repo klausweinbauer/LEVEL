@@ -15,6 +15,7 @@
 #include <CAMEncoder.hpp>
 #include <Types.hpp>
 #include <algorithm>
+#include <level.h>
 
 #define CAM_MESSAGE_ID 2
 
@@ -114,6 +115,24 @@ public:
    *
    */
   void clearSVC();
+
+  /**
+   * @brief Fill the basic container data struct with the current values.
+   *
+   * @param container Container to fill with data.
+   * @return int 0 on success or error code.
+   */
+  int getBasicContainer(CAMBasicContainerData_t *container) const;
+
+  /**
+   * @brief Fill the basic vehicle container high frequency data struct with the
+   * current values.
+   *
+   * @param container Container to fill with data.
+   * @return int 0 on success or error code.
+   */
+  int getBasicVehicleContainerHighFrequency(
+      CAMBasicVehicleContainerHighFrequencyData_t *container) const;
 
   friend void swap(CAMWrapper &first, CAMWrapper &second) {
     using std::swap;

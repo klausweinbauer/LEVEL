@@ -14,14 +14,22 @@ CABasicServiceConfig_t getCABasicServiceConfig() {
 }
 
 int getCAMBasicContainer(int stationID, CAMBasicContainerData_t *container) {
-  // TODO Implement
-  return 0;
+  cam::CAMWrapper cam;
+  if (di::getCABasicService()->tryGetCAM(stationID, &cam)) {
+    return cam.getBasicContainer(container);
+  } else {
+    return ERR_MSG_NOT_FOUND;
+  }
 }
 
 int getCAMBasicVehicleContainerHighFrequency(
     int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container) {
-  // TODO Implement
-  return 0;
+  cam::CAMWrapper cam;
+  if (di::getCABasicService()->tryGetCAM(stationID, &cam)) {
+    return cam.getBasicVehicleContainerHighFrequency(container);
+  } else {
+    return ERR_MSG_NOT_FOUND;
+  }
 }
 
 } // namespace level
