@@ -24,6 +24,12 @@
 			"label": "Build and Run Example",
 			"command": "cmake --install ./build --prefix ${workspaceFolder}/example && cmake -S ${workspaceFolder}/example -B ${workspaceFolder}/example/build && cmake --build ${workspaceFolder}/example/build && echo ========== RUN ========== && ${workspaceFolder}/example/build/level-example && echo ========== END ==========",
 			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Build Release",
+			"command": "mkdir ${workspaceFolder}/release && cmake -DCMAKE_BUILD_TYPE=Release -S ${workspaceFolder} -B ${workspaceFolder}/release && cmake && cmake --build ${workspaceFolder}/release && make -C ${workspaceFolder}/release/ package",
+			"problemMatcher": []
 		}
 	]
 }

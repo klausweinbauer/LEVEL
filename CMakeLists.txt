@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(level VERSION 0.1.0)
+set(LEVEL_VERSION_MAJOR 0)
+set(LEVEL_VERSION_MINOR 1)
+set(LEVEL_VERSION_PATCH 0)
+
+set(LEVEL_VERSION "${LEVEL_VERSION_MAJOR}.${LEVEL_VERSION_MINOR}.${LEVEL_VERSION_PATCH}")
+
+project(level VERSION ${LEVEL_VERSION})
 
 option(BUILD_TESTS "include tests in build" OFF)
 option(ENABLE_VALGRIND_TESTS "Include valgrind tests in build." OFF)
@@ -63,3 +69,11 @@ if (BUILD_TESTS)
 else()
     message("[INFO] Tests disabled")
 endif()
+
+include(InstallRequiredSystemLibraries)
+# TODO Add License.txt
+#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt") 
+set(CPACK_PACKAGE_VERSION_MAJOR "${LEVEL_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${LEVEL_VERSION_MINOR}")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include(CPack)

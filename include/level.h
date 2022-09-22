@@ -354,6 +354,8 @@ int SHARED_EXPORT getCAMBasicContainer(int stationID,
 int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(
     int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container);
 
+// TODO getter methods for LFC, SVC, RSUHFC
+
 #pragma endregion // CAM methods
 
 #pragma region DENM methods
