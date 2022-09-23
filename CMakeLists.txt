@@ -71,9 +71,5 @@ else()
 endif()
 
 include(InstallRequiredSystemLibraries)
-# TODO Add License.txt
-#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt") 
-set(CPACK_PACKAGE_VERSION_MAJOR "${LEVEL_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${LEVEL_VERSION_MINOR}")
-set(CPACK_SOURCE_GENERATOR "TGZ")
-include(CPack)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(Packing)

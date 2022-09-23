@@ -28,7 +28,7 @@
 		{
 			"type": "shell",
 			"label": "Build Release",
-			"command": "mkdir ${workspaceFolder}/release && cmake -DCMAKE_BUILD_TYPE=Release -S ${workspaceFolder} -B ${workspaceFolder}/release && cmake && cmake --build ${workspaceFolder}/release && make -C ${workspaceFolder}/release/ package",
+			"command": "mkdir -p ${workspaceFolder}/release && cmake -DCMAKE_BUILD_TYPE=Release -S ${workspaceFolder} -B ${workspaceFolder}/release && cmake && cmake --build ${workspaceFolder}/release && pushd . && cd ${workspaceFolder}/release/ && cpack -G DEB && popd",
 			"problemMatcher": []
 		}
 	]

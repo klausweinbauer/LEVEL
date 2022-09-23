@@ -214,8 +214,8 @@ typedef enum {
  * @brief Vehicle data provider.
  *
  */
+// TODO error: field ‘setHeading’ declared as a function
 typedef struct VDP {
-public:
   /**
    * @brief Set the current heading value in degree with regards to the true
    * north.
