@@ -1,10 +1,6 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install make
+RUN apt-get update
 
-WORKDIR /test
-COPY ./test/e2e/* ./
-
-WORKDIR /tmp
-COPY ./packages/*.deb ./
-RUN apt-get install ./$(ls | grep *.deb)
+# Install build environment
+RUN apt-get install -y cmake make gcc g++ git valgrind lcov
