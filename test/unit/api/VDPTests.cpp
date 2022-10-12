@@ -18,15 +18,13 @@ float randFloat() { return rand() * 3.1415962535; }
 using namespace level::VDPTests;
 using namespace level;
 
-TEST(VDPTest, GetPointerToVDP) { ASSERT_NE(nullptr, getVDP()); }
-
 TEST(VDPTest, SetHeading) {
   CABasicServiceConfig config = getCABasicServiceConfig();
   config.stationType = StationType_PassengerCar;
   configureCABasicService(config);
 
   float value = randFloat();
-  getVDP()->setHeading(value);
+  VDP_setHeading(value);
   ASSERT_EQ(converter.siToITSHeading(value),
             di::getCABasicService()
                 ->cam()
@@ -40,7 +38,7 @@ TEST(VDPTest, SetSpeed) {
   configureCABasicService(config);
 
   float value = randFloat();
-  getVDP()->setSpeed(value);
+  VDP_setSpeed(value);
   ASSERT_EQ(converter.siToITSSpeed(value),
             di::getCABasicService()
                 ->cam()
@@ -54,7 +52,7 @@ TEST(VDPTest, SetAcceleration) {
   configureCABasicService(config);
 
   float value = randFloat();
-  getVDP()->setAcceleration(value);
+  VDP_setAcceleration(value);
   ASSERT_EQ(converter.siToITSLongitudinalAcceleration(value),
             di::getCABasicService()
                 ->cam()
@@ -69,7 +67,7 @@ TEST(VDPTest, SetYawRate) {
   configureCABasicService(config);
 
   float value = randFloat();
-  getVDP()->setYawRate(value);
+  VDP_setYawRate(value);
   ASSERT_EQ(converter.siToITSYawRate(value),
             di::getCABasicService()
                 ->cam()
@@ -83,7 +81,7 @@ TEST(VDPTest, SetCurvature) {
   configureCABasicService(config);
 
   float value = randFloat();
-  getVDP()->setCurvature(value);
+  VDP_setCurvature(value);
   ASSERT_EQ(converter.siToITSCurvature(value),
             di::getCABasicService()
                 ->cam()
@@ -97,7 +95,7 @@ TEST(VDPTest, SetDriveDirection) {
   configureCABasicService(config);
 
   auto value = DriveDirectionType::DirveDirection_Backward;
-  getVDP()->setDriveDirection(value);
+  VDP_setDriveDirection(value);
   ASSERT_EQ(value, di::getCABasicService()
                        ->cam()
                        ->cam.camParameters.highFrequencyContainer.choice
