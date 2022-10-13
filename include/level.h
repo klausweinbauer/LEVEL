@@ -210,63 +210,6 @@ typedef enum {
 
 #pragma region Structs
 
-/**
- * @brief Vehicle data provider.
- *
- */
-typedef struct {
-public:
-  /**
-   * @brief Set the current heading value in degree with regards to the true
-   * north.
-   *
-   * @param heading Heading in degree.
-   */
-  void setHeading(float heading);
-
-  /**
-   * @brief Set the current speed value.
-   *
-   * @param speed Speed in m/s;
-   */
-  void setSpeed(float speed);
-
-  /**
-   * @brief Set the current drive direction.
-   *
-   * @param direction Direction.
-   */
-  void setDriveDirection(DriveDirectionType direction);
-
-  /**
-   * @brief Set the current longitudinal acceleration value.
-   *
-   * @param acceleration Acceleration in m/s².
-   */
-  void setAcceleration(float acceleration);
-
-  /**
-   * @brief Set the current curvature value. Positive values indicate a turning
-   * curve to the left hand side of the driver. The value shall be set to 0 when
-   * the vehicle is moving straight.
-   *
-   * @param curvature Curvature radius in m. 0 for moving stright. Negative for
-   * left hand turn.
-   */
-  void setCurvature(float radius);
-
-  /**
-   * @brief Set the current yaw rate. Yaw rate denotes the vehicle rotation
-   * around the centre of mass of the empty vehicle. The leading sign denotes
-   * the direction of rotation. The value is negative if the motion is clockwise
-   * when viewing from the top.
-   *
-   * @param yawRate Value in deg/sec.
-   */
-  void setYawRate(float yawRate);
-
-} VDP_t;
-
 typedef struct CABasicServiceConfig {
   unsigned int stationID;
   StationType stationType;
@@ -278,12 +221,23 @@ typedef struct ITSPDUHeader {
   long messageID;
 } ITSPDUHeader_t;
 
-typedef struct CAMBasicContainer {
+typedef struct CAMBasicContainerData {
   StationType stationType;
-  int latitude;
-  int longitude;
-  int altitude;
-} CAMBasicContainer_t;
+  float latitude;
+  float longitude;
+  float altitude;
+} CAMBasicContainerData_t;
+
+typedef struct CAMBasicVehicleContainerHighFrequencyData {
+  float headingValue;
+  float speedValue;
+  DriveDirectionType driveDirection;
+  float vehicleLength;
+  float vehicleWidth;
+  float longitudinalAccelerationValue;
+  float curvatureValue;
+  float yawRateValue;
+} CAMBasicVehicleContainerHighFrequencyData_t;
 
 #pragma endregion // Structs
 
@@ -294,17 +248,59 @@ typedef struct CAMBasicContainer {
  *
  * @return const char* Version string.
  */
-SHARED_EXPORT const char * getVersion();
+SHARED_EXPORT const char *getVersion();
 
 /**
- * @brief Get a pointer to the vehicle data provider. Use the VDP to update the
- * current vehicle state.
+ * @brief Set the current heading value in degree with regards to the true
+ * north.
  *
- * @return VDP_t* Pointer to the vehicle data provider.
+ * @param heading Heading in degree.
  */
-SHARED_EXPORT VDP_t * getVDP();
+void VDP_setHeading(float heading);
 
-#pragma endregion // Configuration methods
+/**
+ * @brief Set the current speed value.
+ *
+ * @param speed Speed in m/s;
+ */
+void VDP_setSpeed(float speed);
+
+/**
+ * @brief Set the current drive direction.
+ *
+ * @param direction Direction.
+ */
+void VDP_setDriveDirection(DriveDirectionType direction);
+
+/**
+ * @brief Set the current longitudinal acceleration value.
+ *
+ * @param acceleration Acceleration in m/s².
+ */
+void VDP_setAcceleration(float acceleration);
+
+/**
+ * @brief Set the current curvature value. Positive values indicate a turning
+ * curve to the left hand side of the driver. The value shall be set to 0 when
+ * the vehicle is moving straight.
+ *
+ * @param curvature Curvature radius in m. 0 for moving stright. Negative for
+ * left hand turn.
+ */
+void VDP_setCurvature(float radius);
+
+/**
+ * @brief Set the current yaw rate. Yaw rate denotes the vehicle rotation
+ * around the centre of mass of the empty vehicle. The leading sign denotes
+ * the direction of rotation. The value is negative if the motion is clockwise
+ * when viewing from the top.
+ *
+ * @param yawRate Value in deg/sec.
+ */
+void VDP_setYawRate(float yawRate);
+
+
+#pragma endregion
 
 #pragma region CAM methods
 
@@ -331,7 +327,19 @@ CABasicServiceConfig_t SHARED_EXPORT getCABasicServiceConfig();
  * @return int Returns 0 on success or an error code.
  */
 int SHARED_EXPORT getCAMBasicContainer(int stationID,
-                                       CAMBasicContainer_t *container);
+                                       CAMBasicContainerData_t *container);
+
+/**
+ * @brief Returns the most recent high frequency data for a vehicle.
+ *
+ * @param stationID StationID of the vehicle.
+ * @param container Container where the data is stored.
+ * @return int Returns 0 on success or an error code.
+ */
+int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(
+    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container);
+
+// TODO getter methods for LFC, SVC, RSUHFC
 
 #pragma endregion // CAM methods
 

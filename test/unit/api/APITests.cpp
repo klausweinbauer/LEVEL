@@ -22,3 +22,7 @@ TEST(API, ConfigurationCABasicServiceWithStationTypeUnknown) {
   config.stationType = StationType_Trailer;
   configureCABasicService(config);
 }
+
+TEST(API, GetCAMBasicContainer) {}
+
+TEST(API, GetCAMBasicVehicleContainerHighFrequency) {}

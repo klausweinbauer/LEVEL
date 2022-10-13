@@ -1,4 +1,6 @@
 #include <CABasicService.hpp>
+#include <CAMIndexer.hpp>
+#include <QRYStationID.hpp>
 
 namespace level::cam {
 
@@ -6,10 +8,16 @@ CABasicService::CABasicService(
     std::shared_ptr<INetworkInterface<CAM>> networkInterface,
     std::shared_ptr<IValueConverter> valueConverter,
     std::shared_ptr<IFrequencyManager> frequencyManager,
-    std::shared_ptr<IPOTI> poti)
+    std::shared_ptr<IPOTI> poti,
+    std::shared_ptr<IDatabase<CAMWrapper>> camDatabase)
     : _nal(networkInterface), _valueConverter(valueConverter),
       _frequencyManager(frequencyManager), _cam(), _disseminationActive(false),
-      _poti(poti) {
+      _poti(poti), _db(camDatabase) {
+
+  // Add indexer to cam database
+  _db->addIndexer(std::make_unique<IDXCAMIndex>());
+  _db->addIndexer(std::make_unique<IDXCAMStationID>());
+  _db->addIndexer(std::make_unique<IDXCAMLatest>());
 
   _config.stationID = rand();
   _config.stationType = StationType::StationType_PassengerCar;
@@ -75,6 +83,19 @@ float CABasicService::getCAMGenerationFrequency() {
 CAMWrapper CABasicService::cam() {
   std::lock_guard<std::mutex> guard(_camMutex);
   return _cam;
+}
+
+bool CABasicService::tryGetCAM(unsigned int stationID, CAMWrapper *cam) {
+  auto views = _db->get(QRYLatestMsg::byId(stationID));
+  assert(views.size() <= 1 &&
+         "There should only be one latest message for each station id.");
+
+  if (views.size() == 0) {
+    return false;
+  } else {
+    *cam = *views.at(0);
+    return true;
+  }
 }
 
 void CABasicService::setHeading(float heading) {

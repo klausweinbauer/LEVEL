@@ -1,6 +1,0 @@
-target_sources(${LEVEL_TARGET_NAME} PRIVATE    
-    ${CMAKE_CURRENT_SOURCE_DIR}/CAMAPI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/VDP.cpp
-)
-
-target_include_directories(${LEVEL_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

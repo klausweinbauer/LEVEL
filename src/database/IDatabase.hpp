@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <DBView.hpp>
 #include <IIndexer.hpp>
 #include <IQuery.hpp>
 #include <vector>

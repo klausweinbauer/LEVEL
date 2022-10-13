@@ -174,6 +174,6 @@ TEST(Query, QRYParameterSetValue) {
 TEST(Query, QRYParameterByValue) {
   QueryTest_Parameter param(rand(), rand());
   auto qry = QRYParameter<QueryTest_Parameter>::byValue(param);
-  ASSERT_EQ(param._x, qry.value()._x);
-  ASSERT_EQ(param._y, qry.value()._y);
+  ASSERT_EQ(param._x, qry->value()._x);
+  ASSERT_EQ(param._y, qry->value()._y);
 }

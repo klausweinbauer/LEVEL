@@ -316,3 +316,77 @@ TEST(CAMWrapper, ClearSVCValues) {
   auto svc2 = cam.setSVC(type);
   ASSERT_EQ(0, svc2->choice.dangerousGoodsContainer.dangerousGoodsBasic);
 }
+
+TEST(CAMWrapper, GetBasicContainerData) {
+  CAMWrapper cam;
+  CAMBasicContainerData_t container;
+  auto bc = &cam->cam.camParameters.basicContainer;
+
+  bc->stationType = (StationType_t)level::StationType::StationType_Bus;
+  bc->referencePosition.latitude = rand();
+  bc->referencePosition.longitude = rand();
+  bc->referencePosition.altitude.altitudeValue = rand();
+
+  int returnStatus = cam.getBasicContainer(&container);
+
+  ASSERT_EQ(0, returnStatus);
+  ASSERT_EQ(bc->stationType, container.stationType);
+  ASSERT_EQ(bc->referencePosition.latitude, container.latitude);
+  ASSERT_EQ(bc->referencePosition.longitude, container.longitude);
+  ASSERT_EQ(bc->referencePosition.altitude.altitudeValue, container.altitude);
+}
+
+TEST(CAMWrapper, GetBasicContainerDataWithNullPtr) {
+  CAMWrapper cam;
+
+  int returnStatus = cam.getBasicContainer(nullptr);
+
+  ASSERT_EQ(ERR_ARG_NULL, returnStatus);
+}
+
+TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyData) {
+  CAMWrapper cam(0,
+                 HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
+  CAMBasicVehicleContainerHighFrequencyData_t container;
+  auto hfc = &cam->cam.camParameters.highFrequencyContainer.choice
+                  .basicVehicleContainerHighFrequency;
+
+  hfc->heading.headingValue = rand();
+  hfc->speed.speedValue = rand();
+  hfc->driveDirection = 1;
+  hfc->vehicleLength.vehicleLengthValue = rand();
+  hfc->vehicleWidth = rand();
+  hfc->longitudinalAcceleration.longitudinalAccelerationValue = rand();
+  hfc->curvature.curvatureValue = rand();
+  hfc->yawRate.yawRateValue = rand();
+
+  int returnStatus = cam.getBasicVehicleContainerHighFrequency(&container);
+
+  ASSERT_EQ(0, returnStatus);
+  ASSERT_EQ(hfc->heading.headingValue, container.headingValue);
+  ASSERT_EQ(hfc->speed.speedValue, container.speedValue);
+  ASSERT_EQ(hfc->driveDirection, container.driveDirection);
+  ASSERT_EQ(hfc->vehicleLength.vehicleLengthValue, container.vehicleLength);
+  ASSERT_EQ(hfc->vehicleWidth, container.vehicleWidth);
+  ASSERT_EQ(hfc->longitudinalAcceleration.longitudinalAccelerationValue,
+            container.longitudinalAccelerationValue);
+  ASSERT_EQ(hfc->curvature.curvatureValue, container.curvatureValue);
+  ASSERT_EQ(hfc->yawRate.yawRateValue, container.yawRateValue);
+}
+
+TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyDataWithNullPtr) {
+  CAMWrapper cam;
+
+  int returnStatus = cam.getBasicVehicleContainerHighFrequency(nullptr);
+
+  ASSERT_EQ(ERR_ARG_NULL, returnStatus);
+}
+
+TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyDataWithWrongConfig) {
+  CAMWrapper cam(0, HighFrequencyContainer_PR_rsuContainerHighFrequency);
+  CAMBasicVehicleContainerHighFrequencyData_t container;
+
+  int returnStatus = cam.getBasicVehicleContainerHighFrequency(&container);
+
+  ASSERT_EQ(ERR_HIGH_FREQ_CONTAINER_TYPE, returnStatus);
+}

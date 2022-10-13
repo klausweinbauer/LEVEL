@@ -7,16 +7,16 @@ namespace level::cam {
 
 CAMDEREncoder CAMWrapper::_copyEncoder;
 
-CAMWrapper::CAMWrapper() : CAMWrapper(0) {}
+CAMWrapper::CAMWrapper() : CAMWrapper(0u) {}
 
 CAMWrapper::CAMWrapper(CAM *cam) : _cam(cam) {}
 
-CAMWrapper::CAMWrapper(int stationId)
+CAMWrapper::CAMWrapper(unsigned int stationId)
     : CAMWrapper(stationId,
                  HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
 }
 
-CAMWrapper::CAMWrapper(int stationId, HighFrequencyContainer_PR type)
+CAMWrapper::CAMWrapper(unsigned int stationId, HighFrequencyContainer_PR type)
     : _cam((CAM *)calloc(1, sizeof(CAM))) {
   _cam->header.stationID = stationId;
   _cam->header.messageID = CAM_MESSAGE_ID;
@@ -52,9 +52,9 @@ CAMWrapper &CAMWrapper::operator=(CAMWrapper other) {
   return *this;
 }
 
-CAM *CAMWrapper::operator->() { return _cam; }
+CAM *CAMWrapper::operator->() const { return _cam; }
 
-CAM &CAMWrapper::operator*() { return *_cam; }
+CAM &CAMWrapper::operator*() const { return *_cam; }
 
 CAM *CAMWrapper::get() const { return _cam; }
 
@@ -163,6 +163,45 @@ void CAMWrapper::initHFC() {
         AccelerationConfidence_unavailable;
     hfc->curvature.curvatureConfidence = CurvatureConfidence_unavailable;
     hfc->yawRate.yawRateConfidence = YawRateConfidence_unavailable;
+  }
+}
+
+int CAMWrapper::getBasicContainer(CAMBasicContainerData_t *container) const {
+  if (container) {
+    auto bc = &_cam->cam.camParameters.basicContainer;
+    container->stationType = (level::StationType)bc->stationType;
+    container->latitude = bc->referencePosition.latitude;
+    container->longitude = bc->referencePosition.longitude;
+    container->altitude = bc->referencePosition.altitude.altitudeValue;
+    return 0;
+  } else {
+    return ERR_ARG_NULL;
+  }
+}
+
+int CAMWrapper::getBasicVehicleContainerHighFrequency(
+    CAMBasicVehicleContainerHighFrequencyData_t *container) const {
+  if (container) {
+    auto hfcBase = &_cam->cam.camParameters.highFrequencyContainer;
+    if (hfcBase->present ==
+        HighFrequencyContainer_PR_basicVehicleContainerHighFrequency) {
+      auto hfc = &hfcBase->choice.basicVehicleContainerHighFrequency;
+      container->headingValue = hfc->heading.headingValue;
+      container->speedValue = hfc->speed.speedValue;
+      container->driveDirection =
+          (level::DriveDirectionType)hfc->driveDirection;
+      container->vehicleLength = hfc->vehicleLength.vehicleLengthValue;
+      container->vehicleWidth = hfc->vehicleWidth;
+      container->longitudinalAccelerationValue =
+          hfc->longitudinalAcceleration.longitudinalAccelerationValue;
+      container->curvatureValue = hfc->curvature.curvatureValue;
+      container->yawRateValue = hfc->yawRate.yawRateValue;
+      return 0;
+    } else {
+      return ERR_HIGH_FREQ_CONTAINER_TYPE;
+    }
+  } else {
+    return ERR_ARG_NULL;
   }
 }
 

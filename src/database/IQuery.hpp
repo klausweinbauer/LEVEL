@@ -14,7 +14,7 @@
 namespace level {
 
 /**
- * @brief Qquery interface used to implement database logic requests.
+ * @brief Query interface used to implement database logic requests.
  *
  */
 class IQuery {

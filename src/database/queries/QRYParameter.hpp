@@ -45,9 +45,11 @@ public:
    * @brief Create a query to find entries by a specific parameter value.
    *
    * @param value Value of the parameter.
-   * @return QRYParameter Returns a query.
+   * @return std::shared_ptr<QRYParameter<T>> Returns a query.
    */
-  static QRYParameter byValue(T value) { return QRYParameter(value); }
+  static std::shared_ptr<QRYParameter<T>> byValue(T value) {
+    return std::make_shared<QRYParameter<T>>(value);
+  }
 };
 
 } // namespace level

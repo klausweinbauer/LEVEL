@@ -16,13 +16,19 @@
 		{
 			"type": "shell",
 			"label": "Coverage-HTML",
-			"command": "${workspaceFolder}/scripts/generate-coverage.sh html && firefox file://${workspaceFolder}/coverage/html/index.html",
+			"command": "${workspaceFolder}/scripts/generate-coverage.sh html",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Build and Run Example",
 			"command": "cmake --install ./build --prefix ${workspaceFolder}/example && cmake -S ${workspaceFolder}/example -B ${workspaceFolder}/example/build && cmake --build ${workspaceFolder}/example/build && echo ========== RUN ========== && ${workspaceFolder}/example/build/level-example && echo ========== END ==========",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Build Release",
+			"command": "mkdir -p ${workspaceFolder}/release && cmake -DCMAKE_BUILD_TYPE=Release -S ${workspaceFolder} -B ${workspaceFolder}/release && cmake && cmake --build ${workspaceFolder}/release && pushd . && cd ${workspaceFolder}/release/ && cpack -G DEB && popd",
 			"problemMatcher": []
 		}
 	]
