@@ -1,7 +1,6 @@
 #include <Exception.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <level.h>
 #include <string.h>
 #include <time.h>
 
@@ -13,7 +12,7 @@ int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   ::testing::InitGoogleMock(&argc, argv);
   int ret = RUN_ALL_TESTS();
-  clearLastErrMsg();
+  clearErrMsg();
   return ret;
 }
 
@@ -37,7 +36,7 @@ TEST(API, TestSetErrorMessage) {
   char buffer[256];
   int size;
 
-  setLastErrMsg(expMsg.c_str(), expMsg.size() + 1);
+  Exception::setErrMsg(expMsg.c_str(), expMsg.size() + 1);
   getLastErrMsg(buffer, 256, &size);
 
   std::string msg(buffer);
@@ -50,8 +49,8 @@ TEST(API, TestSetInvalidErrorMessage) {
   char buffer[256];
   int size;
 
-  setLastErrMsg(expMsg.c_str(), expMsg.size() + 1);
-  setLastErrMsg(nullptr, expMsg.size() + 1);
+  Exception::setErrMsg(expMsg.c_str(), expMsg.size() + 1);
+  Exception::setErrMsg(nullptr, expMsg.size() + 1);
   getLastErrMsg(buffer, 256, &size);
 
   std::string msg(buffer);
@@ -65,8 +64,8 @@ TEST(API, TestOverrideErrorMessage) {
   char buffer[256];
   int size;
 
-  setLastErrMsg(oldMsg.c_str(), oldMsg.size() + 1);
-  setLastErrMsg(expMsg.c_str(), expMsg.size() + 1);
+  Exception::setErrMsg(oldMsg.c_str(), oldMsg.size() + 1);
+  Exception::setErrMsg(expMsg.c_str(), expMsg.size() + 1);
   getLastErrMsg(buffer, 256, &size);
 
   std::string msg(buffer);
@@ -78,7 +77,7 @@ TEST(API, TestGetEmptyLastErrorMessage) {
   char buffer[256];
   int size;
 
-  clearLastErrMsg();
+  clearErrMsg();
   getLastErrMsg(buffer, 256, &size);
 
   ASSERT_EQ(0, size);

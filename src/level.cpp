@@ -1,5 +1,5 @@
-#include <level.h>
 #include <ServiceProvider.hpp>
+#include <level.h>
 
 #define STRINGIFY(x) #x
 #define TO_STRING(x) STRINGIFY(x)
@@ -14,29 +14,23 @@ namespace level {
 
 const char *getVersion() { return TO_STRING(PROJECT_VERSION); }
 
-void VDP_setHeading(float heading) {
-  di::getCABasicService()->setHeading(heading);
-}
+void setHeading(float heading) { di::getCABasicService()->setHeading(heading); }
 
-void VDP_setSpeed(float speed) {
-  di::getCABasicService()->setSpeed(speed);
-}
+void setSpeed(float speed) { di::getCABasicService()->setSpeed(speed); }
 
-void VDP_setDriveDirection(DriveDirectionType direction) {
+void setDriveDirection(DriveDirectionType direction) {
   di::getCABasicService()->setDriveDirection(direction);
 }
 
-void VDP_setAcceleration(float acceleration) {
+void setAcceleration(float acceleration) {
   di::getCABasicService()->setAcceleration(acceleration);
 }
 
-void VDP_setCurvature(float radius) {
+void setCurvature(float radius) {
   di::getCABasicService()->setCurvature(radius);
 }
 
-void VDP_setYawRate(float yawRate) {
-  di::getCABasicService()->setYawRate(yawRate);
-}
+void setYawRate(float yawRate) { di::getCABasicService()->setYawRate(yawRate); }
 
 int configureCABasicService(CABasicServiceConfig_t config) {
   di::getCABasicService()->configure(config);
@@ -47,7 +41,7 @@ CABasicServiceConfig_t getCABasicServiceConfig() {
   return di::getCABasicService()->getConfiguration();
 }
 
-int getCAMBasicContainer(int stationID, CAMBasicContainerData_t *container) {
+int getCAMBasicContainer(int stationID, CAMBasicContainer_t *container) {
   cam::CAMWrapper cam;
   if (di::getCABasicService()->tryGetCAM(stationID, &cam)) {
     return cam.getBasicContainer(container);
@@ -56,14 +50,24 @@ int getCAMBasicContainer(int stationID, CAMBasicContainerData_t *container) {
   }
 }
 
-int getCAMBasicVehicleContainerHighFrequency(
-    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container) {
+int getCAMBasicVehicleContainerHF(int stationID,
+                                  CAMBasicVehicleContainerHF_t *container) {
   cam::CAMWrapper cam;
   if (di::getCABasicService()->tryGetCAM(stationID, &cam)) {
     return cam.getBasicVehicleContainerHighFrequency(container);
   } else {
     return ERR_MSG_NOT_FOUND;
   }
+}
+
+void clearErrMsg() { Exception::clearErrMsg(); }
+
+void getErrMsg(int err, char *buffer, int size) {
+  Exception::getErrMsg(err, buffer, size);
+}
+
+void getLastErrMsg(char *buffer, int size, int *actualSize) {
+  Exception::getLastErrMsg(buffer, size, actualSize);
 }
 
 #ifdef __cplusplus

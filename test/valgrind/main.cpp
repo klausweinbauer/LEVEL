@@ -14,6 +14,8 @@
 #include <thread>
 #include <time.h>
 
+// TODO improve reading; read blockwise to prevent crashes
+
 using namespace std;
 namespace fs = filesystem;
 

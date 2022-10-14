@@ -24,7 +24,7 @@ TEST(VDPTest, SetHeading) {
   configureCABasicService(config);
 
   float value = randFloat();
-  VDP_setHeading(value);
+  setHeading(value);
   ASSERT_EQ(converter.siToITSHeading(value),
             di::getCABasicService()
                 ->cam()
@@ -38,7 +38,7 @@ TEST(VDPTest, SetSpeed) {
   configureCABasicService(config);
 
   float value = randFloat();
-  VDP_setSpeed(value);
+  setSpeed(value);
   ASSERT_EQ(converter.siToITSSpeed(value),
             di::getCABasicService()
                 ->cam()
@@ -52,7 +52,7 @@ TEST(VDPTest, SetAcceleration) {
   configureCABasicService(config);
 
   float value = randFloat();
-  VDP_setAcceleration(value);
+  setAcceleration(value);
   ASSERT_EQ(converter.siToITSLongitudinalAcceleration(value),
             di::getCABasicService()
                 ->cam()
@@ -67,7 +67,7 @@ TEST(VDPTest, SetYawRate) {
   configureCABasicService(config);
 
   float value = randFloat();
-  VDP_setYawRate(value);
+  setYawRate(value);
   ASSERT_EQ(converter.siToITSYawRate(value),
             di::getCABasicService()
                 ->cam()
@@ -81,7 +81,7 @@ TEST(VDPTest, SetCurvature) {
   configureCABasicService(config);
 
   float value = randFloat();
-  VDP_setCurvature(value);
+  setCurvature(value);
   ASSERT_EQ(converter.siToITSCurvature(value),
             di::getCABasicService()
                 ->cam()
@@ -95,7 +95,7 @@ TEST(VDPTest, SetDriveDirection) {
   configureCABasicService(config);
 
   auto value = DriveDirectionType::DirveDirection_Backward;
-  VDP_setDriveDirection(value);
+  setDriveDirection(value);
   ASSERT_EQ(value, di::getCABasicService()
                        ->cam()
                        ->cam.camParameters.highFrequencyContainer.choice

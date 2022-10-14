@@ -166,7 +166,7 @@ void CAMWrapper::initHFC() {
   }
 }
 
-int CAMWrapper::getBasicContainer(CAMBasicContainerData_t *container) const {
+int CAMWrapper::getBasicContainer(CAMBasicContainer_t *container) const {
   if (container) {
     auto bc = &_cam->cam.camParameters.basicContainer;
     container->stationType = (level::StationType)bc->stationType;
@@ -180,7 +180,7 @@ int CAMWrapper::getBasicContainer(CAMBasicContainerData_t *container) const {
 }
 
 int CAMWrapper::getBasicVehicleContainerHighFrequency(
-    CAMBasicVehicleContainerHighFrequencyData_t *container) const {
+    CAMBasicVehicleContainerHF_t *container) const {
   if (container) {
     auto hfcBase = &_cam->cam.camParameters.highFrequencyContainer;
     if (hfcBase->present ==
