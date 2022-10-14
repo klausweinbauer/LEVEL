@@ -13,6 +13,7 @@
 
 #include <exception>
 #include <level.h>
+#include <mutex>
 #include <sstream>
 #include <string>
 
@@ -27,11 +28,9 @@ private:
   int _errCode;
   std::string _errMsg;
 
-  void setLastErrorMessage() {
-    if (_errMsg.size() > 0) {
-      setLastErrMsg(_errMsg.c_str(), _errMsg.size() + 1);
-    }
-  }
+  static char *lastErrorMsg;
+  static int lastErrorMsgSize;
+  static std::mutex errorMsgLock;
 
 public:
   Exception()
@@ -40,24 +39,29 @@ public:
             "General exception from LEVEL. For more information on what went "
             "wrong use members getErrCode() and getErrMsg() or global "
             "getLastErrMsg() function.") {}
-  Exception(int errCode) : _errCode(errCode) { setLastErrorMessage(); };
+
+  Exception(int errCode) : Exception(errCode, errMsg(errCode)){};
+
   Exception(int errCode, std::string errMsg)
       : _errCode(errCode), _errMsg(errMsg) {
-    setLastErrorMessage();
+    setErrMsg(_errMsg.c_str(), _errMsg.size() + 1);
   };
+
   virtual ~Exception() {}
 
   virtual int getErrCode() const { return _errCode; }
 
-  virtual const char *getErrMsg() const {
-    if (_errMsg.size() > 0) {
-      return _errMsg.c_str();
-    } else {
-      return errMsg(_errCode);
-    }
-  }
+  virtual const char *getErrMsg() const { return what(); }
 
   virtual const char *what() const noexcept override { return _errMsg.c_str(); }
+
+  static void setErrMsg(const char *buffer, int size);
+
+  static void getErrMsg(int err, char *buffer, int size);
+
+  static void getLastErrMsg(char *buffer, int size, int *actualSize);
+
+  static void clearErrMsg();
 
   /**
    * @brief Returns a general description for an error code.

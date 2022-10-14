@@ -319,7 +319,7 @@ TEST(CAMWrapper, ClearSVCValues) {
 
 TEST(CAMWrapper, GetBasicContainerData) {
   CAMWrapper cam;
-  CAMBasicContainerData_t container;
+  CAMBasicContainer_t container;
   auto bc = &cam->cam.camParameters.basicContainer;
 
   bc->stationType = (StationType_t)level::StationType::StationType_Bus;
@@ -347,7 +347,7 @@ TEST(CAMWrapper, GetBasicContainerDataWithNullPtr) {
 TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyData) {
   CAMWrapper cam(0,
                  HighFrequencyContainer_PR_basicVehicleContainerHighFrequency);
-  CAMBasicVehicleContainerHighFrequencyData_t container;
+  CAMBasicVehicleContainerHF_t container;
   auto hfc = &cam->cam.camParameters.highFrequencyContainer.choice
                   .basicVehicleContainerHighFrequency;
 
@@ -384,7 +384,7 @@ TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyDataWithNullPtr) {
 
 TEST(CAMWrapper, GetBasicVehicleContainerHighFrequencyDataWithWrongConfig) {
   CAMWrapper cam(0, HighFrequencyContainer_PR_rsuContainerHighFrequency);
-  CAMBasicVehicleContainerHighFrequencyData_t container;
+  CAMBasicVehicleContainerHF_t container;
 
   int returnStatus = cam.getBasicVehicleContainerHighFrequency(&container);
 

@@ -143,18 +143,10 @@ void SHARED_EXPORT getErrMsg(int err, char *buffer, int size);
 void SHARED_EXPORT getLastErrMsg(char *buffer, int size, int *actualSize);
 
 /**
- * @brief Function to set a detailed error message.
- *
- * @param buffer The buffer where the error message is stored.
- * @param size The length of the error message.
- */
-void SHARED_EXPORT setLastErrMsg(const char *buffer, int size);
-
-/**
  * @brief Clear the last error message.
  *
  */
-void SHARED_EXPORT clearLastErrMsg();
+void SHARED_EXPORT clearErrMsg();
 
 #pragma endregion
 
@@ -182,7 +174,7 @@ typedef enum {
     Use this for a compact encoding and smaller sizes for packages sent over
     the network.
   */
-} EncodingType;
+} MsgEncodingType;
 
 typedef enum {
   StationType_Unknown = 0,
@@ -213,6 +205,7 @@ typedef enum {
 typedef struct CABasicServiceConfig {
   unsigned int stationID;
   StationType stationType;
+  // TODO MsgEncodingType encoding;
 } CABasicServiceConfig_t;
 
 typedef struct ITSPDUHeader {
@@ -221,14 +214,14 @@ typedef struct ITSPDUHeader {
   long messageID;
 } ITSPDUHeader_t;
 
-typedef struct CAMBasicContainerData {
+typedef struct CAMBasicContainer {
   StationType stationType;
   float latitude;
   float longitude;
   float altitude;
-} CAMBasicContainerData_t;
+} CAMBasicContainer_t;
 
-typedef struct CAMBasicVehicleContainerHighFrequencyData {
+typedef struct CAMBasicVehicleContainerHF {
   float headingValue;
   float speedValue;
   DriveDirectionType driveDirection;
@@ -237,7 +230,7 @@ typedef struct CAMBasicVehicleContainerHighFrequencyData {
   float longitudinalAccelerationValue;
   float curvatureValue;
   float yawRateValue;
-} CAMBasicVehicleContainerHighFrequencyData_t;
+} CAMBasicVehicleContainerHF_t;
 
 #pragma endregion // Structs
 
@@ -256,28 +249,28 @@ SHARED_EXPORT const char *getVersion();
  *
  * @param heading Heading in degree.
  */
-void VDP_setHeading(float heading);
+void setHeading(float heading);
 
 /**
  * @brief Set the current speed value.
  *
  * @param speed Speed in m/s;
  */
-void VDP_setSpeed(float speed);
+void setSpeed(float speed);
 
 /**
  * @brief Set the current drive direction.
  *
  * @param direction Direction.
  */
-void VDP_setDriveDirection(DriveDirectionType direction);
+void setDriveDirection(DriveDirectionType direction);
 
 /**
  * @brief Set the current longitudinal acceleration value.
  *
  * @param acceleration Acceleration in m/s².
  */
-void VDP_setAcceleration(float acceleration);
+void setAcceleration(float acceleration);
 
 /**
  * @brief Set the current curvature value. Positive values indicate a turning
@@ -287,7 +280,7 @@ void VDP_setAcceleration(float acceleration);
  * @param curvature Curvature radius in m. 0 for moving stright. Negative for
  * left hand turn.
  */
-void VDP_setCurvature(float radius);
+void setCurvature(float radius);
 
 /**
  * @brief Set the current yaw rate. Yaw rate denotes the vehicle rotation
@@ -297,8 +290,7 @@ void VDP_setCurvature(float radius);
  *
  * @param yawRate Value in deg/sec.
  */
-void VDP_setYawRate(float yawRate);
-
+void setYawRate(float yawRate);
 
 #pragma endregion
 
@@ -327,7 +319,7 @@ CABasicServiceConfig_t SHARED_EXPORT getCABasicServiceConfig();
  * @return int Returns 0 on success or an error code.
  */
 int SHARED_EXPORT getCAMBasicContainer(int stationID,
-                                       CAMBasicContainerData_t *container);
+                                       CAMBasicContainer_t *container);
 
 /**
  * @brief Returns the most recent high frequency data for a vehicle.
@@ -336,8 +328,8 @@ int SHARED_EXPORT getCAMBasicContainer(int stationID,
  * @param container Container where the data is stored.
  * @return int Returns 0 on success or an error code.
  */
-int SHARED_EXPORT getCAMBasicVehicleContainerHighFrequency(
-    int stationID, CAMBasicVehicleContainerHighFrequencyData_t *container);
+int SHARED_EXPORT getCAMBasicVehicleContainerHF(
+    int stationID, CAMBasicVehicleContainerHF_t *container);
 
 // TODO getter methods for LFC, SVC, RSUHFC
 

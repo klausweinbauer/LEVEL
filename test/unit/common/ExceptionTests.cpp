@@ -31,7 +31,7 @@ TEST(Exception, ErrorMessageForUnknownError) {
 
 TEST(Exception, GetDefaultErrorMessage) {
   Exception ex(ERR);
-  ASSERT_EQ(Exception::errMsg(ERR), ex.getErrMsg());
+  ASSERT_EQ(std::string(Exception::errMsg(ERR)), std::string(ex.getErrMsg()));
 }
 
 TEST(Exception, GetDefaultErrorCode) {
@@ -53,6 +53,13 @@ TEST(Exception, DefaultEncodeErrorMessage) {
   std::string expMsg("Message de-/encoding failed.");
   EncodeException e;
   ASSERT_EQ(expMsg, std::string(e.getErrMsg()));
+}
+
+TEST(Exception, InitOnlyWithCode) {
+  std::string expMsg("Null pointer.");
+  Exception e(ERR_NULL);
+  ASSERT_EQ(expMsg, std::string(e.getErrMsg()));
+  ASSERT_EQ(expMsg, std::string(e.what()));
 }
 
 TEST(Exception, ErrorMessageERR) {
