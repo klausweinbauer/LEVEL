@@ -1,4 +1,5 @@
 #include <CAMRecvHandler.hpp>
+#include <DENMRecvHandler.hpp>
 #include <RecvHandler.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -89,5 +90,13 @@ TEST(RecvHandler, CAMReceiveHandlerFreeMessage) {
   CAM *cam = (CAM *)calloc(1, sizeof(CAM));
   CAMRecvHandler handler;
   handler.invoke(cam);
+  // Expect no memory leak
+}
+
+TEST(RecvHandler, DENMReceiveHandlerFreeMessage) {
+  using namespace level::denm;
+  DENM *denm = (DENM *)calloc(1, sizeof(DENM));
+  DENMRecvHandler handler;
+  handler.invoke(denm);
   // Expect no memory leak
 }

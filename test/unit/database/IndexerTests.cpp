@@ -1,5 +1,7 @@
 #include <CAMIndexer.hpp>
 #include <CAMWrapper.hpp>
+#include <DENMIndexer.hpp>
+#include <DENMWrapper.hpp>
 #include <IDXIndex.hpp>
 #include <IDXParameter.hpp>
 #include <Indexer.hpp>
@@ -360,6 +362,13 @@ TEST(Indexer, IDXCAMStationID) {
   cam::CAMWrapper cam(stationID);
   cam::IDXCAMStationID indexer;
   ASSERT_EQ(stationID, indexer.getValue(cam));
+}
+
+TEST(Indexer, IDXDENMStationID) {
+  auto stationID = (unsigned int)rand();
+  denm::DENMWrapper denm(stationID, 0);
+  denm::IDXDENMStationID indexer;
+  ASSERT_EQ(stationID, indexer.getValue(denm));
 }
 
 TEST(Indexer, IDXCAMLatestGetIndex) {

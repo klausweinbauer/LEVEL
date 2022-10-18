@@ -238,10 +238,10 @@ typedef struct CABasicServiceConfig {
   // TODO MsgEncodingType encoding;
 } CABasicServiceConfig_t;
 
-typedef struct ActionID {
+typedef struct ActionId {
   unsigned int stationID;
   int sequenceNumber;
-} ActionID_t;
+} ActionId_t;
 
 typedef struct ITSPDUHeader {
   unsigned int stationID;

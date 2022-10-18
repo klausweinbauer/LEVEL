@@ -30,9 +30,9 @@ DENMWrapper &DENMWrapper::operator=(DENMWrapper other) {
   return *this;
 }
 
-DENM *DENMWrapper::operator->() { return _denm; }
+DENM *DENMWrapper::operator->() const { return _denm; }
 
-DENM &DENMWrapper::operator*() { return *_denm; }
+DENM &DENMWrapper::operator*() const { return *_denm; }
 
 DENM *DENMWrapper::get() { return _denm; }
 

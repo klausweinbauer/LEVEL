@@ -16,14 +16,14 @@ class IDENBasicService {
 public:
   virtual ~IDENBasicService() {}
 
-  virtual bool tryGetDENM(ActionID_t actionID, DENMWrapper *denm) = 0;
+  virtual bool tryGetDENM(ActionId_t actionID, DENMWrapper *denm) = 0;
 
   // TODO look at application requirements for a valid DENM generation
-  virtual ActionID_t createDENM(EventType eventType) = 0;
+  virtual ActionId_t createDENM(EventType eventType) = 0;
 
-  virtual void updateDENM(ActionID_t actionID) = 0;
+  virtual void updateDENM(ActionId_t actionID) = 0;
 
-  virtual void terminateDENM(ActionID_t actionID) = 0;
+  virtual void terminateDENM(ActionId_t actionID) = 0;
 };
 
 } // namespace level::denm

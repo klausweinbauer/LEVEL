@@ -39,8 +39,8 @@ public:
   DENMWrapper(const DENMWrapper &other);
   DENMWrapper &operator=(DENMWrapper other);
 
-  DENM *operator->();
-  DENM &operator*();
+  DENM *operator->() const;
+  DENM &operator*() const;
 
   DENM *get();
 
