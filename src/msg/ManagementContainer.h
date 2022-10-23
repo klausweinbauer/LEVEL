@@ -4,22 +4,21 @@
  * 	found in "../../EN302637-3v131-DENM.asn"
  */
 
-#ifndef	_ManagementContainer_H_
-#define	_ManagementContainer_H_
-
+#ifndef _ManagementContainer_H_
+#define _ManagementContainer_H_
 
 #include <asn_application.h>
 
 /* Including external dependencies */
 #include "ActionID.h"
-#include "TimestampIts.h"
-#include "Termination.h"
 #include "ReferencePosition.h"
 #include "RelevanceDistance.h"
 #include "RelevanceTrafficDirection.h"
-#include "ValidityDuration.h"
-#include "TransmissionInterval.h"
 #include "StationType.h"
+#include "Termination.h"
+#include "TimestampIts.h"
+#include "TransmissionInterval.h"
+#include "ValidityDuration.h"
 #include <constr_SEQUENCE.h>
 
 #ifdef __cplusplus
@@ -28,23 +27,23 @@ extern "C" {
 
 /* ManagementContainer */
 typedef struct ManagementContainer {
-	ActionID_t	 actionID;
-	TimestampIts_t	 detectionTime;
-	TimestampIts_t	 referenceTime;
-	Termination_t	*termination	/* OPTIONAL */;
-	ReferencePosition_t	 eventPosition;
-	RelevanceDistance_t	*relevanceDistance	/* OPTIONAL */;
-	RelevanceTrafficDirection_t	*relevanceTrafficDirection	/* OPTIONAL */;
-	ValidityDuration_t	*validityDuration	/* DEFAULT 600 */;
-	TransmissionInterval_t	*transmissionInterval	/* OPTIONAL */;
-	StationType_t	 stationType;
-	/*
-	 * This type is extensible,
-	 * possible extensions are below.
-	 */
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+  ActionID_t actionID;
+  TimestampIts_t detectionTime;
+  TimestampIts_t referenceTime;
+  Termination_t *termination /* OPTIONAL */;
+  ReferencePosition_t eventPosition;
+  RelevanceDistance_t *relevanceDistance /* OPTIONAL */;
+  RelevanceTrafficDirection_t *relevanceTrafficDirection /* OPTIONAL */;
+  ValidityDuration_t *validityDuration /* DEFAULT 600 */;
+  TransmissionInterval_t *transmissionInterval /* OPTIONAL */;
+  StationType_t stationType;
+  /*
+   * This type is extensible,
+   * possible extensions are below.
+   */
+
+  /* Context for parsing across buffer boundaries */
+  asn_struct_ctx_t _asn_ctx;
 } ManagementContainer_t;
 
 /* Implementation */
@@ -54,5 +53,5 @@ extern asn_TYPE_descriptor_t asn_DEF_ManagementContainer;
 }
 #endif
 
-#endif	/* _ManagementContainer_H_ */
+#endif /* _ManagementContainer_H_ */
 #include <asn_internal.h>

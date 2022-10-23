@@ -70,6 +70,15 @@ void getLastErrMsg(char *buffer, int size, int *actualSize) {
   Exception::getLastErrMsg(buffer, size, actualSize);
 }
 
+int configureCABasicService(DENBasicServiceConfig_t config) {
+  di::getDENBasicService()->configure(config);
+  return 0;
+}
+
+DENBasicServiceConfig_t getDENBasicServiceConfig() {
+  return di::getDENBasicService()->getConfiguration();
+}
+
 #ifdef __cplusplus
 }
 #endif

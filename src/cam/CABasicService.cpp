@@ -24,6 +24,8 @@ CABasicService::CABasicService(
 
   configure(_config);
 
+  // TODO register callback for receiving CAMs
+
   _disseminationActive = true;
   _disseminationThread = std::unique_ptr<std::thread>(
       new std::thread(([this]() { disseminationTask(); })));

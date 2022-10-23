@@ -1,5 +1,7 @@
 #pragma once
 
+#include <TimestampIts.h>
+
 namespace level {
 
 class IValueConverter {
@@ -40,6 +42,29 @@ public:
    * @return float Distance between A and B in meters.
    */
   virtual float distance(float long1, float lat1, float long2, float lat2) = 0;
+
+  /**
+   * @brief Convert a timestamp in milliseconds since 2004-01-01
+   * 00:00:00:000 UTC into a ITS Timestamp object. You should always assign this
+   * timestamp object to a CAM or DENM message because this method allocates
+   * memory that otherwise would be lost if not explicitly freed.
+   *
+   * @param ms Milliseconds since 2004-01-01 00:00:00:000 UTC.
+   *
+   * @return A timestamp object.
+   */
+  virtual TimestampIts_t *siToITSTimestamp(unsigned long long int ms) = 0;
+
+  /**
+   * @brief Convert a timestamp to milliseconds since 2004-01-01 00:00:00:000
+   * UTC.
+   *
+   * @param timestamp A timestamp reference.
+   *
+   * @return Milliseconds since 2004-01-01 00:00:00:000 UTC.
+   */
+  virtual unsigned long long int
+  itsToSITimestamp(const TimestampIts_t *timestamp) = 0;
 };
 
 } // namespace level

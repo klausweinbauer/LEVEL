@@ -246,3 +246,49 @@ TEST(ValueConverter, GetDistance) {
   ASSERT_NEAR(expectedDistance, converter.distance(long1, lat1, long2, lat2),
               0.01 * expectedDistance);
 }
+
+TEST(ValueConverter, ConvertMillisecondsToTimestampInstance) {
+  ValueConverter converter;
+  unsigned long long int ms = 0xCAFE;
+  auto timestamp = converter.siToITSTimestamp(ms);
+  ASSERT_NE(nullptr, timestamp);
+  ASSERT_NE(nullptr, timestamp->buf);
+  ASSERT_EQ(8, timestamp->size);
+  for (int i = 0; i < 6; i++) {
+    ASSERT_EQ(0, timestamp->buf[i]);
+  }
+  ASSERT_EQ(0xCA, timestamp->buf[6]);
+  ASSERT_EQ(0xFE, timestamp->buf[7]);
+  ASN_STRUCT_FREE(asn_DEF_TimestampIts, timestamp);
+}
+
+TEST(ValueConverter, ConvertTimestampInstance) {
+  ValueConverter converter;
+  unsigned long long int ms = (unsigned long long int)rand();
+  auto timestamp = converter.siToITSTimestamp(ms);
+  auto result = converter.itsToSITimestamp(timestamp);
+  ASSERT_EQ(ms, result);
+  ASN_STRUCT_FREE(asn_DEF_TimestampIts, timestamp);
+}
+
+TEST(ValueConverter, RaisesExceptionOnNullPtrArgument) {
+  ValueConverter converter;
+  ASSERT_THROW(converter.itsToSITimestamp(nullptr), Exception);
+}
+
+TEST(ValueConverter, RaisesExceptionOnNullPtrBuffer) {
+  ValueConverter converter;
+  TimestampIts_t timestamp;
+  timestamp.buf = nullptr;
+  timestamp.size = 0;
+  ASSERT_THROW(converter.itsToSITimestamp(&timestamp), Exception);
+}
+
+TEST(ValueConverter, RaisesExceptionOnInvalidSizedBuffer) {
+  ValueConverter converter;
+  TimestampIts_t timestamp;
+  uint8_t buffer;
+  timestamp.buf = &buffer;
+  timestamp.size = 1;
+  ASSERT_THROW(converter.itsToSITimestamp(&timestamp), Exception);
+}

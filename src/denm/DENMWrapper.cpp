@@ -11,6 +11,9 @@ DENMWrapper::DENMWrapper() : DENMWrapper(0, 0) {}
 
 DENMWrapper::DENMWrapper(DENM *denm) : _denm(denm) {}
 
+DENMWrapper::DENMWrapper(ActionId_t actionId)
+    : DENMWrapper(actionId.stationID, actionId.sequenceNumber) {}
+
 DENMWrapper::DENMWrapper(int stationId, int sequenceNumber)
     : _denm((DENM *)calloc(1, sizeof(DENM))) {
   _denm->header.stationID = stationId;
@@ -35,6 +38,16 @@ DENM *DENMWrapper::operator->() const { return _denm; }
 DENM &DENMWrapper::operator*() const { return *_denm; }
 
 DENM *DENMWrapper::get() { return _denm; }
+
+DENMState DENMWrapper::getState() const {
+  if (_denm->denm.management.termination == nullptr) {
+    return DENMState::DENMState_Active;
+  } else if (*_denm->denm.management.termination == 0) {
+    return DENMState::DENMState_Cancelled;
+  } else {
+    return DENMState::DENMState_Negated;
+  }
+}
 
 ManagementContainer *DENMWrapper::getMC() const {
   return &_denm->denm.management;

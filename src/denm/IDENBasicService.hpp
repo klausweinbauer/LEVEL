@@ -16,10 +16,25 @@ class IDENBasicService {
 public:
   virtual ~IDENBasicService() {}
 
+  /**
+   * @brief Configure the decentralized environmental notification basic
+   * service.
+   *
+   * @param config Configuration.
+   */
+  virtual void configure(DENBasicServiceConfig_t config) = 0;
+
+  /**
+   * @brief Returns the current decentralized environmental notification basic
+   * service configuration.
+   *
+   * @return DENBasicServiceConfig Current configuration.
+   */
+  virtual DENBasicServiceConfig_t getConfiguration() = 0;
+
   virtual bool tryGetDENM(ActionId_t actionID, DENMWrapper *denm) = 0;
 
-  // TODO look at application requirements for a valid DENM generation
-  virtual ActionId_t createDENM(EventType eventType) = 0;
+  virtual ActionId_t createDENM(EventType *eventType = nullptr) = 0;
 
   virtual void updateDENM(ActionId_t actionID) = 0;
 

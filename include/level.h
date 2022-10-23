@@ -228,6 +228,12 @@ typedef enum {
   EventType_DangerousSituation = 99
 } EventType;
 
+typedef enum {
+  DENMState_Active,
+  DENMState_Cancelled,
+  DENMState_Negated
+} DENMState;
+
 #pragma endregion // Enums
 
 #pragma region Structs
@@ -237,6 +243,12 @@ typedef struct CABasicServiceConfig {
   StationType stationType;
   // TODO MsgEncodingType encoding;
 } CABasicServiceConfig_t;
+
+typedef struct DENBasicServiceConfig {
+  unsigned int stationID;
+  StationType stationType;
+  // TODO MsgEncodingType encoding;
+} DENBasicServiceConfig_t;
 
 typedef struct ActionId {
   unsigned int stationID;
@@ -273,6 +285,11 @@ typedef struct CAMBasicVehicleContainerHF {
   float curvatureValue;
   float yawRateValue;
 } CAMBasicVehicleContainerHF_t;
+
+typedef struct DENMManagementConatiner {
+  unsigned long long int detectionTime;
+
+} DENMManagementContainer_t;
 
 #pragma endregion // Structs
 
@@ -378,6 +395,22 @@ int SHARED_EXPORT getCAMBasicVehicleContainerHF(
 #pragma endregion // CAM methods
 
 #pragma region DENM methods
+
+/**
+ * @brief Configure the decentralized environmental notification basic service.
+ *
+ * @param config Configuration.
+ * @return int Returns 0 on success or an error code.
+ */
+int SHARED_EXPORT configureDENBasicService(DENBasicServiceConfig_t config);
+
+/**
+ * @brief Returns the current decentralized environmental notification basic
+ * service configuration.
+ *
+ * @return DENBasicServiceConfig Current configuration.
+ */
+DENBasicServiceConfig_t SHARED_EXPORT getDENBasicServiceConfig();
 
 #pragma endregion // DENM methods
 

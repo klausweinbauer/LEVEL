@@ -1,12 +1,15 @@
 #include <DENBasicService.hpp>
 #include <DENMIndexer.hpp>
+#include <Database.hpp>
 #include <Mocks.hpp>
 #include <QRYLatestMsg.hpp>
 #include <QRYStationID.hpp>
+#include <ValueConverter.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using ::testing::_;
+using ::testing::An;
 using ::testing::AtLeast;
 using ::testing::Invoke;
 using ::testing::NiceMock;
@@ -46,6 +49,19 @@ std::shared_ptr<DENBasicService> getService() {
 std::shared_ptr<DENBasicService>
 getService(std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
   return std::make_shared<DENBasicService>(getNAL(), getPOTI(), denmDatabase);
+}
+
+std::shared_ptr<DENBasicService>
+getService(std::shared_ptr<IPOTI> poti,
+           std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
+  return std::make_shared<DENBasicService>(getNAL(), poti, denmDatabase);
+}
+
+std::shared_ptr<DENBasicService>
+getService(std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase,
+           std::shared_ptr<NiceMock<MNetworkInterface<DENM>>> nal,
+           std::shared_ptr<NiceMock<MPOTI>> poti) {
+  return std::make_shared<DENBasicService>(nal, poti, denmDatabase);
 }
 
 } // namespace level::DENBasicServiceTests
@@ -133,4 +149,59 @@ TEST(DENBasicService, TryGetNotExistingDENMFromDatabase) {
   DENMWrapper denm;
   ActionId_t actionId = {stationId, sequenceNumber};
   EXPECT_FALSE(service->tryGetDENM(actionId, &denm));
+}
+
+TEST(DENBasicService, SetAndGetConfiguration) {
+  auto service = getService();
+  DENBasicServiceConfig config;
+  config.stationID = (unsigned int)rand();
+  config.stationType = StationType_PassengerCar;
+  service->configure(config);
+  auto result = service->getConfiguration();
+  ASSERT_EQ(config.stationID, result.stationID);
+  ASSERT_EQ(config.stationType, result.stationType);
+}
+
+TEST(DENBasicService, UseNewActionId) {
+  DBElement<DENMWrapper> elmt;
+  auto db = getDB();
+  auto service = getService(db);
+  EXPECT_CALL(*db, insert(An<DENMWrapper>()))
+      .WillRepeatedly(Invoke([&elmt](DENMWrapper entry) {
+        elmt.setData(std::make_unique<DENMWrapper>(entry));
+        DBView<DENMWrapper> view(&elmt);
+        return view;
+      }));
+
+  auto id1 = service->createDENM(nullptr);
+  auto id2 = service->createDENM(nullptr);
+
+  ASSERT_EQ(id1.stationID, id2.stationID);
+  ASSERT_NE(id1.sequenceNumber, id2.sequenceNumber);
+}
+
+TEST(DENBasicService, InsertNewDENMIntoDatabase) {
+  ValueConverter converter;
+  DBElement<DENMWrapper> elmt;
+  auto db = getDB();
+  auto poti = getPOTI();
+  auto service = getService(poti, db);
+  auto now = (unsigned long long int)rand();
+  auto eventType = EventType_CollisionRisk;
+  DENMWrapper denm;
+  EXPECT_CALL(*poti, now()).WillRepeatedly(Return(now));
+  EXPECT_CALL(*db, insert(An<DENMWrapper>()))
+      .WillOnce(Invoke([&denm, &elmt](DENMWrapper entry) {
+        denm = entry;
+        elmt.setData(std::make_unique<DENMWrapper>(entry));
+        DBView<DENMWrapper> view(&elmt);
+        return view;
+      }));
+
+  service->createDENM(&eventType);
+
+  ASSERT_NE(nullptr, denm->denm.situation);
+  ASSERT_EQ(eventType, (EventType)denm->denm.situation->eventType.causeCode);
+  ASSERT_EQ(now,
+            converter.itsToSITimestamp(&denm->denm.management.referenceTime));
 }
