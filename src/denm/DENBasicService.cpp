@@ -55,6 +55,7 @@ bool DENBasicService::tryGetDENM(ActionId_t actionID, DENMWrapper *denm) {
 
 ActionId_t DENBasicService::createDENM(EventType *eventType) {
   // TODO Add support for validity duration
+  // TODO Add support for transmission interval and repetition
 
   // Assign unused action id
   _lock.lock();
@@ -64,18 +65,17 @@ ActionId_t DENBasicService::createDENM(EventType *eventType) {
   _lock.unlock();
   DENMWrapper denm(actionId);
 
-  // TODO Add support for transmission interval and repetition
-
   // Set provided fields
   SAFE_ASSIGN(SituationContainer, denm->denm.situation, eventType.causeCode,
               (CauseCodeType_t *)eventType)
 
   // Set referenceTime
-  denm->denm.management.detectionTime = _converter->siToITSTimestamp(
-      _poti->now()); // TODO fix converter to accept reference
+  auto now = _poti->now();
+  _converter->siToITSTimestamp(now, denm->denm.management.referenceTime);
+  _converter->siToITSTimestamp(now, denm->denm.management.detectionTime);
 
-  // Pass to NAL
-
+  // Send & Save
+  _nal->send(denm.get());
   _db->insert(denm);
 
   return actionId;

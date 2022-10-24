@@ -138,10 +138,10 @@ public:
   MOCK_METHOD(int, siToITSLatitude, (float), (override));
   MOCK_METHOD(float, itsToSILatitude, (int), (override));
   MOCK_METHOD(float, distance, (float, float, float, float), (override));
-  MOCK_METHOD(TimestampIts_t *, siToITSTimestamp, (unsigned long long int),
-              (override));
+  MOCK_METHOD(void, siToITSTimestamp,
+              (unsigned long long int, TimestampIts_t &), (override));
   MOCK_METHOD(unsigned long long int, itsToSITimestamp,
-              (const TimestampIts_t *), (override));
+              (const TimestampIts_t &), (override));
 };
 
 class MCABasicService : public cam::ICABasicService {

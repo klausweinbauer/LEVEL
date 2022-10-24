@@ -34,9 +34,10 @@ public:
   virtual float distance(float long1, float lat1, float long2,
                          float lat2) override;
 
-  virtual TimestampIts_t *siToITSTimestamp(unsigned long long int ms) override;
+  virtual void siToITSTimestamp(unsigned long long int ms,
+                                TimestampIts_t &timestamp) override;
   virtual unsigned long long int
-  itsToSITimestamp(const TimestampIts_t *timestamp) override;
+  itsToSITimestamp(const TimestampIts_t &timestamp) override;
 };
 
 } // namespace level

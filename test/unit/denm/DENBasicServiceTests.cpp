@@ -34,34 +34,57 @@ std::shared_ptr<NiceMock<MDatabase<DENMWrapper>>> getDB() {
   return std::make_shared<NiceMock<MDatabase<DENMWrapper>>>();
 }
 
-std::shared_ptr<DENBasicService>
-getService(std::shared_ptr<INetworkInterface<DENM>> networkInterface,
-           std::shared_ptr<IPOTI> poti,
-           std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
-  return std::make_shared<DENBasicService>(networkInterface, poti,
-                                           denmDatabase);
+std::shared_ptr<NiceMock<MValueConverter>> getConverter() {
+  return std::make_shared<NiceMock<MValueConverter>>();
 }
 
 std::shared_ptr<DENBasicService> getService() {
-  return std::make_shared<DENBasicService>(getNAL(), getPOTI(), getDB());
+  return std::make_shared<DENBasicService>(getNAL(), getPOTI(), getDB(),
+                                           getConverter());
 }
 
 std::shared_ptr<DENBasicService>
 getService(std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
-  return std::make_shared<DENBasicService>(getNAL(), getPOTI(), denmDatabase);
+  return std::make_shared<DENBasicService>(getNAL(), getPOTI(), denmDatabase,
+                                           getConverter());
 }
 
 std::shared_ptr<DENBasicService>
 getService(std::shared_ptr<IPOTI> poti,
            std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
-  return std::make_shared<DENBasicService>(getNAL(), poti, denmDatabase);
+  return std::make_shared<DENBasicService>(getNAL(), poti, denmDatabase,
+                                           getConverter());
+}
+
+std::shared_ptr<DENBasicService>
+getService(std::shared_ptr<INetworkInterface<DENM>> nal,
+           std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
+  return std::make_shared<DENBasicService>(nal, getPOTI(), denmDatabase,
+                                           getConverter());
+}
+
+std::shared_ptr<DENBasicService>
+getService(std::shared_ptr<IPOTI> poti,
+           std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase,
+           std::shared_ptr<IValueConverter> valueConverter) {
+  return std::make_shared<DENBasicService>(getNAL(), poti, denmDatabase,
+                                           valueConverter);
 }
 
 std::shared_ptr<DENBasicService>
 getService(std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase,
            std::shared_ptr<NiceMock<MNetworkInterface<DENM>>> nal,
            std::shared_ptr<NiceMock<MPOTI>> poti) {
-  return std::make_shared<DENBasicService>(nal, poti, denmDatabase);
+  return std::make_shared<DENBasicService>(nal, poti, denmDatabase,
+                                           getConverter());
+}
+
+std::shared_ptr<DENBasicService>
+getService(std::shared_ptr<INetworkInterface<DENM>> networkInterface,
+           std::shared_ptr<IPOTI> poti,
+           std::shared_ptr<IDatabase<DENMWrapper>> denmDatabase) {
+  return std::make_shared<DENBasicService>(networkInterface, poti, denmDatabase,
+                                           getConverter());
 }
 
 } // namespace level::DENBasicServiceTests
@@ -181,11 +204,11 @@ TEST(DENBasicService, UseNewActionId) {
 }
 
 TEST(DENBasicService, InsertNewDENMIntoDatabase) {
-  ValueConverter converter;
+  auto converter = std::make_shared<ValueConverter>();
   DBElement<DENMWrapper> elmt;
   auto db = getDB();
   auto poti = getPOTI();
-  auto service = getService(poti, db);
+  auto service = getService(poti, db, converter);
   auto now = (unsigned long long int)rand();
   auto eventType = EventType_CollisionRisk;
   DENMWrapper denm;
@@ -203,5 +226,22 @@ TEST(DENBasicService, InsertNewDENMIntoDatabase) {
   ASSERT_NE(nullptr, denm->denm.situation);
   ASSERT_EQ(eventType, (EventType)denm->denm.situation->eventType.causeCode);
   ASSERT_EQ(now,
-            converter.itsToSITimestamp(&denm->denm.management.referenceTime));
+            converter->itsToSITimestamp(denm->denm.management.referenceTime));
+}
+
+TEST(DENBasicService, SendNewDENM) {
+  DBElement<DENMWrapper> elmt;
+  auto db = getDB();
+  auto nal = getNAL();
+  auto service = getService(nal, db);
+  auto eventType = EventType_CollisionRisk;
+  EXPECT_CALL(*db, insert(An<DENMWrapper>()))
+      .WillOnce(Invoke([&elmt](DENMWrapper entry) {
+        elmt.setData(std::make_unique<DENMWrapper>(entry));
+        DBView<DENMWrapper> view(&elmt);
+        return view;
+      }));
+  EXPECT_CALL(*nal, send(_)).Times(1);
+
+  service->createDENM(&eventType);
 }

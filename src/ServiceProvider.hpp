@@ -62,6 +62,7 @@ REG_SINGELTON(cam::ICABasicService, cam::CABasicService, CABasicService,
               getCAMNetwork(), getValueConverter(),
               getVehicleFrequencyManager(), getPOTI(), getCAMDatabase())
 REG_SINGELTON(denm::IDENBasicService, denm::DENBasicService, DENBasicService,
-              getDENMNetwork(), getPOTI(), getDENMDatabase())
+              getDENMNetwork(), getPOTI(), getDENMDatabase(),
+              getValueConverter())
 
 } // namespace level::di

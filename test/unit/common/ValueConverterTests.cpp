@@ -250,45 +250,61 @@ TEST(ValueConverter, GetDistance) {
 TEST(ValueConverter, ConvertMillisecondsToTimestampInstance) {
   ValueConverter converter;
   unsigned long long int ms = 0xCAFE;
-  auto timestamp = converter.siToITSTimestamp(ms);
-  ASSERT_NE(nullptr, timestamp);
-  ASSERT_NE(nullptr, timestamp->buf);
-  ASSERT_EQ(8, timestamp->size);
+  TimestampIts_t timestamp = {};
+  converter.siToITSTimestamp(ms, timestamp);
+  ASSERT_NE(nullptr, timestamp.buf);
+  ASSERT_EQ(8, timestamp.size);
   for (int i = 0; i < 6; i++) {
-    ASSERT_EQ(0, timestamp->buf[i]);
+    ASSERT_EQ(0, timestamp.buf[i]);
   }
-  ASSERT_EQ(0xCA, timestamp->buf[6]);
-  ASSERT_EQ(0xFE, timestamp->buf[7]);
-  ASN_STRUCT_FREE(asn_DEF_TimestampIts, timestamp);
+  ASSERT_EQ(0xCA, timestamp.buf[6]);
+  ASSERT_EQ(0xFE, timestamp.buf[7]);
+  free(timestamp.buf);
 }
 
 TEST(ValueConverter, ConvertTimestampInstance) {
   ValueConverter converter;
   unsigned long long int ms = (unsigned long long int)rand();
-  auto timestamp = converter.siToITSTimestamp(ms);
+  TimestampIts_t timestamp = {};
+  converter.siToITSTimestamp(ms, timestamp);
   auto result = converter.itsToSITimestamp(timestamp);
   ASSERT_EQ(ms, result);
-  ASN_STRUCT_FREE(asn_DEF_TimestampIts, timestamp);
+  ASSERT_EQ(8, timestamp.size);
+  free(timestamp.buf);
 }
 
-TEST(ValueConverter, RaisesExceptionOnNullPtrArgument) {
+TEST(ValueConverter, FreeResourcesOfOldTimestampInstance) {
   ValueConverter converter;
-  ASSERT_THROW(converter.itsToSITimestamp(nullptr), Exception);
+  unsigned long long int ms = (unsigned long long int)rand();
+  TimestampIts_t timestamp = {};
+  converter.siToITSTimestamp(ms, timestamp);
+  converter.siToITSTimestamp(ms, timestamp);
+  free(timestamp.buf);
+  // No memory leak
 }
 
 TEST(ValueConverter, RaisesExceptionOnNullPtrBuffer) {
   ValueConverter converter;
-  TimestampIts_t timestamp;
+  TimestampIts_t timestamp = {};
   timestamp.buf = nullptr;
   timestamp.size = 0;
-  ASSERT_THROW(converter.itsToSITimestamp(&timestamp), Exception);
+  ASSERT_THROW(converter.itsToSITimestamp(timestamp), Exception);
 }
 
-TEST(ValueConverter, RaisesExceptionOnInvalidSizedBuffer) {
+TEST(ValueConverter, ConvertSmallerTimestampBuffer) {
   ValueConverter converter;
-  TimestampIts_t timestamp;
-  uint8_t buffer;
+  TimestampIts_t timestamp = {};
+  uint8_t buffer = 0x12;
   timestamp.buf = &buffer;
   timestamp.size = 1;
-  ASSERT_THROW(converter.itsToSITimestamp(&timestamp), Exception);
+  ASSERT_EQ(0x12, converter.itsToSITimestamp(timestamp));
+}
+
+TEST(ValueConverter, ThrowOnInvalidTimestampBuffer) {
+  ValueConverter converter;
+  TimestampIts_t timestamp = {};
+  uint8_t buffer;
+  timestamp.buf = &buffer;
+  timestamp.size = 9;
+  ASSERT_THROW(converter.itsToSITimestamp(timestamp), Exception);
 }

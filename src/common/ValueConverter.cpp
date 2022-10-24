@@ -131,38 +131,36 @@ float ValueConverter::distance(float long1, float lat1, float long2,
   return d * 1000;
 }
 
-TimestampIts_t *ValueConverter::siToITSTimestamp(unsigned long long int ms) {
-  auto timestamp = new TimestampIts_t();
-  timestamp->size = 8;
-  timestamp->buf = (uint8_t *)malloc(sizeof(uint8_t) * timestamp->size);
-  for (int i = 0; i < timestamp->size; i++) {
-    timestamp->buf[i] = (ms >> ((timestamp->size - i - 1) * 8)) & 0xFF;
+void ValueConverter::siToITSTimestamp(unsigned long long int ms,
+                                      TimestampIts_t &timestamp) {
+  if (timestamp.buf != nullptr)
+    free(timestamp.buf);
+
+  timestamp.size = 8;
+  timestamp.buf = (uint8_t *)malloc(sizeof(uint8_t) * timestamp.size);
+  for (int i = 0; i < timestamp.size; i++) {
+    timestamp.buf[i] = (ms >> ((timestamp.size - i - 1) * 8)) & 0xFF;
   }
-  return timestamp;
 }
 unsigned long long int
-ValueConverter::itsToSITimestamp(const TimestampIts_t *timestamp) {
-  if (timestamp == nullptr) {
-    throw Exception(ERR_ARG_NULL, "Argument *timestamp is null.");
-  }
-
-  if (timestamp->buf == nullptr) {
+ValueConverter::itsToSITimestamp(const TimestampIts_t &timestamp) {
+  if (timestamp.buf == nullptr) {
     throw Exception(ERR_NULL, "Timestamp buffer is null.");
   }
 
   // Not sure how the timestamp is actually encoded
-  if (timestamp->size != 8) {
+  if (timestamp.size > 8) {
     std::stringstream ss;
-    ss << "The timestamp buffer size is not as expected. Expected size 8 "
+    ss << "The timestamp buffer size is to big. Expected max. size 8 "
           "bytes, actual size "
-       << timestamp->size << " bytes.";
+       << timestamp.size << " bytes.";
     throw Exception(ERR, ss.str());
   }
 
-  unsigned long long int ms;
-  for (int i = 0; i < timestamp->size; i++) {
+  unsigned long long int ms = 0;
+  for (int i = 0; i < timestamp.size; i++) {
     ms <<= 8;
-    ms += timestamp->buf[i];
+    ms += timestamp.buf[i];
   }
 
   return ms;
