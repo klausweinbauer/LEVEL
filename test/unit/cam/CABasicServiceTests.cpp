@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 using ::testing::_;
+using ::testing::An;
 using ::testing::AtLeast;
 using ::testing::Invoke;
 using ::testing::NiceMock;
@@ -26,7 +27,10 @@ std::shared_ptr<NiceMock<MValueConverter>> getConverter() {
 }
 
 std::shared_ptr<NiceMock<MNetworkInterface<CAM>>> getNAL() {
-  return std::make_shared<NiceMock<MNetworkInterface<CAM>>>();
+  auto nal = std::make_shared<NiceMock<MNetworkInterface<CAM>>>();
+  auto recvHandler = std::make_shared<NiceMock<MRecvHandler<CAM>>>();
+  ON_CALL(*nal, getRecvHandler()).WillByDefault(Return(recvHandler));
+  return nal;
 }
 
 std::shared_ptr<NiceMock<MFrequencyManager>> getFM() {
@@ -44,52 +48,28 @@ std::shared_ptr<NiceMock<MDatabase<CAMWrapper>>> getDB() {
 }
 
 std::shared_ptr<CABasicService>
-getService(std::shared_ptr<INetworkInterface<CAM>> networkInterface,
-           std::shared_ptr<IValueConverter> valueConverter,
-           std::shared_ptr<IFrequencyManager> frequencyManager,
-           std::shared_ptr<IPOTI> poti,
-           std::shared_ptr<IDatabase<CAMWrapper>> camDatabase) {
+getService(std::shared_ptr<INetworkInterface<CAM>> networkInterface = nullptr,
+           std::shared_ptr<IValueConverter> valueConverter = nullptr,
+           std::shared_ptr<IFrequencyManager> frequencyManager = nullptr,
+           std::shared_ptr<IPOTI> poti = nullptr,
+           std::shared_ptr<IDatabase<CAMWrapper>> db = nullptr) {
+  if (networkInterface == nullptr) {
+    networkInterface = getNAL();
+  }
+  if (valueConverter == nullptr) {
+    valueConverter = getConverter();
+  }
+  if (frequencyManager == nullptr) {
+    frequencyManager = getFM();
+  }
+  if (poti == nullptr) {
+    poti = getPOTI();
+  }
+  if (db == nullptr) {
+    db = getDB();
+  }
   return std::make_shared<CABasicService>(networkInterface, valueConverter,
-                                          frequencyManager, poti, camDatabase);
-}
-
-std::shared_ptr<CABasicService>
-getService(std::shared_ptr<IValueConverter> valueConverter) {
-  return std::make_shared<CABasicService>(getNAL(), valueConverter, getFM(),
-                                          getPOTI(), getDB());
-}
-
-std::shared_ptr<CABasicService> getService() {
-  return std::make_shared<CABasicService>(getNAL(), getConverter(), getFM(),
-                                          getPOTI(), getDB());
-}
-
-std::shared_ptr<CABasicService>
-getService(std::shared_ptr<IFrequencyManager> frequencyManager) {
-  return std::make_shared<CABasicService>(getNAL(), getConverter(),
-                                          frequencyManager, getPOTI(), getDB());
-}
-
-std::shared_ptr<CABasicService>
-getService(std::shared_ptr<INetworkInterface<CAM>> networkInterface,
-           std::shared_ptr<IFrequencyManager> frequencyManager) {
-  return std::make_shared<CABasicService>(networkInterface, getConverter(),
-                                          frequencyManager, getPOTI(), getDB());
-}
-
-std::shared_ptr<CABasicService>
-getService(std::shared_ptr<INetworkInterface<CAM>> networkInterface,
-           std::shared_ptr<IValueConverter> valueConverter,
-           std::shared_ptr<IFrequencyManager> frequencyManager,
-           std::shared_ptr<IPOTI> poti) {
-  return std::make_shared<CABasicService>(networkInterface, valueConverter,
-                                          frequencyManager, poti, getDB());
-}
-
-std::shared_ptr<CABasicService>
-getService(std::shared_ptr<IDatabase<CAMWrapper>> camDatabase) {
-  return std::make_shared<CABasicService>(getNAL(), getConverter(), getFM(),
-                                          getPOTI(), camDatabase);
+                                          frequencyManager, poti, db);
 }
 
 } // namespace level::CABasicServiceTests
@@ -101,7 +81,7 @@ TEST(CABasicService, SetHeading) {
   float siValue = randFloat();
   int itsValue = rand();
   EXPECT_CALL(*converter, siToITSHeading(siValue)).WillOnce(Return(itsValue));
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setHeading(siValue);
   EXPECT_EQ(itsValue,
@@ -113,7 +93,7 @@ TEST(CABasicService, SetHeading) {
 TEST(CABasicService, IgnoreSetHeadingForInvalidHFC) {
   auto converter = getConverter();
   EXPECT_CALL(*converter, siToITSHeading(_)).Times(0);
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -128,7 +108,7 @@ TEST(CABasicService, SetSpeed) {
   float siValue = randFloat();
   int itsValue = rand();
   EXPECT_CALL(*converter, siToITSSpeed(siValue)).WillOnce(Return(itsValue));
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setSpeed(siValue);
   EXPECT_EQ(itsValue, service->cam()
@@ -139,7 +119,7 @@ TEST(CABasicService, SetSpeed) {
 TEST(CABasicService, IgnoreSetSpeedForInvalidHFC) {
   auto converter = getConverter();
   EXPECT_CALL(*converter, siToITSSpeed(_)).Times(0);
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -152,7 +132,7 @@ TEST(CABasicService, IgnoreSetSpeedForInvalidHFC) {
 TEST(CABasicService, SetDriveDirection) {
   auto converter = getConverter();
   DriveDirectionType direction = DriveDirectionType::DirveDirection_Backward;
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setDriveDirection(direction);
   EXPECT_EQ(direction, service->cam()
@@ -162,7 +142,7 @@ TEST(CABasicService, SetDriveDirection) {
 
 TEST(CABasicService, IgnoreSetDirectionForInvalidHFC) {
   auto converter = getConverter();
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -178,7 +158,7 @@ TEST(CABasicService, SetAcceleration) {
   int itsValue = rand();
   EXPECT_CALL(*converter, siToITSLongitudinalAcceleration(siValue))
       .WillOnce(Return(itsValue));
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setAcceleration(siValue);
   EXPECT_EQ(itsValue,
@@ -191,7 +171,7 @@ TEST(CABasicService, SetAcceleration) {
 TEST(CABasicService, IgnoreSetAccelerationForInvalidHFC) {
   auto converter = getConverter();
   EXPECT_CALL(*converter, siToITSLongitudinalAcceleration(_)).Times(0);
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -207,7 +187,7 @@ TEST(CABasicService, SetCurvature) {
   float siValue = randFloat();
   int itsValue = rand();
   EXPECT_CALL(*converter, siToITSCurvature(siValue)).WillOnce(Return(itsValue));
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setCurvature(siValue);
   EXPECT_EQ(itsValue,
@@ -219,7 +199,7 @@ TEST(CABasicService, SetCurvature) {
 TEST(CABasicService, IgnoreSetCurvatureForInvalidHFC) {
   auto converter = getConverter();
   EXPECT_CALL(*converter, siToITSCurvature(_)).Times(0);
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -235,7 +215,7 @@ TEST(CABasicService, SetYawRate) {
   float siValue = randFloat();
   int itsValue = rand();
   EXPECT_CALL(*converter, siToITSYawRate(siValue)).WillOnce(Return(itsValue));
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   service->configure(setTestConfig);
   service->setYawRate(siValue);
   EXPECT_EQ(itsValue,
@@ -247,7 +227,7 @@ TEST(CABasicService, SetYawRate) {
 TEST(CABasicService, IgnoreSetYawRateForInvalidHFC) {
   auto converter = getConverter();
   EXPECT_CALL(*converter, siToITSYawRate(_)).Times(0);
-  auto service = getService(converter);
+  auto service = getService(nullptr, converter);
   CABasicServiceConfig config = service->getConfiguration();
   config.stationType = StationType_RoadSideUnit;
   service->configure(config);
@@ -311,7 +291,7 @@ TEST(CABasicService, RunDisseminationThread) {
         return false;
       }));
   {
-    auto service = getService(fm);
+    auto service = getService(nullptr, nullptr, fm);
     while (waitFlag) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -343,7 +323,7 @@ TEST(CABasicService, PassGeneratedCAMToNetwork) {
       }));
 
   {
-    auto service = getService(nal, fm);
+    auto service = getService(nal, nullptr, fm);
     CABasicServiceConfig config = service->getConfiguration();
     config.stationID = 0;
     config.stationType = StationType_PassengerCar;
@@ -378,7 +358,7 @@ TEST(CABasicService, PassGeneratedCAMToNetworkWithLFC) {
       }));
 
   {
-    auto service = getService(nal, fm);
+    auto service = getService(nal, nullptr, fm);
     CABasicServiceConfig config = service->getConfiguration();
     config.stationID = 0;
     config.stationType = StationType_PassengerCar;
@@ -444,7 +424,7 @@ TEST(CABasicService, GetCAMGenerationFrequency) {
 
 TEST(CABasicService, TryGetCAMFromDatabase) {
   auto db = getDB();
-  auto service = getService(db);
+  auto service = getService(nullptr, nullptr, nullptr, nullptr, db);
   auto stationId = (unsigned int)rand();
   DBElement<CAMWrapper> element;
   element.setData(std::make_unique<CAMWrapper>());
@@ -468,7 +448,7 @@ TEST(CABasicService, TryGetCAMFromDatabase) {
 
 TEST(CABasicService, TryGetNotExistingCAMFromDatabase) {
   auto db = getDB();
-  auto service = getService(db);
+  auto service = getService(nullptr, nullptr, nullptr, nullptr, db);
   auto stationId = (unsigned int)rand();
 
   EXPECT_CALL(*db, get(_)).WillOnce(Invoke([](std::shared_ptr<IQuery> q) {
@@ -477,4 +457,37 @@ TEST(CABasicService, TryGetNotExistingCAMFromDatabase) {
 
   CAMWrapper cam;
   EXPECT_FALSE(service->tryGetCAM(stationId, &cam));
+}
+
+TEST(CABasicService, AddCAMToDatabaseOnCallback) {
+  // Assert
+  auto db = getDB();
+  auto nal = getNAL();
+  auto recvHandler = std::make_shared<NiceMock<MRecvHandler<CAM>>>();
+  auto cam = new CAM();
+  cam->cam.camParameters.highFrequencyContainer.present =
+      HighFrequencyContainer_PR_rsuContainerHighFrequency;
+  DBElement<CAMWrapper> dbElmt;
+  std::function<void(CAM *, bool *)> callback;
+  bool tookOwnership = false;
+
+  EXPECT_CALL(*nal, getRecvHandler()).WillRepeatedly(Return(recvHandler));
+  EXPECT_CALL(*recvHandler, registerCallback(_))
+      .WillRepeatedly(
+          Invoke([&callback](std::function<void(CAM *, bool *)> func) {
+            callback = func;
+          }));
+  EXPECT_CALL(*db, insert(An<std::unique_ptr<CAMWrapper>>()))
+      .WillOnce(Invoke([&dbElmt](std::unique_ptr<CAMWrapper> entry_ptr) {
+        dbElmt.setData(std::move(entry_ptr));
+        DBView<CAMWrapper> view(&dbElmt);
+        return view;
+      }));
+
+  // Act
+  auto service = getService(nal, nullptr, nullptr, nullptr, db);
+  callback(cam, &tookOwnership);
+
+  // Assert
+  ASSERT_TRUE(tookOwnership);
 }

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <CABasicService.hpp>
+#include <CAMNetworkInterface.hpp>
 #include <CAMRecvHandler.hpp>
 #include <DENBasicService.hpp>
+#include <DENMNetworkInterface.hpp>
 #include <DENMRecvHandler.hpp>
 #include <DENMWrapper.hpp>
 #include <Database.hpp>
@@ -52,10 +54,10 @@ REG_SINGELTON(IDatabase<denm::DENMWrapper>, Database<denm::DENMWrapper>,
 REG_TRANSIENT(cam::IFrequencyManager, cam::VehicleFrequencyManager,
               VehicleFrequencyManager, getValueConverter(), getPOTI())
 REG_TRANSIENT(ISocket, UDPSocket, Socket, 5100, getSyscall())
-REG_SINGELTON(INetworkInterface<CAM>, SocketNAL<CAM>, CAMNetwork, getSocket(),
-              getSocket(), getCAMEncoder(), getCAMRecvHandler(),
+REG_SINGELTON(INetworkInterface<CAM>, cam::CAMNetworkInterface, CAMNetwork,
+              getSocket(), getSocket(), getCAMEncoder(), getCAMRecvHandler(),
               getErrorHandler())
-REG_SINGELTON(INetworkInterface<DENM>, SocketNAL<DENM>, DENMNetwork,
+REG_SINGELTON(INetworkInterface<DENM>, denm::DENMNetworkInterface, DENMNetwork,
               getSocket(), getSocket(), getDENMEncoder(), getDENMRecvHandler(),
               getErrorHandler())
 REG_SINGELTON(cam::ICABasicService, cam::CABasicService, CABasicService,

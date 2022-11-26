@@ -89,6 +89,8 @@ public:
   virtual ~MNetworkInterface() {}
 
   MOCK_METHOD(bool, send, (const T *), (override));
+  MOCK_METHOD(std::shared_ptr<IRecvHandler<T>>, getRecvHandler, (), (override));
+  MOCK_METHOD(std::shared_ptr<IErrorHandler>, getErrorHandler, (), (override));
 };
 
 class MSyscall : public ISyscall {

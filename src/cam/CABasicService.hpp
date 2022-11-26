@@ -28,6 +28,7 @@ private:
   std::shared_ptr<IDatabase<CAMWrapper>> _db;
 
   void disseminationTask();
+  void receiveCallback(CAM *msg, bool *tookOwnership);
 
 public:
   virtual ~CABasicService();

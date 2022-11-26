@@ -108,6 +108,14 @@ public:
     std::copy(encodedMsg.begin(), encodedMsg.end(), array.get());
     return _sendSocket->send(array.get(), encodedMsg.size());
   }
+
+  virtual std::shared_ptr<IRecvHandler<T>> getRecvHandler() {
+    return _recvHandler;
+  }
+
+  virtual std::shared_ptr<IErrorHandler> getErrorHandler() {
+    return _errHandler;
+  }
 };
 
 } // namespace level
