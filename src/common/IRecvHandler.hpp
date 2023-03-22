@@ -42,11 +42,11 @@ public:
   virtual ~IRecvHandler() {}
 
   /**
-   * @brief Add a callback function called by the network layer when a new
-   * message is received. The callback message should set the tookOwnership flag
-   * (2nd argument) to true if it took ownership of the message pointer. The
-   * handler will delete the message if this flag is false after all callbacks
-   * are executed.
+   * @brief Add a callback function for receiving messages. The network layer
+   * executes the callback when a new message is received. The receiver should
+   * set the tookOwnership flag (2nd argument) to true if it took ownership of
+   * the message pointer. The handler will delete the message if this flag is
+   * false after all callbacks are executed.
    *
    * @param callback Callback function.
    */
@@ -62,7 +62,7 @@ public:
   /**
    * @brief Get the number of registered callbacks.
    *
-   * @return int Number of callbacks.
+   * @return int Number of registered callbacks.
    */
   virtual int callbackCount() = 0;
 

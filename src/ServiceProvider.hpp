@@ -18,7 +18,12 @@
 #pragma once
 
 #include <CABasicService.hpp>
+#include <CAMNetworkInterface.hpp>
 #include <CAMRecvHandler.hpp>
+#include <DENBasicService.hpp>
+#include <DENMNetworkInterface.hpp>
+#include <DENMRecvHandler.hpp>
+#include <DENMWrapper.hpp>
 #include <Database.hpp>
 #include <ErrorHandler.hpp>
 #include <POTI.hpp>
@@ -46,26 +51,37 @@
 
 namespace level::di {
 
-using namespace level::cam;
+using namespace level;
 
 // Argument less
 REG_TRANSIENT(IErrorHandler, ErrorHandler, ErrorHandler)
-REG_TRANSIENT(IRecvHandler<CAM>, CAMRecvHandler, CAMRecvHandler)
+REG_TRANSIENT(IRecvHandler<CAM>, cam::CAMRecvHandler, CAMRecvHandler)
+REG_TRANSIENT(IRecvHandler<DENM>, denm::DENMRecvHandler, DENMRecvHandler)
 REG_SINGELTON(ISyscall, Syscall, Syscall)
 REG_SINGELTON(IPOTI, POTI, POTI)
 REG_SINGELTON(IValueConverter, ValueConverter, ValueConverter)
-REG_SINGELTON(IEncoder<CAM>, CAMDEREncoder, CAMEncoder)
-REG_SINGELTON(IDatabase<CAMWrapper>, Database<CAMWrapper>, CAMDatabase)
+REG_SINGELTON(IEncoder<CAM>, cam::CAMDEREncoder, CAMEncoder)
+REG_SINGELTON(IEncoder<DENM>, denm::DENMDEREncoder, DENMEncoder)
+REG_SINGELTON(IDatabase<cam::CAMWrapper>, Database<cam::CAMWrapper>,
+              CAMDatabase)
+REG_SINGELTON(IDatabase<denm::DENMWrapper>, Database<denm::DENMWrapper>,
+              DENMDatabase)
 
 // With Arguments
-REG_TRANSIENT(IFrequencyManager, VehicleFrequencyManager,
+REG_TRANSIENT(cam::IFrequencyManager, cam::VehicleFrequencyManager,
               VehicleFrequencyManager, getValueConverter(), getPOTI())
 REG_TRANSIENT(ISocket, UDPSocket, Socket, 5100, getSyscall())
-REG_SINGELTON(INetworkInterface<CAM>, SocketNAL<CAM>, CAMNetwork, getSocket(),
-              getSocket(), getCAMEncoder(), getCAMRecvHandler(),
+REG_SINGELTON(INetworkInterface<CAM>, cam::CAMNetworkInterface, CAMNetwork,
+              getSocket(), getSocket(), getCAMEncoder(), getCAMRecvHandler(),
               getErrorHandler())
-REG_SINGELTON(ICABasicService, CABasicService, CABasicService, getCAMNetwork(),
-              getValueConverter(), getVehicleFrequencyManager(), getPOTI(),
-              getCAMDatabase())
+REG_SINGELTON(INetworkInterface<DENM>, denm::DENMNetworkInterface, DENMNetwork,
+              getSocket(), getSocket(), getDENMEncoder(), getDENMRecvHandler(),
+              getErrorHandler())
+REG_SINGELTON(cam::ICABasicService, cam::CABasicService, CABasicService,
+              getCAMNetwork(), getValueConverter(),
+              getVehicleFrequencyManager(), getPOTI(), getCAMDatabase())
+REG_SINGELTON(denm::IDENBasicService, denm::DENBasicService, DENBasicService,
+              getDENMNetwork(), getPOTI(), getDENMDatabase(),
+              getValueConverter())
 
 } // namespace level::di

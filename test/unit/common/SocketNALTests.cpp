@@ -287,3 +287,19 @@ TEST(SocketNAL, HandleRecvCallbackFails) {
 
   ASSERT_EQ(1, callbackCount);
 }
+
+TEST(SocketNAL, GetReceiveHandler) {
+  auto recvHandler = getRecvHandler<int>();
+  SocketNAL<int> nal(getSocket(), getSocket(), getEncoder<int>(), recvHandler,
+                     getErrHandler());
+
+  ASSERT_EQ(recvHandler, nal.getRecvHandler());
+}
+
+TEST(SocketNAL, GetErrorHandler) {
+  auto errHandler = getErrHandler();
+  SocketNAL<int> nal(getSocket(), getSocket(), getEncoder<int>(),
+                     getRecvHandler<int>(), errHandler);
+
+  ASSERT_EQ((void *)errHandler.get(), (void *)nal.getErrorHandler().get());
+}

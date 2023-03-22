@@ -16,7 +16,7 @@
 		{
 			"type": "shell",
 			"label": "Coverage-HTML",
-			"command": "${workspaceFolder}/scripts/generate-coverage.sh html",
+			"command": "${workspaceFolder}/scripts/generate-coverage.sh html && chown -R 1000:1000 ${workspaceFolder}/coverage/ && chmod -R 775 ${workspaceFolder}/coverage/",
 			"problemMatcher": []
 		},
 		{

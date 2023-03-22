@@ -199,3 +199,25 @@ TEST(DENMWrapper, ClearUninitializedAC) {
   DENMWrapper denm;
   ASSERT_NO_THROW(denm.clearAC());
 }
+
+TEST(DENMWrapper, ActiveState) {
+  DENMWrapper denm;
+  denm->denm.management.termination = nullptr;
+  ASSERT_EQ(DENMState_Active, denm.getState());
+}
+
+TEST(DENMWrapper, CancelledState) {
+  DENMWrapper denm;
+  long termination = 0;
+  denm->denm.management.termination = &termination;
+  ASSERT_EQ(DENMState_Cancelled, denm.getState());
+  denm->denm.management.termination = nullptr;
+}
+
+TEST(DENMWrapper, NegatedState) {
+  DENMWrapper denm;
+  long termination = 1;
+  denm->denm.management.termination = &termination;
+  ASSERT_EQ(DENMState_Negated, denm.getState());
+  denm->denm.management.termination = nullptr;
+}

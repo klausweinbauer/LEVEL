@@ -32,6 +32,7 @@
 #include <DENMEncoder.hpp>
 #include <Types.hpp>
 #include <algorithm>
+#include <level.h>
 
 namespace level {
 namespace denm {
@@ -50,16 +51,19 @@ public:
   DENMWrapper();
   DENMWrapper(DENM *denm);
   DENMWrapper(int stationId, int sequenceNumber);
+  DENMWrapper(ActionId_t actionId);
 
   ~DENMWrapper();
 
   DENMWrapper(const DENMWrapper &other);
   DENMWrapper &operator=(DENMWrapper other);
 
-  DENM *operator->();
-  DENM &operator*();
+  DENM *operator->() const;
+  DENM &operator*() const;
 
   DENM *get();
+
+  DENMState getState() const;
 
   /**
    * @brief Get ManagementContainer.

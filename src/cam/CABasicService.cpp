@@ -41,6 +41,12 @@ CABasicService::CABasicService(
 
   configure(_config);
 
+  auto recvHandler = _nal->getRecvHandler();
+  auto callbackFunc = [this](CAM *msg, bool *tookOwnership) {
+    this->receiveCallback(msg, tookOwnership);
+  };
+  recvHandler->registerCallback(callbackFunc);
+
   _disseminationActive = true;
   _disseminationThread = std::unique_ptr<std::thread>(
       new std::thread(([this]() { disseminationTask(); })));
@@ -89,6 +95,12 @@ void CABasicService::disseminationTask() {
       _camMutex.unlock();
     }
   }
+}
+
+void CABasicService::receiveCallback(CAM *msg, bool *tookOwnership) {
+  _db->insert(std::make_unique<CAMWrapper>(msg));
+  // TODO add callback for applications (API callback)
+  *tookOwnership = true;
 }
 
 CABasicServiceConfig CABasicService::getConfiguration() { return _config; }

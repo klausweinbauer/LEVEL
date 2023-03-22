@@ -58,14 +58,14 @@ public:
    *
    * @return std::shared_ptr<IRecvHandler<T>> Receive handler instance.
    */
-  std::shared_ptr<IRecvHandler<T>> getRecvHandler();
+  virtual std::shared_ptr<IRecvHandler<T>> getRecvHandler() = 0;
 
   /**
    * @brief Get a pointer to the error handler.
    *
    * @return std::shared_ptr<IErrorHandler> Error handler instance.
    */
-  std::shared_ptr<IErrorHandler> getErrorHandler();
+  virtual std::shared_ptr<IErrorHandler> getErrorHandler() = 0;
 };
 
 } // namespace level

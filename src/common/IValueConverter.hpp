@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <TimestampIts.h>
+
 namespace level {
 
 class IValueConverter {
@@ -57,6 +59,27 @@ public:
    * @return float Distance between A and B in meters.
    */
   virtual float distance(float long1, float lat1, float long2, float lat2) = 0;
+
+  /**
+   * @brief Assign a timestamp in milliseconds since 2004-01-01
+   * 00:00:00:000 UTC to an ITS Timestamp object.
+   *
+   * @param ms Milliseconds since 2004-01-01 00:00:00:000 UTC.
+   * @param timestamp ITS Timestamp reference.
+   */
+  virtual void siToITSTimestamp(unsigned long long int ms,
+                                TimestampIts_t &timestamp) = 0;
+
+  /**
+   * @brief Convert a timestamp to milliseconds since 2004-01-01 00:00:00:000
+   * UTC.
+   *
+   * @param timestamp A timestamp reference.
+   *
+   * @return Milliseconds since 2004-01-01 00:00:00:000 UTC.
+   */
+  virtual unsigned long long int
+  itsToSITimestamp(const TimestampIts_t &timestamp) = 0;
 };
 
 } // namespace level

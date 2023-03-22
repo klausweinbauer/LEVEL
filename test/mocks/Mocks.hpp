@@ -20,6 +20,7 @@
 #include <CAMWrapper.hpp>
 #include <DBElement.hpp>
 #include <ICABasicService.hpp>
+#include <IDENBasicService.hpp>
 #include <IDXParameter.hpp>
 #include <IDatabase.hpp>
 #include <IEncoder.hpp>
@@ -105,6 +106,8 @@ public:
   virtual ~MNetworkInterface() {}
 
   MOCK_METHOD(bool, send, (const T *), (override));
+  MOCK_METHOD(std::shared_ptr<IRecvHandler<T>>, getRecvHandler, (), (override));
+  MOCK_METHOD(std::shared_ptr<IErrorHandler>, getErrorHandler, (), (override));
 };
 
 class MSyscall : public ISyscall {
@@ -154,6 +157,10 @@ public:
   MOCK_METHOD(int, siToITSLatitude, (float), (override));
   MOCK_METHOD(float, itsToSILatitude, (int), (override));
   MOCK_METHOD(float, distance, (float, float, float, float), (override));
+  MOCK_METHOD(void, siToITSTimestamp,
+              (unsigned long long int, TimestampIts_t &), (override));
+  MOCK_METHOD(unsigned long long int, itsToSITimestamp,
+              (const TimestampIts_t &), (override));
 };
 
 class MCABasicService : public cam::ICABasicService {
@@ -211,4 +218,16 @@ public:
   MOCK_METHOD(void, unregisterCallbacks, (), (override));
   MOCK_METHOD(int, callbackCount, (), (override));
   MOCK_METHOD(void, invoke, (const Exception &), (override));
+};
+
+class MDENBasicService : public denm::IDENBasicService {
+public:
+  virtual ~MDENBasicService() {}
+
+  MOCK_METHOD(void, configure, (DENBasicServiceConfig_t), (override));
+  MOCK_METHOD(DENBasicServiceConfig_t, getConfiguration, (), (override));
+  MOCK_METHOD(bool, tryGetDENM, (ActionId_t, denm::DENMWrapper *), (override));
+  MOCK_METHOD(ActionId_t, createDENM, (EventType * eventType), (override));
+  MOCK_METHOD(void, updateDENM, (ActionId_t), (override));
+  MOCK_METHOD(void, terminateDENM, (ActionId_t), (override));
 };

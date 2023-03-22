@@ -215,6 +215,42 @@ typedef enum {
   DriveDirection_Unavailable = 2
 } DriveDirectionType;
 
+typedef enum {
+  EventType_Reserved = 0,
+  EventType_TrafficCondition = 1,
+  EventType_Accident = 2,
+  EventType_Roadworks = 3,
+  EventType_Impassability = 5,
+  EventType_AdverseWeatherCondition_Adhesion = 6,
+  EventType_Aquaplannning = 7,
+  EventType_HazardousLocation_SurfaceCondition = 9,
+  EventType_HazardousLocation_ObstacleOnTheRoad = 10,
+  EventType_HazardousLocation_AnimalOnTheRoad = 11,
+  EventType_HumanPresenceOnTheRoad = 12,
+  EventType_WrongWayDriving = 14,
+  EventType_RescueAndRecoveryWorkInProgress = 15,
+  EventType_AdverseWeatherCondition_ExtremeWeatherCondition = 17,
+  EventType_AdverseWeatherCondition_Visibility = 18,
+  EventType_AdverseWeatherCondition_Precipitation = 19,
+  EventType_SlowVehicle = 26,
+  EventType_DangerousEndOfQueue = 27,
+  EventType_VehicleBreakdown = 91,
+  EventType_PostCrash = 92,
+  EventType_HumanProblem = 93,
+  EventType_StationaryVehicle = 94,
+  EventType_EmergencyVehicleApproaching = 95,
+  EventType_HazardousLocation_DangerousCurve = 96,
+  EventType_CollisionRisk = 97,
+  EventType_SignalViolation = 98,
+  EventType_DangerousSituation = 99
+} EventType;
+
+typedef enum {
+  DENMState_Active,
+  DENMState_Cancelled,
+  DENMState_Negated
+} DENMState;
+
 #pragma endregion // Enums
 
 #pragma region Structs
@@ -225,14 +261,32 @@ typedef struct CABasicServiceConfig {
   // TODO MsgEncodingType encoding;
 } CABasicServiceConfig_t;
 
+typedef struct DENBasicServiceConfig {
+  unsigned int stationID;
+  StationType stationType;
+  // TODO MsgEncodingType encoding;
+} DENBasicServiceConfig_t;
+
+typedef struct ActionId {
+  unsigned int stationID;
+  int sequenceNumber;
+} ActionId_t;
+
 typedef struct ITSPDUHeader {
   unsigned int stationID;
   long protocolVersion;
   long messageID;
 } ITSPDUHeader_t;
 
+typedef struct Position {
+  float latitude;
+  float longitude;
+  float altitude;
+} Position_t;
+
 typedef struct CAMBasicContainer {
   StationType stationType;
+  // TODO change to position type
   float latitude;
   float longitude;
   float altitude;
@@ -248,6 +302,11 @@ typedef struct CAMBasicVehicleContainerHF {
   float curvatureValue;
   float yawRateValue;
 } CAMBasicVehicleContainerHF_t;
+
+typedef struct DENMManagementConatiner {
+  unsigned long long int detectionTime;
+
+} DENMManagementContainer_t;
 
 #pragma endregion // Structs
 
@@ -353,6 +412,22 @@ int SHARED_EXPORT getCAMBasicVehicleContainerHF(
 #pragma endregion // CAM methods
 
 #pragma region DENM methods
+
+/**
+ * @brief Configure the decentralized environmental notification basic service.
+ *
+ * @param config Configuration.
+ * @return int Returns 0 on success or an error code.
+ */
+int SHARED_EXPORT configureDENBasicService(DENBasicServiceConfig_t config);
+
+/**
+ * @brief Returns the current decentralized environmental notification basic
+ * service configuration.
+ *
+ * @return DENBasicServiceConfig Current configuration.
+ */
+DENBasicServiceConfig_t SHARED_EXPORT getDENBasicServiceConfig();
 
 #pragma endregion // DENM methods
 
