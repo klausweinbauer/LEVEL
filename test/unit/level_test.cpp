@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
 TEST(API, TestGetVersion) {
   auto version = getVersion();
-  ASSERT_TRUE(0 == strcmp("0.1.0", version));
+  ASSERT_TRUE(0 == strcmp("1.0.0", version));
 }
 
 TEST(API, TestGetErrorMessage) {
