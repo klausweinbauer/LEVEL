@@ -1,32 +1,17 @@
 cff-version: 1.2.0
-title: >-
-  Taking Standardized C-ITS Communication to the next LEVEL
-  - Lightweight and Extensible Vehicle-to-Everything Library
-message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
+message: "If you use this software, please cite it using the metadata from this file."
 type: proceedings
 authors:
-  - given-names: Klaus
-    family-names: Weinbauer
-    orcid: 'https://orcid.org/0000-0002-3349-9157'
-  - given-names: Tobias
-    family-names: Renzler
-  - given-names: Michael
-    family-names: Stolz
-    orcid: 'https://orcid.org/0000-0003-3667-7462'
-  - given-names: Daniel
-    family-names: Watzenig
-    orcid: 'https://orcid.org/0000-0002-5341-9708'
-identifiers:
-  - type: doi
-    value: 10.1109/WCNC55385.2023.10118982
-keywords:
-  - C-ITS
-  - V2X
-  - ETSI
-  - CAM
-  - DENM
-  - automated driving
-  - small-scale testing
-license: LGPL-3.0
+  - given-names: "Klaus"
+    family-names: "Weinbauer"
+    orcid: "https://orcid.org/0000-0002-3349-9157"
+  - given-names: "Tobias"
+    family-names: "Renzler"
+  - given-names: "Michael"
+    family-names: "Stolz"
+    orcid: "https://orcid.org/0000-0003-3667-7462"
+  - given-names: "Daniel"
+    family-names: "Watzenig"
+    orcid: "https://orcid.org/0000-0002-5341-9708"
+doi: 10.1109/WCNC55385.2023.10118982
