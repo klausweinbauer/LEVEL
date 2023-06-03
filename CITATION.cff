@@ -1,0 +1,10 @@
+@INPROCEEDINGS{10118982,
+  author={Weinbauer, Klaus and Renzler, Tobias and Stolz, Michael and Watzenig, Daniel},
+  booktitle={2023 IEEE Wireless Communications and Networking Conference (WCNC)}, 
+  title={Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library}, 
+  year={2023},
+  volume={},
+  number={},
+  pages={1-6},
+  doi={10.1109/WCNC55385.2023.10118982}
+}
