@@ -3,12 +3,15 @@ message: "If you use this software, please cite it using the metadata from this 
 authors:
 - given-names: "Klaus"
   family-names: "Weinbauer"
+  orcid: "https://orcid.org/0000-0002-3349-9157"
 - given-names: "Tobias"
   family-names: "Renzler"
 - given-names: "Michael"
   family-names: "Stolz"
+  orcid: "https://orcid.org/0000-0003-3667-7462"
 - given-names: "Daniel"
   family-names: "Watzenig"
+  orcid: "https://orcid.org/0000-0002-5341-9708"
 title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
 doi: "10.1109/WCNC55385.2023.10118982"
 preferred-citation:
@@ -16,12 +19,15 @@ preferred-citation:
   authors:
   - given-names: "Klaus"
     family-names: "Weinbauer"
+    orcid: "https://orcid.org/0000-0002-3349-9157"
   - given-names: "Tobias"
     family-names: "Renzler"
   - given-names: "Michael"
     family-names: "Stolz"
+    orcid: "https://orcid.org/0000-0003-3667-7462"
   - given-names: "Daniel"
     family-names: "Watzenig"
-  doi: "10.1109/WCNC55385.2023.10118982"
+    orcid: "https://orcid.org/0000-0002-5341-9708"
+    doi: "10.1109/WCNC55385.2023.10118982"
   title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
   year: 2023
