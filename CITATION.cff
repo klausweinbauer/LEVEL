@@ -1,8 +1,19 @@
 cff-version: 1.2.0
-title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
 message: "If you use this software, please cite it using the metadata from this file."
-type: conference-paper
 authors:
+- given-names: "Klaus"
+  family-names: "Weinbauer"
+- given-names: "Tobias"
+  family-names: "Renzler"
+- given-names: "Michael"
+  family-names: "Stolz"
+- given-names: "Daniel"
+  family-names: "Watzenig"
+title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
+doi: "10.1109/WCNC55385.2023.10118982"
+preferred-citation:
+  type: conference-paper
+  authors:
   - given-names: "Klaus"
     family-names: "Weinbauer"
   - given-names: "Tobias"
@@ -11,4 +22,6 @@ authors:
     family-names: "Stolz"
   - given-names: "Daniel"
     family-names: "Watzenig"
-doi: 10.1109/WCNC55385.2023.10118982
+  doi: "10.1109/WCNC55385.2023.10118982"
+  title: "Taking Standardized C-ITS Communication to the next LEVEL - Lightweight and Extensible Vehicle-to-Everything Library"
+  year: 2023
